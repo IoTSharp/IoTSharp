@@ -419,9 +419,14 @@ namespace IoTSharp.Controllers
             var assignment = await PrepareCollectionAssignmentAsync(gateway, node, configuration, configurationVersion, request, updatedBy, now, sourceMetadata);
             var taskRequest = CreateConfigurationPublishTaskRequest(template, gateway, node, configurationVersion, assignment, request, updatedBy, now);
             var edgeTask = CreateFormalEdgeTask(taskRequest, gateway, node, SerializeOrNull(taskRequest) ?? "{}");
+            assignment.LastExecutionTaskId = edgeTask.Id;
+            assignment.LastExecutionStatus = edgeTask.Status;
+            assignment.LastExecutionMessage = "配置发布任务已创建，等待执行端拉取";
+            assignment.LastExecutionAt = now;
 
             _context.CollectionConfigurationVersions.Add(configurationVersion);
             _context.EdgeTasks.Add(edgeTask);
+            AddCollectionPublishAudit(profile, edgeTask, template, configurationVersion, assignment, now);
 
             await _context.SaveAsync<AttributeLatest>(new Dictionary<string, object>
             {
@@ -767,6 +772,14 @@ namespace IoTSharp.Controllers
                 SourceVersion = assignment.SourceVersion ?? string.Empty,
                 AssignedAt = assignment.AssignedAt,
                 LastPulledAt = assignment.LastPulledAt,
+                LastExecutionTaskId = assignment.LastExecutionTaskId,
+                LastExecutionStatus = assignment.LastExecutionStatus,
+                LastExecutionMessage = assignment.LastExecutionMessage ?? string.Empty,
+                LastExecutionProgress = assignment.LastExecutionProgress,
+                LastExecutionAt = assignment.LastExecutionAt,
+                AppliedConfigurationVersion = assignment.AppliedConfigurationVersion,
+                AppliedConfigurationHash = assignment.AppliedConfigurationHash ?? string.Empty,
+                AppliedAt = assignment.AppliedAt,
                 RevokedAt = assignment.RevokedAt,
                 CreatedAt = assignment.CreatedAt,
                 UpdatedAt = assignment.UpdatedAt,
@@ -814,6 +827,50 @@ namespace IoTSharp.Controllers
 
         private static string Coalesce(string primary, string fallback)
             => string.IsNullOrWhiteSpace(primary) ? fallback : primary;
+
+        /// <summary>
+        /// 记录从 Product 采集模板发布配置时创建 EdgeTask 的审计日志。
+        /// </summary>
+        /// <param name="profile">当前操作者。</param>
+        /// <param name="task">创建出的 EdgeTask。</param>
+        /// <param name="template">发布来源模板。</param>
+        /// <param name="version">配置版本快照。</param>
+        /// <param name="assignment">配置目标分配。</param>
+        /// <param name="activeAt">动作发生时间。</param>
+        private void AddCollectionPublishAudit(
+            UserProfile profile,
+            EdgeTask task,
+            CollectionTemplate template,
+            CollectionConfigurationVersion version,
+            EdgeCollectionAssignment assignment,
+            DateTime activeAt)
+        {
+            _context.AuditLog.Add(new AuditLog
+            {
+                TenantId = task.TenantId,
+                CustomerId = task.CustomerId,
+                UserId = profile.Id.ToString("D"),
+                UserName = ResolveUserName(profile),
+                ObjectID = task.Id,
+                ObjectName = $"{task.TaskType}:{task.TargetKey}",
+                ObjectType = ObjectType.EdgeTask,
+                ActionName = "EdgeTaskDispatch",
+                ActionData = SerializeOrNull(new
+                {
+                    taskId = task.Id,
+                    taskType = task.TaskType.ToString(),
+                    targetKey = task.TargetKey,
+                    templateId = template.Id,
+                    templateKey = template.TemplateKey,
+                    configurationVersionId = version.Id,
+                    configurationVersion = version.Version,
+                    configurationHash = version.ConfigurationHash,
+                    assignmentId = assignment.Id
+                }) ?? "{}",
+                ActionResult = EdgeTaskStatus.Pending.ToString(),
+                ActiveDateTime = activeAt == default ? DateTime.UtcNow : activeAt.ToUniversalTime()
+            });
+        }
 
         private static Dictionary<string, object> DeserializeObjectMap(string json)
         {

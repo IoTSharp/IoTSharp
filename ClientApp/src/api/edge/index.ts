@@ -95,6 +95,18 @@ export interface EdgeTaskRequestPayload {
 	metadata?: Record<string, string>;
 }
 
+export interface EdgeTaskRetryRequestPayload {
+	taskId?: string;
+	reason?: string;
+	expireAt?: string;
+	metadata?: Record<string, string>;
+}
+
+export interface EdgeTaskRetryResult {
+	originalTask: EdgeTaskState;
+	retryTask: EdgeTaskRequestPayload;
+}
+
 export interface EdgeTaskListQueryParam extends IListQueryParam {
 	name?: string;
 	status?: string;
@@ -214,6 +226,35 @@ export interface EdgeTaskReceipt {
 	metadata?: Record<string, string>;
 }
 
+export interface EdgeTaskState {
+	contractVersion: string;
+	taskId: string;
+	taskType: EdgeTaskRequestPayload['taskType'];
+	address: EdgeTaskAddressPayload;
+	status: EdgeTaskStatus;
+	message: string;
+	progress?: number | null;
+	createdAt: string;
+	expireAt?: string | null;
+	sentAt?: string | null;
+	acceptedAt?: string | null;
+	startedAt?: string | null;
+	completedAt?: string | null;
+	lastReceiptAt?: string | null;
+	parameters: Record<string, unknown>;
+	metadata: Record<string, string>;
+}
+
+export interface EdgeTaskAuditLog {
+	id: string;
+	taskId: string;
+	actionName: string;
+	actionData: string;
+	actionResult: string;
+	userName: string;
+	activeDateTime: string;
+}
+
 export interface EdgeTaskHistoryRecord {
 	key: string;
 	at: string;
@@ -318,6 +359,19 @@ export function edgeApi() {
 				url: '/api/EdgeTask/List',
 				method: 'get',
 				params,
+			});
+		},
+		retryTask: (taskId: string, payload?: EdgeTaskRetryRequestPayload) => {
+			return request({
+				url: `/api/EdgeTask/${taskId}/Retry`,
+				method: 'post',
+				data: payload ?? {},
+			});
+		},
+		getTaskAudit: (taskId: string) => {
+			return request({
+				url: `/api/EdgeTask/${taskId}/Audit`,
+				method: 'get',
 			});
 		},
 	};

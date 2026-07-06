@@ -255,7 +255,8 @@ namespace IoTSharp.Contracts
         Customer,
         User,
         MQTTBroker,
-        MQTTClient
+        MQTTClient,
+        EdgeTask
 
     }
     [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]

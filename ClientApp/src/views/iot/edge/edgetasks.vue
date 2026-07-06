@@ -27,9 +27,18 @@
 					<el-table-column prop="currentStatus" label="当前状态" min-width="120" />
 					<el-table-column prop="lastUpdatedAt" label="最后更新时间" min-width="180" show-overflow-tooltip />
 					<el-table-column prop="taskId" label="任务ID" min-width="260" show-overflow-tooltip />
-					<el-table-column label="操作" width="120">
+					<el-table-column label="操作" width="180">
 						<template #default="scope">
 							<el-button link type="primary" @click="openTimeline(scope.row)">详情</el-button>
+							<el-button
+								v-if="canRetry(scope.row)"
+								link
+								type="warning"
+								:loading="retryingTaskId === scope.row.taskId"
+								@click="retryTask(scope.row)"
+							>
+								重试
+							</el-button>
 						</template>
 					</el-table-column>
 				</el-table>
@@ -61,6 +70,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import ConsolePageShell from '/@/components/console/ConsolePageShell.vue';
 import { edgeApi, type EdgeTaskTimeline } from '/@/api/edge';
 
@@ -69,6 +79,7 @@ const loading = ref(false);
 const rows = ref<EdgeTaskTimeline[]>([]);
 const drawerVisible = ref(false);
 const currentTask = ref<EdgeTaskTimeline | null>(null);
+const retryingTaskId = ref('');
 const filters = reactive({
 	name: '',
 	status: '',
@@ -80,6 +91,34 @@ const badges = computed(() => [`记录 ${rows.value.length} 条`]);
 const openTimeline = (row: EdgeTaskTimeline) => {
 	currentTask.value = row;
 	drawerVisible.value = true;
+};
+
+const canRetry = (row: EdgeTaskTimeline) => row.currentStatus === 'Failed' || row.currentStatus === 'TimedOut';
+
+const retryTask = async (row: EdgeTaskTimeline) => {
+	try {
+		const result = await ElMessageBox.prompt('填写本次重试原因，审计日志会记录该说明。', '失败重试', {
+			confirmButtonText: '创建重试',
+			cancelButtonText: '取消',
+			inputPlaceholder: '例如：网络恢复后重新下发',
+			inputValue: '人工确认后重试',
+		});
+		retryingTaskId.value = row.taskId;
+		await api.retryTask(row.taskId, {
+			reason: String(result.value ?? ''),
+			metadata: {
+				source: 'edge-task-console',
+			},
+		});
+		ElMessage.success('重试任务已创建');
+		await loadTasks();
+	} catch (error: any) {
+		if (error !== 'cancel' && error !== 'close') {
+			ElMessage.error(error?.message || '创建重试任务失败');
+		}
+	} finally {
+		retryingTaskId.value = '';
+	}
 };
 
 const loadTasks = async () => {

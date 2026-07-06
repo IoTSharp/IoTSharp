@@ -374,7 +374,25 @@ assignment 回写字段：
 - `hasDifference` 与 `differenceSummary`：管理端差异展示字段；版本一致但哈希不同也视为差异。
 - `lastPublishTaskId`、`lastPublishStatus`、`lastPublishProgress`、`lastPublishAt`：最近一次配置发布或拉取请求回执摘要。
 
-该摘要只回答“当前是否已经到达目标配置”。失败重试、审计查询和历史回放继续归 #045，不在该 DTO 中堆叠长周期发布编排。
+该摘要只回答“当前是否已经到达目标配置”。失败重试、审计查询和历史回放由 EdgeTask 管理接口承载，不在该 DTO 中堆叠长周期发布编排。
+
+## EdgeTask 失败重试和审计（#045）
+
+配置发布任务进入 `Failed` 或 `TimedOut` 后，平台不回滚原任务状态，也不把终态任务重新置为 `Pending`。重试会创建新的 `EdgeTask`，复用原任务的目标地址、配置版本 ID、配置版本号和配置哈希，并在新任务 metadata 中写入：
+
+- `retryOfTaskId`：直接重试来源任务。
+- `retryRootTaskId`：重试链路根任务。
+- `retryReason`：人工填写的重试原因。
+- `retryOperator`：发起重试的操作者。
+- `retryAttempt`：当前来源任务上的重试次数。
+
+新增管理接口：
+
+- `POST /api/EdgeTask/{taskId}/Retry`：仅允许对 `Failed` / `TimedOut` 任务创建重试任务；返回原任务当前态和新任务请求。
+- `GET /api/EdgeTask/{taskId}/Audit`：查询指定任务的审计记录。
+- `GET /api/EdgeTask/List`：任务 timeline 中追加 `audit` 事件，便于从任务台直接追溯发布、终态回执和重试动作。
+
+配置发布场景下，重试任务会更新同一 `EdgeCollectionAssignment` 的 `LastExecutionTaskId` 和最近执行态；执行端成功回执后，再更新 `AppliedConfigurationVersion` / `AppliedConfigurationHash` / `AppliedAt`。
 
 ### 查询返回结构
 

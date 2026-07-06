@@ -12,6 +12,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using EdgeNodeQueryDto = IoTSharp.Dtos.EdgeNodeQueryDto;
+using EdgeTaskAuditLogDto = IoTSharp.Dtos.EdgeTaskAuditLogDto;
+using EdgeTaskRetryRequestDto = IoTSharp.Dtos.EdgeTaskRetryRequestDto;
+using EdgeTaskRetryResultDto = IoTSharp.Dtos.EdgeTaskRetryResultDto;
 using EdgeTaskTimelineDto = IoTSharp.Dtos.EdgeTaskTimelineDto;
 using EdgeTaskTimelineNodeDto = IoTSharp.Dtos.EdgeTaskTimelineNodeDto;
 
@@ -29,6 +32,16 @@ namespace IoTSharp.Controllers
         private const string ConfigurationVersionKey = "configurationVersion";
         private const string ConfigurationHashKey = "configurationHash";
         private const string AssignmentUpdatedBy = "edge-task-receipt";
+        private const string AssignmentTaskStatusUpdatedBy = "edge-task-status";
+        private const string AuditActionDispatch = "EdgeTaskDispatch";
+        private const string AuditActionRetry = "EdgeTaskRetry";
+        private const string AuditActionTerminalReceipt = "EdgeTaskTerminalReceipt";
+        private const string RetryOfTaskIdKey = "retryOfTaskId";
+        private const string RetryRootTaskIdKey = "retryRootTaskId";
+        private const string RetryReasonKey = "retryReason";
+        private const string RetryOperatorKey = "retryOperator";
+        private const string RetryAttemptKey = "retryAttempt";
+        private static readonly TimeSpan DefaultRetryTtl = TimeSpan.FromDays(1);
         private static readonly IReadOnlyDictionary<EdgeTaskStatus, EdgeTaskStatus[]> AllowedTransitions = EdgeTaskStateMachine.AllowedTransitions;
         private static readonly JsonSerializerOptions ContractJsonOptions = new(JsonSerializerDefaults.Web) { PropertyNameCaseInsensitive = true };
 
@@ -103,6 +116,20 @@ namespace IoTSharp.Controllers
 
             formalTask = await CreateFormalEdgeTaskAsync(request, device, requestPayload);
             _context.EdgeTasks.Add(formalTask);
+            AddUserEdgeTaskAudit(
+                profile,
+                formalTask,
+                AuditActionDispatch,
+                new
+                {
+                    taskId = formalTask.Id,
+                    taskType = formalTask.TaskType.ToString(),
+                    targetKey = formalTask.TargetKey,
+                    runtimeType = formalTask.RuntimeType,
+                    instanceId = formalTask.InstanceId
+                },
+                EdgeTaskStatus.Pending.ToString(),
+                now);
             await _context.SaveChangesAsync();
 
             _logger.LogInformation(
@@ -188,6 +215,23 @@ namespace IoTSharp.Controllers
             var receiptPayload = SerializeOrNull(request) ?? "{}";
             ApplyFormalReceipt(formalTask, request);
             _context.EdgeTaskReceipts.Add(CreateFormalEdgeTaskReceipt(formalTask, request, receiptPayload, DateTime.UtcNow));
+            if (IsTerminalStatus(request.Status))
+            {
+                AddRuntimeEdgeTaskAudit(
+                    formalTask,
+                    request,
+                    AuditActionTerminalReceipt,
+                    new
+                    {
+                        taskId = formalTask.Id,
+                        status = request.Status.ToString(),
+                        message = request.Message ?? string.Empty,
+                        progress = request.Progress,
+                        reportedAt = request.ReportedAt
+                    },
+                    request.Status.ToString());
+            }
+
             await _context.SaveChangesAsync();
 
             _logger.LogInformation(
@@ -274,6 +318,12 @@ namespace IoTSharp.Controllers
                 .Take(200)
                 .ToListAsync();
             var receiptGroups = receipts.GroupBy(receipt => receipt.TaskId).ToDictionary(group => group.Key, group => group.ToList());
+            var auditLogs = await _context.AuditLog
+                .Where(log => taskIds.Contains(log.ObjectID) && log.ObjectType == ObjectType.EdgeTask)
+                .OrderByDescending(log => log.ActiveDateTime)
+                .Take(200)
+                .ToListAsync();
+            var auditGroups = auditLogs.GroupBy(log => log.ObjectID).ToDictionary(group => group.Key, group => group.ToList());
             var formalRecords = new List<EdgeTaskHistoryRecord>();
 
             foreach (var task in formalTasks)
@@ -297,18 +347,27 @@ namespace IoTSharp.Controllers
                     });
                 }
 
-                if (!receiptGroups.TryGetValue(task.Id, out var taskReceipts))
+                if (receiptGroups.TryGetValue(task.Id, out var taskReceipts))
                 {
-                    continue;
+                    formalRecords.AddRange(taskReceipts.Select(receipt => new EdgeTaskHistoryRecord
+                    {
+                        key = $"{EdgeTaskHistoryKeyPrefix}{task.Id:N}.receipt",
+                        at = receipt.ReportedAt,
+                        payload = receipt.Payload ?? SerializeOrNull(ToEdgeTaskReceiptDto(receipt)) ?? "{}",
+                        status = receipt.Status.ToString()
+                    }));
                 }
 
-                formalRecords.AddRange(taskReceipts.Select(receipt => new EdgeTaskHistoryRecord
+                if (auditGroups.TryGetValue(task.Id, out var taskAuditLogs))
                 {
-                    key = $"{EdgeTaskHistoryKeyPrefix}{task.Id:N}.receipt",
-                    at = receipt.ReportedAt,
-                    payload = receipt.Payload ?? SerializeOrNull(ToEdgeTaskReceiptDto(receipt)) ?? "{}",
-                    status = receipt.Status.ToString()
-                }));
+                    formalRecords.AddRange(taskAuditLogs.Select(log => new EdgeTaskHistoryRecord
+                    {
+                        key = $"{EdgeTaskHistoryKeyPrefix}{task.Id:N}.audit.{log.Id:N}",
+                        at = log.ActiveDateTime,
+                        payload = log.ActionData ?? "{}",
+                        status = log.ActionName ?? "Audit"
+                    }));
+                }
             }
 
             return new ApiResult<List<object>>(
@@ -347,6 +406,12 @@ namespace IoTSharp.Controllers
                     if (formalTask.Status == EdgeTaskStatus.Pending)
                     {
                         ApplyFormalStatus(formalTask, EdgeTaskStatus.Sent, now, null, null, null);
+                        await ApplyCollectionAssignmentTaskStatusAsync(
+                            formalTask,
+                            EdgeTaskStatus.Sent,
+                            now,
+                            "配置发布任务已被执行端拉取",
+                            null);
                     }
                 }
 
@@ -446,12 +511,20 @@ namespace IoTSharp.Controllers
             var receiptsByTask = formalReceipts
                 .GroupBy(receipt => receipt.TaskId)
                 .ToDictionary(group => group.Key, group => (IReadOnlyList<EdgeTaskReceipt>)group.ToList());
+            var auditLogs = await _context.AuditLog
+                .Where(log => taskIds.Contains(log.ObjectID) && log.ObjectType == ObjectType.EdgeTask)
+                .OrderBy(log => log.ActiveDateTime)
+                .ToListAsync();
+            var auditsByTask = auditLogs
+                .GroupBy(log => log.ObjectID)
+                .ToDictionary(group => group.Key, group => (IReadOnlyList<AuditLog>)group.ToList());
 
             var rows = formalTasks
                 .Select(task => ToEdgeTaskTimelineDto(
                     task,
                     deviceNames,
-                    receiptsByTask.TryGetValue(task.Id, out var receipts) ? receipts : Array.Empty<EdgeTaskReceipt>()))
+                    receiptsByTask.TryGetValue(task.Id, out var receipts) ? receipts : Array.Empty<EdgeTaskReceipt>(),
+                    auditsByTask.TryGetValue(task.Id, out var audits) ? audits : Array.Empty<AuditLog>()))
                 .OrderByDescending(item => item.LastUpdatedAt)
                 .ToList();
 
@@ -475,6 +548,148 @@ namespace IoTSharp.Controllers
                 total = rows.Count,
                 rows = rows.Skip(query.Offset * query.Limit).Take(query.Limit).ToList()
             });
+        }
+
+        [HttpPost("{taskId:guid}/Retry")]
+        [Authorize(Roles = nameof(UserRole.NormalUser))]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesDefaultResponseType]
+        public async System.Threading.Tasks.Task<ActionResult<ApiResult<EdgeTaskRetryResultDto>>> Retry(Guid taskId, [FromBody] EdgeTaskRetryRequestDto request)
+        {
+            var profile = this.GetUserProfile();
+            request ??= new EdgeTaskRetryRequestDto();
+
+            var originalTask = await _context.EdgeTasks
+                .FirstOrDefaultAsync(task => task.Id == taskId
+                    && !task.Deleted
+                    && task.TenantId == profile.Tenant
+                    && task.CustomerId == profile.Customer);
+
+            if (originalTask == null)
+            {
+                return Ok(new ApiResult<EdgeTaskRetryResultDto>(ApiCode.CantFindObject, "Edge task not found", null));
+            }
+
+            if (!IsRetryableFailureStatus(originalTask.Status))
+            {
+                return Ok(new ApiResult<EdgeTaskRetryResultDto>(
+                    ApiCode.InValidData,
+                    $"Only Failed or TimedOut edge tasks can be retried, current status is {originalTask.Status}",
+                    null));
+            }
+
+            var retryTaskId = request.TaskId is { } requestedTaskId && requestedTaskId != Guid.Empty
+                ? requestedTaskId
+                : Guid.NewGuid();
+            var taskExists = await _context.EdgeTasks.AnyAsync(task => task.Id == retryTaskId && !task.Deleted);
+            if (taskExists)
+            {
+                return Ok(new ApiResult<EdgeTaskRetryResultDto>(ApiCode.InValidData, "retry taskId already exists", null));
+            }
+
+            var gateway = await _context.Device
+                .Include(device => device.Tenant)
+                .Include(device => device.Customer)
+                .FirstOrDefaultAsync(device => device.Id == originalTask.GatewayId
+                    && !device.Deleted
+                    && device.DeviceType == DeviceType.Gateway
+                    && device.Tenant.Id == profile.Tenant
+                    && device.Customer.Id == profile.Customer);
+
+            if (gateway == null)
+            {
+                return Ok(new ApiResult<EdgeTaskRetryResultDto>(ApiCode.NotFoundDevice, "Edge device not found", null));
+            }
+
+            var now = DateTime.UtcNow;
+            var operatorName = ResolveUserName(profile);
+            var retryRequest = ToEdgeTaskRequestDto(originalTask);
+            retryRequest.ContractVersion = TaskContractVersion;
+            retryRequest.TaskId = retryTaskId;
+            retryRequest.CreatedAt = now;
+            retryRequest.ExpireAt = request.ExpireAt?.ToUniversalTime() ?? now.Add(ResolveRetryTtl(originalTask));
+            retryRequest.Address.DeviceId = gateway.Id;
+            retryRequest.Metadata = BuildRetryMetadata(originalTask, retryRequest.Metadata, request, operatorName, await CountRetryAttemptsAsync(originalTask.Id));
+
+            var retryPayload = SerializeOrNull(retryRequest) ?? "{}";
+            var retryTask = await CreateFormalEdgeTaskAsync(retryRequest, gateway, retryPayload);
+            _context.EdgeTasks.Add(retryTask);
+            await ApplyCollectionAssignmentTaskStatusAsync(
+                retryTask,
+                EdgeTaskStatus.Pending,
+                now,
+                BuildRetryAssignmentMessage(request.Reason),
+                null);
+
+            AddUserEdgeTaskAudit(
+                profile,
+                originalTask,
+                AuditActionRetry,
+                new
+                {
+                    originalTaskId = originalTask.Id,
+                    retryTaskId = retryTask.Id,
+                    originalStatus = originalTask.Status.ToString(),
+                    reason = request.Reason ?? string.Empty
+                },
+                "RetryCreated",
+                now);
+            AddUserEdgeTaskAudit(
+                profile,
+                retryTask,
+                AuditActionRetry,
+                new
+                {
+                    originalTaskId = originalTask.Id,
+                    retryTaskId = retryTask.Id,
+                    originalStatus = originalTask.Status.ToString(),
+                    reason = request.Reason ?? string.Empty
+                },
+                EdgeTaskStatus.Pending.ToString(),
+                now);
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new ApiResult<EdgeTaskRetryResultDto>(
+                ApiCode.Success,
+                "OK",
+                new EdgeTaskRetryResultDto
+                {
+                    OriginalTask = ToEdgeTaskDto(originalTask),
+                    RetryTask = retryRequest
+                }));
+        }
+
+        [HttpGet("{taskId:guid}/Audit")]
+        [Authorize(Roles = nameof(UserRole.NormalUser))]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesDefaultResponseType]
+        public async System.Threading.Tasks.Task<ApiResult<List<EdgeTaskAuditLogDto>>> Audit(Guid taskId)
+        {
+            var profile = this.GetUserProfile();
+            var exists = await _context.EdgeTasks.AnyAsync(task => task.Id == taskId
+                && !task.Deleted
+                && task.TenantId == profile.Tenant
+                && task.CustomerId == profile.Customer);
+
+            if (!exists)
+            {
+                return new ApiResult<List<EdgeTaskAuditLogDto>>(ApiCode.CantFindObject, "Edge task not found", null);
+            }
+
+            var logs = await _context.AuditLog
+                .Where(log => log.ObjectID == taskId
+                    && log.ObjectType == ObjectType.EdgeTask
+                    && log.TenantId == profile.Tenant
+                    && log.CustomerId == profile.Customer)
+                .OrderByDescending(log => log.ActiveDateTime)
+                .Take(100)
+                .ToListAsync();
+
+            return new ApiResult<List<EdgeTaskAuditLogDto>>(
+                ApiCode.Success,
+                "OK",
+                logs.Select(ToEdgeTaskAuditLogDto).ToList());
         }
 
         [HttpGet("StateMachine")]
@@ -582,6 +797,132 @@ namespace IoTSharp.Controllers
         }
 
         /// <summary>
+        /// 将正式任务模型转换为平台侧状态快照。
+        /// </summary>
+        /// <param name="task">正式任务模型。</param>
+        /// <returns>EdgeTask 当前态 DTO。</returns>
+        private static EdgeTaskDto ToEdgeTaskDto(EdgeTask task)
+        {
+            return new EdgeTaskDto
+            {
+                ContractVersion = string.IsNullOrWhiteSpace(task.ContractVersion) ? TaskContractVersion : task.ContractVersion,
+                TaskId = task.Id,
+                TaskType = task.TaskType,
+                Address = new EdgeTaskAddressDto
+                {
+                    TargetType = task.TargetType,
+                    DeviceId = task.GatewayId,
+                    RuntimeType = task.RuntimeType ?? string.Empty,
+                    InstanceId = task.InstanceId ?? string.Empty,
+                    TargetKey = task.TargetKey ?? task.GatewayId.ToString()
+                },
+                Status = task.Status,
+                Message = task.Message ?? string.Empty,
+                Progress = task.Progress,
+                CreatedAt = task.CreatedAt,
+                ExpireAt = task.ExpireAt,
+                SentAt = task.SentAt,
+                AcceptedAt = task.AcceptedAt,
+                StartedAt = task.StartedAt,
+                CompletedAt = task.CompletedAt,
+                LastReceiptAt = task.LastReceiptAt,
+                Parameters = DeserializeObjectDictionary(task.Parameters),
+                Metadata = DeserializeStringDictionary(task.Metadata)
+            };
+        }
+
+        /// <summary>
+        /// 将审计实体转换为 EdgeTask 审计查询 DTO。
+        /// </summary>
+        /// <param name="log">审计实体。</param>
+        /// <returns>审计查询 DTO。</returns>
+        private static EdgeTaskAuditLogDto ToEdgeTaskAuditLogDto(AuditLog log)
+        {
+            return new EdgeTaskAuditLogDto
+            {
+                Id = log.Id,
+                TaskId = log.ObjectID,
+                ActionName = log.ActionName ?? string.Empty,
+                ActionData = log.ActionData ?? "{}",
+                ActionResult = log.ActionResult ?? string.Empty,
+                UserName = log.UserName ?? string.Empty,
+                ActiveDateTime = log.ActiveDateTime
+            };
+        }
+
+        /// <summary>
+        /// 构造重试任务元数据，用于跨任务追踪原始失败任务。
+        /// </summary>
+        /// <param name="originalTask">原失败任务。</param>
+        /// <param name="metadata">原任务元数据。</param>
+        /// <param name="request">重试请求。</param>
+        /// <param name="operatorName">操作者名称。</param>
+        /// <param name="previousRetryCount">原任务已发起过的重试次数。</param>
+        /// <returns>合并后的新任务元数据。</returns>
+        private static Dictionary<string, string> BuildRetryMetadata(
+            EdgeTask originalTask,
+            Dictionary<string, string> metadata,
+            EdgeTaskRetryRequestDto request,
+            string operatorName,
+            int previousRetryCount)
+        {
+            var values = new Dictionary<string, string>(metadata ?? [], StringComparer.OrdinalIgnoreCase);
+            if (request?.Metadata != null)
+            {
+                foreach (var pair in request.Metadata)
+                {
+                    if (!string.IsNullOrWhiteSpace(pair.Key))
+                    {
+                        values[pair.Key] = pair.Value ?? string.Empty;
+                    }
+                }
+            }
+
+            var originalMetadata = DeserializeStringDictionary(originalTask.Metadata);
+            var retryRootTaskId = TryGetGuid(originalMetadata, RetryRootTaskIdKey)
+                ?? TryGetGuid(originalMetadata, RetryOfTaskIdKey)
+                ?? originalTask.Id;
+
+            values[RetryOfTaskIdKey] = originalTask.Id.ToString("D");
+            values[RetryRootTaskIdKey] = retryRootTaskId.ToString("D");
+            values[RetryReasonKey] = request?.Reason ?? string.Empty;
+            values[RetryOperatorKey] = operatorName ?? string.Empty;
+            values[RetryAttemptKey] = (previousRetryCount + 1).ToString();
+            return values;
+        }
+
+        /// <summary>
+        /// 生成配置发布分配上展示的重试状态说明。
+        /// </summary>
+        /// <param name="reason">人工填写的重试原因。</param>
+        /// <returns>面向管理端展示的状态说明。</returns>
+        private static string BuildRetryAssignmentMessage(string reason)
+        {
+            return string.IsNullOrWhiteSpace(reason)
+                ? "配置发布失败后已创建重试任务"
+                : $"配置发布失败后已创建重试任务：{reason}";
+        }
+
+        /// <summary>
+        /// 按原任务生命周期计算重试任务默认过期时间窗口。
+        /// </summary>
+        /// <param name="task">原任务。</param>
+        /// <returns>用于新任务的 TTL。</returns>
+        private static TimeSpan ResolveRetryTtl(EdgeTask task)
+        {
+            if (task.ExpireAt.HasValue)
+            {
+                var ttl = task.ExpireAt.Value.ToUniversalTime() - task.CreatedAt.ToUniversalTime();
+                if (ttl > TimeSpan.Zero)
+                {
+                    return ttl;
+                }
+            }
+
+            return DefaultRetryTtl;
+        }
+
+        /// <summary>
         /// 将正式任务模型转换为管理端现有 timeline 形状。
         /// </summary>
         /// <param name="task">正式任务模型。</param>
@@ -590,7 +931,8 @@ namespace IoTSharp.Controllers
         private static EdgeTaskTimelineDto ToEdgeTaskTimelineDto(
             EdgeTask task,
             IReadOnlyDictionary<Guid, string> deviceNames,
-            IReadOnlyList<EdgeTaskReceipt> receipts)
+            IReadOnlyList<EdgeTaskReceipt> receipts,
+            IReadOnlyList<AuditLog> auditLogs)
         {
             var events = new List<EdgeTaskTimelineNodeDto>
             {
@@ -640,6 +982,21 @@ namespace IoTSharp.Controllers
                     At = task.LastReceiptAt.Value,
                     Payload = task.LastReceiptPayload ?? "{}"
                 });
+            }
+
+            if (auditLogs != null && auditLogs.Count > 0)
+            {
+                foreach (var audit in auditLogs.OrderBy(log => log.ActiveDateTime))
+                {
+                    events.Add(new EdgeTaskTimelineNodeDto
+                    {
+                        Category = "audit",
+                        Status = audit.ActionName ?? "Audit",
+                        Message = audit.ActionResult ?? string.Empty,
+                        At = audit.ActiveDateTime,
+                        Payload = audit.ActionData ?? "{}"
+                    });
+                }
             }
 
             return new EdgeTaskTimelineDto
@@ -778,6 +1135,178 @@ namespace IoTSharp.Controllers
                     task.CompletedAt ??= utc;
                     break;
             }
+        }
+
+        /// <summary>
+        /// 统计某个失败任务已经发起过的重试次数。
+        /// </summary>
+        /// <param name="taskId">原任务 ID。</param>
+        /// <returns>已记录的重试审计次数。</returns>
+        private async System.Threading.Tasks.Task<int> CountRetryAttemptsAsync(Guid taskId)
+        {
+            return await _context.AuditLog.CountAsync(log => log.ObjectID == taskId
+                && log.ObjectType == ObjectType.EdgeTask
+                && log.ActionName == AuditActionRetry);
+        }
+
+        /// <summary>
+        /// 记录用户发起的 EdgeTask 审计动作。
+        /// </summary>
+        /// <param name="profile">当前登录用户。</param>
+        /// <param name="task">被操作任务。</param>
+        /// <param name="actionName">动作名称。</param>
+        /// <param name="actionData">动作数据。</param>
+        /// <param name="actionResult">动作结果。</param>
+        /// <param name="activeAt">动作发生时间。</param>
+        private void AddUserEdgeTaskAudit(
+            UserProfile profile,
+            EdgeTask task,
+            string actionName,
+            object actionData,
+            string actionResult,
+            DateTime activeAt)
+        {
+            AddEdgeTaskAudit(
+                task,
+                profile?.Id.ToString("D") ?? string.Empty,
+                ResolveUserName(profile),
+                actionName,
+                actionData,
+                actionResult,
+                activeAt);
+        }
+
+        /// <summary>
+        /// 记录执行端上报的 EdgeTask 终态审计动作。
+        /// </summary>
+        /// <param name="task">被操作任务。</param>
+        /// <param name="receipt">执行端回执。</param>
+        /// <param name="actionName">动作名称。</param>
+        /// <param name="actionData">动作数据。</param>
+        /// <param name="actionResult">动作结果。</param>
+        private void AddRuntimeEdgeTaskAudit(
+            EdgeTask task,
+            EdgeTaskReceiptDto receipt,
+            string actionName,
+            object actionData,
+            string actionResult)
+        {
+            var runtimeName = $"edge-runtime:{(string.IsNullOrWhiteSpace(receipt.TargetKey) ? task.TargetKey : receipt.TargetKey)}";
+            AddEdgeTaskAudit(
+                task,
+                task.GatewayId.ToString("D"),
+                runtimeName,
+                actionName,
+                actionData,
+                actionResult,
+                receipt.ReportedAt == default ? DateTime.UtcNow : receipt.ReportedAt);
+        }
+
+        /// <summary>
+        /// 写入 EdgeTask 审计实体。
+        /// </summary>
+        /// <param name="task">被操作任务。</param>
+        /// <param name="userId">操作者 ID。</param>
+        /// <param name="userName">操作者显示名。</param>
+        /// <param name="actionName">动作名称。</param>
+        /// <param name="actionData">动作数据。</param>
+        /// <param name="actionResult">动作结果。</param>
+        /// <param name="activeAt">动作发生时间。</param>
+        private void AddEdgeTaskAudit(
+            EdgeTask task,
+            string userId,
+            string userName,
+            string actionName,
+            object actionData,
+            string actionResult,
+            DateTime activeAt)
+        {
+            var utc = activeAt == default ? DateTime.UtcNow : activeAt.ToUniversalTime();
+            _context.AuditLog.Add(new AuditLog
+            {
+                TenantId = task.TenantId,
+                CustomerId = task.CustomerId,
+                UserId = userId ?? string.Empty,
+                UserName = userName ?? string.Empty,
+                ObjectID = task.Id,
+                ObjectName = $"{task.TaskType}:{task.TargetKey}",
+                ObjectType = ObjectType.EdgeTask,
+                ActionName = actionName ?? string.Empty,
+                ActionData = SerializeOrNull(actionData) ?? "{}",
+                ActionResult = actionResult ?? string.Empty,
+                ActiveDateTime = utc
+            });
+        }
+
+        /// <summary>
+        /// 判断状态是否为可以人工重试的失败态。
+        /// </summary>
+        /// <param name="status">任务状态。</param>
+        /// <returns>失败或超时时返回 true。</returns>
+        private static bool IsRetryableFailureStatus(EdgeTaskStatus status)
+        {
+            return status is EdgeTaskStatus.Failed or EdgeTaskStatus.TimedOut;
+        }
+
+        /// <summary>
+        /// 判断任务状态是否为终态。
+        /// </summary>
+        /// <param name="status">任务状态。</param>
+        /// <returns>终态返回 true。</returns>
+        private static bool IsTerminalStatus(EdgeTaskStatus status)
+        {
+            return EdgeTaskStateMachine.TerminalStates.Contains(status);
+        }
+
+        /// <summary>
+        /// 在执行端拉取但尚未回执时，同步采集配置分配的发布任务状态，供管理端展示最近发布进展。
+        /// </summary>
+        /// <param name="task">正式 EdgeTask 任务。</param>
+        /// <param name="status">需要同步的任务状态。</param>
+        /// <param name="reportedAt">状态发生时间。</param>
+        /// <param name="message">管理端可读状态说明。</param>
+        /// <param name="progress">任务进度；未上报时为空。</param>
+        private async System.Threading.Tasks.Task ApplyCollectionAssignmentTaskStatusAsync(
+            EdgeTask task,
+            EdgeTaskStatus status,
+            DateTime reportedAt,
+            string message,
+            int? progress)
+        {
+            if (task.TaskType != EdgeTaskType.ConfigPullRequest)
+            {
+                return;
+            }
+
+            var parameters = DeserializeObjectDictionary(task.Parameters);
+            var configurationVersionId = TryGetGuid(parameters, ConfigurationVersionIdKey);
+            var configurationVersion = TryGetInt(parameters, ConfigurationVersionKey);
+            var configurationHash = TryGetString(parameters, ConfigurationHashKey);
+
+            if (configurationVersion is not > 0 || string.IsNullOrWhiteSpace(configurationHash))
+            {
+                return;
+            }
+
+            var assignment = await FindCollectionAssignmentForTaskAsync(
+                task.GatewayId,
+                configurationVersionId,
+                configurationVersion.Value,
+                configurationHash);
+
+            if (assignment == null)
+            {
+                return;
+            }
+
+            var utc = reportedAt == default ? DateTime.UtcNow : reportedAt.ToUniversalTime();
+            assignment.LastExecutionTaskId = task.Id;
+            assignment.LastExecutionStatus = status;
+            assignment.LastExecutionMessage = message ?? string.Empty;
+            assignment.LastExecutionProgress = progress;
+            assignment.LastExecutionAt = utc;
+            assignment.UpdatedAt = utc;
+            assignment.UpdatedBy = AssignmentTaskStatusUpdatedBy;
         }
 
         /// <summary>
@@ -983,6 +1512,26 @@ namespace IoTSharp.Controllers
             }
 
             return JsonSerializer.Serialize(value);
+        }
+
+        /// <summary>
+        /// 获取审计中使用的操作者显示名。
+        /// </summary>
+        /// <param name="profile">当前登录用户。</param>
+        /// <returns>优先返回姓名，其次返回邮箱或用户 ID。</returns>
+        private static string ResolveUserName(UserProfile profile)
+        {
+            if (profile == null)
+            {
+                return string.Empty;
+            }
+
+            if (!string.IsNullOrWhiteSpace(profile.Name))
+            {
+                return profile.Name;
+            }
+
+            return string.IsNullOrWhiteSpace(profile.Email) ? profile.Id.ToString("D") : profile.Email;
         }
 
         private static EdgeTaskRequestDto DeserializeEdgeTaskRequest(string payload)
