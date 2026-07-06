@@ -209,6 +209,70 @@ public sealed class EdgeContractSerializationTests
     }
 
     [Fact]
+    public void CollectionTemplateConfigurationPublishResultDto_SerializesReleaseAnchors()
+    {
+        var versionId = Guid.Parse("33333333-3333-3333-3333-333333333333");
+        var assignmentId = Guid.Parse("44444444-4444-4444-4444-444444444444");
+        var taskId = Guid.Parse("55555555-5555-5555-5555-555555555555");
+        var gatewayId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+        var dto = new CollectionTemplateConfigurationPublishResultDto
+        {
+            ConfigurationVersion = new CollectionConfigurationVersionDto
+            {
+                Id = versionId,
+                GatewayId = gatewayId,
+                EdgeNodeId = gatewayId,
+                Version = 8,
+                ConfigurationHash = "B90F05603F3343B2A0FAF1E1D3D48C85",
+                SourceType = "ProductCollectionTemplate",
+                SourceId = "11111111-1111-1111-1111-111111111111"
+            },
+            Assignment = new EdgeCollectionAssignmentDto
+            {
+                Id = assignmentId,
+                CollectionConfigurationVersionId = versionId,
+                GatewayId = gatewayId,
+                EdgeNodeId = gatewayId,
+                TargetType = EdgeTaskTargetType.GatewayRuntime,
+                TargetKey = $"{gatewayId}:gateway",
+                RuntimeType = EdgeRuntimeTypes.Gateway,
+                ConfigurationVersion = 8,
+                ConfigurationHash = "B90F05603F3343B2A0FAF1E1D3D48C85",
+                Status = EdgeCollectionAssignmentStatus.Active
+            },
+            Task = new EdgeTaskRequestDto
+            {
+                TaskId = taskId,
+                TaskType = EdgeTaskType.ConfigPullRequest,
+                CreatedAt = DateTime.Parse("2026-07-06T00:02:00Z").ToUniversalTime(),
+                Address = new EdgeTaskAddressDto
+                {
+                    TargetType = EdgeTaskTargetType.GatewayRuntime,
+                    DeviceId = gatewayId,
+                    RuntimeType = EdgeRuntimeTypes.Gateway,
+                    TargetKey = $"{gatewayId}:gateway"
+                },
+                Parameters = new Dictionary<string, object>
+                {
+                    ["configurationVersionId"] = versionId,
+                    ["configurationVersion"] = 8,
+                    ["configurationHash"] = "B90F05603F3343B2A0FAF1E1D3D48C85"
+                }
+            }
+        };
+
+        var json = JsonSerializer.Serialize(dto, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+        var roundtrip = JsonSerializer.Deserialize<CollectionTemplateConfigurationPublishResultDto>(json, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+
+        Assert.Contains("\"taskType\":\"ConfigPullRequest\"", json);
+        Assert.Contains("\"collectionConfigurationVersionId\":\"33333333-3333-3333-3333-333333333333\"", json);
+        Assert.Contains("\"configurationHash\":\"B90F05603F3343B2A0FAF1E1D3D48C85\"", json);
+        Assert.NotNull(roundtrip);
+        Assert.Equal(versionId, roundtrip!.Assignment.CollectionConfigurationVersionId);
+        Assert.Equal(EdgeTaskType.ConfigPullRequest, roundtrip.Task.TaskType);
+    }
+
+    [Fact]
     public void EdgeTaskDto_SerializesEnumsAsStableStrings()
     {
         var dto = new EdgeTaskRequestDto

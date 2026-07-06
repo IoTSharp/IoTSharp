@@ -13,6 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 
 namespace IoTSharp.Test
 {
@@ -316,6 +317,123 @@ namespace IoTSharp.Test
             Assert.Equal(deviceId, storedVersion.GatewayId);
             Assert.Equal(savedConfig.Data.Version, storedVersion.Version);
             Assert.Equal(versionRow.ConfigurationHash, storedVersion.ConfigurationHash);
+        }
+
+        [Fact]
+        public async Task CollectionTemplatePublishConfig_CreatesVersionAssignmentAndEdgeTask()
+        {
+            using var client = _fixture.CreateClient();
+            var created = await _fixture.CreateDeviceAsync(client, $"sqlite-edge-publish-{Guid.NewGuid():N}", DeviceType.Gateway);
+            var deviceId = created.Data!.Id;
+            var token = await _fixture.GetDeviceAccessTokenAsync(client, deviceId);
+
+            await _fixture.AuthorizeClientAsync(client);
+            var productName = $"sqlite-product-{Guid.NewGuid():N}";
+            var saveProduct = await client.PostAsJsonAsync("/api/Products/Save", new ProductAddDto
+            {
+                Name = productName,
+                Description = "collection publish test",
+                ProductToken = $"ppt-{Guid.NewGuid():N}",
+                DefaultDeviceType = DeviceType.Gateway,
+                DefaultIdentityType = IdentityType.ProductToken,
+                DefaultTimeout = 30,
+                GatewayConfiguration = string.Empty
+            });
+            var savedProduct = await ReadApiResultAsync<bool>(saveProduct);
+            Assert.Equal((int)ApiCode.Success, savedProduct.Code);
+
+            var listedProducts = await GetApiResultAsync<PagedData<ProductDto>>(client,
+                $"/api/Products/List?offset=0&limit=10&name={Uri.EscapeDataString(productName)}");
+            var product = Assert.Single(listedProducts.Data!.rows, item => item.Name == productName);
+
+            var createTemplate = await client.PostAsJsonAsync("/api/CollectionTemplates", new CollectionTemplateUpsertDto
+            {
+                ProductId = product.Id,
+                TemplateKey = "sqlite-publish-modbus",
+                Name = "SQLite publish Modbus",
+                Status = CollectionTemplateStatus.Active,
+                Enabled = true,
+                Protocol = new ProtocolTemplateDto
+                {
+                    Protocol = CollectionProtocolType.Modbus,
+                    ProtocolKind = "modbusTcp"
+                },
+                Connections =
+                [
+                    new ConnectionTemplateDto
+                    {
+                        ConnectionKey = "main-plc",
+                        ConnectionName = "Main PLC",
+                        Transport = "tcp",
+                        Host = "127.0.0.1",
+                        Port = 1502
+                    }
+                ],
+                Points =
+                [
+                    new PointTemplateDto
+                    {
+                        ConnectionKey = "main-plc",
+                        PointKey = "temperature",
+                        SemanticId = "semantic.temperature",
+                        BindingId = "binding.temperature",
+                        Name = "Temperature",
+                        DisplayName = "Temperature",
+                        SourceType = "holding-register",
+                        Address = "40001",
+                        RawValueType = "Int16",
+                        ValueType = CollectionValueType.Double,
+                        Length = 1,
+                        SamplingPolicy = new SamplingPolicyTemplateDto { ReadPeriodMs = 1000 },
+                        Mapping = new MappingPolicyTemplateDto
+                        {
+                            TargetType = CollectionTargetType.Telemetry,
+                            TargetName = "temperature",
+                            ValueType = CollectionValueType.Double
+                        }
+                    }
+                ]
+            });
+            var templateResult = await ReadApiResultAsync<CollectionTemplateDto>(createTemplate);
+            Assert.Equal((int)ApiCode.Success, templateResult.Code);
+            var templateId = templateResult.Data!.Id;
+
+            var publish = await client.PostAsJsonAsync($"/api/CollectionTemplates/{templateId}/PublishConfig", new CollectionTemplateConfigurationPublishRequestDto
+            {
+                EdgeNodeId = deviceId,
+                RuntimeType = EdgeRuntimeTypes.Gateway,
+                Metadata = new Dictionary<string, string>
+                {
+                    ["source"] = "sqlite-test"
+                }
+            });
+            var publishResult = await ReadApiResultAsync<CollectionTemplateConfigurationPublishResultDto>(publish);
+            Assert.Equal((int)ApiCode.Success, publishResult.Code);
+            Assert.NotNull(publishResult.Data);
+            Assert.Equal(EdgeTaskType.ConfigPullRequest, publishResult.Data!.Task.TaskType);
+            Assert.Equal(deviceId, publishResult.Data.ConfigurationVersion.GatewayId);
+            Assert.Equal(templateId.ToString(), publishResult.Data.ConfigurationVersion.SourceId);
+            Assert.Equal(publishResult.Data.ConfigurationVersion.Id, publishResult.Data.Assignment.CollectionConfigurationVersionId);
+            Assert.Equal(publishResult.Data.ConfigurationVersion.ConfigurationHash, publishResult.Data.Assignment.ConfigurationHash);
+            Assert.Equal(publishResult.Data.ConfigurationVersion.ConfigurationHash, publishResult.Data.Task.Parameters["configurationHash"].ToString());
+
+            var pulledTasks = await GetApiResultAsync<List<EdgeTaskRequestDto>>(client, $"/api/EdgeTask/Dispatch/{token}");
+            Assert.Equal((int)ApiCode.Success, pulledTasks.Code);
+            Assert.Contains(pulledTasks.Data!, task => task.TaskId == publishResult.Data.Task.TaskId && task.TaskType == EdgeTaskType.ConfigPullRequest);
+
+            var pulledConfig = await GetApiResultAsync<EdgeCollectionConfigurationDto>(client, $"/api/Edge/{deviceId}/CollectionConfig");
+            Assert.Equal((int)ApiCode.Success, pulledConfig.Code);
+            Assert.Equal(publishResult.Data.ConfigurationVersion.Version, pulledConfig.Data!.Version);
+            Assert.Equal("sqlite-publish-modbus:main-plc", Assert.Single(pulledConfig.Data.Tasks).TaskKey);
+
+            using var scope = _fixture.Services.CreateScope();
+            var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            var storedTask = await dbContext.EdgeTasks.AsNoTracking().SingleAsync(task => task.Id == publishResult.Data.Task.TaskId);
+            Assert.Equal(EdgeTaskStatus.Sent, storedTask.Status);
+            Assert.Equal(EdgeTaskType.ConfigPullRequest, storedTask.TaskType);
+            using var parameters = JsonDocument.Parse(storedTask.Parameters);
+            Assert.Equal(publishResult.Data.ConfigurationVersion.Version, parameters.RootElement.GetProperty("configurationVersion").GetInt32());
+            Assert.Equal(publishResult.Data.ConfigurationVersion.ConfigurationHash, parameters.RootElement.GetProperty("configurationHash").GetString());
         }
 
         private async Task AssertStoredEdgeTaskAsync(Guid taskId, IoTSharp.Contracts.EdgeTaskStatus status, Guid gatewayId, int? progress)

@@ -318,6 +318,68 @@ public sealed record CollectionTemplateRuntimeConfigRequestDto
 }
 
 /// <summary>
+/// 从 Product 采集模板创建配置发布任务的请求。
+/// </summary>
+public sealed record CollectionTemplateConfigurationPublishRequestDto
+{
+    /// <summary>
+    /// 目标 EdgeNode ID。当前实现与承载接入凭证的 Gateway 设备 ID 一一对应。
+    /// </summary>
+    public Guid EdgeNodeId { get; init; }
+
+    /// <summary>
+    /// 可选任务 ID。为空时由平台生成，非空时用于调用方关联外部操作记录。
+    /// </summary>
+    public Guid? TaskId { get; init; }
+
+    /// <summary>
+    /// 任务目标类型，默认面向 Gateway 运行时。
+    /// </summary>
+    public EdgeTaskTargetType TargetType { get; init; } = EdgeTaskTargetType.GatewayRuntime;
+
+    /// <summary>
+    /// 目标运行时类型。为空时使用 EdgeNode 最近上报的运行时类型。
+    /// </summary>
+    public string RuntimeType { get; init; } = string.Empty;
+
+    /// <summary>
+    /// 目标运行时实例。为空时使用 EdgeNode 最近上报的实例 ID。
+    /// </summary>
+    public string InstanceId { get; init; } = string.Empty;
+
+    /// <summary>
+    /// 发布任务过期时间。为空时由平台使用默认过期窗口。
+    /// </summary>
+    public DateTime? ExpireAt { get; init; }
+
+    /// <summary>
+    /// 非敏感任务元数据。
+    /// </summary>
+    public Dictionary<string, string> Metadata { get; init; } = [];
+}
+
+/// <summary>
+/// 从 Product 采集模板创建配置发布任务后的结果。
+/// </summary>
+public sealed record CollectionTemplateConfigurationPublishResultDto
+{
+    /// <summary>
+    /// 平台保存的采集配置版本快照。
+    /// </summary>
+    public CollectionConfigurationVersionDto ConfigurationVersion { get; init; } = new();
+
+    /// <summary>
+    /// 当前生效的配置目标分配。
+    /// </summary>
+    public EdgeCollectionAssignmentDto Assignment { get; init; } = new();
+
+    /// <summary>
+    /// 创建后的 EdgeTask 发布请求，执行端通过 edge-task-v1 拉取。
+    /// </summary>
+    public EdgeTaskRequestDto Task { get; init; } = new();
+}
+
+/// <summary>
 /// 采集模板预览请求。
 /// </summary>
 public sealed record CollectionTemplatePreviewRequestDto

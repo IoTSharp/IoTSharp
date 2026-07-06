@@ -285,6 +285,28 @@
 - `configurationHash` 以规范化后的配置正文计算，assignment 和版本快照使用同一个哈希，便于发布和执行端核对。
 - SQLite 迁移只落版本引用列和索引，不对已有 assignment 表追加外键约束；其他关系型 provider 创建外键。
 
+## 配置发布任务（#041）
+
+`POST /api/CollectionTemplates/{id}/PublishConfig` 是 M4 的配置发布入口。它要求 Product Collection Template 处于 Active 且启用状态，然后在同一次保存中完成三件事：
+
+- 从模板生成新的 `collection-config-v1` 运行时配置，并保存为 `CollectionConfigurationVersion`。
+- 创建引用该版本快照的 Active `EdgeCollectionAssignment`，并把同一 Gateway 上旧 Active 分配标记为 Superseded。
+- 创建 `edge-task-v1` 的 `ConfigPullRequest` EdgeTask，让执行端通过既有 `/api/EdgeTask/Dispatch/{accessToken}` 拉取。
+
+发布任务参数必须包含：
+
+- `configurationVersionId`
+- `configurationVersion`
+- `configurationHash`
+- `collectionConfigContractVersion`
+- `sourceType`
+- `sourceId`
+- `sourceVersion`
+- `edgeNodeId`
+- `gatewayId`
+
+该端点不引入 M5 的 `ReleaseTask`、灰度批次或审批编排；配置执行结果继续由 EdgeTask/EdgeTaskReceipt 回执链路承载。执行端仍以 `GET /api/Edge/{access_token}/CollectionConfig` 获取当前目标配置，平台用任务参数中的版本号和哈希核对执行端回执。
+
 ### 查询返回结构
 
 统一返回现有前端分页表格格式：
