@@ -10,9 +10,10 @@ IoTSharp 推荐按以下优先级选择安装方式。
 
 适合：
 
-- 快速试用
+- 5 分钟快速试用
 - 服务器部署
-- 与 PostgreSQL、InfluxDB、RabbitMQ 等组合交付
+- 与 SonnetDB 单依赖交付
+- 与 PostgreSQL、InfluxDB、RabbitMQ 等传统组合交付
 
 优点：
 
@@ -20,8 +21,17 @@ IoTSharp 推荐按以下优先级选择安装方式。
 - 升级简单
 - 便于 CI/CD
 
+首次体验默认使用 SonnetDB Profile：
+
+```bash
+docker compose -f docker-compose.sonnetdb.yml up -d
+```
+
+该入口将关系库、遥测库、缓存、对象存储和平台事件队列都指向 SonnetDB，启动后访问 `http://localhost:2927` 完成 Installer 初始化。
+
 入口参考：
 
+- 根目录 `docker-compose.sonnetdb.yml`
 - `Deployments/` 下的组合部署目录
 - [Docker 部署](../deployment/docker.md)
 
@@ -54,5 +64,6 @@ IoTSharp 推荐按以下优先级选择安装方式。
 ## 选择建议
 
 - 首次体验：优先 Docker。
+- 5 分钟快速体验：优先 `docker-compose.sonnetdb.yml`。
 - Windows 正式交付：优先 MSI。
 - Linux 正式交付：先用归档包或 Docker，后续再接 `.deb/.rpm`。

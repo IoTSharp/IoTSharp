@@ -8,6 +8,8 @@ title: SonnetDB 兼容矩阵
 
 范围：本文件是 IoTSharp 侧维护的 SonnetDB 数据底座兼容矩阵。SonnetDB 仓库负责数据库通用能力；IoTSharp 仓库负责决定如何把 SonnetDB 作为关系库、时序库、缓存、对象桶、向量搜索与全文搜索的可选后端接入、验证、灰度和回滚。
 
+容量、吞吐和恢复演练的当前基线见 [SonnetDB 容量与可靠性基准](./sonnetdb-capacity-reliability-baseline.md)。
+
 ## 状态图例
 
 | 状态 | 含义 |

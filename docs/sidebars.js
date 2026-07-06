@@ -64,6 +64,7 @@ const sidebars = {
       items: [
         'operations/release-distribution-plan',
         'operations/sonnetdb-compat-matrix',
+        'operations/sonnetdb-capacity-reliability-baseline',
         'operations/openclaw-sqlite-runbook',
         'operations/troubleshooting',
       ],

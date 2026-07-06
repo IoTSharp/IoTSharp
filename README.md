@@ -47,14 +47,26 @@ All layers are open source and independently usable, and together they form an e
 
 ## 🧭 Quick Start
 
+### 🖥️ Five-minute SonnetDB profile
+
+For a first local run, the default path is the SonnetDB profile. It starts IoTSharp with SonnetDB as the single data dependency for relational data, telemetry, cache, object storage, and the platform event queue:
+
+```bash
+docker compose -f docker-compose.sonnetdb.yml up -d
+```
+
+Then open `http://localhost:2927` and complete the Installer initialization.
+
+This profile uses `ASPNETCORE_ENVIRONMENT=SonnetDB` and mounts `appsettings.SonnetDB.json`. The traditional PostgreSQL / TimescaleDB Docker compose remains available for compatibility and production topology validation, but SonnetDB is the recommended quick-start entry.
+
 ### 🖥️ Run IoTSharp locally
 
 The recommended documentation entry points are:
 
+- Quick start: <https://iotsharp.net/guide/getting-started/>
+- Deployment guide: <https://iotsharp.net/guide/deployment/>
 - Product docs: <https://iotsharp.net/docs/intro>
 - Installation options: <https://iotsharp.net/docs/getting-started/installation-options>
-- Installer guide: <https://iotsharp.net/docs/getting-started/installer>
-- Docker Desktop extension: <https://iotsharp.net/docs/deployment/docker-desktop-extension>
 
 For frontend development, the current local dev server default is:
 

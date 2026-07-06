@@ -40,8 +40,8 @@ title: 使用手册总览
 
 ## 推荐阅读顺序
 
-1. 先看 [安装方式](./getting-started/installation-options.md)。
-2. 完成 [Installer 初始化](./getting-started/installer.md)。
+1. 首次体验默认使用 [Docker 部署](./deployment/docker.md) 中的 SonnetDB Profile：`docker compose -f docker-compose.sonnetdb.yml up -d`。
+2. 启动后访问 `http://localhost:2927`，完成 [Installer 初始化](./getting-started/installer.md)。
 3. 再按业务路径阅读 [仪表盘](./user-guide/dashboard.md)、[设备与网关](./user-guide/devices-and-gateways.md)、[规则链](./user-guide/rules-and-scenarios.md)。
-4. 上线前补看 [Docker 部署](./deployment/docker.md)、[Windows 服务](./deployment/windows-service.md) 和 [发布分发计划](./operations/release-distribution-plan.md)。
-5. 如果你想让 AI 助手帮你拉起一个 SQLite 体验实例，直接把 [OpenClaw SQLite 运行手册](./operations/openclaw-sqlite-runbook.md) 和对应提示词交给它。
+4. 上线前补看 [安装方式](./getting-started/installation-options.md)、[Windows 服务](./deployment/windows-service.md) 和 [发布分发计划](./operations/release-distribution-plan.md)。
+5. 如果你明确需要 SQLite 体验实例，可以把 [OpenClaw SQLite 运行手册](./operations/openclaw-sqlite-runbook.md) 和对应提示词交给 AI 助手。

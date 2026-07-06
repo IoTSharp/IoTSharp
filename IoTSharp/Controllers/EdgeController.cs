@@ -72,7 +72,7 @@ namespace IoTSharp.Controllers
 
             var attrs = await QueryEdgeAttributes(gateways.Select(c => c.Id));
             var taskSummaries = await QueryEdgeTaskSummariesAsync(nodes.Select(c => c.GatewayId));
-            var versionStatuses = await QueryCollectionVersionStatusesAsync(nodes.Select(c => c.GatewayId));
+            var versionStatuses = await QueryCollectionVersionStatusesAsync(nodes);
             var data = nodes.Select(node =>
             {
                 taskSummaries.TryGetValue(node.GatewayId, out var taskSummary);
@@ -111,7 +111,7 @@ namespace IoTSharp.Controllers
             var node = await EnsureEdgeNodeAsync(gateway);
             var attrs = await QueryEdgeAttributes([gateway.Id]);
             var taskSummaries = await QueryEdgeTaskSummariesAsync([gateway.Id]);
-            var versionStatuses = await QueryCollectionVersionStatusesAsync([gateway.Id]);
+            var versionStatuses = await QueryCollectionVersionStatusesAsync([node]);
             taskSummaries.TryGetValue(gateway.Id, out var taskSummary);
             versionStatuses.TryGetValue(gateway.Id, out var versionStatus);
             return new ApiResult<EdgeNodeDto>(ApiCode.Success, "OK", ToEdgeNodeDto(node, attrs, taskSummary, versionStatus));
@@ -1199,13 +1199,20 @@ namespace IoTSharp.Controllers
         /// </summary>
         /// <param name="gatewayIds">承载 EdgeNode 的 Gateway 设备 ID 集合。</param>
         /// <returns>按 Gateway ID 索引的采集配置版本状态。</returns>
-        private async Task<Dictionary<Guid, EdgeCollectionVersionStatusDto>> QueryCollectionVersionStatusesAsync(IEnumerable<Guid> gatewayIds)
+        private async Task<Dictionary<Guid, EdgeCollectionVersionStatusDto>> QueryCollectionVersionStatusesAsync(IEnumerable<EdgeNode> nodes)
         {
-            var ids = gatewayIds?.Distinct().ToList() ?? [];
+            var nodeRows = nodes?.Where(node => node != null).ToList() ?? [];
+            var ids = nodeRows.Select(node => node.GatewayId).Distinct().ToList();
             if (ids.Count == 0)
             {
                 return [];
             }
+
+            var edgeNodeIds = nodeRows
+                .GroupBy(node => node.GatewayId)
+                .ToDictionary(
+                    group => group.Key,
+                    group => (Guid?)group.OrderByDescending(node => node.UpdatedAt).First().Id);
 
             var assignments = await _context.EdgeCollectionAssignments
                 .Where(assignment => ids.Contains(assignment.GatewayId)
@@ -1219,7 +1226,8 @@ namespace IoTSharp.Controllers
                 gatewayId =>
                 {
                     var assignment = assignments.FirstOrDefault(item => item.GatewayId == gatewayId);
-                    return ToEdgeCollectionVersionStatusDto(gatewayId, assignment?.EdgeNodeId ?? gatewayId, assignment);
+                    edgeNodeIds.TryGetValue(gatewayId, out var edgeNodeId);
+                    return ToEdgeCollectionVersionStatusDto(gatewayId, assignment?.EdgeNodeId ?? edgeNodeId, assignment);
                 });
         }
 

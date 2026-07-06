@@ -4,7 +4,23 @@ title: Docker 部署
 
 # Docker 部署
 
-Docker 是 IoTSharp 最推荐的部署方式。
+Docker 是 IoTSharp 最推荐的部署方式。首次体验默认使用 SonnetDB Profile，它把 IoTSharp 的关系库、遥测库、缓存、对象存储和平台事件队列收敛到 SonnetDB，便于 5 分钟内拉起完整平台。
+
+## 5 分钟快速体验
+
+在仓库根目录执行：
+
+```bash
+docker compose -f docker-compose.sonnetdb.yml up -d
+```
+
+启动后访问：
+
+```text
+http://localhost:2927
+```
+
+按页面提示完成 Installer 初始化即可。该入口只需要 IoTSharp 与 SonnetDB 两个服务，适合作为本地评估、演示和内网无外部依赖验证的默认路径。
 
 ## 代码库中的部署入口
 
@@ -30,7 +46,7 @@ Docker 是 IoTSharp 最推荐的部署方式。
 
 ## SonnetDB Profile
 
-如果希望关系库、时序库、缓存和对象桶都使用 SonnetDB，可以使用独立 Compose 文件：
+SonnetDB Profile 使用独立 Compose 文件：
 
 ```bash
 docker compose -f docker-compose.sonnetdb.yml up -d
@@ -42,6 +58,9 @@ docker compose -f docker-compose.sonnetdb.yml up -d
 - `ConnectionStrings__TelemetryStorage`
 - `CachingUseSonnetDBConnectionString`
 - `ConnectionStrings__BlobStorage`
+- `ConnectionStrings__EventBusMQ`
+
+如果后续改用发布包或 SonnetDB 独立服务端二进制，仍应复用同一组 `appsettings.SonnetDB.json` 配置语义：IoTSharp 通过环境变量覆盖 SonnetDB 服务地址、Token、数据库名和 bucket，而不是把 SonnetDB 的内部目录结构写进平台代码。
 
 默认 `docker-compose.yml` 仍保留 PostgreSQL / TimescaleDB 路线。需要并行验证或回滚时，停止 SonnetDB Profile，按原 `docker-compose.yml` 和原环境配置启动即可。
 

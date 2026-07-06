@@ -618,8 +618,9 @@ namespace IoTSharp.Storage
         private TelemetryDataDto? QueryLatestTelemetry(SndbConnection connection, string measurement, ColumnInfo field)
         {
             using var command = connection.CreateCommand();
-            command.CommandText = $"SELECT time, {QuoteIdentifier(field.Name)} FROM {QuoteIdentifier(measurement)} ORDER BY time DESC LIMIT 1";
+            command.CommandText = $"SELECT time, {QuoteIdentifier(field.Name)} FROM {QuoteIdentifier(measurement)} WHERE {QuoteIdentifier(field.Name)} IS NOT NULL";
             using var reader = command.ExecuteReader();
+            TelemetryDataDto? latest = null;
             while (reader.Read())
             {
                 var ordinal = reader.GetOrdinal(field.Name);
@@ -634,16 +635,22 @@ namespace IoTSharp.Storage
                     continue;
                 }
 
-                return new TelemetryDataDto
+                var time = ReadTime(reader.GetValue(reader.GetOrdinal("time")));
+                if (latest != null && latest.DateTime > time)
                 {
-                    DateTime = ReadTime(reader.GetValue(reader.GetOrdinal("time"))),
+                    continue;
+                }
+
+                latest = new TelemetryDataDto
+                {
+                    DateTime = time,
                     KeyName = field.Name,
                     DataType = field.DataType,
                     Value = value
                 };
             }
 
-            return null;
+            return latest;
         }
 
         private bool TryQueryAggregateTelemetry(

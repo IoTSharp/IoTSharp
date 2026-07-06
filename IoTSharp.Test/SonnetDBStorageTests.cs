@@ -10,28 +10,25 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using SonnetDB.Data;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace IoTSharp.Test;
 
 public sealed class SonnetDBStorageTests : IDisposable
 {
     private readonly string _root;
+    private readonly ITestOutputHelper _output;
 
-    public SonnetDBStorageTests()
+    public SonnetDBStorageTests(ITestOutputHelper output)
     {
+        _output = output;
         _root = Path.Combine(Path.GetTempPath(), "iotsharp-sonnetdb-storage-" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(_root);
     }
 
     public void Dispose()
     {
-        try
-        {
-            Directory.Delete(_root, recursive: true);
-        }
-        catch
-        {
-        }
+        TryDeleteDirectory(_root);
     }
 
     [Fact]
@@ -239,6 +236,62 @@ public sealed class SonnetDBStorageTests : IDisposable
         Assert.True(await storage.CheckTelemetryStorage());
     }
 
+    /// <summary>
+    /// 固定 IoTSharp 遥测容量基线的计算口径，避免只记录引擎吞吐而缺少平台侧可复核的容量指标。
+    /// </summary>
+    [Fact]
+    public async Task CapacitySmoke_WhenUsingEmbeddedSonnetDB_ReportsBytesPerTelemetryValue()
+    {
+        const int deviceCount = 20;
+        const int sampleCount = 50;
+        const int fieldCount = 4;
+
+        var storage = CreateStorage("TelemetryData");
+        var begin = new DateTime(2026, 6, 12, 1, 0, 0, DateTimeKind.Utc);
+        var deviceIds = Enumerable.Range(0, deviceCount)
+            .Select(_ => Guid.NewGuid())
+            .ToArray();
+        var messages = new List<PlayloadData>(deviceCount * sampleCount);
+
+        foreach (var device in deviceIds)
+        {
+            for (var sample = 0; sample < sampleCount; sample++)
+            {
+                messages.Add(CreatePayload(device, begin.AddSeconds(sample), new Dictionary<string, object>
+                {
+                    ["temperature"] = 20.0 + sample % 10,
+                    ["humidity"] = 60L + sample % 20,
+                    ["voltage"] = 220.0 + sample * 0.1,
+                    ["running"] = sample % 2 == 0
+                }));
+            }
+        }
+
+        var report = await storage.StoreTelemetryBatchAsync(messages);
+        var backupDirectory = _root + "-capacity-backup";
+        try
+        {
+            var backup = storage.CreateBackup(backupDirectory);
+            var telemetryValueCount = deviceCount * sampleCount * fieldCount;
+            var bytesPerTelemetryValue = (double)backup.TotalBytes / telemetryValueCount;
+
+            _output.WriteLine($"SonnetDB capacity smoke: messages={messages.Count}, values={telemetryValueCount}, backupBytes={backup.TotalBytes}, bytesPerValue={bytesPerTelemetryValue:F2}, files={backup.FileCount}, measurements={backup.MeasurementCount}, segments={backup.SegmentCount}");
+
+            Assert.True(report.IsComplete);
+            Assert.Equal(messages.Count, report.MessageCount);
+            Assert.Equal(messages.Count, report.WrittenRows);
+            Assert.Equal(telemetryValueCount, report.TelemetryValueCount);
+            Assert.Equal(0, report.SkippedTelemetryValueCount);
+            Assert.True(backup.TotalBytes > 0);
+            Assert.Equal(deviceCount, backup.MeasurementCount);
+            Assert.InRange(bytesPerTelemetryValue, 0.01, 4096.0);
+        }
+        finally
+        {
+            TryDeleteDirectory(backupDirectory);
+        }
+    }
+
     [Fact]
     public async Task BackupRestoreAndReplay_WhenUsingEmbeddedSonnetDB_PreserveTelemetry()
     {
@@ -330,6 +383,20 @@ public sealed class SonnetDBStorageTests : IDisposable
         catch (Exception)
         {
             return false;
+        }
+    }
+
+    private static void TryDeleteDirectory(string path)
+    {
+        try
+        {
+            if (Directory.Exists(path))
+            {
+                Directory.Delete(path, recursive: true);
+            }
+        }
+        catch
+        {
         }
     }
 }

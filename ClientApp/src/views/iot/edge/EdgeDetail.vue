@@ -168,8 +168,8 @@
 							<div class="edge-version-strip__item edge-version-strip__item--wide">
 								<span>差异</span>
 								<strong>
-									<el-tag :type="versionStatusSnapshot.hasDifference ? 'warning' : 'success'" effect="plain">
-										{{ versionStatusSnapshot.hasDifference ? '待同步' : '一致' }}
+									<el-tag :type="versionDifferenceTagType" effect="plain">
+										{{ versionDifferenceText }}
 									</el-tag>
 								</strong>
 								<small>{{ versionStatusSnapshot.differenceSummary }}</small>
@@ -613,6 +613,21 @@ const versionStatusSnapshot = computed(() => {
 
 	return buildVersionStatusFromAssignment(latestAssignment.value);
 });
+const hasTargetConfiguration = computed(() => typeof versionStatusSnapshot.value.targetConfigurationVersion === 'number');
+const versionDifferenceTagType = computed<TagType>(() => {
+	if (!hasTargetConfiguration.value) {
+		return 'info';
+	}
+
+	return versionStatusSnapshot.value.hasDifference ? 'warning' : 'success';
+});
+const versionDifferenceText = computed(() => {
+	if (!hasTargetConfiguration.value) {
+		return '暂无目标';
+	}
+
+	return versionStatusSnapshot.value.hasDifference ? '待同步' : '一致';
+});
 
 const badges = computed(() => [
 	runtimeSnapshot.value.runtimeType || 'unknown-runtime',
@@ -624,7 +639,12 @@ const metrics = computed(() => [
 	{ label: 'Status', value: runtimeSnapshot.value.status || '--', hint: '运行态快照状态', tone: statusTone(runtimeSnapshot.value.status) },
 	{ label: 'Heartbeat', value: formatDateTime(runtimeSnapshot.value.lastHeartbeatDateTime), hint: '最近心跳', tone: 'primary' as const },
 	{ label: 'Capability', value: capabilityProtocolTags.value.length, hint: '协议能力数量', tone: 'accent' as const },
-	{ label: 'Assignment', value: formatVersionPair(versionStatusSnapshot.value), hint: versionStatusSnapshot.value.differenceSummary, tone: versionStatusSnapshot.value.hasDifference ? 'warning' as const : 'success' as const },
+	{
+		label: 'Assignment',
+		value: formatVersionPair(versionStatusSnapshot.value),
+		hint: versionStatusSnapshot.value.differenceSummary,
+		tone: !hasTargetConfiguration.value ? 'primary' as const : versionStatusSnapshot.value.hasDifference ? 'warning' as const : 'success' as const,
+	},
 	{ label: 'Task', value: latestReceipt.value?.status || '暂无', hint: '最近任务状态', tone: statusTone(latestReceipt.value?.status) },
 	{ label: 'History', value: receiptHistory.value.length, hint: '最近任务事件', tone: 'warning' as const },
 ]);
@@ -652,7 +672,7 @@ const statusTiles = computed(() => [
 		label: '采集配置',
 		value: formatVersionPair(versionStatusSnapshot.value),
 		hint: versionStatusSnapshot.value.differenceSummary || latestAssignment.value?.targetKey || '--',
-		tone: versionStatusSnapshot.value.hasDifference ? 'warning' : 'accent',
+		tone: !hasTargetConfiguration.value ? 'primary' : versionStatusSnapshot.value.hasDifference ? 'warning' : 'accent',
 	},
 ]);
 
