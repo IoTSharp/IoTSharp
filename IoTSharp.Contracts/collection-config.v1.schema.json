@@ -123,6 +123,18 @@
         "updatedBy": {
           "type": "string"
         },
+        "sourceType": {
+          "type": "string"
+        },
+        "sourceId": {
+          "type": "string"
+        },
+        "sourceVersion": {
+          "type": "string"
+        },
+        "sourceMetadata": {
+          "$ref": "#/$defs/objectMap"
+        },
         "tasks": {
           "type": "array",
           "items": {

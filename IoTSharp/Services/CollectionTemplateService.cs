@@ -204,6 +204,15 @@ namespace IoTSharp.Services
                 Version = version,
                 UpdatedAt = now,
                 UpdatedBy = updatedBy,
+                SourceType = "ProductCollectionTemplate",
+                SourceId = template.Id.ToString(),
+                SourceVersion = template.Version.ToString(CultureInfo.InvariantCulture),
+                SourceMetadata = new Dictionary<string, object>
+                {
+                    ["productId"] = template.ProductId,
+                    ["templateKey"] = template.TemplateKey ?? string.Empty,
+                    ["semanticModelId"] = template.SemanticModelId ?? string.Empty
+                },
                 Tasks = tasks
             };
         }
@@ -221,15 +230,10 @@ namespace IoTSharp.Services
             return new EdgeCollectionConfigurationUpdateDto
             {
                 Tasks = configuration.Tasks,
-                SourceType = "ProductCollectionTemplate",
-                SourceId = template.Id.ToString(),
-                SourceVersion = template.Version.ToString(CultureInfo.InvariantCulture),
-                SourceMetadata = new Dictionary<string, object>
-                {
-                    ["productId"] = template.ProductId,
-                    ["templateKey"] = template.TemplateKey ?? string.Empty,
-                    ["semanticModelId"] = template.SemanticModelId ?? string.Empty
-                }
+                SourceType = string.IsNullOrWhiteSpace(configuration.SourceType) ? "ProductCollectionTemplate" : configuration.SourceType,
+                SourceId = string.IsNullOrWhiteSpace(configuration.SourceId) ? template.Id.ToString() : configuration.SourceId,
+                SourceVersion = string.IsNullOrWhiteSpace(configuration.SourceVersion) ? template.Version.ToString(CultureInfo.InvariantCulture) : configuration.SourceVersion,
+                SourceMetadata = configuration.SourceMetadata
             };
         }
 

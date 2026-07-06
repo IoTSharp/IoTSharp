@@ -13,6 +13,7 @@ This project follows a lightweight Keep a Changelog style. Version numbers in th
 - Custom Docusaurus theme wrappers for the docs landing page, blog list page, blog post page, and doc detail headers.
 - Windows installer work for database-aware setup flow and service registration foundations.
 - `IoTSharp.Agent` project for tray-style desktop integration work.
+- `collection-config-v1` now carries Product Collection Template source metadata so edge runtimes can trace generated collection configurations back to Product templates.
 
 ### Changed
 
@@ -22,6 +23,7 @@ This project follows a lightweight Keep a Changelog style. Version numbers in th
 - Updated frontend branding from template-origin wording to `IoTSharp`.
 - Changed the frontend local development default port to `27915`.
 - Improved GitHub Pages workflow and upgraded Docusaurus to the current 3.x line used in the repository.
+- Closed the M3 Collection Template milestone after IoTEdge execution-chain validation for template-generated runtime configurations.
 
 ### Fixed
 

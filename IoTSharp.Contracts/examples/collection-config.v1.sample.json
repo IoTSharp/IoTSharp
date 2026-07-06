@@ -5,6 +5,13 @@
   "version": 3,
   "updatedAt": "2026-07-05T08:10:00Z",
   "updatedBy": "operator@example.com",
+  "sourceType": "ProductCollectionTemplate",
+  "sourceId": "11111111-1111-1111-1111-111111111111",
+  "sourceVersion": "3",
+  "sourceMetadata": {
+    "productId": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+    "templateKey": "boiler-modbus-template"
+  },
   "tasks": [
     {
       "id": "33333333-3333-3333-3333-333333333333",

@@ -259,11 +259,95 @@ public abstract class IoTSharpBusinessTestSuite<TFixture>
         Assert.Contains("collection", capability.Data.Features);
         Assert.Contains(capability.Data.CompatibleContracts, contract => contract.ContractVersion == EdgeNodeContractVersions.EdgeTaskV1);
 
+        var templateId = Guid.NewGuid();
+        var saveConfig = await client.PutAsJsonAsync($"/api/Edge/{deviceId}/CollectionConfig", new EdgeCollectionConfigurationUpdateDto
+        {
+            SourceType = "ProductCollectionTemplate",
+            SourceId = templateId.ToString("D"),
+            SourceVersion = "7",
+            SourceMetadata = new Dictionary<string, object>
+            {
+                ["templateKey"] = "boiler-modbus-template",
+                ["productId"] = Guid.NewGuid().ToString("D")
+            },
+            Tasks =
+            [
+                new CollectionTaskDto
+                {
+                    TaskKey = "boiler-modbus",
+                    Protocol = CollectionProtocolType.Modbus,
+                    Connection = new CollectionConnectionDto
+                    {
+                        ConnectionKey = "main-plc",
+                        ConnectionName = "Main PLC",
+                        Protocol = CollectionProtocolType.Modbus,
+                        Transport = "tcp",
+                        Host = "127.0.0.1",
+                        Port = 1502
+                    },
+                    Devices =
+                    [
+                        new CollectionDeviceDto
+                        {
+                            DeviceKey = "boiler-01",
+                            DeviceName = "Boiler 01",
+                            Points =
+                            [
+                                new CollectionPointDto
+                                {
+                                    PointKey = "supply-temperature",
+                                    PointName = "Supply temperature",
+                                    SourceType = "holding-register",
+                                    Address = "40001",
+                                    RawValueType = "Int16",
+                                    Length = 1,
+                                    Polling = new PollingPolicyDto { ReadPeriodMs = 1000 },
+                                    Transforms =
+                                    [
+                                        new ValueTransformDto
+                                        {
+                                            TransformType = CollectionTransformType.Scale,
+                                            Order = 0,
+                                            Parameters = JsonSerializer.SerializeToElement(new Dictionary<string, object>
+                                            {
+                                                ["factor"] = 0.1
+                                            })
+                                        }
+                                    ],
+                                    Mapping = new PlatformMappingDto
+                                    {
+                                        TargetType = CollectionTargetType.Telemetry,
+                                        TargetName = "supplyTemperature",
+                                        ValueType = CollectionValueType.Double
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        });
+        var savedConfig = await ReadApiResultAsync<EdgeCollectionConfigurationDto>(saveConfig);
+        Assert.Equal((int)ApiCode.Success, savedConfig.Code);
+        Assert.NotNull(savedConfig.Data);
+        Assert.Equal("ProductCollectionTemplate", savedConfig.Data!.SourceType);
+        Assert.Equal(templateId.ToString("D"), savedConfig.Data.SourceId);
+
         var pulled = await GetApiResultAsync<EdgeCollectionConfigurationDto>(client, $"/api/Edge/{deviceId}/CollectionConfig");
         Assert.NotNull(pulled);
         Assert.Equal((int)ApiCode.Success, pulled!.Code);
         Assert.NotNull(pulled.Data);
         Assert.Equal(deviceId, pulled.Data!.EdgeNodeId);
+        Assert.Equal("ProductCollectionTemplate", pulled.Data.SourceType);
+        Assert.Equal(templateId.ToString("D"), pulled.Data.SourceId);
+        Assert.Equal("7", pulled.Data.SourceVersion);
+
+        var assignments = await GetApiResultAsync<PagedData<EdgeCollectionAssignmentDto>>(client, $"/api/Edge/{deviceId}/CollectionAssignments?limit=10");
+        Assert.NotNull(assignments);
+        Assert.Equal((int)ApiCode.Success, assignments!.Code);
+        var activeAssignment = Assert.Single(assignments.Data!.rows, item => item.Status == EdgeCollectionAssignmentStatus.Active);
+        Assert.Equal("ProductCollectionTemplate", activeAssignment.SourceType);
+        Assert.Equal(templateId.ToString("D"), activeAssignment.SourceId);
     }
 
     [Fact]

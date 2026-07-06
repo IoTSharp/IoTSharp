@@ -136,6 +136,37 @@ public sealed class EdgeContractSerializationTests
     }
 
     [Fact]
+    public void EdgeCollectionConfigurationDto_SerializesProductTemplateSource()
+    {
+        var dto = new EdgeCollectionConfigurationDto
+        {
+            EdgeNodeId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+            Version = 3,
+            UpdatedAt = DateTime.Parse("2026-07-05T08:10:00Z").ToUniversalTime(),
+            UpdatedBy = "operator@example.com",
+            SourceType = "ProductCollectionTemplate",
+            SourceId = "11111111-1111-1111-1111-111111111111",
+            SourceVersion = "3",
+            SourceMetadata = new Dictionary<string, object>
+            {
+                ["productId"] = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+                ["templateKey"] = "boiler-modbus-template"
+            },
+            Tasks = []
+        };
+
+        var json = JsonSerializer.Serialize(dto, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+        var roundtrip = JsonSerializer.Deserialize<EdgeCollectionConfigurationDto>(json, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+
+        Assert.Contains("\"contractVersion\":\"collection-config-v1\"", json);
+        Assert.Contains("\"sourceType\":\"ProductCollectionTemplate\"", json);
+        Assert.NotNull(roundtrip);
+        Assert.Equal("ProductCollectionTemplate", roundtrip!.SourceType);
+        Assert.Equal("11111111-1111-1111-1111-111111111111", roundtrip.SourceId);
+        Assert.True(roundtrip.SourceMetadata.ContainsKey("templateKey"));
+    }
+
+    [Fact]
     public void EdgeTaskDto_SerializesEnumsAsStableStrings()
     {
         var dto = new EdgeTaskRequestDto

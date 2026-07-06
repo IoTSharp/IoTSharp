@@ -38,6 +38,27 @@ namespace IoTSharp.Contracts
         public int Version { get; init; }
         public DateTime UpdatedAt { get; init; }
         public string UpdatedBy { get; init; } = string.Empty;
+
+        /// <summary>
+        /// 配置来源类型，例如 InlineCollectionConfig、ProductCollectionTemplate。
+        /// </summary>
+        public string SourceType { get; init; } = string.Empty;
+
+        /// <summary>
+        /// 配置来源标识。由 Product Collection Template 生成时为模板 ID。
+        /// </summary>
+        public string SourceId { get; init; } = string.Empty;
+
+        /// <summary>
+        /// 配置来源版本。由 Product Collection Template 生成时为模板版本。
+        /// </summary>
+        public string SourceVersion { get; init; } = string.Empty;
+
+        /// <summary>
+        /// 非敏感来源扩展信息。
+        /// </summary>
+        public Dictionary<string, object> SourceMetadata { get; init; } = [];
+
         public IReadOnlyList<CollectionTaskDto> Tasks { get; init; } = [];
     }
 

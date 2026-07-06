@@ -410,21 +410,26 @@ namespace IoTSharp.Controllers
             var updatedAt = DateTime.UtcNow;
             var updatedBy = string.IsNullOrWhiteSpace(profile.Name) ? profile.Email : profile.Name;
             var normalizedTasks = tasks.Select(task => NormalizeCollectionTask(task, gateway.Id, version)).ToArray();
+            var sourceType = string.IsNullOrWhiteSpace(request?.SourceType) ? "InlineCollectionConfig" : request.SourceType.Trim();
+            var sourceId = request?.SourceId?.Trim() ?? string.Empty;
+            var sourceVersion = string.IsNullOrWhiteSpace(request?.SourceVersion) ? version.ToString() : request.SourceVersion.Trim();
+            var sourceMetadata = request?.SourceMetadata ?? new Dictionary<string, object>();
             var document = new EdgeCollectionConfigurationDto
             {
                 EdgeNodeId = gateway.Id,
                 Version = version,
                 UpdatedAt = updatedAt,
                 UpdatedBy = updatedBy,
+                SourceType = sourceType,
+                SourceId = sourceId,
+                SourceVersion = sourceVersion,
+                SourceMetadata = sourceMetadata,
                 Tasks = normalizedTasks
             };
             var payload = JsonSerializer.Serialize(document);
             var node = await EnsureEdgeNodeAsync(gateway);
-            var sourceType = string.IsNullOrWhiteSpace(request?.SourceType) ? "InlineCollectionConfig" : request.SourceType.Trim();
-            var sourceId = request?.SourceId?.Trim() ?? string.Empty;
-            var sourceVersion = string.IsNullOrWhiteSpace(request?.SourceVersion) ? version.ToString() : request.SourceVersion.Trim();
-            var sourceMetadata = SerializeOrNull(request?.SourceMetadata) ?? "{}";
-            await PrepareCollectionAssignmentAsync(gateway, node, document, payload, updatedBy, updatedAt, sourceType, sourceId, sourceVersion, sourceMetadata);
+            var sourceMetadataJson = SerializeOrNull(sourceMetadata) ?? "{}";
+            await PrepareCollectionAssignmentAsync(gateway, node, document, payload, updatedBy, updatedAt, sourceType, sourceId, sourceVersion, sourceMetadataJson);
 
             await _context.SaveAsync<AttributeLatest>(new Dictionary<string, object>
             {
@@ -1312,12 +1317,20 @@ namespace IoTSharp.Controllers
                     return CreateEmptyCollectionConfig(gatewayId, storedVersion, storedUpdatedAt);
                 }
 
+                var version = document.Version > 0 ? document.Version : storedVersion;
+                var assignment = await ReadActiveCollectionAssignmentAsync(gatewayId, version);
                 return document with
                 {
                     EdgeNodeId = gatewayId,
-                    Version = document.Version > 0 ? document.Version : storedVersion,
+                    Version = version,
                     UpdatedAt = document.UpdatedAt != default ? document.UpdatedAt : (storedUpdatedAt ?? DateTime.UtcNow),
-                    Tasks = (document.Tasks ?? []).Select(task => NormalizeCollectionTask(task, gatewayId, document.Version > 0 ? document.Version : storedVersion)).ToArray()
+                    SourceType = Coalesce(document.SourceType, assignment?.SourceType ?? string.Empty),
+                    SourceId = Coalesce(document.SourceId, assignment?.SourceId ?? string.Empty),
+                    SourceVersion = Coalesce(document.SourceVersion, assignment?.SourceVersion ?? string.Empty),
+                    SourceMetadata = document.SourceMetadata?.Count > 0
+                        ? document.SourceMetadata
+                        : DeserializeObjectMap(assignment?.Metadata),
+                    Tasks = (document.Tasks ?? []).Select(task => NormalizeCollectionTask(task, gatewayId, version)).ToArray()
                 };
             }
             catch (JsonException exception)
@@ -1325,6 +1338,28 @@ namespace IoTSharp.Controllers
                 _logger.LogWarning(exception, "Failed to deserialize collection configuration for edge node {GatewayId}", gatewayId);
                 return CreateEmptyCollectionConfig(gatewayId, storedVersion, storedUpdatedAt);
             }
+        }
+
+        /// <summary>
+        /// 读取当前生效配置分配，用于给旧版配置文档补回来源信息。
+        /// </summary>
+        /// <param name="gatewayId">承载配置拉取通道的 Gateway 设备 ID。</param>
+        /// <param name="configurationVersion">配置版本。</param>
+        /// <returns>当前生效分配；不存在时返回 null。</returns>
+        private Task<EdgeCollectionAssignment> ReadActiveCollectionAssignmentAsync(Guid gatewayId, int configurationVersion)
+        {
+            if (configurationVersion <= 0)
+            {
+                return Task.FromResult<EdgeCollectionAssignment>(null);
+            }
+
+            return _context.EdgeCollectionAssignments
+                .Where(c => c.GatewayId == gatewayId
+                    && c.ConfigurationVersion == configurationVersion
+                    && !c.Deleted
+                    && c.Status == EdgeCollectionAssignmentStatus.Active)
+                .OrderByDescending(c => c.AssignedAt)
+                .FirstOrDefaultAsync();
         }
 
         private async Task<int> GetCurrentCollectionConfigVersionAsync(Guid gatewayId)
