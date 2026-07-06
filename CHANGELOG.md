@@ -17,6 +17,7 @@ This project follows a lightweight Keep a Changelog style. Version numbers in th
 - Platform-side collection configuration version snapshots with `CollectionConfigVersions`, version query APIs, and active assignment linkage for M4 #040.
 - Edge/Gateway target collection configuration pull result with assignment, version ID, configuration hash, and `LastPulledAt` tracking for M4 #042.
 - Configuration execution receipts for M4 #043 now validate reported version/hash and update assignment execution/applied state.
+- Collection version status display for M4 #044 now exposes current/target versions, difference summary, and recent publish result in Edge APIs and console views.
 
 ### Changed
 

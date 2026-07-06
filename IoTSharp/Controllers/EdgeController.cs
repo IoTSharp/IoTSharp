@@ -72,10 +72,12 @@ namespace IoTSharp.Controllers
 
             var attrs = await QueryEdgeAttributes(gateways.Select(c => c.Id));
             var taskSummaries = await QueryEdgeTaskSummariesAsync(nodes.Select(c => c.GatewayId));
+            var versionStatuses = await QueryCollectionVersionStatusesAsync(nodes.Select(c => c.GatewayId));
             var data = nodes.Select(node =>
             {
                 taskSummaries.TryGetValue(node.GatewayId, out var taskSummary);
-                return ToEdgeNodeDto(node, attrs.Where(c => c.DeviceId == node.GatewayId).ToList(), taskSummary);
+                versionStatuses.TryGetValue(node.GatewayId, out var versionStatus);
+                return ToEdgeNodeDto(node, attrs.Where(c => c.DeviceId == node.GatewayId).ToList(), taskSummary, versionStatus);
             }).ToList();
             var filtered = ApplyFilters(data, query);
             var ordered = ApplySorting(filtered, query);
@@ -109,8 +111,10 @@ namespace IoTSharp.Controllers
             var node = await EnsureEdgeNodeAsync(gateway);
             var attrs = await QueryEdgeAttributes([gateway.Id]);
             var taskSummaries = await QueryEdgeTaskSummariesAsync([gateway.Id]);
+            var versionStatuses = await QueryCollectionVersionStatusesAsync([gateway.Id]);
             taskSummaries.TryGetValue(gateway.Id, out var taskSummary);
-            return new ApiResult<EdgeNodeDto>(ApiCode.Success, "OK", ToEdgeNodeDto(node, attrs, taskSummary));
+            versionStatuses.TryGetValue(gateway.Id, out var versionStatus);
+            return new ApiResult<EdgeNodeDto>(ApiCode.Success, "OK", ToEdgeNodeDto(node, attrs, taskSummary, versionStatus));
         }
 
         [HttpGet("{id:guid}/RuntimeStatus")]
@@ -181,6 +185,27 @@ namespace IoTSharp.Controllers
                 ApiCode.Success,
                 "OK",
                 await QueryCollectionAssignmentsAsync(query, profile.Tenant, profile.Customer));
+        }
+
+        [HttpGet("{id:guid}/CollectionVersionStatus")]
+        [Authorize(Roles = nameof(UserRole.NormalUser))]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesDefaultResponseType]
+        public async Task<ApiResult<EdgeCollectionVersionStatusDto>> GetCollectionVersionStatus(Guid id)
+        {
+            var profile = this.GetUserProfile();
+            var gateway = await GetGatewayForProfileAsync(id, profile.Tenant, profile.Customer);
+            if (gateway == null)
+            {
+                return new ApiResult<EdgeCollectionVersionStatusDto>(ApiCode.NotFoundDevice, "Edge node not found", null);
+            }
+
+            var node = await EnsureEdgeNodeAsync(gateway);
+            var assignment = await ReadCurrentCollectionAssignmentAsync(gateway.Id);
+            return new ApiResult<EdgeCollectionVersionStatusDto>(
+                ApiCode.Success,
+                "OK",
+                ToEdgeCollectionVersionStatusDto(gateway.Id, node?.Id ?? gateway.Id, assignment));
         }
 
         [HttpGet("CollectionConfigVersions")]
@@ -930,6 +955,108 @@ namespace IoTSharp.Controllers
             };
         }
 
+        /// <summary>
+        /// 从当前目标分配派生采集配置当前/目标版本状态。
+        /// </summary>
+        /// <param name="gatewayId">承载配置拉取通道的 Gateway 设备 ID。</param>
+        /// <param name="edgeNodeId">平台侧 EdgeNode ID。</param>
+        /// <param name="assignment">当前 Active 分配；不存在时返回空目标状态。</param>
+        /// <returns>管理端可直接展示的版本状态快照。</returns>
+        private static EdgeCollectionVersionStatusDto ToEdgeCollectionVersionStatusDto(
+            Guid gatewayId,
+            Guid? edgeNodeId,
+            EdgeCollectionAssignment assignment)
+        {
+            if (assignment == null)
+            {
+                return new EdgeCollectionVersionStatusDto
+                {
+                    GatewayId = gatewayId,
+                    EdgeNodeId = edgeNodeId,
+                    DifferenceSummary = "暂无目标采集配置"
+                };
+            }
+
+            var hasCurrentVersion = assignment.AppliedConfigurationVersion.HasValue;
+            var hasTargetHash = !string.IsNullOrWhiteSpace(assignment.ConfigurationHash);
+            var currentHash = assignment.AppliedConfigurationHash ?? string.Empty;
+            var versionMatches = hasCurrentVersion && assignment.AppliedConfigurationVersion.Value == assignment.ConfigurationVersion;
+            var hashMatches = !hasTargetHash || string.Equals(currentHash, assignment.ConfigurationHash, StringComparison.OrdinalIgnoreCase);
+            var isTargetApplied = versionMatches && hashMatches;
+            var versionDelta = hasCurrentVersion ? assignment.ConfigurationVersion - assignment.AppliedConfigurationVersion.Value : (int?)null;
+            var hasDifference = !isTargetApplied;
+
+            return new EdgeCollectionVersionStatusDto
+            {
+                GatewayId = gatewayId,
+                EdgeNodeId = assignment.EdgeNodeId ?? edgeNodeId,
+                AssignmentId = assignment.Id,
+                TargetConfigurationVersionId = assignment.CollectionConfigurationVersionId,
+                TargetConfigurationVersion = assignment.ConfigurationVersion,
+                TargetConfigurationHash = assignment.ConfigurationHash ?? string.Empty,
+                TargetTaskCount = assignment.TaskCount,
+                TargetSourceType = assignment.SourceType ?? string.Empty,
+                TargetSourceId = assignment.SourceId ?? string.Empty,
+                TargetSourceVersion = assignment.SourceVersion ?? string.Empty,
+                TargetAssignedAt = assignment.AssignedAt,
+                LastPulledAt = assignment.LastPulledAt,
+                CurrentConfigurationVersion = assignment.AppliedConfigurationVersion,
+                CurrentConfigurationHash = currentHash,
+                CurrentAppliedAt = assignment.AppliedAt,
+                IsTargetApplied = isTargetApplied,
+                HasDifference = hasDifference,
+                VersionDelta = versionDelta,
+                DifferenceSummary = BuildCollectionVersionDifferenceSummary(assignment, isTargetApplied, versionDelta, hashMatches),
+                LastPublishTaskId = assignment.LastExecutionTaskId,
+                LastPublishStatus = assignment.LastExecutionStatus,
+                LastPublishMessage = assignment.LastExecutionMessage ?? string.Empty,
+                LastPublishProgress = assignment.LastExecutionProgress,
+                LastPublishAt = assignment.LastExecutionAt
+            };
+        }
+
+        /// <summary>
+        /// 生成面向管理端展示的采集配置差异摘要。
+        /// </summary>
+        /// <param name="assignment">当前目标分配。</param>
+        /// <param name="isTargetApplied">当前版本是否已到达目标版本。</param>
+        /// <param name="versionDelta">目标版本减去当前版本。</param>
+        /// <param name="hashMatches">当前哈希是否与目标哈希一致。</param>
+        /// <returns>差异说明。</returns>
+        private static string BuildCollectionVersionDifferenceSummary(
+            EdgeCollectionAssignment assignment,
+            bool isTargetApplied,
+            int? versionDelta,
+            bool hashMatches)
+        {
+            if (isTargetApplied)
+            {
+                return "当前版本已与目标版本一致";
+            }
+
+            if (!assignment.AppliedConfigurationVersion.HasValue)
+            {
+                return "执行端尚未确认已应用版本";
+            }
+
+            if (!hashMatches && assignment.AppliedConfigurationVersion.Value == assignment.ConfigurationVersion)
+            {
+                return "当前版本号一致但配置哈希不同";
+            }
+
+            if (versionDelta > 0)
+            {
+                return $"当前版本落后目标版本 {versionDelta.Value} 个版本";
+            }
+
+            if (versionDelta < 0)
+            {
+                return $"当前版本高于目标版本 {Math.Abs(versionDelta.Value)} 个版本";
+            }
+
+            return "当前版本和目标版本存在差异";
+        }
+
         private static EdgeCollectionAssignmentDto ToEdgeCollectionAssignmentDto(EdgeCollectionAssignment assignment)
         {
             return new EdgeCollectionAssignmentDto
@@ -1068,6 +1195,35 @@ namespace IoTSharp.Controllers
         }
 
         /// <summary>
+        /// 按 Gateway 汇总采集配置当前版本与目标版本，供 Edge 列表和详情展示版本差异。
+        /// </summary>
+        /// <param name="gatewayIds">承载 EdgeNode 的 Gateway 设备 ID 集合。</param>
+        /// <returns>按 Gateway ID 索引的采集配置版本状态。</returns>
+        private async Task<Dictionary<Guid, EdgeCollectionVersionStatusDto>> QueryCollectionVersionStatusesAsync(IEnumerable<Guid> gatewayIds)
+        {
+            var ids = gatewayIds?.Distinct().ToList() ?? [];
+            if (ids.Count == 0)
+            {
+                return [];
+            }
+
+            var assignments = await _context.EdgeCollectionAssignments
+                .Where(assignment => ids.Contains(assignment.GatewayId)
+                    && !assignment.Deleted
+                    && assignment.Status == EdgeCollectionAssignmentStatus.Active)
+                .OrderByDescending(assignment => assignment.AssignedAt)
+                .ToListAsync();
+
+            return ids.ToDictionary(
+                gatewayId => gatewayId,
+                gatewayId =>
+                {
+                    var assignment = assignments.FirstOrDefault(item => item.GatewayId == gatewayId);
+                    return ToEdgeCollectionVersionStatusDto(gatewayId, assignment?.EdgeNodeId ?? gatewayId, assignment);
+                });
+        }
+
+        /// <summary>
         /// 为历史 Gateway 补齐 EdgeNode 管理模型，避免升级后已有 Gateway 从 Edge 列表中消失。
         /// </summary>
         /// <param name="gateways">当前租户和客户可见的 Gateway 设备。</param>
@@ -1144,7 +1300,11 @@ namespace IoTSharp.Controllers
             return node;
         }
 
-        private EdgeNodeDto ToEdgeNodeDto(EdgeNode node, List<AttributeLatest> attrs, EdgeTaskSummary taskSummary)
+        private EdgeNodeDto ToEdgeNodeDto(
+            EdgeNode node,
+            List<AttributeLatest> attrs,
+            EdgeTaskSummary taskSummary,
+            EdgeCollectionVersionStatusDto versionStatus)
         {
             var gateway = node.Gateway;
             var runtimeStatus = ToEdgeRuntimeStatusDto(node, attrs);
@@ -1180,6 +1340,7 @@ namespace IoTSharp.Controllers
                 Metrics = metrics,
                 LastTaskStatus = taskSummary?.Status ?? string.Empty,
                 LastReceiptDateTime = taskSummary?.LastReceiptAt,
+                CollectionVersionStatus = versionStatus ?? ToEdgeCollectionVersionStatusDto(node.GatewayId, node.Id, null),
                 RuntimeStatus = runtimeStatus
             };
         }

@@ -12,6 +12,9 @@
     },
     {
       "$ref": "#/$defs/edgeCollectionConfigurationPullResult"
+    },
+    {
+      "$ref": "#/$defs/edgeCollectionVersionStatus"
     }
   ],
   "$defs": {
@@ -219,6 +222,197 @@
         },
         "configuration": {
           "$ref": "#/$defs/edgeCollectionConfiguration"
+        }
+      }
+    },
+    "edgeCollectionVersionStatus": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contractVersion",
+        "gatewayId",
+        "isTargetApplied",
+        "hasDifference",
+        "differenceSummary"
+      ],
+      "properties": {
+        "contractVersion": {
+          "const": "collection-config-v1"
+        },
+        "gatewayId": {
+          "$ref": "#/$defs/uuid"
+        },
+        "edgeNodeId": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/uuid"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "assignmentId": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/uuid"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "targetConfigurationVersionId": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/uuid"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "targetConfigurationVersion": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "targetConfigurationHash": {
+          "type": "string"
+        },
+        "targetTaskCount": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "targetSourceType": {
+          "type": "string"
+        },
+        "targetSourceId": {
+          "type": "string"
+        },
+        "targetSourceVersion": {
+          "type": "string"
+        },
+        "targetAssignedAt": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/dateTime"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "lastPulledAt": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/dateTime"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "currentConfigurationVersion": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "currentConfigurationHash": {
+          "type": "string"
+        },
+        "currentAppliedAt": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/dateTime"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "isTargetApplied": {
+          "type": "boolean"
+        },
+        "hasDifference": {
+          "type": "boolean"
+        },
+        "versionDelta": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "differenceSummary": {
+          "type": "string"
+        },
+        "lastPublishTaskId": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/uuid"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "lastPublishStatus": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/edgeTaskStatus"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "lastPublishMessage": {
+          "type": "string"
+        },
+        "lastPublishProgress": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "lastPublishAt": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/dateTime"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       }
     },

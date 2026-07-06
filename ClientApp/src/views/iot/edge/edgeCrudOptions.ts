@@ -117,6 +117,31 @@ export const createEdgeCrudOptions = function ({ expose, openOnboarding }, edgeD
 					search: { show: true },
 					column: { sortable: 'custom', width: 120 },
 				},
+				currentConfigurationVersion: {
+					title: '当前配置',
+					search: { show: false },
+					column: {
+						width: 110,
+						formatter: ({ row }) => formatConfigVersion(row.collectionVersionStatus?.currentConfigurationVersion),
+					},
+				},
+				targetConfigurationVersion: {
+					title: '目标配置',
+					search: { show: false },
+					column: {
+						width: 110,
+						formatter: ({ row }) => formatConfigVersion(row.collectionVersionStatus?.targetConfigurationVersion),
+					},
+				},
+				collectionVersionDifference: {
+					title: '配置差异',
+					search: { show: false },
+					column: {
+						minWidth: 190,
+						showOverflowTooltip: true,
+						formatter: ({ row }) => row.collectionVersionStatus?.differenceSummary || '暂无目标采集配置',
+					},
+				},
 				status: {
 					title: 'Status',
 					type: 'text',
@@ -188,3 +213,5 @@ export const createEdgeCrudOptions = function ({ expose, openOnboarding }, edgeD
 		},
 	};
 };
+
+const formatConfigVersion = (value?: number | null) => (typeof value === 'number' ? `v${value}` : '--');

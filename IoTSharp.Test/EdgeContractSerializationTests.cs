@@ -451,6 +451,51 @@ public sealed class EdgeContractSerializationTests
     }
 
     [Fact]
+    public void EdgeCollectionVersionStatusDto_SerializesCurrentAndTargetVersionState()
+    {
+        var dto = new EdgeCollectionVersionStatusDto
+        {
+            GatewayId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+            EdgeNodeId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+            AssignmentId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+            TargetConfigurationVersionId = Guid.Parse("55555555-5555-5555-5555-555555555555"),
+            TargetConfigurationVersion = 4,
+            TargetConfigurationHash = "TARGET-HASH",
+            TargetTaskCount = 2,
+            TargetSourceType = "ProductCollectionTemplate",
+            TargetSourceId = "template-01",
+            TargetSourceVersion = "7",
+            TargetAssignedAt = DateTime.Parse("2026-07-05T00:02:00Z").ToUniversalTime(),
+            LastPulledAt = DateTime.Parse("2026-07-05T00:03:00Z").ToUniversalTime(),
+            CurrentConfigurationVersion = 3,
+            CurrentConfigurationHash = "CURRENT-HASH",
+            CurrentAppliedAt = DateTime.Parse("2026-07-05T00:01:00Z").ToUniversalTime(),
+            IsTargetApplied = false,
+            HasDifference = true,
+            VersionDelta = 1,
+            DifferenceSummary = "当前版本落后目标版本 1 个版本",
+            LastPublishTaskId = Guid.Parse("44444444-4444-4444-4444-444444444444"),
+            LastPublishStatus = EdgeTaskStatus.Running,
+            LastPublishMessage = "applying",
+            LastPublishProgress = 50,
+            LastPublishAt = DateTime.Parse("2026-07-05T00:04:00Z").ToUniversalTime()
+        };
+
+        var json = JsonSerializer.Serialize(dto, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+        var roundtrip = JsonSerializer.Deserialize<EdgeCollectionVersionStatusDto>(json, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+
+        Assert.Contains("\"contractVersion\":\"collection-config-v1\"", json);
+        Assert.Contains("\"targetConfigurationVersion\":4", json);
+        Assert.Contains("\"currentConfigurationVersion\":3", json);
+        Assert.Contains("\"lastPublishStatus\":\"Running\"", json);
+        Assert.NotNull(roundtrip);
+        Assert.True(roundtrip!.HasDifference);
+        Assert.False(roundtrip.IsTargetApplied);
+        Assert.Equal(1, roundtrip.VersionDelta);
+        Assert.Equal(EdgeTaskStatus.Running, roundtrip.LastPublishStatus);
+    }
+
+    [Fact]
     public void EdgeHeartbeatDto_ToleratesFutureFields()
     {
         const string json = """

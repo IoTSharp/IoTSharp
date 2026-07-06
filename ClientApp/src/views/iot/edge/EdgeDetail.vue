@@ -154,8 +154,50 @@
 								{{ latestAssignment?.status || 'No Assignment' }}
 							</el-tag>
 						</div>
+						<div class="edge-version-strip">
+							<div class="edge-version-strip__item">
+								<span>当前版本</span>
+								<strong>{{ formatVersion(versionStatusSnapshot.currentConfigurationVersion) }}</strong>
+								<small>{{ shortHash(versionStatusSnapshot.currentConfigurationHash) }}</small>
+							</div>
+							<div class="edge-version-strip__item">
+								<span>目标版本</span>
+								<strong>{{ formatVersion(versionStatusSnapshot.targetConfigurationVersion) }}</strong>
+								<small>{{ shortHash(versionStatusSnapshot.targetConfigurationHash) }}</small>
+							</div>
+							<div class="edge-version-strip__item edge-version-strip__item--wide">
+								<span>差异</span>
+								<strong>
+									<el-tag :type="versionStatusSnapshot.hasDifference ? 'warning' : 'success'" effect="plain">
+										{{ versionStatusSnapshot.hasDifference ? '待同步' : '一致' }}
+									</el-tag>
+								</strong>
+								<small>{{ versionStatusSnapshot.differenceSummary }}</small>
+							</div>
+							<div class="edge-version-strip__item edge-version-strip__item--wide">
+								<span>最近发布结果</span>
+								<strong>
+									<el-tag :type="taskStatusTagType(versionStatusSnapshot.lastPublishStatus || '')" effect="plain">
+										{{ versionStatusSnapshot.lastPublishStatus || '--' }}
+									</el-tag>
+								</strong>
+								<small>{{ formatDateTime(versionStatusSnapshot.lastPublishAt) }}</small>
+							</div>
+						</div>
 						<el-table :data="collectionAssignments" stripe>
-							<el-table-column prop="configurationVersion" label="Version" width="95" />
+							<el-table-column prop="configurationVersion" label="Target" width="95">
+								<template #default="scope">{{ formatVersion(scope.row.configurationVersion) }}</template>
+							</el-table-column>
+							<el-table-column prop="appliedConfigurationVersion" label="Current" width="105">
+								<template #default="scope">{{ formatVersion(scope.row.appliedConfigurationVersion) }}</template>
+							</el-table-column>
+							<el-table-column label="Diff" min-width="160" show-overflow-tooltip>
+								<template #default="scope">
+									<el-tag :type="assignmentHasDifference(scope.row) ? 'warning' : 'success'" effect="plain">
+										{{ assignmentDifferenceText(scope.row) }}
+									</el-tag>
+								</template>
+							</el-table-column>
 							<el-table-column prop="status" label="Status" width="120">
 								<template #default="scope">
 									<el-tag :type="assignmentStatusTagType(scope.row.status)" effect="plain">{{ scope.row.status }}</el-tag>
@@ -172,6 +214,25 @@
 							</el-table-column>
 							<el-table-column prop="lastPulledAt" label="LastPulledAt" min-width="170">
 								<template #default="scope">{{ formatDateTime(scope.row.lastPulledAt) }}</template>
+							</el-table-column>
+							<el-table-column prop="lastExecutionStatus" label="LastResult" min-width="130">
+								<template #default="scope">
+									<el-tag :type="taskStatusTagType(scope.row.lastExecutionStatus)" effect="plain">{{ scope.row.lastExecutionStatus || '--' }}</el-tag>
+								</template>
+							</el-table-column>
+							<el-table-column prop="lastExecutionProgress" label="Progress" width="120">
+								<template #default="scope">
+									<el-progress
+										v-if="typeof scope.row.lastExecutionProgress === 'number'"
+										:percentage="scope.row.lastExecutionProgress"
+										:stroke-width="6"
+										:show-text="false"
+									/>
+									<span v-else>--</span>
+								</template>
+							</el-table-column>
+							<el-table-column prop="lastExecutionAt" label="LastResultAt" min-width="170">
+								<template #default="scope">{{ formatDateTime(scope.row.lastExecutionAt) }}</template>
 							</el-table-column>
 						</el-table>
 					</article>
@@ -344,6 +405,7 @@ import {
 	edgeApi,
 	type EdgeCapability,
 	type EdgeCollectionAssignment,
+	type EdgeCollectionVersionStatus,
 	type EdgeRuntimeStatus,
 	type EdgeTaskHistoryRecord,
 	type EdgeTaskReceipt,
@@ -375,6 +437,7 @@ const capability = ref<EdgeCapability | null>(null);
 const latestReceipt = ref<EdgeTaskReceipt | null>(null);
 const receiptHistory = ref<NormalizedHistoryRecord[]>([]);
 const collectionAssignments = ref<EdgeCollectionAssignment[]>([]);
+const collectionVersionStatus = ref<EdgeCollectionVersionStatus | null>(null);
 const dispatchDialog = ref(false);
 const stateMachine = reactive<EdgeTaskStateMachine>({
 	contractVersion: '',
@@ -542,6 +605,15 @@ const assignmentSummary = computed(() => {
 	return `Active ${activeAssignments.value.length} / Total ${collectionAssignments.value.length}`;
 });
 
+const versionStatusSnapshot = computed(() => {
+	const source = collectionVersionStatus.value ?? edgeRef.value?.collectionVersionStatus;
+	if (source && (source.gatewayId || source.targetConfigurationVersion !== undefined || source.currentConfigurationVersion !== undefined)) {
+		return normalizeVersionStatus(source);
+	}
+
+	return buildVersionStatusFromAssignment(latestAssignment.value);
+});
+
 const badges = computed(() => [
 	runtimeSnapshot.value.runtimeType || 'unknown-runtime',
 	runtimeSnapshot.value.status || 'unknown-status',
@@ -552,7 +624,7 @@ const metrics = computed(() => [
 	{ label: 'Status', value: runtimeSnapshot.value.status || '--', hint: '运行态快照状态', tone: statusTone(runtimeSnapshot.value.status) },
 	{ label: 'Heartbeat', value: formatDateTime(runtimeSnapshot.value.lastHeartbeatDateTime), hint: '最近心跳', tone: 'primary' as const },
 	{ label: 'Capability', value: capabilityProtocolTags.value.length, hint: '协议能力数量', tone: 'accent' as const },
-	{ label: 'Assignment', value: latestAssignment.value?.configurationVersion ?? '暂无', hint: '当前配置版本', tone: 'success' as const },
+	{ label: 'Assignment', value: formatVersionPair(versionStatusSnapshot.value), hint: versionStatusSnapshot.value.differenceSummary, tone: versionStatusSnapshot.value.hasDifference ? 'warning' as const : 'success' as const },
 	{ label: 'Task', value: latestReceipt.value?.status || '暂无', hint: '最近任务状态', tone: statusTone(latestReceipt.value?.status) },
 	{ label: 'History', value: receiptHistory.value.length, hint: '最近任务事件', tone: 'warning' as const },
 ]);
@@ -578,11 +650,134 @@ const statusTiles = computed(() => [
 	},
 	{
 		label: '采集配置',
-		value: latestAssignment.value?.configurationVersion ?? '--',
-		hint: latestAssignment.value?.targetKey || '--',
-		tone: latestAssignment.value?.status === 'Active' ? 'accent' : 'warning',
+		value: formatVersionPair(versionStatusSnapshot.value),
+		hint: versionStatusSnapshot.value.differenceSummary || latestAssignment.value?.targetKey || '--',
+		tone: versionStatusSnapshot.value.hasDifference ? 'warning' : 'accent',
 	},
 ]);
+
+function normalizeVersionStatus(source: Partial<EdgeCollectionVersionStatus>): EdgeCollectionVersionStatus {
+	return {
+		contractVersion: source.contractVersion || 'collection-config-v1',
+		gatewayId: source.gatewayId || runtimeSnapshot.value.gatewayId || edgeRef.value?.id || '',
+		edgeNodeId: source.edgeNodeId || runtimeSnapshot.value.edgeNodeId || edgeRef.value?.id || '',
+		assignmentId: source.assignmentId,
+		targetConfigurationVersionId: source.targetConfigurationVersionId,
+		targetConfigurationVersion: source.targetConfigurationVersion ?? null,
+		targetConfigurationHash: source.targetConfigurationHash || '',
+		targetTaskCount: source.targetTaskCount ?? null,
+		targetSourceType: source.targetSourceType || '',
+		targetSourceId: source.targetSourceId || '',
+		targetSourceVersion: source.targetSourceVersion || '',
+		targetAssignedAt: source.targetAssignedAt ?? null,
+		lastPulledAt: source.lastPulledAt ?? null,
+		currentConfigurationVersion: source.currentConfigurationVersion ?? null,
+		currentConfigurationHash: source.currentConfigurationHash || '',
+		currentAppliedAt: source.currentAppliedAt ?? null,
+		isTargetApplied: Boolean(source.isTargetApplied),
+		hasDifference: Boolean(source.hasDifference),
+		versionDelta: source.versionDelta ?? null,
+		differenceSummary: source.differenceSummary || '暂无目标采集配置',
+		lastPublishTaskId: source.lastPublishTaskId,
+		lastPublishStatus: source.lastPublishStatus ?? null,
+		lastPublishMessage: source.lastPublishMessage || '',
+		lastPublishProgress: source.lastPublishProgress ?? null,
+		lastPublishAt: source.lastPublishAt ?? null,
+	};
+}
+
+function buildVersionStatusFromAssignment(assignment?: EdgeCollectionAssignment | null): EdgeCollectionVersionStatus {
+	if (!assignment) {
+		return normalizeVersionStatus({
+			differenceSummary: '暂无目标采集配置',
+		});
+	}
+
+	const targetVersion = assignment.configurationVersion;
+	const currentVersion = assignment.appliedConfigurationVersion ?? null;
+	const hasTargetHash = Boolean(assignment.configurationHash);
+	const hashMatches = !hasTargetHash || String(assignment.appliedConfigurationHash || '').toLowerCase() === String(assignment.configurationHash || '').toLowerCase();
+	const versionMatches = typeof currentVersion === 'number' && currentVersion === targetVersion;
+	const isTargetApplied = versionMatches && hashMatches;
+	const versionDelta = typeof currentVersion === 'number' ? targetVersion - currentVersion : null;
+
+	return normalizeVersionStatus({
+		gatewayId: assignment.gatewayId,
+		edgeNodeId: assignment.edgeNodeId,
+		assignmentId: assignment.id,
+		targetConfigurationVersionId: assignment.collectionConfigurationVersionId,
+		targetConfigurationVersion: targetVersion,
+		targetConfigurationHash: assignment.configurationHash,
+		targetTaskCount: assignment.taskCount,
+		targetSourceType: assignment.sourceType,
+		targetSourceId: assignment.sourceId,
+		targetSourceVersion: assignment.sourceVersion,
+		targetAssignedAt: assignment.assignedAt,
+		lastPulledAt: assignment.lastPulledAt,
+		currentConfigurationVersion: currentVersion,
+		currentConfigurationHash: assignment.appliedConfigurationHash,
+		currentAppliedAt: assignment.appliedAt,
+		isTargetApplied,
+		hasDifference: !isTargetApplied,
+		versionDelta,
+		differenceSummary: buildDifferenceSummary(currentVersion, targetVersion, versionDelta, isTargetApplied, hashMatches),
+		lastPublishTaskId: assignment.lastExecutionTaskId,
+		lastPublishStatus: assignment.lastExecutionStatus,
+		lastPublishMessage: assignment.lastExecutionMessage,
+		lastPublishProgress: assignment.lastExecutionProgress,
+		lastPublishAt: assignment.lastExecutionAt,
+	});
+}
+
+function buildDifferenceSummary(
+	currentVersion: number | null,
+	targetVersion: number,
+	versionDelta: number | null,
+	isTargetApplied: boolean,
+	hashMatches: boolean
+) {
+	if (isTargetApplied) {
+		return '当前版本已与目标版本一致';
+	}
+
+	if (currentVersion === null) {
+		return '执行端尚未确认已应用版本';
+	}
+
+	if (!hashMatches && currentVersion === targetVersion) {
+		return '当前版本号一致但配置哈希不同';
+	}
+
+	if (typeof versionDelta === 'number' && versionDelta > 0) {
+		return `当前版本落后目标版本 ${versionDelta} 个版本`;
+	}
+
+	if (typeof versionDelta === 'number' && versionDelta < 0) {
+		return `当前版本高于目标版本 ${Math.abs(versionDelta)} 个版本`;
+	}
+
+	return '当前版本和目标版本存在差异';
+}
+
+const formatVersion = (value?: number | null) => (typeof value === 'number' ? `v${value}` : '--');
+
+const formatVersionPair = (status: EdgeCollectionVersionStatus) => `${formatVersion(status.currentConfigurationVersion)} -> ${formatVersion(status.targetConfigurationVersion)}`;
+
+const shortHash = (value?: string | null) => {
+	if (!value) {
+		return '--';
+	}
+
+	const text = String(value);
+	return text.length > 16 ? `${text.slice(0, 8)}...${text.slice(-6)}` : text;
+};
+
+const assignmentHasDifference = (assignment: EdgeCollectionAssignment) => buildVersionStatusFromAssignment(assignment).hasDifference;
+
+const assignmentDifferenceText = (assignment: EdgeCollectionAssignment) => {
+	const status = buildVersionStatusFromAssignment(assignment);
+	return status.hasDifference ? status.differenceSummary : '一致';
+};
 
 const formatDateTime = (value?: string | Date | null) => (value ? dayjs(value).format('YYYY-MM-DD HH:mm:ss') : '--');
 
@@ -772,7 +967,7 @@ const reload = async () => {
 	loading.value = true;
 	try {
 		const edgeId = edgeRef.value.id;
-		const [detailRes, runtimeRes, capabilityRes, receiptRes, historyRes, stateMachineRes, assignmentRes] = await Promise.all([
+		const [detailRes, runtimeRes, capabilityRes, receiptRes, historyRes, stateMachineRes, assignmentRes, versionStatusRes] = await Promise.all([
 			api.getEdgeDetail(edgeId),
 			api.getRuntimeStatus(edgeId),
 			api.getCapability(edgeId),
@@ -780,6 +975,7 @@ const reload = async () => {
 			api.getReceiptHistory(edgeId),
 			api.getStateMachine(),
 			api.getCollectionAssignments(edgeId, { offset: 0, limit: 20, sorter: 'ConfigurationVersion', sort: 'desc' }),
+			api.getCollectionVersionStatus(edgeId),
 		]);
 
 		edgeRef.value = detailRes.data ?? {};
@@ -788,6 +984,7 @@ const reload = async () => {
 		latestReceipt.value = receiptRes.data ?? null;
 		receiptHistory.value = ((historyRes.data ?? []) as EdgeTaskHistoryRecord[]).map(normalizeHistoryRecord);
 		collectionAssignments.value = assignmentRes.data?.rows ?? [];
+		collectionVersionStatus.value = versionStatusRes.data ?? edgeRef.value.collectionVersionStatus ?? null;
 		stateMachine.contractVersion = stateMachineRes.data?.contractVersion ?? '';
 		stateMachine.states = stateMachineRes.data?.states ?? [];
 		stateMachine.transitions = stateMachineRes.data?.transitions ?? {};
@@ -877,6 +1074,7 @@ const openDialog = async (edge: Record<string, any>) => {
 	latestReceipt.value = null;
 	receiptHistory.value = [];
 	collectionAssignments.value = [];
+	collectionVersionStatus.value = edgeRef.value.collectionVersionStatus ?? null;
 	drawer.value = true;
 	await reload();
 };
@@ -1023,6 +1221,48 @@ defineExpose({
 	gap: 14px;
 }
 
+.edge-version-strip {
+	display: grid;
+	grid-template-columns: minmax(130px, 0.8fr) minmax(130px, 0.8fr) minmax(180px, 1.2fr) minmax(180px, 1.2fr);
+	gap: 12px;
+	margin-bottom: 14px;
+}
+
+.edge-version-strip__item {
+	min-width: 0;
+	min-height: 92px;
+	padding: 12px;
+	border-radius: 12px;
+	background: rgba(248, 250, 252, 0.92);
+	border: 1px solid rgba(226, 232, 240, 0.82);
+}
+
+.edge-version-strip__item span {
+	display: block;
+	color: #64748b;
+	font-size: 12px;
+	font-weight: 700;
+}
+
+.edge-version-strip__item strong {
+	display: block;
+	margin-top: 8px;
+	min-height: 24px;
+	color: #123b6d;
+	font-size: 18px;
+	line-height: 1.35;
+	word-break: break-word;
+}
+
+.edge-version-strip__item small {
+	display: block;
+	margin-top: 8px;
+	color: #7890a8;
+	font-size: 12px;
+	line-height: 1.45;
+	word-break: break-word;
+}
+
 .edge-tag-group {
 	min-height: 86px;
 	padding: 12px;
@@ -1140,12 +1380,17 @@ defineExpose({
 	.edge-detail__task-grid {
 		grid-template-columns: 1fr;
 	}
+
+	.edge-version-strip {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
 }
 
 @media (max-width: 767px) {
 	.edge-detail__status-grid,
 	.edge-detail__state-grid,
-	.edge-capability-groups {
+	.edge-capability-groups,
+	.edge-version-strip {
 		grid-template-columns: 1fr;
 	}
 

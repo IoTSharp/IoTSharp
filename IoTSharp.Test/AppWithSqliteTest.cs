@@ -541,6 +541,34 @@ namespace IoTSharp.Test
             Assert.Equal(publishResult.Data.ConfigurationVersion.Version, storedAssignment.AppliedConfigurationVersion);
             Assert.Equal(publishResult.Data.ConfigurationVersion.ConfigurationHash, storedAssignment.AppliedConfigurationHash);
             Assert.NotNull(storedAssignment.AppliedAt);
+
+            var versionStatus = await GetApiResultAsync<EdgeCollectionVersionStatusDto>(client, $"/api/Edge/{deviceId}/CollectionVersionStatus");
+            Assert.Equal((int)ApiCode.Success, versionStatus.Code);
+            Assert.NotNull(versionStatus.Data);
+            Assert.Equal(publishResult.Data.Assignment.Id, versionStatus.Data!.AssignmentId);
+            Assert.Equal(publishResult.Data.ConfigurationVersion.Id, versionStatus.Data.TargetConfigurationVersionId);
+            Assert.Equal(publishResult.Data.ConfigurationVersion.Version, versionStatus.Data.TargetConfigurationVersion);
+            Assert.Equal(publishResult.Data.ConfigurationVersion.Version, versionStatus.Data.CurrentConfigurationVersion);
+            Assert.Equal(publishResult.Data.ConfigurationVersion.ConfigurationHash, versionStatus.Data.TargetConfigurationHash);
+            Assert.Equal(publishResult.Data.ConfigurationVersion.ConfigurationHash, versionStatus.Data.CurrentConfigurationHash);
+            Assert.False(versionStatus.Data.HasDifference);
+            Assert.True(versionStatus.Data.IsTargetApplied);
+            Assert.Equal(0, versionStatus.Data.VersionDelta);
+            Assert.Equal(EdgeTaskStatus.Succeeded, versionStatus.Data.LastPublishStatus);
+            Assert.Contains("一致", versionStatus.Data.DifferenceSummary);
+
+            var edgeDetail = await GetApiResultAsync<EdgeNodeDto>(client, $"/api/Edge/{deviceId}");
+            Assert.Equal((int)ApiCode.Success, edgeDetail.Code);
+            Assert.NotNull(edgeDetail.Data);
+            Assert.Equal(versionStatus.Data.TargetConfigurationVersion, edgeDetail.Data!.CollectionVersionStatus.TargetConfigurationVersion);
+            Assert.Equal(versionStatus.Data.CurrentConfigurationVersion, edgeDetail.Data.CollectionVersionStatus.CurrentConfigurationVersion);
+
+            var edgeList = await GetApiResultAsync<PagedData<EdgeNodeDto>>(client, "/api/Edge?offset=0&limit=100");
+            Assert.Equal((int)ApiCode.Success, edgeList.Code);
+            Assert.Contains(edgeList.Data!.rows, row =>
+                row.GatewayId == deviceId &&
+                row.CollectionVersionStatus.TargetConfigurationVersion == publishResult.Data.ConfigurationVersion.Version &&
+                row.CollectionVersionStatus.IsTargetApplied);
         }
 
         private async Task AssertStoredEdgeTaskAsync(Guid taskId, IoTSharp.Contracts.EdgeTaskStatus status, Guid gatewayId, int? progress)

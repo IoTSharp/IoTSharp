@@ -113,6 +113,137 @@ namespace IoTSharp.Contracts
         public EdgeCollectionConfigurationDto Configuration { get; init; } = new();
     }
 
+    /// <summary>
+    /// Edge 采集配置当前版本、目标版本和最近发布结果快照，用于管理端列表和详情展示。
+    /// </summary>
+    public sealed record EdgeCollectionVersionStatusDto
+    {
+        /// <summary>
+        /// 采集配置状态快照合同版本。
+        /// </summary>
+        public string ContractVersion { get; init; } = EdgeNodeContractVersions.CollectionConfigV1;
+
+        /// <summary>
+        /// 承载接入凭证和配置拉取通道的 Gateway 设备 ID。
+        /// </summary>
+        public Guid GatewayId { get; init; }
+
+        /// <summary>
+        /// 平台侧 EdgeNode ID。
+        /// </summary>
+        public Guid? EdgeNodeId { get; init; }
+
+        /// <summary>
+        /// 当前目标分配记录 ID。
+        /// </summary>
+        public Guid? AssignmentId { get; init; }
+
+        /// <summary>
+        /// 当前目标配置版本记录 ID。
+        /// </summary>
+        public Guid? TargetConfigurationVersionId { get; init; }
+
+        /// <summary>
+        /// 平台期望执行端应用的目标配置版本。
+        /// </summary>
+        public int? TargetConfigurationVersion { get; init; }
+
+        /// <summary>
+        /// 目标配置哈希。
+        /// </summary>
+        public string TargetConfigurationHash { get; init; } = string.Empty;
+
+        /// <summary>
+        /// 目标配置包含的采集任务数量。
+        /// </summary>
+        public int? TargetTaskCount { get; init; }
+
+        /// <summary>
+        /// 目标配置来源类型。
+        /// </summary>
+        public string TargetSourceType { get; init; } = string.Empty;
+
+        /// <summary>
+        /// 目标配置来源标识。
+        /// </summary>
+        public string TargetSourceId { get; init; } = string.Empty;
+
+        /// <summary>
+        /// 目标配置来源版本。
+        /// </summary>
+        public string TargetSourceVersion { get; init; } = string.Empty;
+
+        /// <summary>
+        /// 平台分配目标配置的 UTC 时间。
+        /// </summary>
+        public DateTime? TargetAssignedAt { get; init; }
+
+        /// <summary>
+        /// 执行端最近一次拉取目标配置的 UTC 时间。
+        /// </summary>
+        public DateTime? LastPulledAt { get; init; }
+
+        /// <summary>
+        /// 执行端最近确认成功应用的当前配置版本。
+        /// </summary>
+        public int? CurrentConfigurationVersion { get; init; }
+
+        /// <summary>
+        /// 执行端最近确认成功应用的当前配置哈希。
+        /// </summary>
+        public string CurrentConfigurationHash { get; init; } = string.Empty;
+
+        /// <summary>
+        /// 执行端最近确认成功应用配置的 UTC 时间。
+        /// </summary>
+        public DateTime? CurrentAppliedAt { get; init; }
+
+        /// <summary>
+        /// 当前版本是否已经与目标版本一致。
+        /// </summary>
+        public bool IsTargetApplied { get; init; }
+
+        /// <summary>
+        /// 当前版本与目标版本是否存在差异。
+        /// </summary>
+        public bool HasDifference { get; init; }
+
+        /// <summary>
+        /// 目标版本减去当前版本；无法计算时为空。
+        /// </summary>
+        public int? VersionDelta { get; init; }
+
+        /// <summary>
+        /// 面向管理端展示的差异摘要。
+        /// </summary>
+        public string DifferenceSummary { get; init; } = string.Empty;
+
+        /// <summary>
+        /// 最近一次配置发布或拉取请求任务 ID。
+        /// </summary>
+        public Guid? LastPublishTaskId { get; init; }
+
+        /// <summary>
+        /// 最近一次配置发布或拉取请求任务状态。
+        /// </summary>
+        public EdgeTaskStatus? LastPublishStatus { get; init; }
+
+        /// <summary>
+        /// 最近一次配置发布或拉取请求任务消息。
+        /// </summary>
+        public string LastPublishMessage { get; init; } = string.Empty;
+
+        /// <summary>
+        /// 最近一次配置发布或拉取请求任务进度。
+        /// </summary>
+        public int? LastPublishProgress { get; init; }
+
+        /// <summary>
+        /// 最近一次配置发布或拉取请求回执时间。
+        /// </summary>
+        public DateTime? LastPublishAt { get; init; }
+    }
+
     public sealed record EdgeCollectionConfigurationUpdateDto
     {
         public IReadOnlyList<CollectionTaskDto> Tasks { get; init; } = [];

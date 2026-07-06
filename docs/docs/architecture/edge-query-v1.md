@@ -357,6 +357,25 @@ assignment 回写字段：
 
 `Accepted`、`Running`、`Failed`、`TimedOut`、`Cancelled` 只更新最近执行态；`Succeeded` 额外更新已应用版本、哈希和应用时间。完整回执流水仍写入 `EdgeTaskReceipt`，管理端可用 assignment 做列表态展示，用任务历史做追溯。
 
+## 当前版本和目标版本展示（#044）
+
+`EdgeCollectionVersionStatusDto` 是管理端展示用的只读摘要，来源于当前 Active `EdgeCollectionAssignment`，不替代 `CollectionConfigurationVersion`、`EdgeTask` 或 `EdgeTaskReceipt`。
+
+新增查询：
+
+- `GET /api/Edge/{id}/CollectionVersionStatus`：返回指定 Edge/Gateway 的当前配置版本、目标配置版本、差异摘要和最近配置发布结果。
+- `GET /api/Edge` 与 `GET /api/Edge/{id}`：在 `EdgeNodeDto.collectionVersionStatus` 中同步返回同一摘要，便于列表和详情首屏展示。
+
+字段含义：
+
+- `targetConfigurationVersion` / `targetConfigurationHash`：平台当前希望执行端应用的目标配置。
+- `currentConfigurationVersion` / `currentConfigurationHash`：执行端通过成功回执确认已应用的当前配置。
+- `isTargetApplied`：当前版本号和配置哈希均与目标配置一致时为 true。
+- `hasDifference` 与 `differenceSummary`：管理端差异展示字段；版本一致但哈希不同也视为差异。
+- `lastPublishTaskId`、`lastPublishStatus`、`lastPublishProgress`、`lastPublishAt`：最近一次配置发布或拉取请求回执摘要。
+
+该摘要只回答“当前是否已经到达目标配置”。失败重试、审计查询和历史回放继续归 #045，不在该 DTO 中堆叠长周期发布编排。
+
 ### 查询返回结构
 
 统一返回现有前端分页表格格式：

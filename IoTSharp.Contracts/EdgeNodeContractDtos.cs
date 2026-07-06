@@ -553,6 +553,11 @@ namespace IoTSharp.Contracts
         public DateTime? LastReceiptDateTime { get; set; }
 
         /// <summary>
+        /// 采集配置当前版本、目标版本和最近发布结果快照。
+        /// </summary>
+        public EdgeCollectionVersionStatusDto CollectionVersionStatus { get; set; } = new();
+
+        /// <summary>
         /// 正式运行时状态快照。扁平字段保留用于兼容既有控制台和执行端。
         /// </summary>
         public EdgeRuntimeStatusDto RuntimeStatus { get; set; } = new();

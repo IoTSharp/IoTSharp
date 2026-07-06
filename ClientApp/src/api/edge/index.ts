@@ -102,10 +102,40 @@ export interface EdgeTaskListQueryParam extends IListQueryParam {
 }
 
 export type EdgeCollectionAssignmentStatus = 'Pending' | 'Active' | 'Superseded' | 'Revoked';
+export type EdgeTaskStatus = 'Pending' | 'Sent' | 'Accepted' | 'Running' | 'Succeeded' | 'Failed' | 'TimedOut' | 'Cancelled';
+
+export interface EdgeCollectionVersionStatus {
+	contractVersion: string;
+	gatewayId: string;
+	edgeNodeId?: string;
+	assignmentId?: string;
+	targetConfigurationVersionId?: string;
+	targetConfigurationVersion?: number | null;
+	targetConfigurationHash: string;
+	targetTaskCount?: number | null;
+	targetSourceType: string;
+	targetSourceId: string;
+	targetSourceVersion: string;
+	targetAssignedAt?: string | null;
+	lastPulledAt?: string | null;
+	currentConfigurationVersion?: number | null;
+	currentConfigurationHash: string;
+	currentAppliedAt?: string | null;
+	isTargetApplied: boolean;
+	hasDifference: boolean;
+	versionDelta?: number | null;
+	differenceSummary: string;
+	lastPublishTaskId?: string;
+	lastPublishStatus?: EdgeTaskStatus | null;
+	lastPublishMessage: string;
+	lastPublishProgress?: number | null;
+	lastPublishAt?: string | null;
+}
 
 export interface EdgeCollectionAssignment {
 	contractVersion: string;
 	id: string;
+	collectionConfigurationVersionId?: string;
 	targetType: 'EdgeNode' | 'GatewayRuntime' | 'DeviceScope';
 	gatewayId: string;
 	edgeNodeId?: string;
@@ -121,6 +151,14 @@ export interface EdgeCollectionAssignment {
 	sourceVersion: string;
 	assignedAt: string;
 	lastPulledAt?: string;
+	lastExecutionTaskId?: string;
+	lastExecutionStatus?: EdgeTaskStatus | null;
+	lastExecutionMessage: string;
+	lastExecutionProgress?: number | null;
+	lastExecutionAt?: string;
+	appliedConfigurationVersion?: number | null;
+	appliedConfigurationHash: string;
+	appliedAt?: string;
 	revokedAt?: string;
 	createdAt: string;
 	updatedAt: string;
@@ -229,6 +267,12 @@ export function edgeApi() {
 				url: `/api/Edge/${id}/CollectionAssignments`,
 				method: 'get',
 				params,
+			});
+		},
+		getCollectionVersionStatus: (id: string) => {
+			return request({
+				url: `/api/Edge/${id}/CollectionVersionStatus`,
+				method: 'get',
 			});
 		},
 		createEdgeNode: (payload: EdgeNodeCreatePayload) => {
