@@ -87,7 +87,14 @@ export interface EdgeTaskAddressPayload {
 export interface EdgeTaskRequestPayload {
 	contractVersion: string;
 	taskId: string;
-	taskType: 'ConfigPush' | 'ConfigPullRequest' | 'PackageDownload' | 'PackageApply' | 'RestartRuntime' | 'HealthProbe';
+	taskType:
+		| 'ConfigPush'
+		| 'ConfigPullRequest'
+		| 'PackageDownload'
+		| 'PackageApply'
+		| 'RestartRuntime'
+		| 'HealthProbe'
+		| 'SoftwareUpdate';
 	address: EdgeTaskAddressPayload;
 	createdAt: string;
 	expireAt?: string;

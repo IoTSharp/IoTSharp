@@ -30,6 +30,8 @@ public sealed class EdgeContractSerializationTests
         Assert.Equal(EdgeNodeContractVersions.CollectionConfigV1, new EdgeCollectionConfigurationPullResultDto().ContractVersion);
         Assert.Equal(EdgeNodeContractVersions.CollectionConfigV1, new CollectionConfigurationVersionDto().ContractVersion);
         Assert.Equal(EdgeNodeContractVersions.CollectionConfigV1, new EdgeCollectionAssignmentDto().ContractVersion);
+        Assert.Equal("release-package-v1", EdgeNodeContractVersions.ReleasePackageV1);
+        Assert.Equal(EdgeNodeContractVersions.ReleasePackageV1, new ReleasePackageDto().ContractVersion);
     }
 
     [Fact]
@@ -41,9 +43,12 @@ public sealed class EdgeContractSerializationTests
             "edge-node.v1.schema.json",
             "collection-config.v1.schema.json",
             "edge-task.v1.schema.json",
+            "release-package.v1.schema.json",
             Path.Combine("examples", "edge-node.v1.sample.json"),
             Path.Combine("examples", "collection-config.v1.sample.json"),
-            Path.Combine("examples", "edge-task.v1.sample.json")
+            Path.Combine("examples", "edge-task.v1.sample.json"),
+            Path.Combine("examples", "edge-task.software-update.v1.sample.json"),
+            Path.Combine("examples", "release-package.v1.sample.json")
         };
 
         foreach (var file in files)
@@ -344,6 +349,79 @@ public sealed class EdgeContractSerializationTests
         Assert.Contains("\"contractVersion\":\"edge-task-v1\"", json);
         Assert.Contains("\"taskType\":\"HealthProbe\"", json);
         Assert.Contains("\"targetType\":\"EdgeNode\"", json);
+    }
+
+    [Fact]
+    public void ReleasePackageDto_SerializesSoftwarePackageMetadata()
+    {
+        var packageId = Guid.Parse("33333333-3333-3333-3333-333333333333");
+        var dto = new ReleasePackageDto
+        {
+            Id = packageId,
+            PackageType = ReleasePackageType.Software,
+            PackageKey = "iotedge-gateway",
+            Name = "IoTEdge Gateway Runtime",
+            Version = "1.4.0",
+            TargetRuntimeType = EdgeRuntimeTypes.Gateway,
+            TargetRuntimeVersion = ">=1.3.0",
+            FileName = "iotedge-gateway-1.4.0-linux-x64.zip",
+            ContentType = "application/zip",
+            Size = 1024,
+            Sha256 = "6D37795021E544D998C3A77A825EA542D52094C9AB63F6D0D42C79FE2E176FF8",
+            Metadata = new Dictionary<string, object> { ["channel"] = "stable" },
+            CreatedAt = DateTime.Parse("2026-07-06T08:12:00Z").ToUniversalTime(),
+            UpdatedAt = DateTime.Parse("2026-07-06T08:12:00Z").ToUniversalTime(),
+            CreatedBy = "operator@example.com",
+            UpdatedBy = "operator@example.com"
+        };
+
+        var json = JsonSerializer.Serialize(dto, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+        var roundtrip = JsonSerializer.Deserialize<ReleasePackageDto>(json, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+
+        Assert.Contains("\"contractVersion\":\"release-package-v1\"", json);
+        Assert.Contains("\"packageType\":\"Software\"", json);
+        Assert.Contains("\"targetRuntimeType\":\"gateway\"", json);
+        Assert.Contains("\"sha256\":\"6D37795021E544D998C3A77A825EA542D52094C9AB63F6D0D42C79FE2E176FF8\"", json);
+        Assert.NotNull(roundtrip);
+        Assert.Equal(packageId, roundtrip!.Id);
+        Assert.Equal(ReleasePackageType.Software, roundtrip.PackageType);
+        Assert.Equal("1.4.0", roundtrip.Version);
+    }
+
+    [Fact]
+    public void SoftwareUpdateEdgeTask_SerializesReleasePackageParameters()
+    {
+        var packageId = Guid.Parse("33333333-3333-3333-3333-333333333333");
+        var gatewayId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+        var dto = new EdgeTaskRequestDto
+        {
+            TaskId = Guid.Parse("44444444-4444-4444-4444-444444444444"),
+            TaskType = EdgeTaskType.SoftwareUpdate,
+            CreatedAt = DateTime.Parse("2026-07-06T08:15:00Z").ToUniversalTime(),
+            Address = new EdgeTaskAddressDto
+            {
+                TargetType = EdgeTaskTargetType.GatewayRuntime,
+                DeviceId = gatewayId,
+                RuntimeType = EdgeRuntimeTypes.Gateway,
+                InstanceId = "gateway-a-01",
+                TargetKey = $"{gatewayId}:gateway:gateway-a-01"
+            },
+            Parameters = new Dictionary<string, object>
+            {
+                ["releasePackageContractVersion"] = EdgeNodeContractVersions.ReleasePackageV1,
+                ["packageId"] = packageId,
+                ["packageVersion"] = "1.4.0",
+                ["sha256"] = "6D37795021E544D998C3A77A825EA542D52094C9AB63F6D0D42C79FE2E176FF8",
+                ["downloadUrl"] = "https://iotsharp.example.com/api/ReleasePackages/33333333-3333-3333-3333-333333333333/Download"
+            }
+        };
+
+        var json = JsonSerializer.Serialize(dto, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+
+        Assert.Contains("\"taskType\":\"SoftwareUpdate\"", json);
+        Assert.Contains("\"releasePackageContractVersion\":\"release-package-v1\"", json);
+        Assert.Contains("\"packageId\":\"33333333-3333-3333-3333-333333333333\"", json);
+        Assert.Contains("\"sha256\":\"6D37795021E544D998C3A77A825EA542D52094C9AB63F6D0D42C79FE2E176FF8\"", json);
     }
 
     [Fact]

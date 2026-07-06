@@ -31,6 +31,9 @@ namespace IoTSharp.Controllers
         private const string ConfigurationVersionIdKey = "configurationVersionId";
         private const string ConfigurationVersionKey = "configurationVersion";
         private const string ConfigurationHashKey = "configurationHash";
+        private const string ReleasePackageIdKey = "packageId";
+        private const string ReleasePackageVersionKey = "packageVersion";
+        private const string ReleasePackageSha256Key = "sha256";
         private const string AssignmentUpdatedBy = "edge-task-receipt";
         private const string AssignmentTaskStatusUpdatedBy = "edge-task-status";
         private const string AuditActionDispatch = "EdgeTaskDispatch";
@@ -210,6 +213,12 @@ namespace IoTSharp.Controllers
             if (!string.IsNullOrWhiteSpace(collectionReceiptError))
             {
                 return Ok(new ApiResult<EdgeTaskReceiptDto>(ApiCode.InValidData, collectionReceiptError, null));
+            }
+
+            var softwareUpdateReceiptError = await ApplySoftwareUpdateReceiptAsync(formalTask, request);
+            if (!string.IsNullOrWhiteSpace(softwareUpdateReceiptError))
+            {
+                return Ok(new ApiResult<EdgeTaskReceiptDto>(ApiCode.InValidData, softwareUpdateReceiptError, null));
             }
 
             var receiptPayload = SerializeOrNull(request) ?? "{}";
@@ -1445,6 +1454,77 @@ namespace IoTSharp.Controllers
             }
         }
 
+        /// <summary>
+        /// 处理软件更新任务的执行回执，核对包 ID、版本和 SHA256，避免执行端误报其他包的成功结果。
+        /// </summary>
+        /// <param name="task">正式 EdgeTask 任务。</param>
+        /// <param name="receipt">执行端回执。</param>
+        /// <returns>校验失败时返回错误消息；成功或非软件更新任务返回空字符串。</returns>
+        private async System.Threading.Tasks.Task<string> ApplySoftwareUpdateReceiptAsync(EdgeTask task, EdgeTaskReceiptDto receipt)
+        {
+            if (task.TaskType != EdgeTaskType.SoftwareUpdate)
+            {
+                return string.Empty;
+            }
+
+            var parameters = DeserializeObjectDictionary(task.Parameters);
+            var expectedPackageId = TryGetGuid(parameters, ReleasePackageIdKey);
+            var expectedVersion = TryGetString(parameters, ReleasePackageVersionKey);
+            var expectedSha256 = TryGetString(parameters, ReleasePackageSha256Key);
+
+            if (!expectedPackageId.HasValue ||
+                string.IsNullOrWhiteSpace(expectedVersion) ||
+                string.IsNullOrWhiteSpace(expectedSha256))
+            {
+                return "SoftwareUpdate task parameters require packageId, packageVersion and sha256";
+            }
+
+            var packageExists = await _context.ReleasePackages.AnyAsync(package =>
+                package.Id == expectedPackageId.Value &&
+                !package.Deleted &&
+                package.TenantId == task.TenantId &&
+                package.CustomerId == task.CustomerId);
+            if (!packageExists)
+            {
+                return "Release package not found for software update receipt";
+            }
+
+            var resultPackageId = TryGetGuid(receipt.Result, ReleasePackageIdKey);
+            var metadataPackageId = TryGetGuid(receipt.Metadata, ReleasePackageIdKey);
+            var resultVersion = TryGetString(receipt.Result, ReleasePackageVersionKey);
+            var metadataVersion = TryGetString(receipt.Metadata, ReleasePackageVersionKey);
+            var resultSha256 = TryGetReleasePackageSha256(receipt.Result);
+            var metadataSha256 = TryGetReleasePackageSha256(receipt.Metadata);
+
+            if ((resultPackageId.HasValue && resultPackageId.Value != expectedPackageId.Value) ||
+                (metadataPackageId.HasValue && metadataPackageId.Value != expectedPackageId.Value))
+            {
+                return "packageId does not match task parameters";
+            }
+
+            if ((!string.IsNullOrWhiteSpace(resultVersion) && !string.Equals(resultVersion, expectedVersion, StringComparison.OrdinalIgnoreCase)) ||
+                (!string.IsNullOrWhiteSpace(metadataVersion) && !string.Equals(metadataVersion, expectedVersion, StringComparison.OrdinalIgnoreCase)))
+            {
+                return "packageVersion does not match task parameters";
+            }
+
+            if ((!string.IsNullOrWhiteSpace(resultSha256) && !string.Equals(resultSha256, expectedSha256, StringComparison.OrdinalIgnoreCase)) ||
+                (!string.IsNullOrWhiteSpace(metadataSha256) && !string.Equals(metadataSha256, expectedSha256, StringComparison.OrdinalIgnoreCase)))
+            {
+                return "sha256 does not match task parameters";
+            }
+
+            if (receipt.Status == EdgeTaskStatus.Succeeded &&
+                (!resultPackageId.HasValue ||
+                 string.IsNullOrWhiteSpace(resultVersion) ||
+                 string.IsNullOrWhiteSpace(resultSha256)))
+            {
+                return "Succeeded software update receipt requires result.packageId, result.packageVersion and result.sha256";
+            }
+
+            return string.Empty;
+        }
+
         private async System.Threading.Tasks.Task<Guid?> ResolveDeviceIdAsync(string targetKey, string instanceId, Guid? deviceId)
         {
             if (deviceId.HasValue && deviceId.Value != Guid.Empty)
@@ -1710,6 +1790,22 @@ namespace IoTSharp.Controllers
                 ? result
                 : null;
         }
+
+        /// <summary>
+        /// 读取软件包回执中的 SHA256，兼容 sha256 和 packageSha256 两种键名。
+        /// </summary>
+        /// <param name="values">待读取的对象字典。</param>
+        /// <returns>找到时返回 SHA256 字符串。</returns>
+        private static string TryGetReleasePackageSha256(IReadOnlyDictionary<string, object> values)
+            => TryGetString(values, ReleasePackageSha256Key) ?? TryGetString(values, "packageSha256");
+
+        /// <summary>
+        /// 读取软件包回执中的 SHA256，兼容 sha256 和 packageSha256 两种键名。
+        /// </summary>
+        /// <param name="values">待读取的字符串字典。</param>
+        /// <returns>找到时返回 SHA256 字符串。</returns>
+        private static string TryGetReleasePackageSha256(IReadOnlyDictionary<string, string> values)
+            => TryGetString(values, ReleasePackageSha256Key) ?? TryGetString(values, "packageSha256");
 
         /// <summary>
         /// 按键名忽略大小写读取字典值。

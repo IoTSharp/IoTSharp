@@ -394,6 +394,19 @@ assignment 回写字段：
 
 配置发布场景下，重试任务会更新同一 `EdgeCollectionAssignment` 的 `LastExecutionTaskId` 和最近执行态；执行端成功回执后，再更新 `AppliedConfigurationVersion` / `AppliedConfigurationHash` / `AppliedAt`。
 
+## 最小软件包发布（#046）
+
+`ReleasePackage` 是 M4 的最小软件包模型，只描述软件包元数据、版本、目标运行时、BlobStorage 路径、下载令牌和 SHA256 校验和。它不承载灰度批次、审批、回滚策略或长期编排；这些能力留给 M5 Release Center。
+
+新增平台 API：
+
+- `POST /api/ReleasePackages/Upload`：上传 `Software` 包，平台计算 SHA256 并保存到 BlobStorage。
+- `GET /api/ReleasePackages`、`GET /api/ReleasePackages/{id}`：查询包列表和详情。
+- `GET /api/ReleasePackages/{id}/Download`：执行端凭软件更新任务中的下载令牌和 SHA256 下载包文件。
+- `POST /api/ReleasePackages/{id}/Publish`：生成 `SoftwareUpdate` EdgeTask，任务参数携带 `release-package-v1`、包 ID、版本、目标运行时、文件大小、SHA256 和下载 URL。
+
+软件更新回执仍走 `edge-task-v1` 的 `/api/EdgeTask/Receipt`。平台对 `SoftwareUpdate` 任务校验回执中的 `packageId`、`packageVersion` 和 `sha256`；`Succeeded` 回执必须在 `result` 中包含这三项，避免执行端误把其他包作为成功结果上报。
+
 ### 查询返回结构
 
 统一返回现有前端分页表格格式：
@@ -686,6 +699,7 @@ targetKey 规则：
 - PackageApply = 3
 - RestartRuntime = 4
 - HealthProbe = 5
+- SoftwareUpdate = 6
 
 约束：
 

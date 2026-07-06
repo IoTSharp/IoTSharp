@@ -1,0 +1,23 @@
+{
+  "$schema": "../release-package.v1.schema.json",
+  "contractVersion": "release-package-v1",
+  "id": "33333333-3333-3333-3333-333333333333",
+  "packageType": "Software",
+  "packageKey": "iotedge-gateway",
+  "name": "IoTEdge Gateway Runtime",
+  "version": "1.4.0",
+  "targetRuntimeType": "gateway",
+  "targetRuntimeVersion": ">=1.3.0",
+  "fileName": "iotedge-gateway-1.4.0-linux-x64.zip",
+  "contentType": "application/zip",
+  "size": 1048576,
+  "sha256": "6D37795021E544D998C3A77A825EA542D52094C9AB63F6D0D42C79FE2E176FF8",
+  "metadata": {
+    "rid": "linux-x64",
+    "channel": "stable"
+  },
+  "createdAt": "2026-07-06T08:12:00Z",
+  "updatedAt": "2026-07-06T08:12:00Z",
+  "createdBy": "operator@example.com",
+  "updatedBy": "operator@example.com"
+}

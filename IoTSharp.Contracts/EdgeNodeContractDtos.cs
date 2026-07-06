@@ -43,6 +43,11 @@ namespace IoTSharp.Contracts
         /// Edge 任务请求与回执合同版本。
         /// </summary>
         public const string EdgeTaskV1 = "edge-task-v1";
+
+        /// <summary>
+        /// ReleasePackage 软件包元数据合同版本。
+        /// </summary>
+        public const string ReleasePackageV1 = "release-package-v1";
     }
 
     /// <summary>

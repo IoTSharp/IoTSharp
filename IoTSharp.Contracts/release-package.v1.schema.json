@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://iotsharp.net/schemas/release-package.v1.schema.json",
+  "title": "IoTSharp Release Package v1 Contract",
+  "description": "Minimal ReleasePackage metadata contract for software package publication to EdgeNode or Gateway runtimes.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contractVersion",
+    "id",
+    "packageType",
+    "packageKey",
+    "name",
+    "version",
+    "targetRuntimeType",
+    "fileName",
+    "contentType",
+    "size",
+    "sha256",
+    "createdAt",
+    "updatedAt"
+  ],
+  "$defs": {
+    "uuid": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "dateTime": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "objectMap": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "releasePackageType": {
+      "enum": [
+        "Software"
+      ]
+    }
+  },
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "contractVersion": {
+      "const": "release-package-v1"
+    },
+    "id": {
+      "$ref": "#/$defs/uuid"
+    },
+    "packageType": {
+      "$ref": "#/$defs/releasePackageType"
+    },
+    "packageKey": {
+      "type": "string",
+      "minLength": 1
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "targetRuntimeType": {
+      "type": "string",
+      "minLength": 1
+    },
+    "targetRuntimeVersion": {
+      "type": "string"
+    },
+    "fileName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "contentType": {
+      "type": "string",
+      "minLength": 1
+    },
+    "size": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[A-Fa-f0-9]{64}$"
+    },
+    "metadata": {
+      "$ref": "#/$defs/objectMap"
+    },
+    "createdAt": {
+      "$ref": "#/$defs/dateTime"
+    },
+    "updatedAt": {
+      "$ref": "#/$defs/dateTime"
+    },
+    "createdBy": {
+      "type": "string"
+    },
+    "updatedBy": {
+      "type": "string"
+    }
+  }
+}

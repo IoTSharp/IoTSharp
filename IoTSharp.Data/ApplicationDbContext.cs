@@ -26,6 +26,7 @@ namespace IoTSharp.Data
             modelBuilder.ApplyConfiguration(new EdgeNodeConfiguration());
             modelBuilder.ApplyConfiguration(new EdgeTaskConfiguration());
             modelBuilder.ApplyConfiguration(new EdgeTaskReceiptConfiguration());
+            modelBuilder.ApplyConfiguration(new ReleasePackageConfiguration());
             modelBuilder.ApplyConfiguration(new CollectionConfigurationVersionConfiguration());
             modelBuilder.ApplyConfiguration(new EdgeCollectionAssignmentConfiguration());
             modelBuilder.ApplyConfiguration(new CollectionTemplateConfiguration());
@@ -79,6 +80,7 @@ namespace IoTSharp.Data
         public DbSet<EdgeNode> EdgeNodes { get; set; }
         public DbSet<EdgeTask> EdgeTasks { get; set; }
         public DbSet<EdgeTaskReceipt> EdgeTaskReceipts { get; set; }
+        public DbSet<ReleasePackage> ReleasePackages { get; set; }
         public DbSet<CollectionConfigurationVersion> CollectionConfigurationVersions { get; set; }
         public DbSet<EdgeCollectionAssignment> EdgeCollectionAssignments { get; set; }
         public DbSet<CollectionTemplate> CollectionTemplates { get; set; }

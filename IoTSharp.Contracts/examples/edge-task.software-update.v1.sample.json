@@ -1,0 +1,35 @@
+{
+  "$schema": "../edge-task.v1.schema.json",
+  "contractVersion": "edge-task-v1",
+  "taskId": "44444444-4444-4444-4444-444444444444",
+  "taskType": "SoftwareUpdate",
+  "address": {
+    "targetType": "GatewayRuntime",
+    "deviceId": "22222222-2222-2222-2222-222222222222",
+    "accessToken": "",
+    "runtimeType": "gateway",
+    "instanceId": "plant-a-gateway-01",
+    "targetKey": "22222222-2222-2222-2222-222222222222:gateway:plant-a-gateway-01"
+  },
+  "createdAt": "2026-07-06T08:15:00Z",
+  "expireAt": "2026-07-06T10:15:00Z",
+  "parameters": {
+    "releasePackageContractVersion": "release-package-v1",
+    "packageId": "33333333-3333-3333-3333-333333333333",
+    "packageType": "Software",
+    "packageKey": "iotedge-gateway",
+    "packageName": "IoTEdge Gateway Runtime",
+    "packageVersion": "1.4.0",
+    "targetRuntimeType": "gateway",
+    "targetRuntimeVersion": ">=1.3.0",
+    "fileName": "iotedge-gateway-1.4.0-linux-x64.zip",
+    "contentType": "application/zip",
+    "size": 1048576,
+    "sha256": "6D37795021E544D998C3A77A825EA542D52094C9AB63F6D0D42C79FE2E176FF8",
+    "downloadUrl": "https://iotsharp.example.com/api/ReleasePackages/33333333-3333-3333-3333-333333333333/Download?token=download-token&sha256=6D37795021E544D998C3A77A825EA542D52094C9AB63F6D0D42C79FE2E176FF8"
+  },
+  "metadata": {
+    "source": "release-package-publish",
+    "operator": "operator@example.com"
+  }
+}

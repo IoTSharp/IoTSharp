@@ -2,7 +2,10 @@
 
 using System;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 using IoTSharp.Contracts;
 using IoTSharp.Data;
@@ -222,6 +225,174 @@ namespace IoTSharp.Test
             Assert.Equal((int)ApiCode.Success, duplicateDispatchResult.Code);
 
             await AssertStoredEdgeTaskAsync(taskId, IoTSharp.Contracts.EdgeTaskStatus.Running, deviceId, progress: 25);
+        }
+
+        [Fact]
+        public async Task ReleasePackage_UploadPublishDownloadAndReceiptFlow()
+        {
+            using var client = _fixture.CreateClient();
+            var created = await _fixture.CreateDeviceAsync(client, $"sqlite-release-{Guid.NewGuid():N}", DeviceType.Gateway);
+            var deviceId = created.Data!.Id;
+            var token = await _fixture.GetDeviceAccessTokenAsync(client, deviceId);
+            await _fixture.AuthorizeClientAsync(client);
+
+            var packageBytes = Encoding.UTF8.GetBytes("iotedge-gateway-package-for-sqlite-test");
+            var expectedSha256 = Convert.ToHexString(SHA256.HashData(packageBytes));
+            using var form = new MultipartFormDataContent();
+            form.Add(new StringContent(nameof(ReleasePackageType.Software)), "PackageType");
+            form.Add(new StringContent("iotedge-gateway"), "PackageKey");
+            form.Add(new StringContent("IoTEdge Gateway Runtime"), "Name");
+            form.Add(new StringContent("1.4.0-test"), "Version");
+            form.Add(new StringContent(EdgeRuntimeTypes.Gateway), "TargetRuntimeType");
+            form.Add(new StringContent(">=1.3.0"), "TargetRuntimeVersion");
+            form.Add(new StringContent("""{"channel":"sqlite-test"}"""), "Metadata");
+            var fileContent = new ByteArrayContent(packageBytes);
+            fileContent.Headers.ContentType = new MediaTypeHeaderValue("application/zip");
+            form.Add(fileContent, "File", "iotedge-gateway-1.4.0-test.zip");
+
+            var upload = await client.PostAsync("/api/ReleasePackages/Upload", form);
+            var uploadResult = await ReadApiResultAsync<ReleasePackageDto>(upload);
+            Assert.Equal((int)ApiCode.Success, uploadResult.Code);
+            Assert.NotNull(uploadResult.Data);
+            Assert.Equal(ReleasePackageType.Software, uploadResult.Data!.PackageType);
+            Assert.Equal("iotedge-gateway", uploadResult.Data.PackageKey);
+            Assert.Equal("1.4.0-test", uploadResult.Data.Version);
+            Assert.Equal(EdgeRuntimeTypes.Gateway, uploadResult.Data.TargetRuntimeType);
+            Assert.Equal(expectedSha256, uploadResult.Data.Sha256);
+            Assert.Equal(packageBytes.LongLength, uploadResult.Data.Size);
+
+            var publish = await client.PostAsJsonAsync($"/api/ReleasePackages/{uploadResult.Data.Id}/Publish", new ReleasePackagePublishRequestDto
+            {
+                EdgeNodeId = deviceId,
+                RuntimeType = EdgeRuntimeTypes.Gateway,
+                InstanceId = "sqlite-release-gateway",
+                Metadata = new Dictionary<string, string>
+                {
+                    ["source"] = "sqlite-test"
+                }
+            });
+            var publishResult = await ReadApiResultAsync<ReleasePackagePublishResultDto>(publish);
+            Assert.Equal((int)ApiCode.Success, publishResult.Code);
+            Assert.NotNull(publishResult.Data);
+            Assert.Equal(EdgeTaskType.SoftwareUpdate, publishResult.Data!.Task.TaskType);
+            Assert.Equal(uploadResult.Data.Id.ToString("D"), GetParameterString(publishResult.Data.Task.Parameters, "packageId"));
+            Assert.Equal(uploadResult.Data.Version, GetParameterString(publishResult.Data.Task.Parameters, "packageVersion"));
+            Assert.Equal(uploadResult.Data.Sha256, GetParameterString(publishResult.Data.Task.Parameters, "sha256"));
+            var downloadUrl = GetParameterString(publishResult.Data.Task.Parameters, "downloadUrl");
+            Assert.False(string.IsNullOrWhiteSpace(downloadUrl));
+
+            var pulledTasks = await GetApiResultAsync<List<EdgeTaskRequestDto>>(client, $"/api/EdgeTask/Dispatch/{token}");
+            Assert.Equal((int)ApiCode.Success, pulledTasks.Code);
+            Assert.Contains(pulledTasks.Data!, task => task.TaskId == publishResult.Data.Task.TaskId && task.TaskType == EdgeTaskType.SoftwareUpdate);
+
+            var accepted = await client.PostAsJsonAsync($"/api/EdgeTask/Dispatch/{token}/Accept", new EdgeTaskReceiptDto
+            {
+                ContractVersion = EdgeNodeContractVersions.EdgeTaskV1,
+                TaskId = publishResult.Data.Task.TaskId,
+                ReportedAt = DateTime.UtcNow
+            });
+            var acceptedResult = await ReadApiResultAsync<object>(accepted);
+            Assert.Equal((int)ApiCode.Success, acceptedResult.Code);
+
+            var wrongRunning = await client.PostAsJsonAsync("/api/EdgeTask/Receipt", new EdgeTaskReceiptDto
+            {
+                ContractVersion = EdgeNodeContractVersions.EdgeTaskV1,
+                TaskId = publishResult.Data.Task.TaskId,
+                TargetType = publishResult.Data.Task.Address.TargetType,
+                TargetKey = publishResult.Data.Task.Address.TargetKey,
+                RuntimeType = EdgeRuntimeTypes.Gateway,
+                InstanceId = "sqlite-release-gateway",
+                Status = EdgeTaskStatus.Running,
+                Progress = 20,
+                ReportedAt = DateTime.UtcNow,
+                Result = new Dictionary<string, object>
+                {
+                    ["packageId"] = uploadResult.Data.Id,
+                    ["packageVersion"] = uploadResult.Data.Version,
+                    ["sha256"] = "0000000000000000000000000000000000000000000000000000000000000000"
+                }
+            });
+            var wrongRunningResult = await ReadApiResultAsync<EdgeTaskReceiptDto>(wrongRunning);
+            Assert.Equal((int)ApiCode.InValidData, wrongRunningResult.Code);
+
+            var running = await client.PostAsJsonAsync("/api/EdgeTask/Receipt", new EdgeTaskReceiptDto
+            {
+                ContractVersion = EdgeNodeContractVersions.EdgeTaskV1,
+                TaskId = publishResult.Data.Task.TaskId,
+                TargetType = publishResult.Data.Task.Address.TargetType,
+                TargetKey = publishResult.Data.Task.Address.TargetKey,
+                RuntimeType = EdgeRuntimeTypes.Gateway,
+                InstanceId = "sqlite-release-gateway",
+                Status = EdgeTaskStatus.Running,
+                Progress = 50,
+                ReportedAt = DateTime.UtcNow,
+                Result = new Dictionary<string, object>
+                {
+                    ["packageId"] = uploadResult.Data.Id,
+                    ["packageVersion"] = uploadResult.Data.Version,
+                    ["sha256"] = uploadResult.Data.Sha256
+                }
+            });
+            var runningResult = await ReadApiResultAsync<EdgeTaskReceiptDto>(running);
+            Assert.Equal((int)ApiCode.Success, runningResult.Code);
+
+            var metadataOnlySucceeded = await client.PostAsJsonAsync("/api/EdgeTask/Receipt", new EdgeTaskReceiptDto
+            {
+                ContractVersion = EdgeNodeContractVersions.EdgeTaskV1,
+                TaskId = publishResult.Data.Task.TaskId,
+                TargetType = publishResult.Data.Task.Address.TargetType,
+                TargetKey = publishResult.Data.Task.Address.TargetKey,
+                RuntimeType = EdgeRuntimeTypes.Gateway,
+                InstanceId = "sqlite-release-gateway",
+                Status = EdgeTaskStatus.Succeeded,
+                Progress = 100,
+                ReportedAt = DateTime.UtcNow,
+                Metadata = new Dictionary<string, string>
+                {
+                    ["packageId"] = uploadResult.Data.Id.ToString("D"),
+                    ["packageVersion"] = uploadResult.Data.Version,
+                    ["sha256"] = uploadResult.Data.Sha256
+                }
+            });
+            var metadataOnlySucceededResult = await ReadApiResultAsync<EdgeTaskReceiptDto>(metadataOnlySucceeded);
+            Assert.Equal((int)ApiCode.InValidData, metadataOnlySucceededResult.Code);
+
+            var succeeded = await client.PostAsJsonAsync("/api/EdgeTask/Receipt", new EdgeTaskReceiptDto
+            {
+                ContractVersion = EdgeNodeContractVersions.EdgeTaskV1,
+                TaskId = publishResult.Data.Task.TaskId,
+                TargetType = publishResult.Data.Task.Address.TargetType,
+                TargetKey = publishResult.Data.Task.Address.TargetKey,
+                RuntimeType = EdgeRuntimeTypes.Gateway,
+                InstanceId = "sqlite-release-gateway",
+                Status = EdgeTaskStatus.Succeeded,
+                Progress = 100,
+                ReportedAt = DateTime.UtcNow,
+                Result = new Dictionary<string, object>
+                {
+                    ["packageId"] = uploadResult.Data.Id,
+                    ["packageVersion"] = uploadResult.Data.Version,
+                    ["sha256"] = uploadResult.Data.Sha256
+                }
+            });
+            var succeededResult = await ReadApiResultAsync<EdgeTaskReceiptDto>(succeeded);
+            Assert.Equal((int)ApiCode.Success, succeededResult.Code);
+
+            var download = await client.GetAsync(downloadUrl);
+            download.EnsureSuccessStatusCode();
+            Assert.Equal(packageBytes, await download.Content.ReadAsByteArrayAsync());
+
+            using var scope = _fixture.Services.CreateScope();
+            var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            var storedPackage = await dbContext.ReleasePackages.AsNoTracking().SingleAsync(package => package.Id == uploadResult.Data.Id);
+            Assert.Equal(expectedSha256, storedPackage.Sha256);
+            Assert.Equal(EdgeRuntimeTypes.Gateway, storedPackage.TargetRuntimeType);
+            var storedTask = await dbContext.EdgeTasks.AsNoTracking().SingleAsync(task => task.Id == publishResult.Data.Task.TaskId);
+            Assert.Equal(EdgeTaskType.SoftwareUpdate, storedTask.TaskType);
+            Assert.Equal(EdgeTaskStatus.Succeeded, storedTask.Status);
+            using var parameters = JsonDocument.Parse(storedTask.Parameters);
+            Assert.Equal(uploadResult.Data.Id, parameters.RootElement.GetProperty("packageId").GetGuid());
+            Assert.Equal(expectedSha256, parameters.RootElement.GetProperty("sha256").GetString());
         }
 
         [Fact]
@@ -702,6 +873,18 @@ namespace IoTSharp.Test
             var result = await response.Content.ReadFromJsonAsync<ApiResult<T>>();
             Assert.NotNull(result);
             return result;
+        }
+
+        private static string GetParameterString(IReadOnlyDictionary<string, object> parameters, string key)
+        {
+            Assert.True(parameters.TryGetValue(key, out var value), $"Missing task parameter: {key}");
+            return value switch
+            {
+                JsonElement { ValueKind: JsonValueKind.String } element => element.GetString()!,
+                JsonElement element => element.GetRawText(),
+                Guid id => id.ToString("D"),
+                _ => value?.ToString() ?? string.Empty
+            };
         }
     }
 }

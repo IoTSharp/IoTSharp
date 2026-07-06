@@ -7,6 +7,7 @@ M2 #027 publishes these edge contracts as the current cloud-edge boundary:
 - `edge-node-v1`: EdgeNode registration, heartbeat, capability, runtime status, and platform snapshot DTOs.
 - `collection-config-v1`: collection runtime configuration and assignment snapshot DTOs.
 - `edge-task-v1`: EdgeTask request, state, receipt, and state machine DTOs.
+- `release-package-v1`: minimal ReleasePackage metadata for software update publication.
 
 M2 #029 keeps `semantic-core-v1` as the semantic and protocol-binding basis for M3 Collection Template work. It covers protocol-neutral assets, semantic points, Modbus TCP/RTU, OPC UA, MQTT, and custom protocol bindings.
 

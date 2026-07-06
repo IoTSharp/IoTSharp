@@ -50,7 +50,8 @@
         "PackageDownload",
         "PackageApply",
         "RestartRuntime",
-        "HealthProbe"
+        "HealthProbe",
+        "SoftwareUpdate"
       ]
     },
     "edgeTaskStatus": {

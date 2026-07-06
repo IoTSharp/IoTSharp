@@ -61,7 +61,12 @@ namespace IoTSharp.Contracts
         /// <summary>
         /// 执行健康探测。
         /// </summary>
-        HealthProbe = 5
+        HealthProbe = 5,
+
+        /// <summary>
+        /// 下载、校验并切换 EdgeNode 或 Gateway 运行时软件包。
+        /// </summary>
+        SoftwareUpdate = 6
     }
 
     /// <summary>
