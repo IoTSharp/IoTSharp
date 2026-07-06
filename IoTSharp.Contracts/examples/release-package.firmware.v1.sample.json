@@ -1,0 +1,26 @@
+{
+  "$schema": "../release-package.v1.schema.json",
+  "contractVersion": "release-package-v1",
+  "id": "33333333-3333-3333-3333-333333333333",
+  "packageType": "Firmware",
+  "packageKey": "stm32-controller-fw",
+  "name": "STM32 controller firmware",
+  "version": "1.2.0",
+  "targetRuntimeType": "iotembedded",
+  "targetRuntimeVersion": ">=0.8.0",
+  "fileName": "stm32-controller-fw-1.2.0.bin",
+  "contentType": "application/octet-stream",
+  "size": 262144,
+  "sha256": "6D37795021E544D998C3A77A825EA542D52094C9AB63F6D0D42C79FE2E176FF8",
+  "metadata": {
+    "firmwareSignature": "base64-signature",
+    "firmwarePartition": "ota-b",
+    "firmwareFamily": "stm32-controller",
+    "bootloaderVersion": ">=1.0.0",
+    "requiresReboot": true
+  },
+  "createdAt": "2026-07-06T08:25:00Z",
+  "updatedAt": "2026-07-06T08:25:00Z",
+  "createdBy": "operator@example.com",
+  "updatedBy": "operator@example.com"
+}

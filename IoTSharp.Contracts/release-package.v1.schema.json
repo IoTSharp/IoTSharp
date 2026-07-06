@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://iotsharp.net/schemas/release-package.v1.schema.json",
   "title": "IoTSharp Release Package v1 Contract",
-  "description": "Minimal ReleasePackage metadata contract for software package publication to EdgeNode or Gateway runtimes.",
+  "description": "Minimal ReleasePackage metadata contract for software, configuration, device script, and firmware package publication.",
   "type": "object",
   "additionalProperties": false,
   "required": [

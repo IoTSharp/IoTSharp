@@ -1,0 +1,48 @@
+{
+  "$schema": "../edge-task.v1.schema.json",
+  "contractVersion": "edge-task-v1",
+  "taskId": "55555555-5555-5555-5555-555555555555",
+  "taskType": "DeviceScriptOta",
+  "address": {
+    "targetType": "Device",
+    "deviceId": "22222222-2222-2222-2222-222222222222",
+    "accessToken": "",
+    "runtimeType": "iotembedded",
+    "instanceId": "stm32-basic-01",
+    "targetKey": "22222222-2222-2222-2222-222222222222:device:22222222-2222-2222-2222-222222222222:iotembedded:stm32-basic-01"
+  },
+  "createdAt": "2026-07-06T08:30:00Z",
+  "expireAt": "2026-07-06T10:30:00Z",
+  "parameters": {
+    "releasePackageContractVersion": "release-package-v1",
+    "packageId": "33333333-3333-3333-3333-333333333333",
+    "packageType": "DeviceScript",
+    "packageKey": "boiler-basic-control",
+    "packageName": "Boiler BASIC control script",
+    "packageVersion": "2026.7.6",
+    "targetRuntimeType": "iotembedded",
+    "targetRuntimeVersion": ">=0.8.0",
+    "fileName": "boiler-basic-control.bas",
+    "contentType": "text/plain",
+    "size": 4096,
+    "sha256": "6D37795021E544D998C3A77A825EA542D52094C9AB63F6D0D42C79FE2E176FF8",
+    "downloadUrl": "https://iotsharp.example.com/api/ReleasePackages/33333333-3333-3333-3333-333333333333/Download?token=download-token&sha256=6D37795021E544D998C3A77A825EA542D52094C9AB63F6D0D42C79FE2E176FF8",
+    "downloadToken": "download-token",
+    "releasePlanId": "11111111-1111-1111-1111-111111111111",
+    "releaseTaskId": "44444444-4444-4444-4444-444444444444",
+    "releaseBatchNo": 1,
+    "isRollback": false,
+    "deviceId": "22222222-2222-2222-2222-222222222222",
+    "targetDeviceId": "22222222-2222-2222-2222-222222222222",
+    "deliveryChannelDeviceId": "22222222-2222-2222-2222-222222222222",
+    "scriptCrc32": "A1B2C3D4",
+    "scriptSignature": "base64-signature",
+    "scriptSlot": "inactive"
+  },
+  "metadata": {
+    "source": "release-center",
+    "operator": "operator@example.com",
+    "releasePlanId": "11111111-1111-1111-1111-111111111111",
+    "releaseTaskId": "44444444-4444-4444-4444-444444444444"
+  }
+}

@@ -22,6 +22,11 @@ namespace IoTSharp.Contracts
         GatewayRuntime = 1,
 
         /// <summary>
+        /// 面向单个设备执行端。
+        /// </summary>
+        Device = 2,
+
+        /// <summary>
         /// 面向 EdgeNode 下的一组设备。
         /// </summary>
         DeviceScope = 3
@@ -66,7 +71,17 @@ namespace IoTSharp.Contracts
         /// <summary>
         /// 下载、校验并切换 EdgeNode 或 Gateway 运行时软件包。
         /// </summary>
-        SoftwareUpdate = 6
+        SoftwareUpdate = 6,
+
+        /// <summary>
+        /// 下载、校验并切换嵌入式设备脚本包。
+        /// </summary>
+        DeviceScriptOta = 7,
+
+        /// <summary>
+        /// 下载、校验并触发嵌入式设备固件 OTA。
+        /// </summary>
+        FirmwareOta = 8
     }
 
     /// <summary>

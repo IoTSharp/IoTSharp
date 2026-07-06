@@ -26,6 +26,11 @@ namespace IoTSharp.Controllers
         private const string PackageIdKey = "packageId";
         private const string PackageVersionKey = "packageVersion";
         private const string PackageSha256Key = "sha256";
+        private const string TargetDeviceIdKey = "targetDeviceId";
+        private const string DeviceIdKey = "deviceId";
+        private const string DeliveryChannelDeviceIdKey = "deliveryChannelDeviceId";
+        private const string DeviceIdsMetadataKey = "deviceIds";
+        private const string DefaultDeviceRuntimeType = "iotembedded";
         private const string AuditActionCreate = "ReleasePlanCreate";
         private const string AuditActionStart = "ReleasePlanStart";
         private const string AuditActionConfirm = "ReleasePlanConfirm";
@@ -170,15 +175,27 @@ namespace IoTSharp.Controllers
             }
 
             var resolvedTargets = new List<ResolvedReleaseTarget>();
+            var resolvedTargetKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             foreach (var target in request.Targets)
             {
-                var resolved = await ResolveTargetAsync(target, profile, package);
+                var resolved = await ResolveTargetsAsync(target, profile, package, request.PlanType);
                 if (resolved.Error != null)
                 {
                     return Ok(new ApiResult<ReleasePlanOperationResultDto>(ApiCode.InValidData, resolved.Error, null));
                 }
 
-                resolvedTargets.Add(resolved);
+                foreach (var resolvedTarget in resolved.Targets)
+                {
+                    if (resolvedTargetKeys.Add(resolvedTarget.TargetKey))
+                    {
+                        resolvedTargets.Add(resolvedTarget);
+                    }
+                }
+            }
+
+            if (resolvedTargets.Count == 0)
+            {
+                return Ok(new ApiResult<ReleasePlanOperationResultDto>(ApiCode.InValidData, "No release targets resolved", null));
             }
 
             var now = DateTime.UtcNow;
@@ -209,7 +226,7 @@ namespace IoTSharp.Controllers
                 CustomerId = profile.Customer
             };
 
-            var releaseTasks = BuildReleaseTasks(plan, package, resolvedTargets, batchSize, now, request.Targets);
+            var releaseTasks = BuildReleaseTasks(plan, package, resolvedTargets, batchSize, now);
             _context.ReleasePlans.Add(plan);
             _context.ReleaseTasks.AddRange(releaseTasks);
 
@@ -361,9 +378,9 @@ namespace IoTSharp.Controllers
                 return Ok(new ApiResult<ReleasePlanOperationResultDto>(ApiCode.CantFindObject, "Rollback package not found", null));
             }
 
-            if (!IsRuntimeSoftwarePackage(rollbackPackage.PackageType))
+            if (!IsSupportedPlanPackage(plan.PlanType, rollbackPackage.PackageType))
             {
-                return Ok(new ApiResult<ReleasePlanOperationResultDto>(ApiCode.InValidData, "Rollback package must be runtime software in M5 first version", null));
+                return Ok(new ApiResult<ReleasePlanOperationResultDto>(ApiCode.InValidData, "Rollback package type does not match release plan type", null));
             }
 
             var originalTasks = await _context.ReleaseTasks
@@ -548,21 +565,36 @@ namespace IoTSharp.Controllers
                 .ThenBy(task => task.CreatedAt)
                 .ToListAsync();
 
-        private async System.Threading.Tasks.Task<ResolvedReleaseTarget> ResolveTargetAsync(
+        private async System.Threading.Tasks.Task<ResolvedReleaseTargets> ResolveTargetsAsync(
             ReleaseTargetDto target,
             UserProfile profile,
-            ReleasePackage package)
+            ReleasePackage package,
+            ReleasePlanType planType)
         {
-            if (target == null || target.TargetId == Guid.Empty)
+            if (target == null)
             {
-                return ResolvedReleaseTarget.Fail("targetId is required");
+                return ResolvedReleaseTargets.Fail("target is required");
             }
 
-            if (target.TargetType == ReleaseTargetType.Device ||
-                target.TargetType == ReleaseTargetType.AssetScope ||
-                target.TargetType == ReleaseTargetType.DeviceScope)
+            if (IsDeviceOtaPlan(planType))
             {
-                return ResolvedReleaseTarget.Fail($"{target.TargetType} release target is reserved for device OTA and scope rollout follow-ups");
+                return target.TargetType switch
+                {
+                    ReleaseTargetType.Device => await ResolveDeviceReleaseTargetAsync(target, profile, package),
+                    ReleaseTargetType.AssetScope => await ResolveAssetScopeReleaseTargetsAsync(target, profile, package),
+                    ReleaseTargetType.DeviceScope => await ResolveDeviceScopeReleaseTargetsAsync(target, profile, package),
+                    _ => ResolvedReleaseTargets.Fail($"{target.TargetType} is not a valid target for {planType}; use Device, AssetScope or DeviceScope")
+                };
+            }
+
+            if (target.TargetId == Guid.Empty)
+            {
+                return ResolvedReleaseTargets.Fail("targetId is required");
+            }
+
+            if (target.TargetType is ReleaseTargetType.Device or ReleaseTargetType.AssetScope or ReleaseTargetType.DeviceScope)
+            {
+                return ResolvedReleaseTargets.Fail($"{target.TargetType} release target requires DeviceScriptOta or FirmwareOta plan type");
             }
 
             if (target.TargetType == ReleaseTargetType.EdgeNode)
@@ -579,13 +611,23 @@ namespace IoTSharp.Controllers
 
                 if (node == null)
                 {
-                    return ResolvedReleaseTarget.Fail("EdgeNode target not found");
+                    return ResolvedReleaseTargets.Fail("EdgeNode target not found");
                 }
 
                 var runtimeType = Coalesce(target.RuntimeType, Coalesce(node.RuntimeType, package.TargetRuntimeType));
                 var instanceId = Coalesce(target.InstanceId, node.InstanceId ?? string.Empty);
                 var targetKey = Coalesce(target.TargetKey, BuildEdgeTargetKey(node.GatewayId, runtimeType, instanceId));
-                return ResolvedReleaseTarget.Ok(target, node.Gateway, node, runtimeType, instanceId, targetKey);
+                return ResolvedReleaseTargets.Ok([
+                    ResolvedReleaseTarget.Ok(
+                        target.TargetType,
+                        target.TargetId,
+                        node.Gateway,
+                        node,
+                        runtimeType,
+                        instanceId,
+                        targetKey,
+                        BuildTargetMetadata(target, target.TargetType, target.TargetId, null, node.GatewayId))
+                ]);
             }
 
             var gateway = await GatewayInScope(target.TargetId, profile.Tenant, profile.Customer)
@@ -594,14 +636,174 @@ namespace IoTSharp.Controllers
                 .FirstOrDefaultAsync();
             if (gateway == null)
             {
-                return ResolvedReleaseTarget.Fail("Gateway target not found");
+                return ResolvedReleaseTargets.Fail("Gateway target not found");
             }
 
             var edgeNode = await EnsureEdgeNodeAsync(gateway);
             var gatewayRuntimeType = Coalesce(target.RuntimeType, Coalesce(package.TargetRuntimeType, EdgeRuntimeTypes.Gateway));
             var gatewayInstanceId = Coalesce(target.InstanceId, edgeNode?.InstanceId ?? string.Empty);
             var gatewayTargetKey = Coalesce(target.TargetKey, BuildEdgeTargetKey(gateway.Id, gatewayRuntimeType, gatewayInstanceId));
-            return ResolvedReleaseTarget.Ok(target, gateway, edgeNode, gatewayRuntimeType, gatewayInstanceId, gatewayTargetKey);
+            return ResolvedReleaseTargets.Ok([
+                ResolvedReleaseTarget.Ok(
+                    target.TargetType,
+                    target.TargetId,
+                    gateway,
+                    edgeNode,
+                    gatewayRuntimeType,
+                    gatewayInstanceId,
+                    gatewayTargetKey,
+                    BuildTargetMetadata(target, target.TargetType, target.TargetId, null, gateway.Id))
+            ]);
+        }
+
+        private async System.Threading.Tasks.Task<ResolvedReleaseTargets> ResolveDeviceReleaseTargetAsync(
+            ReleaseTargetDto target,
+            UserProfile profile,
+            ReleasePackage package)
+        {
+            if (target.TargetId == Guid.Empty)
+            {
+                return ResolvedReleaseTargets.Fail("targetId is required for Device release target");
+            }
+
+            var resolved = await ResolveSingleDeviceReleaseTargetAsync(target.TargetId, target, profile, package, ReleaseTargetType.Device, target.TargetId);
+            return resolved.Error == null
+                ? ResolvedReleaseTargets.Ok([resolved])
+                : ResolvedReleaseTargets.Fail(resolved.Error);
+        }
+
+        private async System.Threading.Tasks.Task<ResolvedReleaseTargets> ResolveAssetScopeReleaseTargetsAsync(
+            ReleaseTargetDto target,
+            UserProfile profile,
+            ReleasePackage package)
+        {
+            if (target.TargetId == Guid.Empty)
+            {
+                return ResolvedReleaseTargets.Fail("targetId is required for AssetScope release target");
+            }
+
+            var asset = await _context.Assets
+                .Include(c => c.OwnedAssets)
+                .Include(c => c.Tenant)
+                .Include(c => c.Customer)
+                .FirstOrDefaultAsync(c => c.Id == target.TargetId
+                    && !c.Deleted
+                    && c.Tenant.Id == profile.Tenant
+                    && c.Customer.Id == profile.Customer);
+            if (asset == null)
+            {
+                return ResolvedReleaseTargets.Fail("AssetScope target not found");
+            }
+
+            var deviceIds = asset.OwnedAssets?
+                .Select(relation => relation.DeviceId)
+                .Where(id => id != Guid.Empty)
+                .Distinct()
+                .ToList() ?? [];
+            if (deviceIds.Count == 0)
+            {
+                return ResolvedReleaseTargets.Fail("AssetScope target has no linked devices");
+            }
+
+            return await ResolveDeviceIdsAsync(deviceIds, target, profile, package, ReleaseTargetType.AssetScope, asset.Id);
+        }
+
+        private async System.Threading.Tasks.Task<ResolvedReleaseTargets> ResolveDeviceScopeReleaseTargetsAsync(
+            ReleaseTargetDto target,
+            UserProfile profile,
+            ReleasePackage package)
+        {
+            var deviceIds = ParseDeviceIds(target.Metadata);
+            if (deviceIds.Count == 0)
+            {
+                return ResolvedReleaseTargets.Fail("DeviceScope target requires metadata.deviceIds with one or more device IDs");
+            }
+
+            return await ResolveDeviceIdsAsync(deviceIds, target, profile, package, ReleaseTargetType.DeviceScope, target.TargetId);
+        }
+
+        private async System.Threading.Tasks.Task<ResolvedReleaseTargets> ResolveDeviceIdsAsync(
+            IReadOnlyList<Guid> deviceIds,
+            ReleaseTargetDto target,
+            UserProfile profile,
+            ReleasePackage package,
+            ReleaseTargetType sourceTargetType,
+            Guid sourceTargetId)
+        {
+            var results = new List<ResolvedReleaseTarget>();
+            foreach (var deviceId in deviceIds.Distinct())
+            {
+                var resolved = await ResolveSingleDeviceReleaseTargetAsync(deviceId, target, profile, package, sourceTargetType, sourceTargetId);
+                if (resolved.Error != null)
+                {
+                    return ResolvedReleaseTargets.Fail(resolved.Error);
+                }
+
+                results.Add(resolved);
+            }
+
+            return results.Count == 0
+                ? ResolvedReleaseTargets.Fail("No device targets resolved")
+                : ResolvedReleaseTargets.Ok(results);
+        }
+
+        private async System.Threading.Tasks.Task<ResolvedReleaseTarget> ResolveSingleDeviceReleaseTargetAsync(
+            Guid deviceId,
+            ReleaseTargetDto sourceTarget,
+            UserProfile profile,
+            ReleasePackage package,
+            ReleaseTargetType sourceTargetType,
+            Guid sourceTargetId)
+        {
+            var device = await DeviceInScope(deviceId, profile.Tenant, profile.Customer)
+                .Include(c => c.Owner)
+                .Include(c => c.Tenant)
+                .Include(c => c.Customer)
+                .FirstOrDefaultAsync();
+            if (device == null)
+            {
+                return ResolvedReleaseTarget.Fail($"Device target not found: {deviceId:D}");
+            }
+
+            if (device.DeviceType == DeviceType.Gateway)
+            {
+                return ResolvedReleaseTarget.Fail("Gateway runtime updates must use SoftwareUpdate with Gateway or EdgeNode target");
+            }
+
+            Device channel = device.Owner;
+            if (channel is { Deleted: true })
+            {
+                return ResolvedReleaseTarget.Fail($"Device target channel is deleted: {deviceId:D}");
+            }
+
+            if (channel == null)
+            {
+                channel = device;
+            }
+            else if (channel.TenantId != profile.Tenant || channel.CustomerId != profile.Customer)
+            {
+                return ResolvedReleaseTarget.Fail($"Device target channel is outside current scope: {deviceId:D}");
+            }
+
+            var edgeNode = channel.DeviceType == DeviceType.Gateway
+                ? await EnsureEdgeNodeAsync(channel)
+                : null;
+            var runtimeType = Coalesce(sourceTarget.RuntimeType, Coalesce(package.TargetRuntimeType, DefaultDeviceRuntimeType));
+            var instanceId = Coalesce(sourceTarget.InstanceId, device.Name ?? string.Empty);
+            var targetKey = sourceTargetType == ReleaseTargetType.Device
+                ? Coalesce(sourceTarget.TargetKey, BuildDeviceTargetKey(channel.Id, device.Id, runtimeType, instanceId))
+                : BuildDeviceTargetKey(channel.Id, device.Id, runtimeType, instanceId);
+            var metadata = BuildTargetMetadata(sourceTarget, sourceTargetType, sourceTargetId, device.Id, channel.Id);
+
+            return ResolvedReleaseTarget.Ok(
+                ReleaseTargetType.Device,
+                device.Id,
+                channel,
+                edgeNode,
+                runtimeType,
+                instanceId,
+                targetKey,
+                metadata);
         }
 
         private IQueryable<Device> GatewayInScope(Guid gatewayId, Guid tenantId, Guid customerId)
@@ -609,6 +811,13 @@ namespace IoTSharp.Controllers
                 .Where(c => c.Id == gatewayId
                     && !c.Deleted
                     && c.DeviceType == DeviceType.Gateway
+                    && c.Tenant.Id == tenantId
+                    && c.Customer.Id == customerId);
+
+        private IQueryable<Device> DeviceInScope(Guid deviceId, Guid tenantId, Guid customerId)
+            => _context.Device
+                .Where(c => c.Id == deviceId
+                    && !c.Deleted
                     && c.Tenant.Id == tenantId
                     && c.Customer.Id == customerId);
 
@@ -659,15 +868,13 @@ namespace IoTSharp.Controllers
             ReleasePackage package,
             IReadOnlyList<ResolvedReleaseTarget> targets,
             int batchSize,
-            DateTime now,
-            IReadOnlyList<ReleaseTargetDto> sourceTargets)
+            DateTime now)
         {
             var normalizedBatchSize = batchSize <= 0 ? targets.Count : batchSize;
             var tasks = new List<ReleaseTask>();
             for (var index = 0; index < targets.Count; index++)
             {
                 var target = targets[index];
-                var sourceTarget = sourceTargets[index];
                 tasks.Add(new ReleaseTask
                 {
                     Id = Guid.NewGuid(),
@@ -684,7 +891,7 @@ namespace IoTSharp.Controllers
                     InstanceId = target.InstanceId,
                     BatchNo = index / normalizedBatchSize + 1,
                     Status = ReleaseTaskStatus.Pending,
-                    Metadata = SerializeStringMap(sourceTarget.Metadata),
+                    Metadata = SerializeStringMap(target.Metadata),
                     CreatedAt = now,
                     UpdatedAt = now,
                     TenantId = plan.TenantId,
@@ -713,7 +920,7 @@ namespace IoTSharp.Controllers
                     continue;
                 }
 
-                var taskRequest = CreateSoftwareUpdateTaskRequest(plan, releaseTask, package, now, operatorName, isRollback);
+                var taskRequest = CreateReleaseTaskRequest(plan, releaseTask, package, now, operatorName, isRollback);
                 var formalTask = CreateFormalEdgeTask(taskRequest, releaseTask, SerializeOrNull(taskRequest) ?? "{}");
                 _context.EdgeTasks.Add(formalTask);
 
@@ -738,7 +945,7 @@ namespace IoTSharp.Controllers
             return edgeTasks;
         }
 
-        private EdgeTaskRequestDto CreateSoftwareUpdateTaskRequest(
+        private EdgeTaskRequestDto CreateReleaseTaskRequest(
             ReleasePlan plan,
             ReleaseTask releaseTask,
             ReleasePackage package,
@@ -749,6 +956,7 @@ namespace IoTSharp.Controllers
             var runtimeType = Coalesce(releaseTask.RuntimeType, package.TargetRuntimeType);
             var instanceId = releaseTask.InstanceId ?? string.Empty;
             var targetType = ResolveDefaultTargetType(releaseTask.TargetType, runtimeType);
+            var edgeTaskType = ResolveEdgeTaskType(plan.PlanType);
             var downloadUrl = Url.Action(nameof(ReleasePackagesController.Download), "ReleasePackages", new
             {
                 id = package.Id,
@@ -766,11 +974,43 @@ namespace IoTSharp.Controllers
             metadata["packageKey"] = package.PackageKey ?? string.Empty;
             metadata["packageVersion"] = package.Version ?? string.Empty;
 
+            var parameters = new Dictionary<string, object>
+            {
+                ["releasePackageContractVersion"] = EdgeNodeContractVersions.ReleasePackageV1,
+                [PackageIdKey] = package.Id,
+                ["packageType"] = package.PackageType.ToString(),
+                ["packageKey"] = package.PackageKey ?? string.Empty,
+                ["packageName"] = package.Name ?? string.Empty,
+                [PackageVersionKey] = package.Version ?? string.Empty,
+                ["targetRuntimeType"] = package.TargetRuntimeType ?? string.Empty,
+                ["targetRuntimeVersion"] = package.TargetRuntimeVersion ?? string.Empty,
+                ["fileName"] = package.FileName ?? string.Empty,
+                ["contentType"] = package.ContentType ?? string.Empty,
+                ["size"] = package.Size,
+                [PackageSha256Key] = package.Sha256 ?? string.Empty,
+                ["downloadUrl"] = downloadUrl,
+                ["downloadToken"] = package.DownloadToken ?? string.Empty,
+                ["releasePlanId"] = plan.Id,
+                ["releaseTaskId"] = releaseTask.Id,
+                ["releaseBatchNo"] = releaseTask.BatchNo,
+                ["isRollback"] = isRollback,
+                ["edgeNodeId"] = releaseTask.EdgeNodeId,
+                ["gatewayId"] = releaseTask.GatewayId
+            };
+            if (releaseTask.TargetType == ReleaseTargetType.Device && releaseTask.TargetId.HasValue)
+            {
+                parameters[DeviceIdKey] = releaseTask.TargetId.Value;
+                parameters[TargetDeviceIdKey] = releaseTask.TargetId.Value;
+                parameters[DeliveryChannelDeviceIdKey] = releaseTask.GatewayId;
+            }
+
+            AddPackageMetadataParameters(parameters, package, edgeTaskType);
+
             return new EdgeTaskRequestDto
             {
                 ContractVersion = EdgeNodeContractVersions.EdgeTaskV1,
                 TaskId = Guid.NewGuid(),
-                TaskType = EdgeTaskType.SoftwareUpdate,
+                TaskType = edgeTaskType,
                 CreatedAt = now,
                 ExpireAt = now.Add(DefaultSoftwareUpdateTtl),
                 Address = new EdgeTaskAddressDto
@@ -781,29 +1021,7 @@ namespace IoTSharp.Controllers
                     InstanceId = instanceId,
                     TargetKey = releaseTask.TargetKey
                 },
-                Parameters = new Dictionary<string, object>
-                {
-                    ["releasePackageContractVersion"] = EdgeNodeContractVersions.ReleasePackageV1,
-                    [PackageIdKey] = package.Id,
-                    ["packageType"] = package.PackageType.ToString(),
-                    ["packageKey"] = package.PackageKey ?? string.Empty,
-                    ["packageName"] = package.Name ?? string.Empty,
-                    [PackageVersionKey] = package.Version ?? string.Empty,
-                    ["targetRuntimeType"] = package.TargetRuntimeType ?? string.Empty,
-                    ["targetRuntimeVersion"] = package.TargetRuntimeVersion ?? string.Empty,
-                    ["fileName"] = package.FileName ?? string.Empty,
-                    ["contentType"] = package.ContentType ?? string.Empty,
-                    ["size"] = package.Size,
-                    [PackageSha256Key] = package.Sha256 ?? string.Empty,
-                    ["downloadUrl"] = downloadUrl,
-                    ["downloadToken"] = package.DownloadToken ?? string.Empty,
-                    ["releasePlanId"] = plan.Id,
-                    ["releaseTaskId"] = releaseTask.Id,
-                    ["releaseBatchNo"] = releaseTask.BatchNo,
-                    ["isRollback"] = isRollback,
-                    ["edgeNodeId"] = releaseTask.EdgeNodeId,
-                    ["gatewayId"] = releaseTask.GatewayId
-                },
+                Parameters = parameters,
                 Metadata = metadata
             };
         }
@@ -1043,13 +1261,35 @@ namespace IoTSharp.Controllers
         }
 
         private static bool IsSupportedPlanPackage(ReleasePlanType planType, ReleasePackageType packageType)
-            => planType == ReleasePlanType.SoftwareUpdate && IsRuntimeSoftwarePackage(packageType);
+            => planType switch
+            {
+                ReleasePlanType.SoftwareUpdate => IsRuntimeSoftwarePackage(packageType),
+                ReleasePlanType.DeviceScriptOta => packageType == ReleasePackageType.DeviceScript,
+                ReleasePlanType.FirmwareOta => packageType == ReleasePackageType.Firmware,
+                _ => false
+            };
 
         private static bool IsRuntimeSoftwarePackage(ReleasePackageType packageType)
             => packageType is ReleasePackageType.Software or ReleasePackageType.CollectorSoftware;
 
+        private static bool IsDeviceOtaPlan(ReleasePlanType planType)
+            => planType is ReleasePlanType.DeviceScriptOta or ReleasePlanType.FirmwareOta;
+
+        private static EdgeTaskType ResolveEdgeTaskType(ReleasePlanType planType)
+            => planType switch
+            {
+                ReleasePlanType.DeviceScriptOta => EdgeTaskType.DeviceScriptOta,
+                ReleasePlanType.FirmwareOta => EdgeTaskType.FirmwareOta,
+                _ => EdgeTaskType.SoftwareUpdate
+            };
+
         private static EdgeTaskTargetType ResolveDefaultTargetType(ReleaseTargetType targetType, string runtimeType)
         {
+            if (targetType == ReleaseTargetType.Device)
+            {
+                return EdgeTaskTargetType.Device;
+            }
+
             if (targetType == ReleaseTargetType.Gateway ||
                 string.Equals(runtimeType, EdgeRuntimeTypes.Gateway, StringComparison.OrdinalIgnoreCase))
             {
@@ -1065,6 +1305,100 @@ namespace IoTSharp.Controllers
             return string.IsNullOrWhiteSpace(instanceId)
                 ? $"{gatewayId}:{normalizedRuntimeType}"
                 : $"{gatewayId}:{normalizedRuntimeType}:{instanceId.Trim()}";
+        }
+
+        private static string BuildDeviceTargetKey(Guid channelDeviceId, Guid targetDeviceId, string runtimeType, string instanceId)
+        {
+            var normalizedRuntimeType = string.IsNullOrWhiteSpace(runtimeType) ? DefaultDeviceRuntimeType : runtimeType.Trim();
+            return string.IsNullOrWhiteSpace(instanceId)
+                ? $"{channelDeviceId}:device:{targetDeviceId}:{normalizedRuntimeType}"
+                : $"{channelDeviceId}:device:{targetDeviceId}:{normalizedRuntimeType}:{instanceId.Trim()}";
+        }
+
+        private static Dictionary<string, string> BuildTargetMetadata(
+            ReleaseTargetDto target,
+            ReleaseTargetType sourceTargetType,
+            Guid sourceTargetId,
+            Guid? targetDeviceId,
+            Guid channelDeviceId)
+        {
+            var metadata = new Dictionary<string, string>(target.Metadata ?? [], StringComparer.OrdinalIgnoreCase)
+            {
+                ["sourceTargetType"] = sourceTargetType.ToString(),
+                ["deliveryChannelDeviceId"] = channelDeviceId.ToString("D")
+            };
+
+            if (sourceTargetId != Guid.Empty)
+            {
+                metadata["sourceTargetId"] = sourceTargetId.ToString("D");
+            }
+
+            if (targetDeviceId.HasValue)
+            {
+                metadata[TargetDeviceIdKey] = targetDeviceId.Value.ToString("D");
+                metadata[DeviceIdKey] = targetDeviceId.Value.ToString("D");
+            }
+
+            return metadata;
+        }
+
+        private static List<Guid> ParseDeviceIds(IReadOnlyDictionary<string, string> metadata)
+        {
+            if (metadata == null)
+            {
+                return [];
+            }
+
+            var values = metadata.TryGetValue(DeviceIdsMetadataKey, out var direct)
+                ? direct
+                : metadata.FirstOrDefault(pair => string.Equals(pair.Key, DeviceIdsMetadataKey, StringComparison.OrdinalIgnoreCase)).Value;
+            if (string.IsNullOrWhiteSpace(values))
+            {
+                return [];
+            }
+
+            return values
+                .Split([',', ';', ' ', '\r', '\n', '\t'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Select(value => Guid.TryParse(value, out var id) ? id : Guid.Empty)
+                .Where(id => id != Guid.Empty)
+                .Distinct()
+                .ToList();
+        }
+
+        private static void AddPackageMetadataParameters(
+            Dictionary<string, object> parameters,
+            ReleasePackage package,
+            EdgeTaskType taskType)
+        {
+            var packageMetadata = DeserializeObjectMap(package.Metadata);
+            switch (taskType)
+            {
+                case EdgeTaskType.DeviceScriptOta:
+                    CopyOptionalParameter(packageMetadata, parameters, "scriptCrc32");
+                    CopyOptionalParameter(packageMetadata, parameters, "scriptSignature");
+                    CopyOptionalParameter(packageMetadata, parameters, "scriptSlot");
+                    CopyOptionalParameter(packageMetadata, parameters, "scriptLanguage");
+                    CopyOptionalParameter(packageMetadata, parameters, "scriptEncoding");
+                    break;
+                case EdgeTaskType.FirmwareOta:
+                    CopyOptionalParameter(packageMetadata, parameters, "firmwareSignature");
+                    CopyOptionalParameter(packageMetadata, parameters, "firmwarePartition");
+                    CopyOptionalParameter(packageMetadata, parameters, "firmwareFamily");
+                    CopyOptionalParameter(packageMetadata, parameters, "bootloaderVersion");
+                    CopyOptionalParameter(packageMetadata, parameters, "requiresReboot");
+                    break;
+            }
+        }
+
+        private static void CopyOptionalParameter(
+            IReadOnlyDictionary<string, object> source,
+            Dictionary<string, object> destination,
+            string key)
+        {
+            if (TryGetDictionaryValue(source, key, out var value) && value != null)
+            {
+                destination[key] = value;
+            }
         }
 
         private static bool HasActiveTasks(IEnumerable<ReleaseTask> tasks)
@@ -1136,6 +1470,39 @@ namespace IoTSharp.Controllers
             }
         }
 
+        /// <summary>
+        /// 按键名忽略大小写读取字典值。
+        /// </summary>
+        /// <typeparam name="T">字典值类型。</typeparam>
+        /// <param name="values">待读取的字典。</param>
+        /// <param name="key">键名。</param>
+        /// <param name="value">找到的值。</param>
+        /// <returns>找到时返回 true。</returns>
+        private static bool TryGetDictionaryValue<T>(IReadOnlyDictionary<string, T> values, string key, out T value)
+        {
+            value = default;
+            if (values == null || string.IsNullOrWhiteSpace(key))
+            {
+                return false;
+            }
+
+            if (values.TryGetValue(key, out value))
+            {
+                return true;
+            }
+
+            foreach (var pair in values)
+            {
+                if (string.Equals(pair.Key, key, StringComparison.OrdinalIgnoreCase))
+                {
+                    value = pair.Value;
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         private static string Coalesce(string primary, string fallback)
             => string.IsNullOrWhiteSpace(primary) ? fallback ?? string.Empty : primary.Trim();
 
@@ -1172,26 +1539,44 @@ namespace IoTSharp.Controllers
 
             public string TargetKey { get; private set; }
 
+            public Dictionary<string, string> Metadata { get; private set; } = [];
+
             public static ResolvedReleaseTarget Fail(string error)
                 => new() { Error = error };
 
             public static ResolvedReleaseTarget Ok(
-                ReleaseTargetDto target,
+                ReleaseTargetType targetType,
+                Guid targetId,
                 Device gateway,
                 EdgeNode edgeNode,
                 string runtimeType,
                 string instanceId,
-                string targetKey)
+                string targetKey,
+                Dictionary<string, string> metadata)
                 => new()
                 {
-                    TargetType = target.TargetType,
-                    TargetId = target.TargetId,
+                    TargetType = targetType,
+                    TargetId = targetId,
                     Gateway = gateway,
                     EdgeNode = edgeNode,
                     RuntimeType = runtimeType ?? string.Empty,
                     InstanceId = instanceId ?? string.Empty,
-                    TargetKey = targetKey ?? string.Empty
+                    TargetKey = targetKey ?? string.Empty,
+                    Metadata = metadata ?? []
                 };
+        }
+
+        private sealed class ResolvedReleaseTargets
+        {
+            public string Error { get; private set; }
+
+            public IReadOnlyList<ResolvedReleaseTarget> Targets { get; private set; } = [];
+
+            public static ResolvedReleaseTargets Fail(string error)
+                => new() { Error = error };
+
+            public static ResolvedReleaseTargets Ok(IReadOnlyList<ResolvedReleaseTarget> targets)
+                => new() { Targets = targets ?? [] };
         }
     }
 }

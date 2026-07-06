@@ -49,7 +49,11 @@ public sealed class EdgeContractSerializationTests
             Path.Combine("examples", "collection-config.v1.sample.json"),
             Path.Combine("examples", "edge-task.v1.sample.json"),
             Path.Combine("examples", "edge-task.software-update.v1.sample.json"),
-            Path.Combine("examples", "release-package.v1.sample.json")
+            Path.Combine("examples", "edge-task.device-script-ota.v1.sample.json"),
+            Path.Combine("examples", "edge-task.firmware-ota.v1.sample.json"),
+            Path.Combine("examples", "release-package.v1.sample.json"),
+            Path.Combine("examples", "release-package.device-script.v1.sample.json"),
+            Path.Combine("examples", "release-package.firmware.v1.sample.json")
         };
 
         foreach (var file in files)
@@ -423,6 +427,65 @@ public sealed class EdgeContractSerializationTests
         Assert.Contains("\"releasePackageContractVersion\":\"release-package-v1\"", json);
         Assert.Contains("\"packageId\":\"33333333-3333-3333-3333-333333333333\"", json);
         Assert.Contains("\"sha256\":\"6D37795021E544D998C3A77A825EA542D52094C9AB63F6D0D42C79FE2E176FF8\"", json);
+    }
+
+    [Fact]
+    public void DeviceOtaEdgeTasks_SerializeScriptAndFirmwareContracts()
+    {
+        var packageId = Guid.Parse("33333333-3333-3333-3333-333333333333");
+        var deviceId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+        var scriptTask = new EdgeTaskRequestDto
+        {
+            TaskId = Guid.Parse("55555555-5555-5555-5555-555555555555"),
+            TaskType = EdgeTaskType.DeviceScriptOta,
+            CreatedAt = DateTime.Parse("2026-07-06T08:30:00Z").ToUniversalTime(),
+            Address = new EdgeTaskAddressDto
+            {
+                TargetType = EdgeTaskTargetType.Device,
+                DeviceId = deviceId,
+                RuntimeType = "iotembedded",
+                InstanceId = "stm32-basic-01",
+                TargetKey = $"{deviceId}:device:{deviceId}:iotembedded:stm32-basic-01"
+            },
+            Parameters = new Dictionary<string, object>
+            {
+                ["releasePackageContractVersion"] = EdgeNodeContractVersions.ReleasePackageV1,
+                ["packageId"] = packageId,
+                ["packageType"] = ReleasePackageType.DeviceScript.ToString(),
+                ["packageVersion"] = "2026.7.6",
+                ["sha256"] = "6D37795021E544D998C3A77A825EA542D52094C9AB63F6D0D42C79FE2E176FF8",
+                ["targetDeviceId"] = deviceId,
+                ["scriptCrc32"] = "A1B2C3D4",
+                ["scriptSlot"] = "inactive"
+            }
+        };
+        var firmwareTask = new EdgeTaskRequestDto
+        {
+            TaskId = Guid.Parse("66666666-6666-6666-6666-666666666666"),
+            TaskType = EdgeTaskType.FirmwareOta,
+            CreatedAt = DateTime.Parse("2026-07-06T08:35:00Z").ToUniversalTime(),
+            Address = scriptTask.Address,
+            Parameters = new Dictionary<string, object>
+            {
+                ["releasePackageContractVersion"] = EdgeNodeContractVersions.ReleasePackageV1,
+                ["packageId"] = packageId,
+                ["packageType"] = ReleasePackageType.Firmware.ToString(),
+                ["packageVersion"] = "1.2.0",
+                ["sha256"] = "6D37795021E544D998C3A77A825EA542D52094C9AB63F6D0D42C79FE2E176FF8",
+                ["targetDeviceId"] = deviceId,
+                ["firmwarePartition"] = "ota-b",
+                ["bootloaderVersion"] = ">=1.0.0"
+            }
+        };
+
+        var scriptJson = JsonSerializer.Serialize(scriptTask, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+        var firmwareJson = JsonSerializer.Serialize(firmwareTask, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+
+        Assert.Contains("\"taskType\":\"DeviceScriptOta\"", scriptJson);
+        Assert.Contains("\"targetType\":\"Device\"", scriptJson);
+        Assert.Contains("\"scriptCrc32\":\"A1B2C3D4\"", scriptJson);
+        Assert.Contains("\"taskType\":\"FirmwareOta\"", firmwareJson);
+        Assert.Contains("\"firmwarePartition\":\"ota-b\"", firmwareJson);
     }
 
     [Fact]

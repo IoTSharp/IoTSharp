@@ -1,0 +1,26 @@
+{
+  "$schema": "../release-package.v1.schema.json",
+  "contractVersion": "release-package-v1",
+  "id": "33333333-3333-3333-3333-333333333333",
+  "packageType": "DeviceScript",
+  "packageKey": "boiler-basic-control",
+  "name": "Boiler BASIC control script",
+  "version": "2026.7.6",
+  "targetRuntimeType": "iotembedded",
+  "targetRuntimeVersion": ">=0.8.0",
+  "fileName": "boiler-basic-control.bas",
+  "contentType": "text/plain",
+  "size": 4096,
+  "sha256": "6D37795021E544D998C3A77A825EA542D52094C9AB63F6D0D42C79FE2E176FF8",
+  "metadata": {
+    "scriptCrc32": "A1B2C3D4",
+    "scriptSignature": "base64-signature",
+    "scriptSlot": "inactive",
+    "scriptLanguage": "basic",
+    "scriptEncoding": "utf-8"
+  },
+  "createdAt": "2026-07-06T08:20:00Z",
+  "updatedAt": "2026-07-06T08:20:00Z",
+  "createdBy": "operator@example.com",
+  "updatedBy": "operator@example.com"
+}

@@ -34,6 +34,9 @@ namespace IoTSharp.Controllers
         private const string ReleasePackageIdKey = "packageId";
         private const string ReleasePackageVersionKey = "packageVersion";
         private const string ReleasePackageSha256Key = "sha256";
+        private const string TargetDeviceIdKey = "targetDeviceId";
+        private const string DeviceIdKey = "deviceId";
+        private const string ScriptCrc32Key = "scriptCrc32";
         private const string AssignmentUpdatedBy = "edge-task-receipt";
         private const string AssignmentTaskStatusUpdatedBy = "edge-task-status";
         private const string AuditActionDispatch = "EdgeTaskDispatch";
@@ -215,10 +218,10 @@ namespace IoTSharp.Controllers
                 return Ok(new ApiResult<EdgeTaskReceiptDto>(ApiCode.InValidData, collectionReceiptError, null));
             }
 
-            var softwareUpdateReceiptError = await ApplySoftwareUpdateReceiptAsync(formalTask, request);
-            if (!string.IsNullOrWhiteSpace(softwareUpdateReceiptError))
+            var releasePackageReceiptError = await ApplyReleasePackageReceiptAsync(formalTask, request);
+            if (!string.IsNullOrWhiteSpace(releasePackageReceiptError))
             {
-                return Ok(new ApiResult<EdgeTaskReceiptDto>(ApiCode.InValidData, softwareUpdateReceiptError, null));
+                return Ok(new ApiResult<EdgeTaskReceiptDto>(ApiCode.InValidData, releasePackageReceiptError, null));
             }
 
             var receiptPayload = SerializeOrNull(request) ?? "{}";
@@ -1671,14 +1674,14 @@ namespace IoTSharp.Controllers
             => status is ReleaseTaskStatus.Succeeded or ReleaseTaskStatus.Failed or ReleaseTaskStatus.TimedOut or ReleaseTaskStatus.Cancelled or ReleaseTaskStatus.RolledBack or ReleaseTaskStatus.RollbackFailed;
 
         /// <summary>
-        /// 处理软件更新任务的执行回执，核对包 ID、版本和 SHA256，避免执行端误报其他包的成功结果。
+        /// 处理发布包任务的执行回执，核对包 ID、版本和 SHA256，避免执行端误报其他包的成功结果。
         /// </summary>
         /// <param name="task">正式 EdgeTask 任务。</param>
         /// <param name="receipt">执行端回执。</param>
-        /// <returns>校验失败时返回错误消息；成功或非软件更新任务返回空字符串。</returns>
-        private async System.Threading.Tasks.Task<string> ApplySoftwareUpdateReceiptAsync(EdgeTask task, EdgeTaskReceiptDto receipt)
+        /// <returns>校验失败时返回错误消息；成功或非发布包任务返回空字符串。</returns>
+        private async System.Threading.Tasks.Task<string> ApplyReleasePackageReceiptAsync(EdgeTask task, EdgeTaskReceiptDto receipt)
         {
-            if (task.TaskType != EdgeTaskType.SoftwareUpdate)
+            if (!IsReleasePackageTask(task.TaskType))
             {
                 return string.Empty;
             }
@@ -1692,7 +1695,7 @@ namespace IoTSharp.Controllers
                 string.IsNullOrWhiteSpace(expectedVersion) ||
                 string.IsNullOrWhiteSpace(expectedSha256))
             {
-                return "SoftwareUpdate task parameters require packageId, packageVersion and sha256";
+                return $"{task.TaskType} task parameters require packageId, packageVersion and sha256";
             }
 
             var packageExists = await _context.ReleasePackages.AnyAsync(package =>
@@ -1702,7 +1705,7 @@ namespace IoTSharp.Controllers
                 package.CustomerId == task.CustomerId);
             if (!packageExists)
             {
-                return "Release package not found for software update receipt";
+                return "Release package not found for task receipt";
             }
 
             var resultPackageId = TryGetGuid(receipt.Result, ReleasePackageIdKey);
@@ -1711,6 +1714,12 @@ namespace IoTSharp.Controllers
             var metadataVersion = TryGetString(receipt.Metadata, ReleasePackageVersionKey);
             var resultSha256 = TryGetReleasePackageSha256(receipt.Result);
             var metadataSha256 = TryGetReleasePackageSha256(receipt.Metadata);
+            var expectedDeviceId = TryGetGuid(parameters, TargetDeviceIdKey) ?? TryGetGuid(parameters, DeviceIdKey);
+            var resultDeviceId = TryGetGuid(receipt.Result, TargetDeviceIdKey) ?? TryGetGuid(receipt.Result, DeviceIdKey);
+            var metadataDeviceId = TryGetGuid(receipt.Metadata, TargetDeviceIdKey) ?? TryGetGuid(receipt.Metadata, DeviceIdKey);
+            var expectedScriptCrc32 = TryGetString(parameters, ScriptCrc32Key);
+            var resultScriptCrc32 = TryGetString(receipt.Result, ScriptCrc32Key);
+            var metadataScriptCrc32 = TryGetString(receipt.Metadata, ScriptCrc32Key);
 
             if ((resultPackageId.HasValue && resultPackageId.Value != expectedPackageId.Value) ||
                 (metadataPackageId.HasValue && metadataPackageId.Value != expectedPackageId.Value))
@@ -1730,16 +1739,40 @@ namespace IoTSharp.Controllers
                 return "sha256 does not match task parameters";
             }
 
+            if ((resultDeviceId.HasValue && expectedDeviceId.HasValue && resultDeviceId.Value != expectedDeviceId.Value) ||
+                (metadataDeviceId.HasValue && expectedDeviceId.HasValue && metadataDeviceId.Value != expectedDeviceId.Value))
+            {
+                return "deviceId does not match task parameters";
+            }
+
+            if (!string.IsNullOrWhiteSpace(expectedScriptCrc32) &&
+                ((!string.IsNullOrWhiteSpace(resultScriptCrc32) && !string.Equals(resultScriptCrc32, expectedScriptCrc32, StringComparison.OrdinalIgnoreCase)) ||
+                 (!string.IsNullOrWhiteSpace(metadataScriptCrc32) && !string.Equals(metadataScriptCrc32, expectedScriptCrc32, StringComparison.OrdinalIgnoreCase))))
+            {
+                return "scriptCrc32 does not match task parameters";
+            }
+
             if (receipt.Status == EdgeTaskStatus.Succeeded &&
                 (!resultPackageId.HasValue ||
                  string.IsNullOrWhiteSpace(resultVersion) ||
                  string.IsNullOrWhiteSpace(resultSha256)))
             {
-                return "Succeeded software update receipt requires result.packageId, result.packageVersion and result.sha256";
+                return $"Succeeded {task.TaskType} receipt requires result.packageId, result.packageVersion and result.sha256";
+            }
+
+            if (receipt.Status == EdgeTaskStatus.Succeeded &&
+                task.TaskType is EdgeTaskType.DeviceScriptOta or EdgeTaskType.FirmwareOta &&
+                expectedDeviceId.HasValue &&
+                !resultDeviceId.HasValue)
+            {
+                return $"Succeeded {task.TaskType} receipt requires result.deviceId or result.targetDeviceId";
             }
 
             return string.Empty;
         }
+
+        private static bool IsReleasePackageTask(EdgeTaskType taskType)
+            => taskType is EdgeTaskType.SoftwareUpdate or EdgeTaskType.DeviceScriptOta or EdgeTaskType.FirmwareOta;
 
         private async System.Threading.Tasks.Task<Guid?> ResolveDeviceIdAsync(string targetKey, string instanceId, Guid? deviceId)
         {
@@ -1792,7 +1825,7 @@ namespace IoTSharp.Controllers
         private Device GetGatewayByAccessToken(string accessToken)
         {
             var (ok, gateway) = _context.GetDeviceByToken(accessToken);
-            if (ok || gateway?.DeviceType != DeviceType.Gateway || gateway.Deleted)
+            if (ok || gateway == null || gateway.Deleted)
             {
                 return null;
             }

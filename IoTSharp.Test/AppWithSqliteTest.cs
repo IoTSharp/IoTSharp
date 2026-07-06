@@ -579,6 +579,187 @@ namespace IoTSharp.Test
         }
 
         [Fact]
+        public async Task ReleaseCenter_AssetScopeDispatchesDeviceScriptOtaAndTracksReceipts()
+        {
+            using var client = _fixture.CreateClient();
+            var created = await _fixture.CreateDeviceAsync(client, $"sqlite-device-script-{Guid.NewGuid():N}", DeviceType.Device);
+            var deviceId = created.Data!.Id;
+            var token = await _fixture.GetDeviceAccessTokenAsync(client, deviceId);
+            Guid assetId;
+
+            using (var scope = _fixture.Services.CreateScope())
+            {
+                var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                var storedDevice = await dbContext.Device
+                    .Include(device => device.Tenant)
+                    .Include(device => device.Customer)
+                    .SingleAsync(device => device.Id == deviceId);
+                assetId = Guid.NewGuid();
+                dbContext.Assets.Add(new Asset
+                {
+                    Id = assetId,
+                    Name = $"sqlite-asset-scope-{Guid.NewGuid():N}",
+                    Description = "Release Center AssetScope device OTA test",
+                    AssetType = "equipment",
+                    Tenant = storedDevice.Tenant,
+                    Customer = storedDevice.Customer,
+                    OwnedAssets =
+                    [
+                        new AssetRelation
+                        {
+                            DeviceId = deviceId,
+                            DataCatalog = DataCatalog.TelemetryLatest,
+                            KeyName = "temperature",
+                            Name = "temperature",
+                            Description = "temperature"
+                        }
+                    ]
+                });
+                await dbContext.SaveChangesAsync();
+            }
+
+            await _fixture.AuthorizeClientAsync(client);
+
+            var packageKey = $"iotembedded-script-{Guid.NewGuid():N}";
+            var packageVersion = $"2026.7.6-{Guid.NewGuid():N}";
+            var scriptBytes = Encoding.UTF8.GetBytes($"10 PRINT \"{packageKey}\"");
+            var expectedSha256 = Convert.ToHexString(SHA256.HashData(scriptBytes));
+            const string expectedCrc32 = "A1B2C3D4";
+            using var form = new MultipartFormDataContent();
+            form.Add(new StringContent(nameof(ReleasePackageType.DeviceScript)), "PackageType");
+            form.Add(new StringContent(packageKey), "PackageKey");
+            form.Add(new StringContent("IoTEmbedded BASIC script"), "Name");
+            form.Add(new StringContent(packageVersion), "Version");
+            form.Add(new StringContent("iotembedded"), "TargetRuntimeType");
+            form.Add(new StringContent(">=0.8.0"), "TargetRuntimeVersion");
+            form.Add(new StringContent($$"""{"scriptCrc32":"{{expectedCrc32}}","scriptSlot":"inactive"}"""), "Metadata");
+            var fileContent = new ByteArrayContent(scriptBytes);
+            fileContent.Headers.ContentType = new MediaTypeHeaderValue("text/plain");
+            form.Add(fileContent, "File", $"{packageKey}.bas");
+
+            var upload = await client.PostAsync("/api/ReleasePackages/Upload", form);
+            var uploadResult = await ReadApiResultAsync<ReleasePackageDto>(upload);
+            Assert.Equal((int)ApiCode.Success, uploadResult.Code);
+            Assert.NotNull(uploadResult.Data);
+            Assert.Equal(ReleasePackageType.DeviceScript, uploadResult.Data!.PackageType);
+            Assert.Equal(expectedSha256, uploadResult.Data.Sha256);
+
+            var create = await client.PostAsJsonAsync("/api/ReleaseCenter/Plans", new ReleasePlanCreateRequestDto
+            {
+                Name = $"sqlite-device-script-ota-{Guid.NewGuid():N}",
+                Description = "Release Center AssetScope device script OTA test",
+                PlanType = ReleasePlanType.DeviceScriptOta,
+                PackageId = uploadResult.Data.Id,
+                ConfirmationPolicy = ReleaseConfirmationPolicy.None,
+                AutoStart = true,
+                Strategy = new ReleaseRolloutStrategyDto
+                {
+                    BatchSize = 1,
+                    ContinueOnFailure = false
+                },
+                Targets =
+                [
+                    new ReleaseTargetDto
+                    {
+                        TargetType = ReleaseTargetType.AssetScope,
+                        TargetId = assetId,
+                        RuntimeType = "iotembedded",
+                        InstanceId = "stm32-basic-01",
+                        Metadata = new Dictionary<string, string>
+                        {
+                            ["scope"] = "asset"
+                        }
+                    }
+                ]
+            });
+            var createResult = await ReadApiResultAsync<ReleasePlanOperationResultDto>(create);
+            Assert.Equal((int)ApiCode.Success, createResult.Code);
+            Assert.NotNull(createResult.Data);
+            Assert.Equal(ReleasePlanType.DeviceScriptOta, createResult.Data!.Plan.PlanType);
+            var releaseTask = Assert.Single(createResult.Data.Plan.Tasks);
+            Assert.Equal(ReleaseTargetType.Device, releaseTask.TargetType);
+            Assert.Equal(deviceId, releaseTask.TargetId);
+            Assert.Equal(deviceId, releaseTask.GatewayId);
+            var edgeTask = Assert.Single(createResult.Data.EdgeTasks);
+            Assert.Equal(EdgeTaskType.DeviceScriptOta, edgeTask.TaskType);
+            Assert.Equal(EdgeTaskTargetType.Device, edgeTask.Address.TargetType);
+            Assert.Equal(deviceId.ToString("D"), GetParameterString(edgeTask.Parameters, "targetDeviceId"));
+            Assert.Equal(expectedCrc32, GetParameterString(edgeTask.Parameters, "scriptCrc32"));
+
+            var pulledTasks = await GetApiResultAsync<List<EdgeTaskRequestDto>>(client, $"/api/EdgeTask/Dispatch/{token}");
+            Assert.Equal((int)ApiCode.Success, pulledTasks.Code);
+            var pulledTask = Assert.Single(pulledTasks.Data!, task => task.TaskId == edgeTask.TaskId);
+            Assert.Equal(EdgeTaskType.DeviceScriptOta, pulledTask.TaskType);
+
+            var accepted = await client.PostAsJsonAsync($"/api/EdgeTask/Dispatch/{token}/Accept", new EdgeTaskReceiptDto
+            {
+                ContractVersion = EdgeNodeContractVersions.EdgeTaskV1,
+                TaskId = edgeTask.TaskId,
+                ReportedAt = DateTime.UtcNow
+            });
+            var acceptedResult = await ReadApiResultAsync<object>(accepted);
+            Assert.Equal((int)ApiCode.Success, acceptedResult.Code);
+
+            var running = await client.PostAsJsonAsync("/api/EdgeTask/Receipt", new EdgeTaskReceiptDto
+            {
+                ContractVersion = EdgeNodeContractVersions.EdgeTaskV1,
+                TaskId = edgeTask.TaskId,
+                TargetType = pulledTask.Address.TargetType,
+                TargetKey = pulledTask.Address.TargetKey,
+                RuntimeType = "iotembedded",
+                InstanceId = "stm32-basic-01",
+                Status = EdgeTaskStatus.Running,
+                Progress = 50,
+                Message = "script staging",
+                ReportedAt = DateTime.UtcNow
+            });
+            var runningResult = await ReadApiResultAsync<EdgeTaskReceiptDto>(running);
+            Assert.Equal((int)ApiCode.Success, runningResult.Code);
+
+            var succeeded = await client.PostAsJsonAsync("/api/EdgeTask/Receipt", new EdgeTaskReceiptDto
+            {
+                ContractVersion = EdgeNodeContractVersions.EdgeTaskV1,
+                TaskId = edgeTask.TaskId,
+                TargetType = pulledTask.Address.TargetType,
+                TargetKey = pulledTask.Address.TargetKey,
+                RuntimeType = "iotembedded",
+                InstanceId = "stm32-basic-01",
+                Status = EdgeTaskStatus.Succeeded,
+                Progress = 100,
+                Message = "script switched",
+                ReportedAt = DateTime.UtcNow,
+                Result = new Dictionary<string, object>
+                {
+                    ["packageId"] = uploadResult.Data.Id,
+                    ["packageVersion"] = uploadResult.Data.Version,
+                    ["sha256"] = uploadResult.Data.Sha256,
+                    ["targetDeviceId"] = deviceId,
+                    ["scriptCrc32"] = expectedCrc32,
+                    ["activeSlot"] = "b"
+                }
+            });
+            var succeededResult = await ReadApiResultAsync<EdgeTaskReceiptDto>(succeeded);
+            Assert.Equal((int)ApiCode.Success, succeededResult.Code);
+
+            var completedPlan = await GetApiResultAsync<ReleasePlanDto>(client, $"/api/ReleaseCenter/Plans/{createResult.Data.Plan.Id}");
+            Assert.Equal((int)ApiCode.Success, completedPlan.Code);
+            Assert.Equal(ReleasePlanStatus.Succeeded, completedPlan.Data!.Status);
+            Assert.Equal(1, completedPlan.Data.SucceededTaskCount);
+            var completedTask = Assert.Single(completedPlan.Data.Tasks);
+            Assert.Equal(ReleaseTaskStatus.Succeeded, completedTask.Status);
+            Assert.Equal(100, completedTask.Progress);
+            Assert.Equal("AssetScope", completedTask.Metadata["sourceTargetType"]);
+            Assert.Equal(assetId.ToString("D"), completedTask.Metadata["sourceTargetId"]);
+
+            using var verifyScope = _fixture.Services.CreateScope();
+            var verifyDbContext = verifyScope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            var storedEdgeTask = await verifyDbContext.EdgeTasks.AsNoTracking().SingleAsync(task => task.Id == edgeTask.TaskId);
+            Assert.Equal(EdgeTaskType.DeviceScriptOta, storedEdgeTask.TaskType);
+            Assert.Equal(EdgeTaskStatus.Succeeded, storedEdgeTask.Status);
+            Assert.Equal(3, await verifyDbContext.ReleaseReceipts.AsNoTracking().CountAsync(receipt => receipt.PlanId == completedPlan.Data.Id));
+        }
+
+        [Fact]
         public async Task CollectionConfigVersion_PersistsSnapshotAndAssignment()
         {
             using var client = _fixture.CreateClient();

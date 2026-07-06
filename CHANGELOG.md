@@ -22,6 +22,7 @@ This project follows a lightweight Keep a Changelog style. Version numbers in th
 - Minimal software package publication for M4 #046 with `ReleasePackage`, multi-provider `ReleasePackages` migrations, upload/download APIs, `SoftwareUpdate` EdgeTask dispatch, checksum-bound receipts, and `release-package-v1` contract artifacts.
 - IoTEdge-side M4 #047/#048 execution support is now aligned with platform contracts: `SoftwareUpdate` tasks download, verify, stage, switch and receipt package results, while upload channels can buffer failed collection uploads locally and replay them after connectivity recovers.
 - Release Center platform first version for M5 #050-#055 with `ReleasePlan`, `ReleaseTask`, `ReleaseReceipt`, multi-provider migrations, `/api/ReleaseCenter/Plans` APIs, Gateway/EdgeNode runtime software rollout, gray batches, confirmation, pause/resume, rollback tasks, receipt projection, and audit logging.
+- Device script and firmware OTA execution-end contract groundwork for M5 #056/#057 with `DeviceScriptOta` and `FirmwareOta` EdgeTask types, `Device` task targets, AssetScope/DeviceScope expansion into per-device release tasks, checksum-bound package receipts, and EdgeTask/ReleasePackage contract samples for IoTEmbedded alignment.
 
 ### Changed
 
