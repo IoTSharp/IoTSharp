@@ -20,6 +20,7 @@ This project follows a lightweight Keep a Changelog style. Version numbers in th
 - Collection version status display for M4 #044 now exposes current/target versions, difference summary, and recent publish result in Edge APIs and console views.
 - EdgeTask failure retry and audit support for M4 #045, including `POST /api/EdgeTask/{taskId}/Retry`, `GET /api/EdgeTask/{taskId}/Audit`, terminal receipt audit logs, and task timeline audit events.
 - Minimal software package publication for M4 #046 with `ReleasePackage`, multi-provider `ReleasePackages` migrations, upload/download APIs, `SoftwareUpdate` EdgeTask dispatch, checksum-bound receipts, and `release-package-v1` contract artifacts.
+- IoTEdge-side M4 #047/#048 execution support is now aligned with platform contracts: `SoftwareUpdate` tasks download, verify, stage, switch and receipt package results, while upload channels can buffer failed collection uploads locally and replay them after connectivity recovers.
 
 ### Changed
 
