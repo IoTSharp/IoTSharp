@@ -1,0 +1,28 @@
+{
+  "$schema": "../edge-task.v1.schema.json",
+  "contractVersion": "edge-task-v1",
+  "taskId": "77777777-7777-7777-7777-777777777777",
+  "targetType": "Device",
+  "targetKey": "22222222-2222-2222-2222-222222222222:device:22222222-2222-2222-2222-222222222222:iotembedded:stm32-basic-01",
+  "runtimeType": "iotembedded",
+  "instanceId": "stm32-basic-01",
+  "status": "Succeeded",
+  "message": "rollback confirmed by bootloader",
+  "reportedAt": "2026-07-06T08:55:00Z",
+  "progress": 100,
+  "result": {
+    "packageId": "33333333-3333-3333-3333-333333333333",
+    "packageVersion": "1.1.0",
+    "sha256": "6D37795021E544D998C3A77A825EA542D52094C9AB63F6D0D42C79FE2E176FF8",
+    "targetDeviceId": "22222222-2222-2222-2222-222222222222",
+    "firmwarePartition": "ota-a",
+    "activePartition": "ota-a",
+    "bootloaderVersion": "1.1.0",
+    "bootloaderAccepted": true,
+    "rollbackConfirmed": true
+  },
+  "metadata": {
+    "source": "iotembedded",
+    "isRollback": "true"
+  }
+}

@@ -382,7 +382,7 @@ Edge 页面围绕运行时闭环组织：
 
 - ReleasePackage、ReleasePlan、ReleaseTask、ReleaseReceipt。
 - 灰度、回滚、暂停、继续和确认流程。
-- 设备脚本 OTA（#056，平台侧合同与范围发布先行，执行端复用 IoTEmbedded 双槽存储与失败回滚）与设备固件 OTA（#057，平台侧合同先行，bootloader 和回滚由设备侧验收）。
+- 设备脚本 OTA（#056，平台侧合同、范围发布、Gateway 投递和脚本 CRC 回执校验）与设备固件 OTA（#057，平台合同、范围发布、bootloader 验收、回滚准备和回滚确认回执校验）。
 
 验收：
 

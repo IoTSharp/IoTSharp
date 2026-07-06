@@ -945,6 +945,319 @@ namespace IoTSharp.Test
         }
 
         [Fact]
+        public async Task ReleaseCenter_FirmwareOta_RequiresBootloaderAndRollbackAcceptance()
+        {
+            using var client = _fixture.CreateClient();
+            var gateway = await _fixture.CreateDeviceAsync(client, $"sqlite-firmware-gateway-{Guid.NewGuid():N}", DeviceType.Gateway);
+            var child = await _fixture.CreateDeviceAsync(client, $"sqlite-firmware-child-{Guid.NewGuid():N}", DeviceType.Device);
+            var gatewayId = gateway.Data!.Id;
+            var childId = child.Data!.Id;
+            var gatewayToken = await _fixture.GetDeviceAccessTokenAsync(client, gatewayId);
+
+            using (var scope = _fixture.Services.CreateScope())
+            {
+                var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                var storedGateway = await dbContext.Device.OfType<Gateway>().SingleAsync(device => device.Id == gatewayId);
+                var storedChild = await dbContext.Device.SingleAsync(device => device.Id == childId);
+                storedChild.Owner = storedGateway;
+                await dbContext.SaveChangesAsync();
+            }
+
+            await _fixture.AuthorizeClientAsync(client);
+
+            var firmwarePackage = await UploadFirmwarePackageAsync("primary", "1.2.0", "ota-b");
+            var rollbackPackage = await UploadFirmwarePackageAsync("rollback", "1.1.0", "ota-a");
+
+            var create = await client.PostAsJsonAsync("/api/ReleaseCenter/Plans", new ReleasePlanCreateRequestDto
+            {
+                Name = $"sqlite-firmware-ota-{Guid.NewGuid():N}",
+                Description = "Release Center firmware OTA bootloader and rollback acceptance test",
+                PlanType = ReleasePlanType.FirmwareOta,
+                PackageId = firmwarePackage.Id,
+                RollbackPackageId = rollbackPackage.Id,
+                ConfirmationPolicy = ReleaseConfirmationPolicy.None,
+                AutoStart = true,
+                Strategy = new ReleaseRolloutStrategyDto
+                {
+                    BatchSize = 1,
+                    ContinueOnFailure = false
+                },
+                Targets =
+                [
+                    new ReleaseTargetDto
+                    {
+                        TargetType = ReleaseTargetType.DeviceScope,
+                        RuntimeType = "iotembedded",
+                        InstanceId = "stm32-fw-01",
+                        Metadata = new Dictionary<string, string>
+                        {
+                            ["deviceIds"] = childId.ToString("D"),
+                            ["scope"] = "firmware-device-scope"
+                        }
+                    }
+                ]
+            });
+            var createResult = await ReadApiResultAsync<ReleasePlanOperationResultDto>(create);
+            Assert.Equal((int)ApiCode.Success, createResult.Code);
+            Assert.NotNull(createResult.Data);
+
+            var releaseTask = Assert.Single(createResult.Data!.Plan.Tasks);
+            Assert.Equal(ReleaseTargetType.Device, releaseTask.TargetType);
+            Assert.Equal(childId, releaseTask.TargetId);
+            Assert.Equal(gatewayId, releaseTask.GatewayId);
+            Assert.Equal("DeviceScope", releaseTask.Metadata["sourceTargetType"]);
+
+            var edgeTask = Assert.Single(createResult.Data.EdgeTasks);
+            Assert.Equal(EdgeTaskType.FirmwareOta, edgeTask.TaskType);
+            Assert.Equal(EdgeTaskTargetType.Device, edgeTask.Address.TargetType);
+            Assert.Equal(gatewayId, edgeTask.Address.DeviceId);
+            Assert.Contains($":device:{childId:D}:iotembedded", edgeTask.Address.TargetKey);
+            Assert.Equal(childId.ToString("D"), GetParameterString(edgeTask.Parameters, "targetDeviceId"));
+            Assert.Equal("ota-b", GetParameterString(edgeTask.Parameters, "firmwarePartition"));
+            Assert.Equal(">=1.0.0", GetParameterString(edgeTask.Parameters, "bootloaderVersion"));
+
+            var pulledTasks = await GetApiResultAsync<List<EdgeTaskRequestDto>>(client, $"/api/EdgeTask/Dispatch/{gatewayToken}");
+            Assert.Equal((int)ApiCode.Success, pulledTasks.Code);
+            var pulledTask = Assert.Single(pulledTasks.Data!, task => task.TaskId == edgeTask.TaskId);
+
+            var accepted = await client.PostAsJsonAsync($"/api/EdgeTask/Dispatch/{gatewayToken}/Accept", new EdgeTaskReceiptDto
+            {
+                ContractVersion = EdgeNodeContractVersions.EdgeTaskV1,
+                TaskId = edgeTask.TaskId,
+                ReportedAt = DateTime.UtcNow
+            });
+            var acceptedResult = await ReadApiResultAsync<object>(accepted);
+            Assert.Equal((int)ApiCode.Success, acceptedResult.Code);
+
+            var running = await client.PostAsJsonAsync("/api/EdgeTask/Receipt", new EdgeTaskReceiptDto
+            {
+                ContractVersion = EdgeNodeContractVersions.EdgeTaskV1,
+                TaskId = edgeTask.TaskId,
+                TargetType = pulledTask.Address.TargetType,
+                TargetKey = pulledTask.Address.TargetKey,
+                RuntimeType = "iotembedded",
+                InstanceId = "stm32-fw-01",
+                Status = EdgeTaskStatus.Running,
+                Progress = 80,
+                Message = "firmware staged",
+                ReportedAt = DateTime.UtcNow,
+                Result = new Dictionary<string, object>
+                {
+                    ["firmwarePartition"] = "ota-b",
+                    ["activePartition"] = "ota-a"
+                }
+            });
+            var runningResult = await ReadApiResultAsync<EdgeTaskReceiptDto>(running);
+            Assert.Equal((int)ApiCode.Success, runningResult.Code);
+
+            var missingBootloaderAcceptance = await client.PostAsJsonAsync("/api/EdgeTask/Receipt", new EdgeTaskReceiptDto
+            {
+                ContractVersion = EdgeNodeContractVersions.EdgeTaskV1,
+                TaskId = edgeTask.TaskId,
+                TargetType = pulledTask.Address.TargetType,
+                TargetKey = pulledTask.Address.TargetKey,
+                RuntimeType = "iotembedded",
+                InstanceId = "stm32-fw-01",
+                Status = EdgeTaskStatus.Succeeded,
+                Progress = 100,
+                Message = "firmware switched without bootloader acceptance",
+                ReportedAt = DateTime.UtcNow,
+                Result = new Dictionary<string, object>
+                {
+                    ["packageId"] = firmwarePackage.Id,
+                    ["packageVersion"] = firmwarePackage.Version,
+                    ["sha256"] = firmwarePackage.Sha256,
+                    ["targetDeviceId"] = childId,
+                    ["firmwarePartition"] = "ota-b",
+                    ["bootloaderVersion"] = "1.1.0",
+                    ["rollbackReady"] = true
+                }
+            });
+            var missingBootloaderAcceptanceResult = await ReadApiResultAsync<EdgeTaskReceiptDto>(missingBootloaderAcceptance);
+            Assert.Equal((int)ApiCode.InValidData, missingBootloaderAcceptanceResult.Code);
+            Assert.Contains("bootloaderAccepted", missingBootloaderAcceptanceResult.Msg);
+
+            var succeeded = await client.PostAsJsonAsync("/api/EdgeTask/Receipt", new EdgeTaskReceiptDto
+            {
+                ContractVersion = EdgeNodeContractVersions.EdgeTaskV1,
+                TaskId = edgeTask.TaskId,
+                TargetType = pulledTask.Address.TargetType,
+                TargetKey = pulledTask.Address.TargetKey,
+                RuntimeType = "iotembedded",
+                InstanceId = "stm32-fw-01",
+                Status = EdgeTaskStatus.Succeeded,
+                Progress = 100,
+                Message = "firmware confirmed by bootloader",
+                ReportedAt = DateTime.UtcNow,
+                Result = new Dictionary<string, object>
+                {
+                    ["packageId"] = firmwarePackage.Id,
+                    ["packageVersion"] = firmwarePackage.Version,
+                    ["sha256"] = firmwarePackage.Sha256,
+                    ["targetDeviceId"] = childId,
+                    ["firmwarePartition"] = "ota-b",
+                    ["activePartition"] = "ota-b",
+                    ["bootloaderVersion"] = "1.1.0",
+                    ["bootloaderAccepted"] = true,
+                    ["rollbackReady"] = true
+                }
+            });
+            var succeededResult = await ReadApiResultAsync<EdgeTaskReceiptDto>(succeeded);
+            Assert.Equal((int)ApiCode.Success, succeededResult.Code);
+
+            var completedPlan = await GetApiResultAsync<ReleasePlanDto>(client, $"/api/ReleaseCenter/Plans/{createResult.Data.Plan.Id}");
+            Assert.Equal((int)ApiCode.Success, completedPlan.Code);
+            Assert.Equal(ReleasePlanStatus.Succeeded, completedPlan.Data!.Status);
+            var completedTask = Assert.Single(completedPlan.Data.Tasks);
+            Assert.Equal(ReleaseTaskStatus.Succeeded, completedTask.Status);
+
+            var rollback = await client.PostAsJsonAsync($"/api/ReleaseCenter/Plans/{createResult.Data.Plan.Id}/Rollback", new ReleasePlanActionRequestDto
+            {
+                Reason = "sqlite firmware rollback acceptance",
+                RollbackPackageId = rollbackPackage.Id
+            });
+            var rollbackResult = await ReadApiResultAsync<ReleasePlanOperationResultDto>(rollback);
+            Assert.Equal((int)ApiCode.Success, rollbackResult.Code);
+            Assert.NotNull(rollbackResult.Data);
+            Assert.Equal(ReleasePlanStatus.RollingBack, rollbackResult.Data!.Plan.Status);
+            var rollbackReleaseTask = Assert.Single(rollbackResult.Data.Plan.Tasks, task => task.IsRollback);
+            Assert.Equal(ReleaseTaskStatus.Pending, rollbackReleaseTask.Status);
+            var rollbackEdgeTask = Assert.Single(rollbackResult.Data.EdgeTasks);
+            Assert.Equal(EdgeTaskType.FirmwareOta, rollbackEdgeTask.TaskType);
+            Assert.Equal(rollbackPackage.Id.ToString("D"), GetParameterString(rollbackEdgeTask.Parameters, "packageId"));
+            Assert.Equal("ota-a", GetParameterString(rollbackEdgeTask.Parameters, "firmwarePartition"));
+
+            var rollbackPulledTasks = await GetApiResultAsync<List<EdgeTaskRequestDto>>(client, $"/api/EdgeTask/Dispatch/{gatewayToken}");
+            Assert.Equal((int)ApiCode.Success, rollbackPulledTasks.Code);
+            var rollbackPulledTask = Assert.Single(rollbackPulledTasks.Data!, task => task.TaskId == rollbackEdgeTask.TaskId);
+
+            var rollbackAccepted = await client.PostAsJsonAsync($"/api/EdgeTask/Dispatch/{gatewayToken}/Accept", new EdgeTaskReceiptDto
+            {
+                ContractVersion = EdgeNodeContractVersions.EdgeTaskV1,
+                TaskId = rollbackEdgeTask.TaskId,
+                ReportedAt = DateTime.UtcNow
+            });
+            var rollbackAcceptedResult = await ReadApiResultAsync<object>(rollbackAccepted);
+            Assert.Equal((int)ApiCode.Success, rollbackAcceptedResult.Code);
+
+            var rollbackRunning = await client.PostAsJsonAsync("/api/EdgeTask/Receipt", new EdgeTaskReceiptDto
+            {
+                ContractVersion = EdgeNodeContractVersions.EdgeTaskV1,
+                TaskId = rollbackEdgeTask.TaskId,
+                TargetType = rollbackPulledTask.Address.TargetType,
+                TargetKey = rollbackPulledTask.Address.TargetKey,
+                RuntimeType = "iotembedded",
+                InstanceId = "stm32-fw-01",
+                Status = EdgeTaskStatus.Running,
+                Progress = 70,
+                Message = "rollback firmware staged",
+                ReportedAt = DateTime.UtcNow
+            });
+            var rollbackRunningResult = await ReadApiResultAsync<EdgeTaskReceiptDto>(rollbackRunning);
+            Assert.Equal((int)ApiCode.Success, rollbackRunningResult.Code);
+
+            var missingRollbackConfirmation = await client.PostAsJsonAsync("/api/EdgeTask/Receipt", new EdgeTaskReceiptDto
+            {
+                ContractVersion = EdgeNodeContractVersions.EdgeTaskV1,
+                TaskId = rollbackEdgeTask.TaskId,
+                TargetType = rollbackPulledTask.Address.TargetType,
+                TargetKey = rollbackPulledTask.Address.TargetKey,
+                RuntimeType = "iotembedded",
+                InstanceId = "stm32-fw-01",
+                Status = EdgeTaskStatus.Succeeded,
+                Progress = 100,
+                Message = "rollback without confirmation",
+                ReportedAt = DateTime.UtcNow,
+                Result = new Dictionary<string, object>
+                {
+                    ["packageId"] = rollbackPackage.Id,
+                    ["packageVersion"] = rollbackPackage.Version,
+                    ["sha256"] = rollbackPackage.Sha256,
+                    ["targetDeviceId"] = childId,
+                    ["firmwarePartition"] = "ota-a",
+                    ["activePartition"] = "ota-a",
+                    ["bootloaderVersion"] = "1.1.0",
+                    ["bootloaderAccepted"] = true
+                }
+            });
+            var missingRollbackConfirmationResult = await ReadApiResultAsync<EdgeTaskReceiptDto>(missingRollbackConfirmation);
+            Assert.Equal((int)ApiCode.InValidData, missingRollbackConfirmationResult.Code);
+            Assert.Contains("rollbackConfirmed", missingRollbackConfirmationResult.Msg);
+
+            var rollbackSucceeded = await client.PostAsJsonAsync("/api/EdgeTask/Receipt", new EdgeTaskReceiptDto
+            {
+                ContractVersion = EdgeNodeContractVersions.EdgeTaskV1,
+                TaskId = rollbackEdgeTask.TaskId,
+                TargetType = rollbackPulledTask.Address.TargetType,
+                TargetKey = rollbackPulledTask.Address.TargetKey,
+                RuntimeType = "iotembedded",
+                InstanceId = "stm32-fw-01",
+                Status = EdgeTaskStatus.Succeeded,
+                Progress = 100,
+                Message = "rollback confirmed by bootloader",
+                ReportedAt = DateTime.UtcNow,
+                Result = new Dictionary<string, object>
+                {
+                    ["packageId"] = rollbackPackage.Id,
+                    ["packageVersion"] = rollbackPackage.Version,
+                    ["sha256"] = rollbackPackage.Sha256,
+                    ["targetDeviceId"] = childId,
+                    ["firmwarePartition"] = "ota-a",
+                    ["activePartition"] = "ota-a",
+                    ["bootloaderVersion"] = "1.1.0",
+                    ["bootloaderAccepted"] = true,
+                    ["rollbackConfirmed"] = true
+                }
+            });
+            var rollbackSucceededResult = await ReadApiResultAsync<EdgeTaskReceiptDto>(rollbackSucceeded);
+            Assert.Equal((int)ApiCode.Success, rollbackSucceededResult.Code);
+
+            var rolledBackPlan = await GetApiResultAsync<ReleasePlanDto>(client, $"/api/ReleaseCenter/Plans/{createResult.Data.Plan.Id}");
+            Assert.Equal((int)ApiCode.Success, rolledBackPlan.Code);
+            Assert.Equal(ReleasePlanStatus.RolledBack, rolledBackPlan.Data!.Status);
+            Assert.Contains(rolledBackPlan.Data.Tasks, task => task.Status == ReleaseTaskStatus.Succeeded && !task.IsRollback);
+            Assert.Contains(rolledBackPlan.Data.Tasks, task => task.Status == ReleaseTaskStatus.RolledBack && task.IsRollback);
+
+            var receipts = await GetApiResultAsync<List<ReleaseReceiptDto>>(client, $"/api/ReleaseCenter/Plans/{createResult.Data.Plan.Id}/Receipts");
+            Assert.Equal((int)ApiCode.Success, receipts.Code);
+            Assert.Contains(receipts.Data!, receipt => receipt.Status == ReleaseTaskStatus.RolledBack);
+
+            using var verifyScope = _fixture.Services.CreateScope();
+            var verifyDbContext = verifyScope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            var storedRollbackTask = await verifyDbContext.ReleaseTasks.AsNoTracking().SingleAsync(task => task.EdgeTaskId == rollbackEdgeTask.TaskId);
+            Assert.True(storedRollbackTask.IsRollback);
+            Assert.Equal(ReleaseTaskStatus.RolledBack, storedRollbackTask.Status);
+            var storedRollbackEdgeTask = await verifyDbContext.EdgeTasks.AsNoTracking().SingleAsync(task => task.Id == rollbackEdgeTask.TaskId);
+            Assert.Equal(EdgeTaskStatus.Succeeded, storedRollbackEdgeTask.Status);
+
+            async Task<ReleasePackageDto> UploadFirmwarePackageAsync(string suffix, string version, string partition)
+            {
+                var packageKey = $"iotembedded-fw-{suffix}-{Guid.NewGuid():N}";
+                var firmwareBytes = Encoding.UTF8.GetBytes($"firmware-{suffix}-{version}-{partition}");
+                var expectedSha256 = Convert.ToHexString(SHA256.HashData(firmwareBytes));
+                using var form = new MultipartFormDataContent();
+                form.Add(new StringContent(nameof(ReleasePackageType.Firmware)), "PackageType");
+                form.Add(new StringContent(packageKey), "PackageKey");
+                form.Add(new StringContent($"IoTEmbedded firmware {suffix}"), "Name");
+                form.Add(new StringContent(version), "Version");
+                form.Add(new StringContent("iotembedded"), "TargetRuntimeType");
+                form.Add(new StringContent(">=0.8.0"), "TargetRuntimeVersion");
+                form.Add(new StringContent($$"""{"firmwareSignature":"test-signature","firmwarePartition":"{{partition}}","firmwareFamily":"stm32-controller","bootloaderVersion":">=1.0.0","requiresReboot":true}"""), "Metadata");
+                var fileContent = new ByteArrayContent(firmwareBytes);
+                fileContent.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+                form.Add(fileContent, "File", $"{packageKey}.bin");
+
+                var upload = await client.PostAsync("/api/ReleasePackages/Upload", form);
+                var uploadResult = await ReadApiResultAsync<ReleasePackageDto>(upload);
+                Assert.Equal((int)ApiCode.Success, uploadResult.Code);
+                Assert.NotNull(uploadResult.Data);
+                Assert.Equal(ReleasePackageType.Firmware, uploadResult.Data!.PackageType);
+                Assert.Equal(expectedSha256, uploadResult.Data.Sha256);
+                return uploadResult.Data;
+            }
+        }
+
+        [Fact]
         public async Task CollectionConfigVersion_PersistsSnapshotAndAssignment()
         {
             using var client = _fixture.CreateClient();

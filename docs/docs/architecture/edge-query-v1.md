@@ -416,7 +416,7 @@ Release Center 不进入 RuleChain，也不替代 EdgeTask 执行通道。第一
 - `POST /api/ReleaseCenter/Plans/{id}/Start|Confirm|Pause|Resume|Rollback`：执行开始、人工确认、暂停、继续和回滚。
 - `GET /api/ReleaseCenter/Plans/{id}/Receipts`：查询计划下的发布回执历史。
 
-Gateway/EdgeNode 运行时软件发布会生成 `SoftwareUpdate` EdgeTask，任务参数携带 `releasePlanId`、`releaseTaskId`、批次号、是否回滚以及 `release-package-v1` 包信息。设备脚本和固件 OTA 会生成 `DeviceScriptOta` 或 `FirmwareOta` EdgeTask；Device 是实际 OTA 目标，Gateway 只作为可能的投递通道。AssetScope 会按 Asset 关联设备展开，DeviceScope 会按 `metadata.deviceIds` 展开，最终都落为单设备 ReleaseTask。执行端拉取、接受和上报 EdgeTask 后，平台同步 ReleaseTask 当前态，并将 Accepted、Running、Succeeded、Failed、TimedOut 等回执投影为 ReleaseReceipt。
+Gateway/EdgeNode 运行时软件发布会生成 `SoftwareUpdate` EdgeTask，任务参数携带 `releasePlanId`、`releaseTaskId`、批次号、是否回滚以及 `release-package-v1` 包信息。设备脚本和固件 OTA 会生成 `DeviceScriptOta` 或 `FirmwareOta` EdgeTask；Device 是实际 OTA 目标，Gateway 只作为可能的投递通道。AssetScope 会按 Asset 关联设备展开，DeviceScope 会按 `metadata.deviceIds` 展开，最终都落为单设备 ReleaseTask。执行端拉取、接受和上报 EdgeTask 后，平台同步 ReleaseTask 当前态，并将 Accepted、Running、Succeeded、Failed、TimedOut 等回执投影为 ReleaseReceipt。固件 OTA 成功态必须通过 result 回传 bootloader 验收和回滚准备或回滚确认信息，避免只凭终态字符串关闭设备侧长周期任务。
 
 ### 查询返回结构
 

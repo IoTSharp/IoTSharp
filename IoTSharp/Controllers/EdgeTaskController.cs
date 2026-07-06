@@ -37,6 +37,16 @@ namespace IoTSharp.Controllers
         private const string TargetDeviceIdKey = "targetDeviceId";
         private const string DeviceIdKey = "deviceId";
         private const string ScriptCrc32Key = "scriptCrc32";
+        private const string FirmwarePartitionKey = "firmwarePartition";
+        private const string ActivePartitionKey = "activePartition";
+        private const string ActiveFirmwarePartitionKey = "activeFirmwarePartition";
+        private const string BootloaderVersionKey = "bootloaderVersion";
+        private const string BootloaderAcceptedKey = "bootloaderAccepted";
+        private const string BootloaderConfirmedKey = "bootloaderConfirmed";
+        private const string RollbackReadyKey = "rollbackReady";
+        private const string RollbackConfirmedKey = "rollbackConfirmed";
+        private const string RollbackCompletedKey = "rollbackCompleted";
+        private const string IsRollbackKey = "isRollback";
         private const string AssignmentUpdatedBy = "edge-task-receipt";
         private const string AssignmentTaskStatusUpdatedBy = "edge-task-status";
         private const string AuditActionDispatch = "EdgeTaskDispatch";
@@ -1720,6 +1730,11 @@ namespace IoTSharp.Controllers
             var expectedScriptCrc32 = TryGetString(parameters, ScriptCrc32Key);
             var resultScriptCrc32 = TryGetString(receipt.Result, ScriptCrc32Key);
             var metadataScriptCrc32 = TryGetString(receipt.Metadata, ScriptCrc32Key);
+            var firmwareReceiptError = ValidateFirmwareOtaReceipt(task, receipt, parameters);
+            if (!string.IsNullOrWhiteSpace(firmwareReceiptError))
+            {
+                return firmwareReceiptError;
+            }
 
             if ((resultPackageId.HasValue && resultPackageId.Value != expectedPackageId.Value) ||
                 (metadataPackageId.HasValue && metadataPackageId.Value != expectedPackageId.Value))
@@ -1777,6 +1792,120 @@ namespace IoTSharp.Controllers
             }
 
             return string.Empty;
+        }
+
+        /// <summary>
+        /// 校验固件 OTA 成功回执中的 bootloader 验收和回滚准备结果。
+        /// </summary>
+        /// <param name="task">正式 EdgeTask 任务。</param>
+        /// <param name="receipt">执行端回执。</param>
+        /// <param name="parameters">任务参数。</param>
+        /// <returns>校验失败时返回错误消息；通过时返回空字符串。</returns>
+        private static string ValidateFirmwareOtaReceipt(
+            EdgeTask task,
+            EdgeTaskReceiptDto receipt,
+            IReadOnlyDictionary<string, object> parameters)
+        {
+            if (task.TaskType != EdgeTaskType.FirmwareOta)
+            {
+                return string.Empty;
+            }
+
+            var expectedPartition = TryGetString(parameters, FirmwarePartitionKey);
+            var resultPartition = TryGetString(receipt.Result, FirmwarePartitionKey);
+            var resultActivePartition = TryGetString(receipt.Result, ActivePartitionKey) ?? TryGetString(receipt.Result, ActiveFirmwarePartitionKey);
+            var metadataPartition = TryGetString(receipt.Metadata, FirmwarePartitionKey);
+            var metadataActivePartition = TryGetString(receipt.Metadata, ActivePartitionKey) ?? TryGetString(receipt.Metadata, ActiveFirmwarePartitionKey);
+
+            var reportedTargetPartitionMismatch = !string.IsNullOrWhiteSpace(expectedPartition) &&
+                ((!string.IsNullOrWhiteSpace(resultPartition) && !string.Equals(resultPartition, expectedPartition, StringComparison.OrdinalIgnoreCase)) ||
+                 (!string.IsNullOrWhiteSpace(metadataPartition) && !string.Equals(metadataPartition, expectedPartition, StringComparison.OrdinalIgnoreCase)));
+            var activePartitionMismatch = receipt.Status == EdgeTaskStatus.Succeeded &&
+                !string.IsNullOrWhiteSpace(expectedPartition) &&
+                ((!string.IsNullOrWhiteSpace(resultActivePartition) && !string.Equals(resultActivePartition, expectedPartition, StringComparison.OrdinalIgnoreCase)) ||
+                 (!string.IsNullOrWhiteSpace(metadataActivePartition) && !string.Equals(metadataActivePartition, expectedPartition, StringComparison.OrdinalIgnoreCase)));
+
+            if (reportedTargetPartitionMismatch || activePartitionMismatch)
+            {
+                return "firmwarePartition does not match task parameters";
+            }
+
+            if (receipt.Status != EdgeTaskStatus.Succeeded)
+            {
+                return string.Empty;
+            }
+
+            var expectedBootloaderVersion = TryGetString(parameters, BootloaderVersionKey);
+            var resultBootloaderVersion = TryGetString(receipt.Result, BootloaderVersionKey);
+            if (!string.IsNullOrWhiteSpace(expectedPartition) &&
+                string.IsNullOrWhiteSpace(resultPartition) &&
+                string.IsNullOrWhiteSpace(resultActivePartition))
+            {
+                return "Succeeded FirmwareOta receipt requires result.firmwarePartition or result.activePartition";
+            }
+
+            if (!string.IsNullOrWhiteSpace(expectedBootloaderVersion) &&
+                string.IsNullOrWhiteSpace(resultBootloaderVersion))
+            {
+                return "Succeeded FirmwareOta receipt requires result.bootloaderVersion";
+            }
+
+            if (!BootloaderVersionMatches(expectedBootloaderVersion, resultBootloaderVersion))
+            {
+                return "bootloaderVersion does not match task parameters";
+            }
+
+            var bootloaderAccepted = TryGetBool(receipt.Result, BootloaderAcceptedKey)
+                ?? TryGetBool(receipt.Result, BootloaderConfirmedKey);
+            if (bootloaderAccepted != true)
+            {
+                return "Succeeded FirmwareOta receipt requires result.bootloaderAccepted=true";
+            }
+
+            var isRollback = TryGetBool(parameters, IsRollbackKey) == true;
+            if (isRollback)
+            {
+                var rollbackConfirmed = TryGetBool(receipt.Result, RollbackConfirmedKey)
+                    ?? TryGetBool(receipt.Result, RollbackCompletedKey);
+                if (rollbackConfirmed != true)
+                {
+                    return "Succeeded rollback FirmwareOta receipt requires result.rollbackConfirmed=true";
+                }
+            }
+            else if (TryGetBool(receipt.Result, RollbackReadyKey) != true)
+            {
+                return "Succeeded FirmwareOta receipt requires result.rollbackReady=true";
+            }
+
+            return string.Empty;
+        }
+
+        /// <summary>
+        /// 对精确 bootloader 版本做相等校验；范围表达式由执行端按能力自行判断。
+        /// </summary>
+        /// <param name="expected">任务声明的版本或范围。</param>
+        /// <param name="actual">执行端上报的实际版本。</param>
+        /// <returns>匹配或无需平台侧比较时返回 true。</returns>
+        private static bool BootloaderVersionMatches(string expected, string actual)
+        {
+            if (string.IsNullOrWhiteSpace(expected) || string.IsNullOrWhiteSpace(actual))
+            {
+                return true;
+            }
+
+            return ContainsVersionRangeOperator(expected)
+                || string.Equals(expected, actual, StringComparison.OrdinalIgnoreCase);
+        }
+
+        /// <summary>
+        /// 判断版本表达式是否包含执行端负责解释的范围操作符。
+        /// </summary>
+        /// <param name="value">版本表达式。</param>
+        /// <returns>包含范围操作符时返回 true。</returns>
+        private static bool ContainsVersionRangeOperator(string value)
+        {
+            return !string.IsNullOrWhiteSpace(value) &&
+                value.IndexOfAny(['<', '>', '=', '~', '^', '*', ' ', ',']) >= 0;
         }
 
         private static bool IsReleasePackageTask(EdgeTaskType taskType)
@@ -2046,6 +2175,38 @@ namespace IoTSharp.Controllers
             return TryGetDictionaryValue(values, key, out var value) && int.TryParse(value, out var result)
                 ? result
                 : null;
+        }
+
+        /// <summary>
+        /// 从对象字典中读取布尔值，兼容 JSON 布尔值和字符串。
+        /// </summary>
+        /// <param name="values">待读取的对象字典。</param>
+        /// <param name="key">键名。</param>
+        /// <returns>找到并解析成功时返回布尔值。</returns>
+        private static bool? TryGetBool(IReadOnlyDictionary<string, object> values, string key)
+        {
+            if (!TryGetDictionaryValue(values, key, out var value) || value == null)
+            {
+                return null;
+            }
+
+            if (value is bool flag)
+            {
+                return flag;
+            }
+
+            if (value is JsonElement element)
+            {
+                return element.ValueKind switch
+                {
+                    JsonValueKind.True => true,
+                    JsonValueKind.False => false,
+                    JsonValueKind.String when bool.TryParse(element.GetString(), out var parsed) => parsed,
+                    _ => null
+                };
+            }
+
+            return bool.TryParse(Convert.ToString(value), out var result) ? result : null;
         }
 
         /// <summary>

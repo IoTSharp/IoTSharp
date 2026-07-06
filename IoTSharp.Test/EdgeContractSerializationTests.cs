@@ -51,6 +51,8 @@ public sealed class EdgeContractSerializationTests
             Path.Combine("examples", "edge-task.software-update.v1.sample.json"),
             Path.Combine("examples", "edge-task.device-script-ota.v1.sample.json"),
             Path.Combine("examples", "edge-task.firmware-ota.v1.sample.json"),
+            Path.Combine("examples", "edge-task.firmware-ota.receipt.v1.sample.json"),
+            Path.Combine("examples", "edge-task.firmware-ota.rollback-receipt.v1.sample.json"),
             Path.Combine("examples", "release-package.v1.sample.json"),
             Path.Combine("examples", "release-package.device-script.v1.sample.json"),
             Path.Combine("examples", "release-package.firmware.v1.sample.json")
@@ -66,6 +68,10 @@ public sealed class EdgeContractSerializationTests
 
         var collectionSample = File.ReadAllText(Path.Combine(contractsPath, "examples", "collection-config.v1.sample.json"));
         Assert.Contains("\"contractVersion\": \"collection-config-v1\"", collectionSample);
+        var firmwareReceiptSample = File.ReadAllText(Path.Combine(contractsPath, "examples", "edge-task.firmware-ota.receipt.v1.sample.json"));
+        Assert.Contains("\"bootloaderAccepted\": true", firmwareReceiptSample);
+        var firmwareRollbackReceiptSample = File.ReadAllText(Path.Combine(contractsPath, "examples", "edge-task.firmware-ota.rollback-receipt.v1.sample.json"));
+        Assert.Contains("\"rollbackConfirmed\": true", firmwareRollbackReceiptSample);
     }
 
     [Fact]
