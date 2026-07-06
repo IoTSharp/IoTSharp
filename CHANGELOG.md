@@ -24,6 +24,7 @@ This project follows a lightweight Keep a Changelog style. Version numbers in th
 - Release Center platform first version for M5 #050-#055 with `ReleasePlan`, `ReleaseTask`, `ReleaseReceipt`, multi-provider migrations, `/api/ReleaseCenter/Plans` APIs, Gateway/EdgeNode runtime software rollout, gray batches, confirmation, pause/resume, rollback tasks, receipt projection, and audit logging.
 - Device script and firmware OTA execution-end contract groundwork for M5 #056/#057 with `DeviceScriptOta` and `FirmwareOta` EdgeTask types, `Device` task targets, AssetScope/DeviceScope expansion into per-device release tasks, checksum-bound package receipts, and EdgeTask/ReleasePackage contract samples for IoTEmbedded alignment.
 - M5 #056 device script OTA now validates successful execution receipts against task-declared `scriptCrc32` and covers DeviceScope delivery through a Gateway channel to the child Device runtime target.
+- #072 cloud-edge same-base reference deployment with `Deployments/cloud_edge_sonnetdb`, Docusaurus/static docs, SonnetDB cloud/edge compose templates, contract-boundary guidance, validation, and rollback notes.
 
 ### Changed
 
@@ -35,6 +36,7 @@ This project follows a lightweight Keep a Changelog style. Version numbers in th
 - Improved GitHub Pages workflow and upgraded Docusaurus to the current 3.x line used in the repository.
 - Closed the M3 Collection Template milestone after IoTEdge execution-chain validation for template-generated runtime configurations.
 - Closed the M4 platform milestone in the roadmap and moved M5 into active execution with Device script and firmware OTA remaining as follow-up execution-end work.
+- Closed the SonnetDB single-dependency narrative track after adding the cloud-edge same-base reference deployment.
 
 ### Fixed
 

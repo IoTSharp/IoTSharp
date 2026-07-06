@@ -1,0 +1,71 @@
+services:
+  cloud-sonnetdb:
+    image: ${SONNETDB_IMAGE:-registry.uixe.net/iotsharp/sonnetdb:latest}
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ:-Asia/Shanghai}
+      - SONNETDB_SonnetDBServer__DataRoot=/data
+      - SONNETDB_SonnetDBServer__AutoLoadExistingDatabases=true
+      - SONNETDB_SonnetDBServer__AllowAnonymousProbes=true
+      - SONNETDB_SonnetDBServer__Tokens__${CLOUD_SONNETDB_TOKEN:-iotsharp_cloud_sonnetdb_token_change_me}=admin
+    ports:
+      - "${CLOUD_SONNETDB_PORT:-5080}:5080"
+    volumes:
+      - cloud_sonnetdb_data:/data
+    networks:
+      - cloud-edge-sonnetdb
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:5080/healthz >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+
+  iotsharp:
+    image: ${IOTSHARP_IMAGE:-registry.uixe.net/iotsharp/iotsharp:latest}
+    restart: unless-stopped
+    environment:
+      TZ: ${TZ:-Asia/Shanghai}
+      ASPNETCORE_ENVIRONMENT: SonnetDB
+      ASPNETCORE_URLS: http://+:8080
+      JwtKey: ${JWT_KEY:-development-only-cloud-edge-sonnetdb-jwt-key-change-me-32-bytes-minimum}
+      ConnectionStrings__IoTSharp: Data Source=sonnetdb+http://cloud-sonnetdb:5080/iotsharp;Token=${CLOUD_SONNETDB_TOKEN:-iotsharp_cloud_sonnetdb_token_change_me};Timeout=100
+      ConnectionStrings__TelemetryStorage: Data Source=sonnetdb+http://cloud-sonnetdb:5080/telemetry;Token=${CLOUD_SONNETDB_TOKEN:-iotsharp_cloud_sonnetdb_token_change_me};Timeout=100;Measurement=TelemetryData;AutoCreate=true
+      CachingUseSonnetDBConnectionString: Data Source=sonnetdb+http://cloud-sonnetdb:5080/cache;Token=${CLOUD_SONNETDB_TOKEN:-iotsharp_cloud_sonnetdb_token_change_me};Timeout=100
+      ConnectionStrings__BlobStorage: sonnetdb://blob?bucket=iotsharp-blob-storage&connectionString=Data%20Source%3Dsonnetdb%2Bhttp%3A%2F%2Fcloud-sonnetdb%3A5080%2Fobjects%3BToken%3D${CLOUD_SONNETDB_TOKEN:-iotsharp_cloud_sonnetdb_token_change_me}%3BTimeout%3D100
+      ConnectionStrings__EventBusMQ: Data Source=sonnetdb+http://cloud-sonnetdb:5080/events;Token=${CLOUD_SONNETDB_TOKEN:-iotsharp_cloud_sonnetdb_token_change_me};Timeout=100
+      DataBase: SonnetDB
+      TelemetryStorage: SonnetDB
+      CachingUseIn: SonnetDB
+      EventBus: SonnetMQ
+      EventBusStore: InMemory
+      EventBusMQ: SonnetMQ
+    depends_on:
+      cloud-sonnetdb:
+        condition: service_healthy
+    ports:
+      - "${CLOUD_IOTSHARP_HTTP_PORT:-2927}:8080"
+      - "${CLOUD_IOTSHARP_MQTT_PORT:-1883}:1883"
+      - "${CLOUD_IOTSHARP_MQTTS_PORT:-8883}:8883"
+      - "${CLOUD_IOTSHARP_COAP_PORT:-5683}:5683"
+      - "${CLOUD_IOTSHARP_COAPS_PORT:-5684}:5684"
+      - "${CLOUD_IOTSHARP_MODBUS_PORT:-502}:502"
+    volumes:
+      - ../../appsettings.SonnetDB.json:/app/appsettings.SonnetDB.json:ro
+      - cloud_iotsharp_security:/app/security
+    networks:
+      - cloud-edge-sonnetdb
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8080/healthz >/dev/null || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 8
+      start_period: 60s
+
+networks:
+  cloud-edge-sonnetdb:
+    driver: bridge
+
+volumes:
+  cloud_sonnetdb_data:
+  cloud_iotsharp_security:

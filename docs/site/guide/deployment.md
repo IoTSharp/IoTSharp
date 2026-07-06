@@ -19,6 +19,8 @@ docker compose -f docker-compose.sonnetdb.yml up -d
 
 如果后续改用发布包或 SonnetDB 独立服务端二进制，仍复用同一 Profile 语义，通过环境变量覆盖 SonnetDB 服务地址、Token、数据库名和 bucket。传统 PostgreSQL / TimescaleDB Compose 保留用于兼容性、迁移和生产拓扑验证。
 
+云边同底座参考部署见 [云边同底座](/reference/cloud-edge-sonnetdb-reference/)。该拓扑让 IoTSharp 云端与 IoTEdge 边缘都使用 SonnetDB，但云边交互仍通过 EdgeNode、CollectionConfig 和 EdgeTask 合同完成。
+
 ## Docker 镜像
 
 Semver tag（例如 `v1.0.0`）会构建 IoTSharp Docker 镜像，并同时推送到：

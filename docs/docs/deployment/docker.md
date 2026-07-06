@@ -64,6 +64,8 @@ docker compose -f docker-compose.sonnetdb.yml up -d
 
 默认 `docker-compose.yml` 仍保留 PostgreSQL / TimescaleDB 路线。需要并行验证或回滚时，停止 SonnetDB Profile，按原 `docker-compose.yml` 和原环境配置启动即可。
 
+云边同底座的参考拓扑见 [云边同底座参考部署](../operations/cloud-edge-sonnetdb-reference.md)。该部署把云端 IoTSharp 与边缘 IoTEdge 都放在 SonnetDB 数据底座上，但云边之间仍通过 EdgeNode、CollectionConfig 和 EdgeTask 合同交互，不共享内部数据库结构。
+
 ## 需要重点关注的配置
 
 - 数据库连接字符串

@@ -1,0 +1,50 @@
+x-iotedge-sonnetdb-env: &iotedge-sonnetdb-env
+  TZ: ${TZ:-Asia/Shanghai}
+  CLOUD_IOTSHARP_BASE_URL: ${CLOUD_IOTSHARP_BASE_URL:-http://iotsharp.example.local:2927}
+  EDGE_ACCESS_TOKEN: ${EDGE_ACCESS_TOKEN:-edge_access_token_change_me}
+  EDGE_NODE_ID: ${EDGE_NODE_ID:-edge-node-001}
+  EDGE_NODE_NAME: ${EDGE_NODE_NAME:-edge-node-001}
+  EDGE_LOCAL_SONNETDB_CONNECTION: Data Source=sonnetdb+http://edge-sonnetdb:5080/iotedge;Token=${EDGE_SONNETDB_TOKEN:-iotedge_local_sonnetdb_token_change_me};Timeout=100
+  EDGE_BUFFER_SONNETDB_CONNECTION: Data Source=sonnetdb+http://edge-sonnetdb:5080/upload-buffer;Token=${EDGE_SONNETDB_TOKEN:-iotedge_local_sonnetdb_token_change_me};Timeout=100
+  EDGE_CONTRACTS: edge-node-v1,collection-config-v1,edge-task-v1
+
+services:
+  edge-sonnetdb:
+    image: ${SONNETDB_IMAGE:-registry.uixe.net/iotsharp/sonnetdb:latest}
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ:-Asia/Shanghai}
+      - SONNETDB_SonnetDBServer__DataRoot=/data
+      - SONNETDB_SonnetDBServer__AutoLoadExistingDatabases=true
+      - SONNETDB_SonnetDBServer__AllowAnonymousProbes=true
+      - SONNETDB_SonnetDBServer__Tokens__${EDGE_SONNETDB_TOKEN:-iotedge_local_sonnetdb_token_change_me}=admin
+    ports:
+      - "${EDGE_SONNETDB_PORT:-15080}:5080"
+    volumes:
+      - edge_sonnetdb_data:/data
+    networks:
+      - edge-sonnetdb
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:5080/healthz >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+
+  iotedge:
+    profiles: ["runtime"]
+    image: ${IOTEDGE_IMAGE:-registry.uixe.net/iotsharp/iotedge:latest}
+    restart: unless-stopped
+    environment: *iotedge-sonnetdb-env
+    depends_on:
+      edge-sonnetdb:
+        condition: service_healthy
+    networks:
+      - edge-sonnetdb
+
+networks:
+  edge-sonnetdb:
+    driver: bridge
+
+volumes:
+  edge_sonnetdb_data:

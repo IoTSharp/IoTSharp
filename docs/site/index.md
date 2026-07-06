@@ -30,4 +30,8 @@ description: IoTSharp 平台、发布、NuGet 包与部署文档总览。
     <h2><a href="/reference/sonnetdb-capacity-reliability-baseline/">SonnetDB 基准</a></h2>
     <p>查看 SonnetDB Profile 的遥测吞吐、容量口径、恢复能力和最小观测指标。</p>
   </section>
+  <section class="card">
+    <h2><a href="/reference/cloud-edge-sonnetdb-reference/">云边同底座</a></h2>
+    <p>查看 IoTSharp 云端与 IoTEdge 边缘共同使用 SonnetDB 的参考部署。</p>
+  </section>
 </div>
