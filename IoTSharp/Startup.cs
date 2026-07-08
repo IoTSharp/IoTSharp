@@ -30,7 +30,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using SonnetDB.Caching;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using ModelContextProtocol.Server;
@@ -218,6 +217,14 @@ namespace IoTSharp
                         break;
 
                     case CachingUseIn.SonnetDB:
+                        options.UseSonnetDB(config =>
+                        {
+                            config.ConnectionString = !string.IsNullOrWhiteSpace(settings.CachingUseSonnetDBConnectionString)
+                                ? settings.CachingUseSonnetDBConnectionString
+                                : Configuration.GetConnectionString("TelemetryStorage") ?? string.Empty;
+                            config.Keyspace = settings.CachingUseSonnetDBKeyspace;
+                            config.Namespace = settings.CachingUseSonnetDBNamespace;
+                        }, _hc_Caching);
                         break;
 
                     case CachingUseIn.InMemory:
@@ -226,17 +233,6 @@ namespace IoTSharp
                         break;
                 }
             });
-            if (settings.CachingUseIn == CachingUseIn.SonnetDB)
-            {
-                services.AddSonnetDbEasyCaching(_hc_Caching, options =>
-                {
-                    options.ConnectionString = !string.IsNullOrWhiteSpace(settings.CachingUseSonnetDBConnectionString)
-                        ? settings.CachingUseSonnetDBConnectionString
-                        : Configuration.GetConnectionString("TelemetryStorage") ?? string.Empty;
-                    options.Keyspace = settings.CachingUseSonnetDBKeyspace;
-                    options.Namespace = settings.CachingUseSonnetDBNamespace;
-                });
-            }
             services.AddTelemetryStorage(settings, healthChecks);
             var zmq = Configuration.GetSection(nameof(ZMQOption)).Get<ZMQOption>();
             if (zmq != null)

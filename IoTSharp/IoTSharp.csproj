@@ -261,7 +261,7 @@
 		<ProjectReference Include="..\IoTSharp.EventBus.CAP\IoTSharp.EventBus.CAP.csproj" />
 		<ProjectReference Include="..\IoTSharp.EventBus.SonnetMQ\IoTSharp.EventBus.SonnetMQ.csproj" />
 		<ProjectReference Include="..\IoTSharp.EventBus\IoTSharp.EventBus.csproj" />
-		<ProjectReference Include="..\SonnetDB\extensions\SonnetDB.Caching\SonnetDB.Caching.csproj" />
+		<ProjectReference Include="..\SonnetDB\extensions\SonnetDB.Caching.EasyCaching\SonnetDB.Caching.EasyCaching.csproj" />
 		<ProjectReference Include="..\IoTSharp.Extensions.AspNetCore\IoTSharp.Extensions.AspNetCore.csproj" />
 		<ProjectReference Include="..\IoTSharp.Extensions.EFCore\IoTSharp.Extensions.EFCore.csproj" />
 		<ProjectReference Include="..\IoTSharp.Extensions.QuartzJobScheduler\IoTSharp.Extensions.QuartzJobScheduler.csproj" />

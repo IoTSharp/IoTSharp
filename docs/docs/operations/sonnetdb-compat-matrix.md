@@ -76,7 +76,7 @@ IoTSharp 通过 `CachingUseIn` 和 EasyCaching provider 选择缓存后端。
 | Redis | `CachingUseIn=Redis` | 分布式缓存、健康检查 | TTL、连接池、网络故障、集群差异 | SonnetDB 需补 TTL、惰性过期、后台清理、批量操作和故障语义。 |
 | LiteDB | `CachingUseIn=LiteDB` | 本地持久化缓存 | 文件锁、TTL 行为、并发 | SonnetDB 需验证本地目录型持久化缓存体验和重启恢复。 |
 | SQLite | `CachingUseIn=SQlite` 枚举存在 | 当前启动逻辑未显式注册 SQLite provider | 入口不完整 | 作为不支持项记录，不纳入首批 SonnetDB 缓存选项目标。 |
-| SonnetDB | `CachingUseIn=SonnetDB`，`AddSonnetDbEasyCaching` | 已有 EasyCaching provider 接线、连接串、keyspace、namespace 配置 | 仍需 TTL、并发、重启、健康检查和降级行为的业务回归 | 不把普通 KV 直接等同 Redis；以 IoTSharp 缓存调用路径验收。 |
+| SonnetDB | `CachingUseIn=SonnetDB`，EasyCaching `options.UseSonnetDB(...)` | 已有 EasyCaching provider 接线、连接串、keyspace、namespace 配置；`IDistributedCache` 由独立包提供 | 仍需 TTL、并发、重启、健康检查和降级行为的业务回归 | 不把普通 KV 直接等同 Redis；以 IoTSharp 缓存调用路径验收。 |
 
 缓存验收用例：
 

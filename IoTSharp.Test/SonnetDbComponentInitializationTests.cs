@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using EasyCaching.Core;
 using IoTSharp.Contracts;
 using IoTSharp.Data.SonnetDB;
 using IoTSharp.EventBus;
@@ -12,7 +13,6 @@ using IoTSharp.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
-using SonnetDB.Caching;
 using SonnetDB.Data.Mq;
 using SonnetDB.Data.ObjectStorage;
 using Xunit;
@@ -84,25 +84,29 @@ public sealed class SonnetDbComponentInitializationTests : IDisposable
     }
 
     [Fact]
-    public async Task SonnetDbCacheStore_WhenRegistered_PreparesCacheDatabase()
+    public void SonnetDbEasyCaching_WhenRegisteredThroughEasyCaching_PreparesCacheDatabase()
     {
         var services = new ServiceCollection();
         var cachePath = Path.Combine(_root, "cache");
 
-        services.AddSonnetDbEasyCaching("CachingUseIn-SonnetDB", options =>
+        services.AddEasyCaching(options =>
         {
-            options.ConnectionString = $"Data Source={cachePath}";
-            options.Keyspace = "cache";
-            options.Namespace = "iotsharp-test";
-            options.ExpirationScanInterval = TimeSpan.Zero;
+            options.UseSonnetDB(config =>
+            {
+                config.ConnectionString = $"Data Source={cachePath}";
+                config.Keyspace = "cache";
+                config.Namespace = "iotsharp-test";
+                config.ExpirationScanInterval = TimeSpan.Zero;
+            }, "CachingUseIn-SonnetDB");
         });
 
         using var provider = services.BuildServiceProvider();
-        var store = provider.GetRequiredService<SonnetDbCacheStore>();
-        var probe = await store.GetEntryAsync(SonnetDbCacheStore.StartupProbeKey);
+        var factory = provider.GetRequiredService<IEasyCachingProviderFactory>();
+        var cache = factory.GetCachingProvider("CachingUseIn-SonnetDB");
+        cache.Set("startup-probe", "ok", TimeSpan.FromMinutes(1));
 
         Assert.True(Directory.Exists(cachePath));
-        Assert.NotNull(probe);
+        Assert.Equal("ok", cache.Get<string>("startup-probe").Value);
     }
 
     [Fact]
