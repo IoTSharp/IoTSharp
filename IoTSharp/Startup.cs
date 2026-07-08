@@ -269,7 +269,7 @@ namespace IoTSharp
                 if (!string.IsNullOrWhiteSpace(blobStorage)
                     && blobStorage.StartsWith("sonnetdb://", StringComparison.OrdinalIgnoreCase))
                 {
-                    var parsed = ParseSonnetDbBlobStorage(blobStorage);
+                    var parsed = SonnetDbBlobStorage.ParseConnectionString(blobStorage);
                     return new SonnetDbBlobStorage(parsed.ConnectionString, parsed.Bucket);
                 }
 
@@ -454,21 +454,5 @@ namespace IoTSharp
                    && !path.StartsWithSegments("/healthchecks-ui", StringComparison.OrdinalIgnoreCase);
         }
 
-        private static (string ConnectionString, string Bucket) ParseSonnetDbBlobStorage(string value)
-        {
-            var uri = new Uri(value, UriKind.Absolute);
-            var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
-            if (!query.TryGetValue("connectionString", out var connectionString)
-                || string.IsNullOrWhiteSpace(connectionString))
-            {
-                throw new InvalidOperationException("SonnetDB BlobStorage requires a connectionString query value.");
-            }
-
-            var bucket = query.TryGetValue("bucket", out var bucketValue) && !string.IsNullOrWhiteSpace(bucketValue)
-                ? bucketValue.ToString()
-                : "iotsharp-blob-storage";
-
-            return (connectionString.ToString(), bucket);
-        }
     }
 }

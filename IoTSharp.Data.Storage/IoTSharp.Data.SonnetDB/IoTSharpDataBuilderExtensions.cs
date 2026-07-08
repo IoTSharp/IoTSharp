@@ -22,6 +22,7 @@ namespace Microsoft.Extensions.DependencyInjection
             IHealthChecksBuilder checksBuilder,
             HealthChecksUIBuilder healthChecksUI)
         {
+            SndbResourceInitializer.EnsureDatabase(connectionString, "主数据库");
             services.AddSingleton<IDataBaseModelBuilderOptions>(static _ => new SonnetDbModelBuilderOptions());
             services.AddDbContextPool<ApplicationDbContext>(options =>
             {

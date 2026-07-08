@@ -59,6 +59,8 @@ namespace IoTSharp.Storage
             _measurementPrefix = storageOptions.MeasurementPrefix;
             _autoCreate = storageOptions.AutoCreate;
             _schemaCacheLimit = storageOptions.SchemaCacheLimit;
+
+            SndbResourceInitializer.EnsureDatabase(_connectionString, "时序数据库");
         }
 
         public Task<bool> CheckTelemetryStorage()
