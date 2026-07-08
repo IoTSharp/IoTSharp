@@ -87,7 +87,7 @@ services:
     restart: unless-stopped
     environment:
       TZ: ${TZ:-Asia/Shanghai}
-      ASPNETCORE_ENVIRONMENT: SonnetDB
+      ASPNETCORE_ENVIRONMENT: Production
       ASPNETCORE_URLS: http://+:8080
       ConnectionStrings__IoTSharp: Data Source=sonnetdb+http://sonnetdb:5080/iotsharp;Token=iotsharp_sonnetdb_dev_token_change_me;Timeout=100
       ConnectionStrings__TelemetryStorage: Data Source=sonnetdb+http://sonnetdb:5080/telemetry;Token=iotsharp_sonnetdb_dev_token_change_me;Timeout=100;Measurement=TelemetryData;AutoCreate=true
@@ -111,7 +111,7 @@ services:
       - "${SONNETDB_IOTSHARP_COAPS_PORT:-6684}:5684"
       - "${SONNETDB_IOTSHARP_MODBUS_PORT:-1502}:502"
     volumes:
-      - ./appsettings.SonnetDB.json:/app/appsettings.SonnetDB.json:ro
+      - ./appsettings.SonnetDB.json:/app/appsettings.Production.json:ro
       - sonnetdb_iotsharp_security:/app/security
     networks:
       - iotsharp-network

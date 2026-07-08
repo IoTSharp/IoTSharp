@@ -23,7 +23,6 @@ public sealed class SonnetDbAppFixture : AppInstance
         _sonnetDb = CreateSonnetDbContainer(image);
 
         await _sonnetDb.StartAsync(TestCancellationToken);
-        await EnsureDatabasesAsync();
 
         var main = _sonnetDb.GetConnectionString("iotsharp");
         var telemetry = $"{_sonnetDb.GetConnectionString("telemetry")};Measurement=TelemetryData;AutoCreate=true";
@@ -108,11 +107,4 @@ public sealed class SonnetDbAppFixture : AppInstance
             "Cannot find SonnetDB/src/SonnetDB/Dockerfile. Run tests from the IoTSharp repository checkout, or set SONNETDB_TEST_IMAGE.");
     }
 
-    private async Task EnsureDatabasesAsync()
-    {
-        foreach (var database in new[] { "telemetry", "events", "cache", "objects" })
-        {
-            await _sonnetDb!.CreateDatabaseAsync(database, TestCancellationToken);
-        }
-    }
 }

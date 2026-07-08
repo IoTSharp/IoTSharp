@@ -367,7 +367,7 @@ namespace IoTSharp.Storage
                 command.CommandText = BuildCreateMeasurementSql(measurement, fields);
                 command.ExecuteNonQuery();
 
-                var schema = new MeasurementSchemaInfo(fields);
+                var schema = TryLoadSchema(connection, measurement) ?? new MeasurementSchemaInfo(fields);
                 CacheSchema(measurement, schema);
                 return schema;
             }
@@ -415,6 +415,11 @@ namespace IoTSharp.Storage
 
                     columns.Add(new ColumnInfo(name, role, role == ColumnRole.Tag ? DataType.String : ToIoTSharpDataType(dataType)));
                 }
+            }
+
+            if (columns.Count == 0)
+            {
+                return null;
             }
 
             var schema = new MeasurementSchemaInfo(columns);
@@ -865,7 +870,7 @@ namespace IoTSharp.Storage
         private static string BuildCreateMeasurementSql(string measurement, IReadOnlyList<ColumnInfo> fields)
         {
             var sql = new StringBuilder();
-            sql.Append($"CREATE MEASUREMENT {QuoteIdentifier(measurement)} (");
+            sql.Append($"CREATE MEASUREMENT IF NOT EXISTS {QuoteIdentifier(measurement)} (");
             for (var i = 0; i < fields.Count; i++)
             {
                 if (i > 0)

@@ -15,7 +15,7 @@ public sealed class SonnetDBProfileTests
         var root = LocateRepositoryRoot();
         var profilePath = Path.Combine(root, "appsettings.SonnetDB.json");
 
-        Assert.True(File.Exists(profilePath), "appsettings.SonnetDB.json must exist so ASPNETCORE_ENVIRONMENT=SonnetDB can select it.");
+        Assert.True(File.Exists(profilePath), "appsettings.SonnetDB.json must exist so the Production compose profile can mount it as appsettings.Production.json.");
 
         var options = new JsonSerializerOptions
         {
@@ -56,7 +56,7 @@ public sealed class SonnetDBProfileTests
 
         var sonnetCompose = File.ReadAllText(sonnetComposePath);
 
-        Assert.Contains("ASPNETCORE_ENVIRONMENT: SonnetDB", sonnetCompose, StringComparison.Ordinal);
+        Assert.Contains("ASPNETCORE_ENVIRONMENT: Production", sonnetCompose, StringComparison.Ordinal);
         Assert.Contains("sonnetdb:", sonnetCompose, StringComparison.Ordinal);
         Assert.Contains("ConnectionStrings__IoTSharp: Data Source=sonnetdb+http://sonnetdb:5080/iotsharp", sonnetCompose, StringComparison.Ordinal);
         Assert.Contains("ConnectionStrings__TelemetryStorage: Data Source=sonnetdb+http://sonnetdb:5080/telemetry", sonnetCompose, StringComparison.Ordinal);
@@ -65,7 +65,7 @@ public sealed class SonnetDBProfileTests
         Assert.Contains("EventBus: SonnetMQ", sonnetCompose, StringComparison.Ordinal);
         Assert.Contains("EventBusMQ: SonnetMQ", sonnetCompose, StringComparison.Ordinal);
         Assert.Contains("ConnectionStrings__BlobStorage: sonnetdb://blob", sonnetCompose, StringComparison.Ordinal);
-        Assert.Contains("appsettings.SonnetDB.json:/app/appsettings.SonnetDB.json:ro", sonnetCompose, StringComparison.Ordinal);
+        Assert.Contains("appsettings.SonnetDB.json:/app/appsettings.Production.json:ro", sonnetCompose, StringComparison.Ordinal);
     }
 
     private static string LocateRepositoryRoot()
