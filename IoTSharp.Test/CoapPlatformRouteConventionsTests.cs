@@ -1,6 +1,7 @@
 using CoAP.Server.Routing;
 using IoTSharp.Services.Coap;
-using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using System.Linq;
 using Xunit;
 
 namespace IoTSharp.Test
@@ -44,17 +45,24 @@ namespace IoTSharp.Test
         }
 
         [Fact]
-        public void CoapNetRouteEndpointDoesNotRegisterShortPathEndpoints()
+        public void CoapResourceDiscoveryRegistersRecommendedPlatformRoutes()
         {
-            var devices = Assert.Single(CoapRouteEndpoint.Create(new[]
-            {
-                CoAP.Server.Routing.CoapRoute.Post("devices/{device}/telemetry", _ => new ValueTask<CoapRouteResult>(CoapRouteResult.Changed()))
-            }));
-            var target = devices.GetChild("device-001");
+            var services = new ServiceCollection();
+            services.AddCoapResources(options => options.AddApplicationPart<DeviceCoapResource>());
 
-            Assert.NotNull(target);
-            Assert.NotNull(target.GetChild("telemetry"));
-            Assert.Null(target.GetChild("Telemetry"));
+            using var provider = services.BuildServiceProvider();
+            var endpoints = provider.GetRequiredService<ICoapEndpointDataSource>().Endpoints;
+            var templates = endpoints
+                .Where(endpoint => endpoint.Method == CoAP.Method.POST)
+                .Select(endpoint => endpoint.RoutePattern.Template)
+                .ToArray();
+
+            Assert.Contains("devices/{device}/telemetry", templates);
+            Assert.Contains("devices/{device}/attributes", templates);
+            Assert.Contains("devices/{device}/alarm", templates);
+            Assert.Contains("gateways/{gateway}/telemetry", templates);
+            Assert.Contains("gateways/{gateway}/attributes", templates);
+            Assert.DoesNotContain("Telemetry", templates);
         }
     }
 }
