@@ -56,6 +56,6 @@ IoTSharp 的 CoAP 接入遵守 CoAP/CoRE 标准术语，但平台业务层不把
 ## 后续实现顺序
 
 1. CoAP.NET `CoAP.Server.Routing` 接收 `Resource` 树分发后的请求。
-2. CoAP.NET 把 Uri-Path、method、Content-Format、Accept 和 payload 转成 `CoapRouteContext`。
+2. CoAP.NET 把 Uri-Path、method、Content-Format、Accept 和 payload 转成 `CoapRouteContext`；业务 resource 继承 `CoapResourceBase` 时可通过 `Context`、`Payload` 和 `RouteValues` 访问当前请求。
 3. IoTSharp 将推荐 Uri-Path 模板映射为平台业务上下文，并复用现有设备、网关、事件总线、租户和 Product 能力解释。
 4. 后续只围绕推荐 route 增加审计、运维说明和更完整的扩展格式支持。
