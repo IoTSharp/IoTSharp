@@ -36,6 +36,16 @@ IoTSharp 面向设备和网关提供多种接入方式。
 - 周期性上报
 - 与第三方系统对接
 
+## CoAP
+
+适合：
+
+- 受约束设备
+- UDP 上报
+- 需要保留 CoAP method、Content-Format、Observe、Blockwise 等协议语义的场景
+
+平台侧推荐路径和命名边界见 [CoAP 接入](./coap.md)。
+
 ## 网关协议
 
 当前代码中已经包含 Modbus、OPC UA 等网关设计面板，这说明 IoTSharp 支持通过网关把非原生协议设备统一映射为平台对象。

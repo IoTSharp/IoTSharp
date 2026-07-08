@@ -282,13 +282,6 @@ namespace IoTSharp.Contracts
     }
 
     [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
-    public enum CoApRes
-    {
-        Attributes,
-        Telemetry,
-        Alarm
-    }
-    [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
     public enum RuleType
     {
         RuleNode,

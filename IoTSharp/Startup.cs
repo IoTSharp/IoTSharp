@@ -13,6 +13,7 @@ using IoTSharp.Gateways;
 using IoTSharp.Interpreter;
 using IoTSharp.McpTools;
 using IoTSharp.Services;
+using IoTSharp.Services.Coap;
 using IoTSharp.TaskActions;
 using Jdenticon.AspNetCore;
 using Jdenticon.Rendering;
@@ -258,6 +259,7 @@ namespace IoTSharp
                         break;
                 }
             });
+            services.AddSingleton<ICoapBusinessDispatcher, CoapBusinessDispatcher>();
             services.AddHostedService<CoAPService>();
             services.AddTransient(_ =>
             {

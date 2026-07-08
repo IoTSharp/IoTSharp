@@ -56,7 +56,7 @@ const sidebars = {
     {
       type: 'category',
       label: '集成接口',
-      items: ['integrations/protocols', 'integrations/web-api'],
+      items: ['integrations/protocols', 'integrations/coap', 'integrations/web-api'],
     },
     {
       type: 'category',

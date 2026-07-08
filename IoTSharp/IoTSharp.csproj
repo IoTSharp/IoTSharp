@@ -67,7 +67,6 @@
 		<PackageReference Include="Figgle" />
 		<PackageReference Include="Figgle.Fonts" />
 		<PackageReference Include="hyjiacan.pinyin4net" />
-		<PackageReference Include="IoTSharp.CoAP.NET" />
 		<PackageReference Include="Jdenticon-net" />
 		<PackageReference Include="Jdenticon.AspNetCore" />
 		<PackageReference Include="LettuceEncrypt" ExcludeAssets="all" PrivateAssets="all">
@@ -261,6 +260,7 @@
 		<ProjectReference Include="..\IoTSharp.EventBus.CAP\IoTSharp.EventBus.CAP.csproj" />
 		<ProjectReference Include="..\IoTSharp.EventBus.SonnetMQ\IoTSharp.EventBus.SonnetMQ.csproj" />
 		<ProjectReference Include="..\IoTSharp.EventBus\IoTSharp.EventBus.csproj" />
+		<ProjectReference Include="..\SonnetDB\extensions\IoTSharp.CoAP.NET\CoAP.NET\CoAP.NET.csproj" />
 		<ProjectReference Include="..\SonnetDB\extensions\SonnetDB.Caching.EasyCaching\SonnetDB.Caching.EasyCaching.csproj" />
 		<ProjectReference Include="..\IoTSharp.Extensions.AspNetCore\IoTSharp.Extensions.AspNetCore.csproj" />
 		<ProjectReference Include="..\IoTSharp.Extensions.EFCore\IoTSharp.Extensions.EFCore.csproj" />
