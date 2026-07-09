@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
@@ -26,7 +25,6 @@ namespace IoTSharp.Controllers
         private ApplicationDbContext _context;
         private ILogger _logger;
         private readonly UserManager<IdentityUser> _userManager;
-        private readonly IConfiguration _configuration;
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly ApplicationDBInitializer _dBInitializer;
         private readonly AppSettings _setting;
@@ -34,12 +32,11 @@ namespace IoTSharp.Controllers
         public InstallerController(
             UserManager<IdentityUser> userManager,
             SignInManager<IdentityUser> signInManager,
-            IConfiguration configuration, ILogger<AccountController> logger, ApplicationDbContext context
+            ILogger<AccountController> logger, ApplicationDbContext context
            , ApplicationDBInitializer dBInitializer, IOptions<AppSettings> options)
         {
             _userManager = userManager;
             _signInManager = signInManager;
-            _configuration = configuration;
             _logger = logger;
             _context = context;
             _dBInitializer = dBInitializer;

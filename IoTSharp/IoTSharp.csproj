@@ -47,6 +47,7 @@
 	</PropertyGroup>
 	<ItemGroup>
 		<InternalsVisibleTo Include="IoTSharp.Test" />
+		<InternalsVisibleTo Include="IoTSharp.Benchmarks" />
 	</ItemGroup>
 	<PropertyGroup Condition="'$(Configuration)' == 'Debug' OR '$(Configuration)' == 'Release'">
 		<SpaRoot>..\ClientApp\</SpaRoot>

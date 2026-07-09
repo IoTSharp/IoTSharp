@@ -35,6 +35,7 @@
   </Folder>
   <Folder Name="/4.Tools/">
     <File Path="buildimage.cmd" />
+    <Project Path="tools/IoTSharp.Benchmarks/IoTSharp.Benchmarks.csproj" />
     <Project Path="tools/ProductMqttSimulator/ProductMqttSimulator.csproj" />
     <File Path="tools/ef_db_drop.cmd" />
     <File Path="tools/ef_mg_add.cmd" />

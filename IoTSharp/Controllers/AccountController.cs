@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -36,7 +35,6 @@ namespace IoTSharp.Controllers
         private readonly AppSettings _settings;
         private readonly ILogger _logger;
         private readonly UserManager<IdentityUser> _userManager;
-        private readonly IConfiguration _configuration;
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly EasyCaching.Core.IEasyCachingProvider _caching;
 
@@ -45,7 +43,6 @@ namespace IoTSharp.Controllers
         /// </summary>
         /// <param name="userManager"></param>
         /// <param name="signInManager"></param>
-        /// <param name="configuration"></param>
         /// <param name="logger"></param>
         /// <param name="context"></param>
         /// <param name="options"></param>
@@ -53,7 +50,6 @@ namespace IoTSharp.Controllers
         public AccountController(
             UserManager<IdentityUser> userManager,
             SignInManager<IdentityUser> signInManager,
-            IConfiguration configuration,
             ILogger<AccountController> logger,
             ApplicationDbContext context,
             IOptions<AppSettings> options,
@@ -62,7 +58,6 @@ namespace IoTSharp.Controllers
         {
             _userManager = userManager;
             _signInManager = signInManager;
-            _configuration = configuration;
             _logger = logger;
             _context = context;
             _settings = options.Value;
@@ -220,7 +215,7 @@ namespace IoTSharp.Controllers
         private async Task<ModelRefreshToken> CreateToken(string name)
         {
             var appUser = _userManager.Users.SingleOrDefault(r => r.Email == name);
-            var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtKey"]));
+            var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(RequireJwtSetting(_settings.JwtKey, nameof(AppSettings.JwtKey))));
             var signinCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256Signature);
             var claims = new List<Claim>
             {
@@ -241,8 +236,8 @@ namespace IoTSharp.Controllers
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Issuer = _configuration["JwtIssuer"],
-                Audience = _configuration["JwtAudience"],
+                Issuer = RequireJwtSetting(_settings.JwtIssuer, nameof(AppSettings.JwtIssuer)),
+                Audience = RequireJwtSetting(_settings.JwtAudience, nameof(AppSettings.JwtAudience)),
                 Subject = new ClaimsIdentity(claims),
                 Expires = expires,
                 SigningCredentials = signinCredentials
@@ -262,6 +257,16 @@ namespace IoTSharp.Controllers
             await _context.RefreshTokens.AddAsync(refreshToken);
             await _context.SaveChangesAsync();
             return new ModelRefreshToken() { RefreshToken = refreshToken.Token, Token = jwtToken, ExpiresIn = (long)(_settings.JwtExpireHours * 3600), AppUser = appUser, Roles = roles, Expires = expires };
+        }
+
+        private static string RequireJwtSetting(string value, string name)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                throw new InvalidOperationException($"{name} 未配置。");
+            }
+
+            return value;
         }
 
         /// <summary>

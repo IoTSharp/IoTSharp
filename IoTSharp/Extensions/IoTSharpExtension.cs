@@ -176,18 +176,23 @@ namespace IoTSharp
             });
         }
 
-        internal static Settings AddIoTSharpHealthCheckEndpoint(this Settings setup)
+        /// <summary>
+        /// 根据宿主配置为 HealthChecks UI 增加当前实例的探活地址。
+        /// </summary>
+        /// <param name="setup">HealthChecks UI 配置对象。</param>
+        /// <param name="hostOptions">通过配置绑定得到的宿主启动参数。</param>
+        /// <returns>已追加实例探活地址的配置对象。</returns>
+        internal static Settings AddIoTSharpHealthCheckEndpoint(this Settings setup, IoTSharpHostOptions hostOptions)
         {
-            var _in_docker = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true";
-            if (_in_docker)
+            if (hostOptions.DOTNET_RUNNING_IN_CONTAINER)
             {
                 int port = 0;
-                if (!int.TryParse(Environment.GetEnvironmentVariable("ASPNETCORE_HTTP_PORTS"), out port))
+                if (!int.TryParse(hostOptions.ASPNETCORE_HTTP_PORTS, out port))
                 {
                     port = 8080;
                 }
                 int https_port = 0;
-                if (int.TryParse(Environment.GetEnvironmentVariable("ASPNETCORE_HTTPS_PORTS"), out https_port))
+                if (int.TryParse(hostOptions.ASPNETCORE_HTTPS_PORTS, out https_port))
                 {
                     setup.AddHealthCheckEndpoint(typeof(Startup).Assembly.GetName().Name, $"https://{Dns.GetHostName()}:{https_port}/healthz");
                 }
@@ -198,7 +203,7 @@ namespace IoTSharp
             }
             else
             {
-                var urls = Environment.GetEnvironmentVariable("ASPNETCORE_URLS")?.Split(';', StringSplitOptions.RemoveEmptyEntries);
+                var urls = hostOptions.ASPNETCORE_URLS?.Split(';', StringSplitOptions.RemoveEmptyEntries);
                 var uris = urls?.Select(url => Regex.Replace(url, @"^(?<scheme>https?):\/\/((\+)|(\*)|(0.0.0.0))(?=[\:\/]|$)", "${scheme}://localhost"))
                                 .Select(uri => new Uri(uri, UriKind.Absolute)).ToArray();
                 var httpEndpoint = uris?.FirstOrDefault(uri => uri.Scheme == "http");

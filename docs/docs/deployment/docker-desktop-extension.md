@@ -47,7 +47,7 @@ docker extension install iotsharp/iotsharp-dd-extension:0.1.0
 - Installer: `http://localhost:2927/installer`
 - MQTT: `localhost:1883`
 - Secure MQTT: `localhost:8883`
-- CoAP: `localhost:5683` / `5684`
+- CoAP: `localhost:5683` UDP (`coap://`)；`coaps://5684` 需要单独配置 DTLS PSK 后才启用
 - Modbus TCP: `localhost:1502`
 
 ## 交给 OpenClaw 协助安装

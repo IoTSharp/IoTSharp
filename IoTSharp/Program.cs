@@ -57,20 +57,22 @@ namespace IoTSharp
                 {
                     webBuilder.UseStartup<Startup>();
 
-                    webBuilder.UseKestrel(options =>
+                    webBuilder.UseKestrel((context, options) =>
                      {
                           var appServices = options.ApplicationServices;
-                          if (Environment.GetEnvironmentVariable("IOTSHARP_ACME") == "true")
+                          var hostOptions = new IoTSharpHostOptions();
+                          context.Configuration.Bind(hostOptions);
+                          if (hostOptions.IOTSHARP_ACME)
                           {
-                             ConfigureAcmeEndpoints(options, appServices);
+                             ConfigureAcmeEndpoints(options, appServices, hostOptions);
                           }
                       });
  
                  });
 
-        private static void ConfigureAcmeEndpoints(KestrelServerOptions options, IServiceProvider appServices)
+        private static void ConfigureAcmeEndpoints(KestrelServerOptions options, IServiceProvider appServices, IoTSharpHostOptions hostOptions)
         {
-            var urls = Environment.GetEnvironmentVariable("ASPNETCORE_URLS");
+            var urls = hostOptions.ASPNETCORE_URLS;
 
             if (!string.IsNullOrWhiteSpace(urls))
             {
@@ -85,12 +87,12 @@ namespace IoTSharp
                 return;
             }
 
-            foreach (var port in GetConfiguredPorts("ASPNETCORE_HTTP_PORTS"))
+            foreach (var port in GetConfiguredPorts(hostOptions.ASPNETCORE_HTTP_PORTS))
             {
                 options.ListenAnyIP(port);
             }
 
-            foreach (var port in GetConfiguredPorts("ASPNETCORE_HTTPS_PORTS"))
+            foreach (var port in GetConfiguredPorts(hostOptions.ASPNETCORE_HTTPS_PORTS))
             {
                 options.ListenAnyIP(port, listenOptions =>
                 {
@@ -103,10 +105,8 @@ namespace IoTSharp
             }
         }
 
-        private static IEnumerable<int> GetConfiguredPorts(string environmentVariableName)
+        private static IEnumerable<int> GetConfiguredPorts(string value)
         {
-            var value = Environment.GetEnvironmentVariable(environmentVariableName);
-
             if (string.IsNullOrWhiteSpace(value))
             {
                 return Enumerable.Empty<int>();

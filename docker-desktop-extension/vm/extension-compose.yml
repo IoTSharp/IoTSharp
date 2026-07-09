@@ -14,7 +14,6 @@ services:
       - "1883:1883"
       - "8883:8883"
       - "5683:5683/udp"
-      - "5684:5684/udp"
       - "1502:502"
     volumes:
       - iotsharp-dd-data:/opt/iotsharp/.data

@@ -61,22 +61,21 @@ namespace IoTSharp
         public void ConfigureServices(IServiceCollection services)
         {
             System.Text.Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-            var settings = Configuration.Get<AppSettings>();
+            var settings = new AppSettings();
+            Configuration.Bind(settings);
+            var hostOptions = new IoTSharpHostOptions();
+            Configuration.Bind(hostOptions);
             services.Configure<HostOptions>(options =>
             {
                 options.BackgroundServiceExceptionBehavior = BackgroundServiceExceptionBehavior.Ignore;
             });
-            services.Configure((Action<AppSettings>)(setting =>
-            {
-                var option = setting.MqttBroker;
-                Configuration.Bind(setting);
-            }));
+            services.Configure<AppSettings>(setting => Configuration.Bind(setting));
             var healthChecksUI = services.AddHealthChecksUI(setup =>
             {
                 setup.SetHeaderText("IoTSharp HealthChecks");
                 //Maximum history entries by endpoint
                 setup.MaximumHistoryEntriesPerEndpoint(50);
-                setup.AddIoTSharpHealthCheckEndpoint();
+                setup.AddIoTSharpHealthCheckEndpoint(hostOptions);
             });
 
             var healthChecks = services.AddHealthChecks()
@@ -91,34 +90,34 @@ namespace IoTSharp
             switch (settings.DataBase)
             {
                 case DataBaseType.MySql:
-                    services.ConfigureMySql(Configuration.GetConnectionString("IoTSharp"), settings.DbContextPoolSize, healthChecks, healthChecksUI);
+                    services.ConfigureMySql(GetConnectionString(settings, "IoTSharp"), settings.DbContextPoolSize, healthChecks, healthChecksUI);
                     break;
 
                 case DataBaseType.SqlServer:
-                    services.ConfigureSqlServer(Configuration.GetConnectionString("IoTSharp"), settings.DbContextPoolSize, healthChecks, healthChecksUI);
+                    services.ConfigureSqlServer(GetConnectionString(settings, "IoTSharp"), settings.DbContextPoolSize, healthChecks, healthChecksUI);
                     break;
 
                 case DataBaseType.Oracle:
-                    services.ConfigureOracle(Configuration.GetConnectionString("IoTSharp"), settings.DbContextPoolSize, healthChecks, healthChecksUI);
+                    services.ConfigureOracle(GetConnectionString(settings, "IoTSharp"), settings.DbContextPoolSize, healthChecks, healthChecksUI);
                     break;
 
                 case DataBaseType.Sqlite:
-                    services.ConfigureSqlite(Configuration.GetConnectionString("IoTSharp"), settings.DbContextPoolSize, healthChecks, healthChecksUI);
+                    services.ConfigureSqlite(GetConnectionString(settings, "IoTSharp"), settings.DbContextPoolSize, healthChecks, healthChecksUI);
                     break;
                 case DataBaseType.InMemory:
                     services.ConfigureInMemory(settings.DbContextPoolSize, healthChecksUI);
                     settings.TelemetryStorage = TelemetryStorage.SingleTable;
                     break;
                 case DataBaseType.ClickHouse:
-                    services.ConfigureClickHouse(Configuration.GetConnectionString("IoTSharp"), settings.DbContextPoolSize, healthChecks, healthChecksUI);
+                    services.ConfigureClickHouse(GetConnectionString(settings, "IoTSharp"), settings.DbContextPoolSize, healthChecks, healthChecksUI);
                     settings.TelemetryStorage = TelemetryStorage.SingleTable;
                     break;
                 case DataBaseType.SonnetDB:
-                    services.ConfigureSonnetDB(Configuration.GetConnectionString("IoTSharp"), settings.DbContextPoolSize, healthChecks, healthChecksUI);
+                    services.ConfigureSonnetDB(GetConnectionString(settings, "IoTSharp"), settings.DbContextPoolSize, healthChecks, healthChecksUI);
                     break;
                 case DataBaseType.PostgreSql:
                 default:
-                    services.ConfigureNpgsql(Configuration.GetConnectionString("IoTSharp"), settings.DbContextPoolSize, healthChecks, healthChecksUI);
+                    services.ConfigureNpgsql(GetConnectionString(settings, "IoTSharp"), settings.DbContextPoolSize, healthChecks, healthChecksUI);
                     break;
             }
             services.AddDatabaseDeveloperPageExceptionFilter();
@@ -148,9 +147,9 @@ namespace IoTSharp
                     RequireExpirationTime = true,
                     RequireSignedTokens = true,
                     ValidateIssuerSigningKey = true,
-                    ValidIssuer = Configuration["JwtIssuer"],
-                    ValidAudience = Configuration["JwtAudience"],
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JwtKey"])),
+                    ValidIssuer = RequireSetting(settings.JwtIssuer, nameof(AppSettings.JwtIssuer)),
+                    ValidAudience = RequireSetting(settings.JwtAudience, nameof(AppSettings.JwtAudience)),
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(RequireSetting(settings.JwtKey, nameof(AppSettings.JwtKey)))),
                     //     ClockSkew=TimeSpan.Zero //JWT的缓冲时间默认5分钟，token实际过期时间为 appsettings.json 当中JwtExpireHours配置的时间（小时）加上这个时间。
                 }; ;
             });
@@ -222,7 +221,7 @@ namespace IoTSharp
                         {
                             config.ConnectionString = !string.IsNullOrWhiteSpace(settings.CachingUseSonnetDBConnectionString)
                                 ? settings.CachingUseSonnetDBConnectionString
-                                : Configuration.GetConnectionString("TelemetryStorage") ?? string.Empty;
+                                : GetConnectionString(settings, "TelemetryStorage") ?? string.Empty;
                             config.Keyspace = settings.CachingUseSonnetDBKeyspace;
                             config.Namespace = settings.CachingUseSonnetDBNamespace;
                         }, _hc_Caching);
@@ -235,16 +234,16 @@ namespace IoTSharp
                 }
             });
             services.AddTelemetryStorage(settings, healthChecks);
-            var zmq = Configuration.GetSection(nameof(ZMQOption)).Get<ZMQOption>();
-            if (zmq != null)
+            var zmqSection = Configuration.GetSection(nameof(ZMQOption));
+            if (zmqSection.Exists())
             {
-                services.AddHostedZeroMQ(cfg => cfg = zmq);
+                services.AddHostedZeroMQ(options => zmqSection.Bind(options));
             }
             services.AddEventBus(opt =>
             {
                 opt.AppSettings = settings;
-                opt.EventBusStore = Configuration.GetConnectionString("EventBusStore");
-                opt.EventBusMQ = Configuration.GetConnectionString("EventBusMQ");
+                opt.EventBusStore = GetConnectionString(settings, "EventBusStore");
+                opt.EventBusMQ = GetConnectionString(settings, "EventBusMQ");
                 opt.HealthChecks = healthChecks;
                 switch (settings.EventBus)
                 {
@@ -263,7 +262,7 @@ namespace IoTSharp
             services.AddIoTSharpCoapResources();
             services.AddTransient(_ =>
             {
-                var blobStorage = Configuration.GetConnectionString("BlobStorage");
+                var blobStorage = GetConnectionString(settings, "BlobStorage");
                 if (!string.IsNullOrWhiteSpace(blobStorage)
                     && blobStorage.StartsWith("sonnetdb://", StringComparison.OrdinalIgnoreCase))
                 {
@@ -291,7 +290,7 @@ namespace IoTSharp
             services.AddTransient<RawDataGateway>();
             services.AddTransient<KepServerEx>();
 
-            if (Environment.GetEnvironmentVariable("IOTSHARP_ACME") == "true")
+            if (hostOptions.IOTSHARP_ACME)
             {
                 services.AddLettuceEncrypt()
                         .PersistDataToDirectory(new DirectoryInfo(Path.Combine(AppContext.BaseDirectory, "security")), "kissme")
@@ -321,6 +320,33 @@ namespace IoTSharp
              .WithPromptsFromAssembly()
              .WithResourcesFromAssembly()
                 .WithToolsFromAssembly();
+        }
+
+        private static string RequireSetting(string value, string name)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                throw new InvalidOperationException($"{name} 未配置。");
+            }
+
+            return value;
+        }
+
+        private static string GetConnectionString(AppSettings settings, string name)
+        {
+            if (settings.ConnectionStrings == null)
+            {
+                return null;
+            }
+
+            if (settings.ConnectionStrings.TryGetValue(name, out var connectionString))
+            {
+                return connectionString;
+            }
+
+            return settings.ConnectionStrings
+                .FirstOrDefault(item => string.Equals(item.Key, name, StringComparison.OrdinalIgnoreCase))
+                .Value;
         }
 
 

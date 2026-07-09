@@ -1,5 +1,8 @@
 ---
+layout: default
 title: CoAP 接入
+description: IoTSharp 平台 CoAP 接入路径、旧路径差异、组件版本、回滚和运维配置说明。
+permalink: /reference/coap-access/
 ---
 
 # CoAP 接入
@@ -72,8 +75,6 @@ dotnet add package IoTSharp.CoAP.NET.SourceGeneration --version 3.0.0
 
 ## 推荐 Uri-Path
 
-新入口统一使用小写 Uri-Path，并以平台领域对象作为第一层：
-
 | CoAP method | Uri-Path | 目标 | 用途 |
 | --- | --- | --- | --- |
 | `POST` | `devices/{device}/telemetry` | Device | 直连设备遥测上报 |
@@ -93,8 +94,6 @@ coap://127.0.0.1:5683/devices/device-001/telemetry?access_token=<device-access-t
 payload 当前要求是非空 JSON object。遥测和属性 payload 会进入现有事件总线；设备告警 payload 至少需要 `AlarmType`。
 
 ## 新旧路径差异
-
-旧短路径不是兼容目标，当前实现不再注册，也不建议网关或设备固件继续生成这些路径。
 
 | 旧 Uri-Path | 新 Uri-Path | 兼容结论 |
 | --- | --- | --- |

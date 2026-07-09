@@ -31,7 +31,7 @@ sidebar_position: 3
 1. 默认目标是启动 **SQLite** 版 IoTSharp，本地访问地址是 `http://localhost:2927`。
 2. 默认优先使用 Docker 路径，不优先要求用户手工编译源码。
 3. 如果 Docker Desktop 禁止安装本地扩展，则自动切换到 `extension-compose` 的等效启动方式。
-4. 如果 2927、1883、8883、5683、5684、1502 端口冲突，先告诉用户，再协助改 compose 端口映射。
+4. 如果 2927、1883、8883、5683、1502 端口冲突，先告诉用户，再协助改 compose 端口映射；`5684/udp` 只有在额外启用 CoAP DTLS PSK 时才需要检查。
 5. 如果只是修改数据库连接，不要直接改 `appsettings.MySql.json`、`appsettings.PostgreSql.json` 之类的模板文件。
 6. 修改数据库时，优先创建或更新 `appsettings.{Environment}.Installer.json` 覆盖文件。
 7. 修改数据库时，要同步调整 `ASPNETCORE_ENVIRONMENT`，使其与目标模板一致。

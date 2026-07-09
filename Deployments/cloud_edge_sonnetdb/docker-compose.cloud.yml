@@ -47,8 +47,7 @@ services:
       - "${CLOUD_IOTSHARP_HTTP_PORT:-2927}:8080"
       - "${CLOUD_IOTSHARP_MQTT_PORT:-1883}:1883"
       - "${CLOUD_IOTSHARP_MQTTS_PORT:-8883}:8883"
-      - "${CLOUD_IOTSHARP_COAP_PORT:-5683}:5683"
-      - "${CLOUD_IOTSHARP_COAPS_PORT:-5684}:5684"
+      - "${CLOUD_IOTSHARP_COAP_PORT:-5683}:5683/udp"
       - "${CLOUD_IOTSHARP_MODBUS_PORT:-502}:502"
     volumes:
       - ../../appsettings.SonnetDB.json:/app/appsettings.SonnetDB.json:ro

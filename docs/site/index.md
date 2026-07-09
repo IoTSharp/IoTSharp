@@ -34,4 +34,8 @@ description: IoTSharp 平台、发布、NuGet 包与部署文档总览。
     <h2><a href="/reference/cloud-edge-sonnetdb-reference/">云边同底座</a></h2>
     <p>查看 IoTSharp 云端与 IoTEdge 边缘共同使用 SonnetDB 的参考部署。</p>
   </section>
+  <section class="card">
+    <h2><a href="/reference/coap-access/">CoAP 接入</a></h2>
+    <p>查看 CoAP 推荐路径、旧短路径差异、组件版本、回滚策略和运维配置。</p>
+  </section>
 </div>

@@ -45,8 +45,7 @@ services:
       - "${PG_IOTSHARP_HTTP_PORT:-2927}:8080"
       - "${PG_IOTSHARP_MQTT_PORT:-1883}:1883"
       - "${PG_IOTSHARP_MQTTS_PORT:-8883}:8883"
-      - "${PG_IOTSHARP_COAP_PORT:-5683}:5683"
-      - "${PG_IOTSHARP_COAPS_PORT:-5684}:5684"
+      - "${PG_IOTSHARP_COAP_PORT:-5683}:5683/udp"
       - "${PG_IOTSHARP_MODBUS_PORT:-502}:502"
     volumes:
       - ./appsettings.Development.json:/app/appsettings.Development.json:ro
@@ -107,8 +106,7 @@ services:
       - "${SONNETDB_IOTSHARP_HTTP_PORT:-3927}:8080"
       - "${SONNETDB_IOTSHARP_MQTT_PORT:-2883}:1883"
       - "${SONNETDB_IOTSHARP_MQTTS_PORT:-9883}:8883"
-      - "${SONNETDB_IOTSHARP_COAP_PORT:-6683}:5683"
-      - "${SONNETDB_IOTSHARP_COAPS_PORT:-6684}:5684"
+      - "${SONNETDB_IOTSHARP_COAP_PORT:-6683}:5683/udp"
       - "${SONNETDB_IOTSHARP_MODBUS_PORT:-1502}:502"
     volumes:
       - ./appsettings.SonnetDB.json:/app/appsettings.Production.json:ro

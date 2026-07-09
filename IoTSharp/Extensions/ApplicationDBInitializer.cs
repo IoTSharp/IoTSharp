@@ -1,7 +1,6 @@
 ﻿using IoTSharp.Dtos;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -20,19 +19,17 @@ namespace IoTSharp.Data
         private ApplicationDbContext _context;
         private ILogger _logger;
         private readonly UserManager<IdentityUser> _userManager;
-        private readonly IConfiguration _configuration;
         private readonly SignInManager<IdentityUser> _signInManager;
 
         public ApplicationDBInitializer(
             UserManager<IdentityUser> userManager,
             SignInManager<IdentityUser> signInManager,
-            IConfiguration configuration, ILogger<ApplicationDBInitializer> logger,
+            ILogger<ApplicationDBInitializer> logger,
             ApplicationDbContext context, RoleManager<IdentityRole> role
             )
         {
             _userManager = userManager;
             _signInManager = signInManager;
-            _configuration = configuration;
             _logger = logger;
             _context = context;
             _role = role;
