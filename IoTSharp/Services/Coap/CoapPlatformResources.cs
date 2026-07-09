@@ -10,6 +10,8 @@ namespace IoTSharp.Services.Coap
     /// </summary>
     [CoapResource]
     [CoapRoute(CoapPlatformRouteConventions.DevicesRoot + "/{" + CoapPlatformRouteConventions.DeviceRouteValueName + "}")]
+    [CoapConsumes(MediaType.Undefined, MediaType.ApplicationJson, MediaType.TextPlain)]
+    [CoapProduces(MediaType.TextPlain, MediaType.ApplicationJson)]
     [CoapResourceTitle("IoTSharp device access")]
     [CoapResourceType("iotsharp.device")]
     [CoapInterfaceDescription("iotsharp.access")]
@@ -80,6 +82,8 @@ namespace IoTSharp.Services.Coap
     /// </summary>
     [CoapResource]
     [CoapRoute(CoapPlatformRouteConventions.GatewaysRoot + "/{" + CoapPlatformRouteConventions.GatewayRouteValueName + "}")]
+    [CoapConsumes(MediaType.Undefined, MediaType.ApplicationJson, MediaType.TextPlain)]
+    [CoapProduces(MediaType.TextPlain, MediaType.ApplicationJson)]
     [CoapResourceTitle("IoTSharp gateway access")]
     [CoapResourceType("iotsharp.gateway")]
     [CoapInterfaceDescription("iotsharp.access")]
@@ -163,6 +167,11 @@ namespace IoTSharp.Services.Coap
 
         private static CoapRouteResult ToCoapResult(CoapBusinessDispatchResult result)
         {
+            if (result == null)
+            {
+                return CoapRouteResult.Text(StatusCode.InternalServerError, "CoAP business dispatch returned no result.");
+            }
+
             var statusCode = result.Status switch
             {
                 CoapBusinessDispatchStatus.Success => StatusCode.Changed,

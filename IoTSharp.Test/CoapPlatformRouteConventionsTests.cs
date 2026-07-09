@@ -64,5 +64,34 @@ namespace IoTSharp.Test
             Assert.Contains("gateways/{gateway}/attributes", templates);
             Assert.DoesNotContain("Telemetry", templates);
         }
+
+        [Fact]
+        public void CoapNetMatcherHandlesPlatformMediaNegotiation()
+        {
+            var services = new ServiceCollection();
+            services.AddCoapResources(options => options.AddApplicationPart<DeviceCoapResource>());
+
+            using var provider = services.BuildServiceProvider();
+            var dataSource = provider.GetRequiredService<ICoapEndpointDataSource>();
+            var matcher = provider.GetRequiredService<ICoapEndpointMatcher>();
+
+            Assert.True(matcher.TryMatch(
+                new CoapEndpointMatchContext(
+                    CoAP.Method.POST,
+                    new[] { "devices", "device-001", "telemetry" },
+                    CoAP.MediaType.ApplicationJson,
+                    CoAP.MediaType.TextPlain,
+                    observe: null),
+                out _));
+
+            Assert.False(matcher.TryMatch(
+                new CoapEndpointMatchContext(
+                    CoAP.Method.POST,
+                    new[] { "devices", "device-001", "telemetry" },
+                    CoAP.MediaType.ApplicationXml,
+                    CoAP.MediaType.TextPlain,
+                    observe: null),
+                out _));
+        }
     }
 }

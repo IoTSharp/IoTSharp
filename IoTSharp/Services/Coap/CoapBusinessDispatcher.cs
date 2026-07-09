@@ -1,16 +1,13 @@
-using CoAP;
 using CoAP.Server.Routing;
 using IoTSharp.Contracts;
 using IoTSharp.Data;
 using IoTSharp.EventBus;
-using IoTSharp.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -135,7 +132,6 @@ namespace IoTSharp.Services.Coap
     /// </summary>
     public sealed class CoapBusinessDispatcher : ICoapBusinessDispatcher
     {
-        private static readonly string[] TokenQueryNames = new[] { "access_token", "accessToken", "token" };
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly ILogger<CoapBusinessDispatcher> _logger;
 
@@ -158,49 +154,41 @@ namespace IoTSharp.Services.Coap
                 return CoapBusinessDispatchResult.Fail(CoapBusinessDispatchStatus.BadRequest, "CoAP business context is required.");
             }
 
-            if (!IsSupportedContentFormat(context.ContentFormat) || !IsSupportedAccept(context.Accept))
-            {
-                return CoapBusinessDispatchResult.Fail(CoapBusinessDispatchStatus.NotAcceptable, "Only JSON payload and text/json response are supported.");
-            }
-
-            if (context.Payload.IsEmpty)
-            {
-                return CoapBusinessDispatchResult.Fail(CoapBusinessDispatchStatus.BadRequest, "Payload is required.");
-            }
-
-            if (!TryGetAccessToken(context.Queries, out var accessToken))
-            {
-                return CoapBusinessDispatchResult.Fail(CoapBusinessDispatchStatus.Unauthorized, "Access token is required.");
-            }
-
-            Dictionary<string, object> payload;
             try
             {
-                payload = ParsePayload(context.Payload);
+                return await DispatchCoreAsync(context, cancellationToken);
             }
-            catch (JsonException ex)
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
-                _logger.LogWarning(
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
                     ex,
-                    "CoAP payload is not valid JSON. TargetKind={TargetKind}, TargetName={TargetName}, Operation={Operation}.",
+                    "CoAP business dispatch failed. TargetKind={TargetKind}, TargetName={TargetName}, Operation={Operation}.",
                     context.PlatformRoute.TargetKind,
                     context.PlatformRoute.TargetName,
                     context.PlatformRoute.Operation);
-                return CoapBusinessDispatchResult.Fail(CoapBusinessDispatchStatus.BadRequest, "Payload must be a JSON object.");
+                return CoapBusinessDispatchResult.Fail(CoapBusinessDispatchStatus.Error, "CoAP business dispatch failed.");
             }
+        }
 
-            if (payload.Count == 0)
+        private async ValueTask<CoapBusinessDispatchResult> DispatchCoreAsync(
+            CoapBusinessDispatchContext context,
+            CancellationToken cancellationToken)
+        {
+            if (!TryGetAccessToken(context.ProtocolContext, out var accessToken))
             {
-                return CoapBusinessDispatchResult.Fail(CoapBusinessDispatchStatus.BadRequest, "Payload must contain at least one property.");
+                return CoapBusinessDispatchResult.Fail(CoapBusinessDispatchStatus.Unauthorized, "Access token is missing or invalid.");
             }
 
             await using var scope = _scopeFactory.CreateAsyncScope();
             var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-            var publisher = scope.ServiceProvider.GetRequiredService<IPublisher>();
             var device = await FindDeviceByAccessTokenAsync(dbContext, accessToken, cancellationToken);
             if (device == null)
             {
-                return CoapBusinessDispatchResult.Fail(CoapBusinessDispatchStatus.NotFound, "Access token was not found.");
+                return CoapBusinessDispatchResult.Fail(CoapBusinessDispatchStatus.Unauthorized, "Access token is missing or invalid.");
             }
 
             if (!TargetMatches(context.PlatformRoute, device))
@@ -208,29 +196,53 @@ namespace IoTSharp.Services.Coap
                 return CoapBusinessDispatchResult.Fail(CoapBusinessDispatchStatus.Forbidden, "Access token does not match route target.");
             }
 
-            await publisher.PublishActive(device.Id, ActivityStatus.Activity);
-            return context.PlatformRoute.Operation switch
+            if (context.Payload.IsEmpty)
             {
-                CoapPlatformOperation.Telemetry => await PublishTelemetryAsync(publisher, device, payload),
-                CoapPlatformOperation.Attributes => await PublishAttributesAsync(publisher, device, payload),
-                CoapPlatformOperation.Alarm when context.PlatformRoute.TargetKind == CoapPlatformTargetKind.Device => await PublishAlarmAsync(publisher, device, payload),
-                _ => CoapBusinessDispatchResult.Fail(CoapBusinessDispatchStatus.UnsupportedOperation, "CoAP business operation is not supported.")
-            };
-        }
+                return CoapBusinessDispatchResult.Fail(CoapBusinessDispatchStatus.BadRequest, "Payload is required.");
+            }
 
-        private static bool IsSupportedContentFormat(int contentFormat)
-        {
-            return contentFormat == MediaType.Undefined
-                || contentFormat == MediaType.ApplicationJson
-                || contentFormat == MediaType.TextPlain;
-        }
+            var publisher = scope.ServiceProvider.GetRequiredService<IPublisher>();
+            switch (context.PlatformRoute.Operation)
+            {
+                case CoapPlatformOperation.Telemetry:
+                    {
+                        var parseResult = TryParsePayload(context, out var payload);
+                        if (parseResult != null)
+                        {
+                            return parseResult;
+                        }
 
-        private static bool IsSupportedAccept(int accept)
-        {
-            return accept == MediaType.Undefined
-                || accept == MediaType.Any
-                || accept == MediaType.TextPlain
-                || accept == MediaType.ApplicationJson;
+                        await publisher.PublishActive(device.Id, ActivityStatus.Activity);
+                        return await PublishTelemetryAsync(publisher, device, payload);
+                    }
+
+                case CoapPlatformOperation.Attributes:
+                    {
+                        var parseResult = TryParsePayload(context, out var payload);
+                        if (parseResult != null)
+                        {
+                            return parseResult;
+                        }
+
+                        await publisher.PublishActive(device.Id, ActivityStatus.Activity);
+                        return await PublishAttributesAsync(publisher, device, payload);
+                    }
+
+                case CoapPlatformOperation.Alarm when context.PlatformRoute.TargetKind == CoapPlatformTargetKind.Device:
+                    {
+                        var parseResult = TryParseAlarm(context, out var alarm);
+                        if (parseResult != null)
+                        {
+                            return parseResult;
+                        }
+
+                        await publisher.PublishActive(device.Id, ActivityStatus.Activity);
+                        return await PublishAlarmAsync(publisher, device, alarm);
+                    }
+
+                default:
+                    return CoapBusinessDispatchResult.Fail(CoapBusinessDispatchStatus.UnsupportedOperation, "CoAP business operation is not supported.");
+            }
         }
 
         private static async Task<Device> FindDeviceByAccessTokenAsync(ApplicationDbContext dbContext, string accessToken, CancellationToken cancellationToken)
@@ -267,43 +279,20 @@ namespace IoTSharp.Services.Coap
                 || string.Equals(route.TargetName, device.Id.ToString(), StringComparison.OrdinalIgnoreCase);
         }
 
-        private static Dictionary<string, object> ParsePayload(ReadOnlyMemory<byte> payload)
-        {
-            var json = Encoding.UTF8.GetString(payload.Span);
-            return JsonNodeParser.ParseNode(json)?.ToDictionary() ?? new Dictionary<string, object>();
-        }
-
-        private static bool TryGetAccessToken(IReadOnlyList<string> queries, out string accessToken)
+        private static bool TryGetAccessToken(CoapRouteContext context, out string accessToken)
         {
             accessToken = null;
-            if (queries == null)
+            if (context == null)
             {
                 return false;
             }
 
-            foreach (var query in queries)
+            foreach (var name in TokenQueryNames)
             {
-                if (string.IsNullOrWhiteSpace(query))
-                {
-                    continue;
-                }
-
-                var separatorIndex = query.IndexOf('=', StringComparison.Ordinal);
-                if (separatorIndex <= 0)
-                {
-                    continue;
-                }
-
-                var name = Uri.UnescapeDataString(query[..separatorIndex]);
-                if (!TokenQueryNames.Contains(name, StringComparer.OrdinalIgnoreCase))
-                {
-                    continue;
-                }
-
-                var value = Uri.UnescapeDataString(query[(separatorIndex + 1)..]);
+                context.TryGetQueryValue(name, StringComparison.OrdinalIgnoreCase, out var value);
                 if (string.IsNullOrWhiteSpace(value))
                 {
-                    return false;
+                    continue;
                 }
 
                 accessToken = value;
@@ -313,7 +302,68 @@ namespace IoTSharp.Services.Coap
             return false;
         }
 
-        private static async ValueTask<CoapBusinessDispatchResult> PublishTelemetryAsync(IPublisher publisher, Device device, Dictionary<string, object> payload)
+        private static readonly string[] TokenQueryNames = { "access_token", "accessToken", "token" };
+
+        private CoapBusinessDispatchResult TryParsePayload(
+            CoapBusinessDispatchContext context,
+            out Dictionary<string, object> payload)
+        {
+            try
+            {
+                payload = CoapPayloadParser.ParseObject(context.Payload);
+            }
+            catch (JsonException ex)
+            {
+                _logger.LogWarning(
+                    ex,
+                    "CoAP payload is not valid JSON. TargetKind={TargetKind}, TargetName={TargetName}, Operation={Operation}.",
+                    context.PlatformRoute.TargetKind,
+                    context.PlatformRoute.TargetName,
+                    context.PlatformRoute.Operation);
+                payload = null;
+                return CoapBusinessDispatchResult.Fail(CoapBusinessDispatchStatus.BadRequest, "Payload must be a JSON object.");
+            }
+
+            if (payload.Count == 0)
+            {
+                return CoapBusinessDispatchResult.Fail(CoapBusinessDispatchStatus.BadRequest, "Payload must contain at least one property.");
+            }
+
+            return null;
+        }
+
+        private CoapBusinessDispatchResult TryParseAlarm(
+            CoapBusinessDispatchContext context,
+            out CreateAlarmDto alarm)
+        {
+            try
+            {
+                alarm = CoapPayloadParser.ParseAlarm(context.Payload);
+            }
+            catch (JsonException ex)
+            {
+                _logger.LogWarning(
+                    ex,
+                    "CoAP alarm payload is not valid JSON. TargetKind={TargetKind}, TargetName={TargetName}, Operation={Operation}.",
+                    context.PlatformRoute.TargetKind,
+                    context.PlatformRoute.TargetName,
+                    context.PlatformRoute.Operation);
+                alarm = null;
+                return CoapBusinessDispatchResult.Fail(CoapBusinessDispatchStatus.BadRequest, "Payload must be a JSON object.");
+            }
+
+            if (alarm == null || string.IsNullOrWhiteSpace(alarm.AlarmType))
+            {
+                return CoapBusinessDispatchResult.Fail(CoapBusinessDispatchStatus.BadRequest, "AlarmType is required.");
+            }
+
+            return null;
+        }
+
+        private static async ValueTask<CoapBusinessDispatchResult> PublishTelemetryAsync(
+            IPublisher publisher,
+            Device device,
+            Dictionary<string, object> payload)
         {
             await publisher.PublishTelemetryData(new PlayloadData
             {
@@ -325,7 +375,10 @@ namespace IoTSharp.Services.Coap
             return CoapBusinessDispatchResult.Success();
         }
 
-        private static async ValueTask<CoapBusinessDispatchResult> PublishAttributesAsync(IPublisher publisher, Device device, Dictionary<string, object> payload)
+        private static async ValueTask<CoapBusinessDispatchResult> PublishAttributesAsync(
+            IPublisher publisher,
+            Device device,
+            Dictionary<string, object> payload)
         {
             await publisher.PublishAttributeData(new PlayloadData
             {
@@ -337,14 +390,11 @@ namespace IoTSharp.Services.Coap
             return CoapBusinessDispatchResult.Success();
         }
 
-        private static async ValueTask<CoapBusinessDispatchResult> PublishAlarmAsync(IPublisher publisher, Device device, Dictionary<string, object> payload)
+        private static async ValueTask<CoapBusinessDispatchResult> PublishAlarmAsync(
+            IPublisher publisher,
+            Device device,
+            CreateAlarmDto alarm)
         {
-            var alarm = JsonObjectSerializer.Deserialize<CreateAlarmDto>(JsonObjectSerializer.Serialize(payload));
-            if (alarm == null || string.IsNullOrWhiteSpace(alarm.AlarmType))
-            {
-                return CoapBusinessDispatchResult.Fail(CoapBusinessDispatchStatus.BadRequest, "AlarmType is required.");
-            }
-
             alarm.OriginatorName = string.IsNullOrWhiteSpace(alarm.OriginatorName) ? device.Name : alarm.OriginatorName;
             alarm.OriginatorType = device.DeviceType == DeviceType.Gateway ? OriginatorType.Gateway : OriginatorType.Device;
             await publisher.PublishDeviceAlarm(alarm);

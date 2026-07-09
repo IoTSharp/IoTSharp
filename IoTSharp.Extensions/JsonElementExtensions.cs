@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Dynamic;
-using System.Linq;
 using System.Text.Json;
 
 namespace IoTSharp.Extensions
@@ -20,7 +19,7 @@ namespace IoTSharp.Extensions
             return element.ValueKind switch
             {
                 JsonValueKind.Object => element.ToExpandoObject(),
-                JsonValueKind.Array => element.EnumerateArray().Select(item => item.ToClrObject()).ToList(),
+                JsonValueKind.Array => element.ToClrObjectList(),
                 JsonValueKind.String => element.GetString(),
                 JsonValueKind.Number => ReadNumber(element),
                 JsonValueKind.True => true,
@@ -47,6 +46,22 @@ namespace IoTSharp.Extensions
             }
 
             return expando;
+        }
+
+        /// <summary>
+        /// 将 JSON 数组元素转换为列表，并按数组长度预分配容量。
+        /// </summary>
+        /// <param name="element">JSON 数组元素。</param>
+        /// <returns>包含转换后 CLR 值的列表。</returns>
+        public static List<object> ToClrObjectList(this JsonElement element)
+        {
+            var list = new List<object>(element.GetArrayLength());
+            foreach (var item in element.EnumerateArray())
+            {
+                list.Add(item.ToClrObject());
+            }
+
+            return list;
         }
 
         /// <summary>

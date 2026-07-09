@@ -259,14 +259,8 @@ namespace IoTSharp
                         break;
                 }
             });
-            services.AddSingleton<ICoapBusinessDispatcher, CoapBusinessDispatcher>();
-            services.AddCoapServer(options =>
-            {
-                var coapConfig = Configuration.GetSection("CoapServer").Get<CoAP.CoapConfig>() ?? new CoAP.CoapConfig();
-                options.Config = coapConfig;
-                options.ListenAnyIP(coapConfig.DefaultPort);
-            });
-            services.AddCoapResources(options => options.AddReflectionResourceDiscovery());
+            services.AddCoapServer(Configuration.GetSection("CoapServer"));
+            services.AddIoTSharpCoapResources();
             services.AddTransient(_ =>
             {
                 var blobStorage = Configuration.GetConnectionString("BlobStorage");
@@ -374,7 +368,7 @@ namespace IoTSharp
             app.UseStaticFiles();
             app.UseResponseCompression();
             app.UseIotSharpMqttServer();
-            app.MapCoapResources();
+            app.UseCoapServer();
             app.UseSwaggerUi();
             app.UseHealthChecksUI();
             app.UseOpenApi();

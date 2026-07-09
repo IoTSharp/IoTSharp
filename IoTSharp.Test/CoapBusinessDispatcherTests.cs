@@ -77,6 +77,49 @@ namespace IoTSharp.Test
                 "{\"temperature\":23}"));
 
             Assert.Equal(CoapBusinessDispatchStatus.Unauthorized, result.Status);
+            Assert.Equal("Access token is missing or invalid.", result.Message);
+            Assert.Empty(publisher.TelemetryMessages);
+            Assert.Empty(publisher.ActiveDevices);
+        }
+
+        [Fact]
+        public async Task DispatchRejectsUnknownAccessTokenAsUnauthorized()
+        {
+            using var services = BuildServices();
+            await SeedDeviceAsync(services, "device-001", DeviceType.Device, "token-001");
+            var dispatcher = services.GetRequiredService<ICoapBusinessDispatcher>();
+            var publisher = services.GetRequiredService<RecordingPublisher>();
+
+            var result = await dispatcher.DispatchAsync(CreateContext(
+                CoapPlatformTargetKind.Device,
+                "device-001",
+                CoapPlatformOperation.Telemetry,
+                "access_token=not-a-real-token",
+                "{\"temperature\":23}"));
+
+            Assert.Equal(CoapBusinessDispatchStatus.Unauthorized, result.Status);
+            Assert.Equal("Access token is missing or invalid.", result.Message);
+            Assert.Empty(publisher.TelemetryMessages);
+            Assert.Empty(publisher.ActiveDevices);
+        }
+
+        [Fact]
+        public async Task DispatchRejectsUnknownAccessTokenBeforePayloadValidation()
+        {
+            using var services = BuildServices();
+            await SeedDeviceAsync(services, "device-001", DeviceType.Device, "token-001");
+            var dispatcher = services.GetRequiredService<ICoapBusinessDispatcher>();
+            var publisher = services.GetRequiredService<RecordingPublisher>();
+
+            var result = await dispatcher.DispatchAsync(CreateContext(
+                CoapPlatformTargetKind.Device,
+                "device-001",
+                CoapPlatformOperation.Telemetry,
+                "access_token=not-a-real-token",
+                "not-json"));
+
+            Assert.Equal(CoapBusinessDispatchStatus.Unauthorized, result.Status);
+            Assert.Equal("Access token is missing or invalid.", result.Message);
             Assert.Empty(publisher.TelemetryMessages);
             Assert.Empty(publisher.ActiveDevices);
         }
@@ -121,6 +164,69 @@ namespace IoTSharp.Test
             Assert.Equal("device-001", alarm.OriginatorName);
             Assert.Equal(OriginatorType.Device, alarm.OriginatorType);
             Assert.Equal("HighTemperature", alarm.AlarmType);
+        }
+
+        [Fact]
+        public async Task DispatchAlarmAcceptsCamelCasePayloadThroughSourceGeneration()
+        {
+            using var services = BuildServices();
+            await SeedDeviceAsync(services, "device-001", DeviceType.Device, "token-001");
+            var dispatcher = services.GetRequiredService<ICoapBusinessDispatcher>();
+            var publisher = services.GetRequiredService<RecordingPublisher>();
+
+            var result = await dispatcher.DispatchAsync(CreateContext(
+                CoapPlatformTargetKind.Device,
+                "device-001",
+                CoapPlatformOperation.Alarm,
+                "access_token=token-001",
+                "{\"alarmType\":\"HighTemperature\",\"alarmDetail\":\"Temperature is high\",\"serverity\":\"Major\"}"));
+
+            Assert.Equal(CoapBusinessDispatchStatus.Success, result.Status);
+            var alarm = Assert.Single(publisher.Alarms);
+            Assert.Equal("HighTemperature", alarm.AlarmType);
+            Assert.Equal(ServerityLevel.Major, alarm.Serverity);
+        }
+
+        [Fact]
+        public async Task DispatchRejectsInvalidJsonBeforePublishingActive()
+        {
+            using var services = BuildServices();
+            await SeedDeviceAsync(services, "device-001", DeviceType.Device, "token-001");
+            var dispatcher = services.GetRequiredService<ICoapBusinessDispatcher>();
+            var publisher = services.GetRequiredService<RecordingPublisher>();
+
+            var result = await dispatcher.DispatchAsync(CreateContext(
+                CoapPlatformTargetKind.Device,
+                "device-001",
+                CoapPlatformOperation.Telemetry,
+                "access_token=token-001",
+                "not-json"));
+
+            Assert.Equal(CoapBusinessDispatchStatus.BadRequest, result.Status);
+            Assert.Equal("Payload must be a JSON object.", result.Message);
+            Assert.Empty(publisher.TelemetryMessages);
+            Assert.Empty(publisher.ActiveDevices);
+        }
+
+        [Fact]
+        public async Task DispatchMapsBusinessExceptionToError()
+        {
+            using var services = BuildServices();
+            await SeedDeviceAsync(services, "device-001", DeviceType.Device, "token-001");
+            var dispatcher = services.GetRequiredService<ICoapBusinessDispatcher>();
+            var publisher = services.GetRequiredService<RecordingPublisher>();
+            publisher.ThrowOnTelemetry = true;
+
+            var result = await dispatcher.DispatchAsync(CreateContext(
+                CoapPlatformTargetKind.Device,
+                "device-001",
+                CoapPlatformOperation.Telemetry,
+                "access_token=token-001",
+                "{\"temperature\":23}"));
+
+            Assert.Equal(CoapBusinessDispatchStatus.Error, result.Status);
+            Assert.Equal("CoAP business dispatch failed.", result.Message);
+            Assert.Empty(publisher.TelemetryMessages);
         }
 
         private static ServiceProvider BuildServices()
@@ -223,6 +329,8 @@ namespace IoTSharp.Test
 
             public List<CreateAlarmDto> Alarms { get; } = new();
 
+            public bool ThrowOnTelemetry { get; set; }
+
             public Task<EventBusMetrics> GetMetrics() => Task.FromResult(new EventBusMetrics());
 
             public Task PublishCreateDevice(Guid devid) => Task.CompletedTask;
@@ -237,6 +345,11 @@ namespace IoTSharp.Test
 
             public Task PublishTelemetryData(PlayloadData msg)
             {
+                if (ThrowOnTelemetry)
+                {
+                    throw new InvalidOperationException("Telemetry publish failed.");
+                }
+
                 TelemetryMessages.Add(msg);
                 return Task.CompletedTask;
             }
