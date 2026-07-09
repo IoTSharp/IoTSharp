@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
 using MQTTnet.AspNetCore;
 using IoTSharp.Services;
+using IoTSharp.Services.MQTTControllers;
 using MQTTnet.Server;
 using System.Security.Cryptography.X509Certificates;
 using MQTTnet;
@@ -14,16 +15,42 @@ using IoTSharp.Data;
 using IoTSharp.Extensions;
 using IoTSharp.Contracts;
 using System.Net.Security;
-using System.Diagnostics;
+using MQTTnet.Protocol;
+using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace IoTSharp
 {
     public static class MqttExtension
     {
+        public const string ServerSenderClientId = "iotsharp-server";
+        private const string JsonContentType = "application/json";
+        private const string TextContentType = "text/plain; charset=utf-8";
+        private const string BinaryContentType = "application/octet-stream";
+        private static readonly Type[] MqttControllerTypes = new[]
+        {
+            typeof(AlarmController),
+            typeof(AttributesController),
+            typeof(DataController),
+            typeof(GatewayController),
+            typeof(RpcController),
+            typeof(TelemetryController),
+            typeof(V1GatewayController)
+        };
 
         public static void AddIoTSharpMqttServer(this IServiceCollection services, MqttBrokerSetting broker)
         {
-            services.AddMqttControllers();
+            services.AddMqttControllers(MqttControllerTypes, options =>
+            {
+                options.WithJsonSerializerOptions(new JsonSerializerOptions(JsonSerializerDefaults.Web)
+                {
+                    NumberHandling = JsonNumberHandling.AllowReadingFromString
+                });
+                options.WithDefaultPayloadContentType(JsonContentType);
+                options.WithDefaultPayloadFormatter("json");
+                options.WithCaseSensitiveTopicMatching();
+            });
             services.AddSingleton<MqttServer>();
             services.AddSingleton<MQTTService>();
             services.AddMqttTcpServerAdapter();
@@ -89,10 +116,10 @@ namespace IoTSharp
 
         public static void UseIotSharpMqttServer(this IApplicationBuilder app)
         {
-            var mqttEvents = app.ApplicationServices.CreateScope().ServiceProvider.GetService<MQTTService>();
-            app.UseAttributeRouting(true);
+            var mqttEvents = app.ApplicationServices.GetRequiredService<MQTTService>();
             app.UseMqttServer(server =>
                 {
+                    server.WithAttributeRouting(app.ApplicationServices, allowUnmatchedRoutes: true);
                     server.ClientConnectedAsync += mqttEvents.Server_ClientConnectedAsync;
                     server.StartedAsync += mqttEvents.Server_Started;
                     server.StoppedAsync += mqttEvents.Server_Stopped;
@@ -158,29 +185,118 @@ namespace IoTSharp
             }
             return kv;
         }
-        public static async Task PublishAsync<T>(this MqttServer mqtt, string SenderClientId, string topic, T _payload) where T : class
-        {
-            await mqtt.PublishAsync(SenderClientId, new MqttApplicationMessage() { Topic = topic, PayloadSegment = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(_payload) });
-        }
-        public static async Task PublishAsync(this MqttServer mqtt, string SenderClientId, string topic, string _payload)
-        {
-            await mqtt.PublishAsync(SenderClientId, new MqttApplicationMessage() { Topic = topic, PayloadSegment = System.Text.Encoding.Default.GetBytes(_payload) });
-        }
-        public static async Task PublishAsync(this MqttServer mqtt, string SenderClientId, string topic, byte[] _payload)
-        {
-            await mqtt.PublishAsync(SenderClientId, new MqttApplicationMessage() { Topic = topic, PayloadSegment = _payload });
-        }
 
-        public static async Task PublishAsync(this MqttServer mqtt, string SenderClientId, MqttApplicationMessage message)
+        /// <summary>
+        /// 解析 MQTT v5 response topic；旧客户端未提供时回退到 IoTSharp 既有响应 topic。
+        /// </summary>
+        /// <param name="requestContext">当前 MQTT 请求上下文。</param>
+        /// <param name="fallbackTopic">兼容 MQTT 3.x 或旧协议的响应 topic。</param>
+        /// <returns>最终使用的响应 topic。</returns>
+        public static string ResolveResponseTopic(this MqttRequestContext requestContext, string fallbackTopic)
         {
-            var clients = await mqtt.GetClientsAsync();
-            var client = clients.FirstOrDefault(c => c.Id == SenderClientId);
-            if (client.Session.TryEnqueueApplicationMessage(message, out InjectMqttApplicationMessageResult ijresult))
+            if (!string.IsNullOrWhiteSpace(requestContext?.ResponseTopic))
             {
-                Debug.WriteLine(ijresult.PacketIdentifier);
+                return requestContext.ResponseTopic;
             }
+
+            return fallbackTopic;
         }
 
+        /// <summary>
+        /// 通过 MQTTnet server 注入 JSON 响应消息，按 broker 订阅关系投递。
+        /// </summary>
+        /// <typeparam name="T">响应 payload 类型。</typeparam>
+        /// <param name="mqtt">MQTT server。</param>
+        /// <param name="senderClientId">服务端注入消息使用的发送方 client id。</param>
+        /// <param name="topic">响应 topic。</param>
+        /// <param name="payload">响应对象。</param>
+        /// <param name="requestContext">可选请求上下文，用于沿用 QoS、correlation data 等 MQTT v5 元数据。</param>
+        /// <param name="contentType">响应 content type。</param>
+        public static async Task PublishAsync<T>(this MqttServer mqtt, string senderClientId, string topic, T payload, MqttRequestContext requestContext = null, string contentType = JsonContentType) where T : class
+        {
+            var message = BuildApplicationMessage(topic, JsonSerializer.SerializeToUtf8Bytes(payload), requestContext, contentType);
+            await mqtt.PublishAsync(senderClientId, message);
+        }
+
+        /// <summary>
+        /// 通过 MQTTnet server 注入文本响应消息，按 broker 订阅关系投递。
+        /// </summary>
+        /// <param name="mqtt">MQTT server。</param>
+        /// <param name="senderClientId">服务端注入消息使用的发送方 client id。</param>
+        /// <param name="topic">响应 topic。</param>
+        /// <param name="payload">响应文本。</param>
+        /// <param name="requestContext">可选请求上下文，用于沿用 QoS、correlation data 等 MQTT v5 元数据。</param>
+        /// <param name="contentType">响应 content type。</param>
+        public static async Task PublishAsync(this MqttServer mqtt, string senderClientId, string topic, string payload, MqttRequestContext requestContext = null, string contentType = TextContentType)
+        {
+            var message = BuildApplicationMessage(topic, Encoding.UTF8.GetBytes(payload ?? string.Empty), requestContext, contentType);
+            await mqtt.PublishAsync(senderClientId, message);
+        }
+
+        /// <summary>
+        /// 通过 MQTTnet server 注入二进制响应消息，按 broker 订阅关系投递。
+        /// </summary>
+        /// <param name="mqtt">MQTT server。</param>
+        /// <param name="senderClientId">服务端注入消息使用的发送方 client id。</param>
+        /// <param name="topic">响应 topic。</param>
+        /// <param name="payload">响应二进制内容。</param>
+        /// <param name="requestContext">可选请求上下文，用于沿用 QoS、correlation data 等 MQTT v5 元数据。</param>
+        /// <param name="contentType">响应 content type。</param>
+        public static async Task PublishAsync(this MqttServer mqtt, string senderClientId, string topic, byte[] payload, MqttRequestContext requestContext = null, string contentType = BinaryContentType)
+        {
+            var message = BuildApplicationMessage(topic, payload ?? Array.Empty<byte>(), requestContext, contentType);
+            await mqtt.PublishAsync(senderClientId, message);
+        }
+
+        /// <summary>
+        /// 通过 MQTTnet server 官方注入入口发布消息，避免直接操作客户端 session 队列。
+        /// </summary>
+        /// <param name="mqtt">MQTT server。</param>
+        /// <param name="senderClientId">服务端注入消息使用的发送方 client id。</param>
+        /// <param name="message">要注入 broker 的消息。</param>
+        public static async Task PublishAsync(this MqttServer mqtt, string senderClientId, MqttApplicationMessage message)
+        {
+            if (mqtt == null)
+            {
+                throw new ArgumentNullException(nameof(mqtt));
+            }
+
+            if (message == null)
+            {
+                throw new ArgumentNullException(nameof(message));
+            }
+
+            var injectedMessage = new InjectedMqttApplicationMessage(message)
+            {
+                SenderClientId = string.IsNullOrWhiteSpace(senderClientId) ? ServerSenderClientId : senderClientId,
+                SenderUserName = ServerSenderClientId
+            };
+            await mqtt.InjectApplicationMessage(injectedMessage);
+        }
+
+        private static MqttApplicationMessage BuildApplicationMessage(
+            string topic,
+            byte[] payload,
+            MqttRequestContext requestContext,
+            string contentType)
+        {
+            var builder = new MqttApplicationMessageBuilder()
+                .WithTopic(topic)
+                .WithPayload(payload ?? Array.Empty<byte>())
+                .WithQualityOfServiceLevel(requestContext?.QualityOfServiceLevel ?? MqttQualityOfServiceLevel.AtMostOnce);
+
+            if (!string.IsNullOrWhiteSpace(contentType))
+            {
+                builder.WithContentType(contentType);
+            }
+
+            if (requestContext?.CorrelationData is { Length: > 0 } correlationData)
+            {
+                builder.WithCorrelationData(correlationData);
+            }
+
+            return builder.Build();
+        }
 
         public static void AddMqttClient(this IServiceCollection services, MqttClientSetting setting)
         {

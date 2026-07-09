@@ -31,7 +31,26 @@ namespace IoTSharp.Test
             Assert.Empty(result.Parameters);
         }
 
-        private static RouteMatchResult MatchTopic(string topic)
+        [Fact]
+        public void Uplink_Rpc_Route_Does_Not_Match_Different_Case_With_IotSharp_Routing_Options()
+        {
+            var result = MatchTopic("devices/me/Rpc/request/reboot");
+
+            Assert.Null(result.HandlerName);
+            Assert.Empty(result.Parameters);
+        }
+
+        [Fact]
+        public void Uplink_Rpc_Route_Can_Still_Be_Matched_With_Legacy_Case_Insensitive_Comparer()
+        {
+            var result = MatchTopic("devices/me/Rpc/request/reboot", caseSensitive: false);
+
+            Assert.Equal(nameof(TestRpcController.Request), result.HandlerName);
+            Assert.Equal("me", result.Parameters["devname"]);
+            Assert.Equal("reboot", result.Parameters["method"]);
+        }
+
+        private static RouteMatchResult MatchTopic(string topic, bool caseSensitive = true)
         {
             var assembly = typeof(MqttRouteAttribute).Assembly;
             var tableFactory = assembly.GetType("MQTTnet.AspNetCore.Routing.MqttRouteTableFactory")!;
@@ -39,12 +58,13 @@ namespace IoTSharp.Test
                 "Create",
                 BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic,
                 binder: null,
-                types: [typeof(IEnumerable<Assembly>)],
+                types: [typeof(IEnumerable<Assembly>), typeof(StringComparer)],
                 modifiers: null)!;
-            var routeTable = create.Invoke(null, [new[] { typeof(TestRpcController).Assembly }])!;
+            var routeTable = create.Invoke(null, [new[] { typeof(TestRpcController).Assembly }, caseSensitive ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase])!;
             var routeMethod = routeTable.GetType().GetMethod("Route", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)!;
 
-            var contextType = assembly.GetType("MQTTnet.AspNetCore.Routing.MqttRouteContext")!;
+            var contextType = assembly.GetType("MQTTnet.AspNetCore.Routing.MqttRouteMatchContext")
+                ?? assembly.GetType("MQTTnet.AspNetCore.Routing.MqttRouteContext")!;
             var handlerProperty = contextType.GetProperty("Handler", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)!;
             var parametersProperty = contextType.GetProperty("Parameters", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)!;
             var context = Activator.CreateInstance(contextType, topic)!;

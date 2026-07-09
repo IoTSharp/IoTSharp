@@ -108,7 +108,6 @@
     <PackageVersion Include="MQTTnet" Version="5.2.0.1603" Condition="'$(MSBuildProjectName)' != 'IoTSharp.Sdk.MQTT'" />
     <PackageVersion Include="MQTTnet" Version="5.2.0.1603" Condition="'$(MSBuildProjectName)' == 'IoTSharp.Sdk.MQTT'" />
     <PackageVersion Include="MQTTnet.AspNetCore" Version="5.2.0.1603" />
-    <PackageVersion Include="MQTTnet.AspNetCore.Routing" Version="5.1.0" />
     <PackageVersion Include="MSTest.TestAdapter" Version="4.1.0" />
     <PackageVersion Include="MSTest.TestFramework" Version="4.1.0" />
     <PackageVersion Include="MXLogger" Version="2.1.5" />

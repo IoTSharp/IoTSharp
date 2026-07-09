@@ -125,9 +125,8 @@ namespace IoTSharp.Services.MQTTControllers
         }
 
         [MqttRoute("request/{keyname}/{requestid}/xml")]
-        public async Task RequestXML(string keyname, string requestid)
+        public async Task RequestXML(string keyname, string requestid, MqttRequestContext requestContext)
         {
-            Dictionary<string, object> keyValues = new Dictionary<string, object>();
             try
             {
                 using (var scope = _scopeFactor.CreateScope())
@@ -135,7 +134,13 @@ namespace IoTSharp.Services.MQTTControllers
                 {
                     var qf = from at in _dbContext.AttributeLatest where at.Type == DataType.XML && at.KeyName == keyname select at;
                     await qf.LoadAsync();
-                    await Server.PublishAsync(ClientId, $"devices/me/attributes/response/{requestid}", qf.FirstOrDefault()?.Value_XML);
+                    var responseTopic = requestContext.ResolveResponseTopic($"devices/me/attributes/response/{requestid}");
+                    await Server.PublishAsync(
+                        MqttExtension.ServerSenderClientId,
+                        responseTopic,
+                        qf.FirstOrDefault()?.Value_XML,
+                        requestContext,
+                        contentType: "application/xml");
                 }
             }
             catch (Exception ex)
@@ -145,10 +150,8 @@ namespace IoTSharp.Services.MQTTControllers
         }
 
         [MqttRoute("request/{keyname}/{requestid}/binary")]
-        public async Task RequestBinary(string keyname, string requestid)
+        public async Task RequestBinary(string keyname, string requestid, MqttRequestContext requestContext)
         {
-
-            Dictionary<string, object> keyValues = new Dictionary<string, object>();
             try
             {
                 using (var scope = _scopeFactor.CreateScope())
@@ -156,7 +159,12 @@ namespace IoTSharp.Services.MQTTControllers
                 {
                     var qf = from at in _dbContext.AttributeLatest where at.Type == DataType.Binary && at.KeyName == keyname select at;
                     await qf.LoadAsync();
-                    await Server.PublishAsync(ClientId, $"devices/me/attributes/response/{requestid}", qf.FirstOrDefault()?.Value_Binary);
+                    var responseTopic = requestContext.ResolveResponseTopic($"devices/me/attributes/response/{requestid}");
+                    await Server.PublishAsync(
+                        MqttExtension.ServerSenderClientId,
+                        responseTopic,
+                        qf.FirstOrDefault()?.Value_Binary,
+                        requestContext);
                 }
             }
             catch (Exception ex)
@@ -166,7 +174,7 @@ namespace IoTSharp.Services.MQTTControllers
         }
 
         [MqttRoute("request/{requestid}")]
-        public async Task RequestAttributes(string requestid)
+        public async Task RequestAttributes(string requestid, MqttRequestContext requestContext)
         {
             var reqlist = Message.ConvertPayloadToList<string>();
             try
@@ -183,7 +191,12 @@ namespace IoTSharp.Services.MQTTControllers
                     {
                         reps.Add(kv.Key, kv.Value);
                     }
-                    await Server.PublishAsync(ClientId, $"devices/me/attributes/response/{requestid}", reps);
+                    var responseTopic = requestContext.ResolveResponseTopic($"devices/me/attributes/response/{requestid}");
+                    await Server.PublishAsync(
+                        MqttExtension.ServerSenderClientId,
+                        responseTopic,
+                        reps,
+                        requestContext);
                 }
             }
             catch (Exception ex)
