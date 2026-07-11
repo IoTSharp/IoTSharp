@@ -1,0 +1,269 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - link "SonnetDB Studio" [ref=e4] [cursor=pointer]:
+      - /url: "#"
+      - generic [ref=e5]: S
+      - strong [ref=e6]: SonnetDB Studio
+    - generic [ref=e7]: 工厂数据 › factory › Measurements › device_metrics
+    - button "⌕ 搜索命令 Ctrl K" [ref=e8] [cursor=pointer]:
+      - generic [ref=e9]: ⌕
+      - text: 搜索命令
+      - generic [ref=e10]: Ctrl K
+    - button "factory-cluster ⌄" [ref=e11] [cursor=pointer]:
+      - text: factory-cluster
+      - generic [ref=e13]: ⌄
+    - button "♢ 3" [ref=e14] [cursor=pointer]:
+      - text: ♢
+      - generic [ref=e15]: "3"
+    - button "AD" [ref=e16] [cursor=pointer]
+  - complementary "全局模块" [ref=e17]:
+    - navigation [ref=e18]:
+      - button "◫ 概览" [ref=e19] [cursor=pointer]:
+        - generic [ref=e20]: ◫
+        - generic [ref=e21]: 概览
+      - button "⌘ 查询" [ref=e22] [cursor=pointer]:
+        - generic [ref=e23]: ⌘
+        - generic [ref=e24]: 查询
+      - button "▤ 数据" [ref=e25] [cursor=pointer]:
+        - generic [ref=e26]: ▤
+        - generic [ref=e27]: 数据
+      - button "⟲ 事务" [ref=e28] [cursor=pointer]:
+        - generic [ref=e29]: ⟲
+        - generic [ref=e30]: 事务
+      - button "◉ Studio" [ref=e31] [cursor=pointer]:
+        - generic [ref=e32]: ◉
+        - generic [ref=e33]: Studio
+      - button "⌁ 监控" [ref=e34] [cursor=pointer]:
+        - generic [ref=e35]: ⌁
+        - generic [ref=e36]: 监控
+      - button "▱ 备份" [ref=e37] [cursor=pointer]:
+        - generic [ref=e38]: ▱
+        - generic [ref=e39]: 备份
+      - button "⌕ 工具" [ref=e40] [cursor=pointer]:
+        - generic [ref=e41]: ⌕
+        - generic [ref=e42]: 工具
+    - button "⚙ 设置" [ref=e43] [cursor=pointer]:
+      - generic [ref=e44]: ⚙
+      - generic [ref=e45]: 设置
+  - complementary [ref=e46]:
+    - generic [ref=e47]:
+      - generic [ref=e48]:
+        - strong [ref=e49]: 资源浏览器
+        - generic [ref=e50]:
+          - button "＋" [ref=e51] [cursor=pointer]
+          - button "↻" [ref=e52] [cursor=pointer]
+      - generic [ref=e53]:
+        - generic [ref=e54]: ⌕
+        - searchbox "⌕ ≡" [ref=e55]
+        - button "≡" [ref=e56] [cursor=pointer]
+      - generic [ref=e57]:
+        - button "树" [ref=e58] [cursor=pointer]
+        - button "列表" [ref=e59] [cursor=pointer]
+        - button "详细" [ref=e60] [cursor=pointer]
+        - combobox [ref=e61]:
+          - option "按名称" [selected]
+          - option "按类型"
+    - generic [ref=e62]:
+      - generic [ref=e63]:
+        - generic [ref=e64]: ⌄
+        - generic [ref=e65]: ◉
+        - strong [ref=e66]: 工厂数据
+      - generic [ref=e67]:
+        - generic [ref=e68]: ⌄
+        - generic [ref=e69]: ◉
+        - strong [ref=e70]: factory
+      - generic [ref=e71]:
+        - button "⌄ ▥ Measurements 3" [ref=e72] [cursor=pointer]:
+          - generic [ref=e73]: ⌄
+          - generic [ref=e74]: ▥
+          - text: Measurements
+          - emphasis [ref=e75]: "3"
+        - button "⌁ device_metrics" [ref=e76] [cursor=pointer]:
+          - generic [ref=e77]: ⌁
+          - text: device_metrics
+        - button "⌁ line_energy" [ref=e78] [cursor=pointer]:
+          - generic [ref=e79]: ⌁
+          - text: line_energy
+      - generic [ref=e80]:
+        - button "⌄ ▦ Tables 4" [ref=e81] [cursor=pointer]:
+          - generic [ref=e82]: ⌄
+          - generic [ref=e83]: ▦
+          - text: Tables
+          - emphasis [ref=e84]: "4"
+        - button "▦ machines" [ref=e85] [cursor=pointer]:
+          - generic [ref=e86]: ▦
+          - text: machines
+        - button "▦ work_orders" [ref=e87] [cursor=pointer]:
+          - generic [ref=e88]: ▦
+          - text: work_orders
+      - generic [ref=e89]:
+        - button "⌄ ◫ Collections 2" [ref=e90] [cursor=pointer]:
+          - generic [ref=e91]: ⌄
+          - generic [ref=e92]: ◫
+          - text: Collections
+          - emphasis [ref=e93]: "2"
+        - button "◫ device-events" [ref=e94] [cursor=pointer]:
+          - generic [ref=e95]: ◫
+          - text: device-events
+      - generic [ref=e96]:
+        - button "⌄ ⌘ KV Keyspaces 2" [ref=e97] [cursor=pointer]:
+          - generic [ref=e98]: ⌄
+          - generic [ref=e99]: ⌘
+          - text: KV Keyspaces
+          - emphasis [ref=e100]: "2"
+        - button "⌘ device-cache" [ref=e101] [cursor=pointer]:
+          - generic [ref=e102]: ⌘
+          - text: device-cache
+      - generic [ref=e103]:
+        - button "⌄ ⌬ Vector Indexes 1" [ref=e104] [cursor=pointer]:
+          - generic [ref=e105]: ⌄
+          - generic [ref=e106]: ⌬
+          - text: Vector Indexes
+          - emphasis [ref=e107]: "1"
+        - button "⌬ embeddings.vector" [ref=e108] [cursor=pointer]:
+          - generic [ref=e109]: ⌬
+          - text: embeddings.vector
+      - generic [ref=e110]:
+        - button "⌄ FT FullText Indexes 1" [ref=e111] [cursor=pointer]:
+          - generic [ref=e112]: ⌄
+          - generic [ref=e113]: FT
+          - text: FullText Indexes
+          - emphasis [ref=e114]: "1"
+        - button "FT docs.search" [ref=e115] [cursor=pointer]:
+          - generic [ref=e116]: FT
+          - text: docs.search
+      - generic [ref=e117]:
+        - button "⌄ ♧ MQ Topics 5" [ref=e118] [cursor=pointer]:
+          - generic [ref=e119]: ⌄
+          - generic [ref=e120]: ♧
+          - text: MQ Topics
+          - emphasis [ref=e121]: "5"
+        - button "♧ telemetry.raw" [ref=e122] [cursor=pointer]:
+          - generic [ref=e123]: ♧
+          - text: telemetry.raw
+        - button "♧ commands" [ref=e124] [cursor=pointer]:
+          - generic [ref=e125]: ♧
+          - text: commands
+      - generic [ref=e126]:
+        - button "⌄ ▱ Object Buckets 3" [ref=e127] [cursor=pointer]:
+          - generic [ref=e128]: ⌄
+          - generic [ref=e129]: ▱
+          - text: Object Buckets
+          - emphasis [ref=e130]: "3"
+        - button "▱ raw-data" [ref=e131] [cursor=pointer]:
+          - generic [ref=e132]: ▱
+          - text: raw-data
+    - generic [ref=e133]:
+      - generic [ref=e134]:
+        - strong [ref=e136]: 数据库健康度
+        - generic [ref=e137]: 健康
+      - generic [ref=e138]: 存储 68% 内存 42% 连接 24
+  - button "调整资源浏览器宽度" [ref=e139]
+  - main [ref=e140]:
+    - generic [ref=e141]:
+      - button "⌘ factory.overview" [ref=e142] [cursor=pointer]:
+        - generic [ref=e143]: ⌘
+        - text: factory.overview
+      - button "⌁ device_metrics ×" [ref=e144] [cursor=pointer]:
+        - generic [ref=e145]: ⌁
+        - text: device_metrics
+        - generic [ref=e146]: ×
+      - button "▦ machines ×" [ref=e147] [cursor=pointer]:
+        - generic [ref=e148]: ▦
+        - text: machines
+        - generic [ref=e149]: ×
+      - button "＋" [ref=e150] [cursor=pointer]
+      - button "▤ 结果" [ref=e152] [cursor=pointer]
+      - button "◷ 历史" [ref=e153] [cursor=pointer]
+    - generic [ref=e155]:
+      - generic [ref=e156]:
+        - generic [ref=e157]: ⌁
+        - generic [ref=e158]:
+          - heading "device_metrics" [level=1] [ref=e159]
+          - paragraph [ref=e160]: 时序 / SQL · factory-cluster / factory
+        - generic [ref=e161]:
+          - generic [ref=e162]:
+            - generic [ref=e163]: Measurement
+            - strong [ref=e164]: "1"
+          - generic [ref=e165]:
+            - generic [ref=e166]: Fields
+            - strong [ref=e167]: "6"
+          - generic [ref=e168]:
+            - generic [ref=e169]: Series
+            - strong [ref=e170]: "128"
+        - generic [ref=e171]:
+          - button "↻ 运行查询" [ref=e172] [cursor=pointer]
+          - button "•••" [ref=e173] [cursor=pointer]
+      - navigation [ref=e174]:
+        - button "查询" [ref=e175] [cursor=pointer]
+        - button "结果" [ref=e176] [cursor=pointer]
+        - button "图表" [ref=e177] [cursor=pointer]
+        - button "轨迹" [ref=e178] [cursor=pointer]
+      - generic [ref=e179]:
+        - generic [ref=e180]:
+          - generic [ref=e181]:
+            - generic [ref=e182]: 1 2 3 4 5 6
+            - generic [ref=e183]: SELECT time, deviceId, temperature, pressure, vibration FROM device_metrics WHERE time > now() - interval '1 hour' AND lineId = 'LINE-1' ORDER BY time DESC LIMIT 100;
+          - generic [ref=e184]:
+            - button "▶ 运行" [ref=e185] [cursor=pointer]
+            - button "暂存写入" [ref=e186] [cursor=pointer]
+            - generic [ref=e187]: 完成 · 12 ms · 100 rows
+          - table [ref=e189]:
+            - rowgroup [ref=e190]:
+              - row [ref=e191]:
+                - columnheader "time" [ref=e192]
+                - columnheader "deviceId" [ref=e193]
+                - columnheader "temperature" [ref=e194]
+                - columnheader "pressure" [ref=e195]
+                - columnheader "vibration" [ref=e196]
+            - rowgroup [ref=e197]:
+              - row [ref=e198]:
+                - cell "2026-07-11 14:31:48" [ref=e199]
+                - cell "PLC-101" [ref=e200]
+                - cell "56.7" [ref=e201]
+                - cell "1.21" [ref=e202]
+                - cell "0.032" [ref=e203]
+              - row [ref=e204]:
+                - cell "2026-07-11 14:31:46" [ref=e205]
+                - cell "PLC-102" [ref=e206]
+                - cell "48.1" [ref=e207]
+                - cell "1.08" [ref=e208]
+                - cell "0.018" [ref=e209]
+              - row [ref=e210]:
+                - cell "2026-07-11 14:31:44" [ref=e211]
+                - cell "SENSOR-77" [ref=e212]
+                - cell "42.8" [ref=e213]
+                - cell "1.14" [ref=e214]
+                - cell "0.026" [ref=e215]
+              - row [ref=e216]:
+                - cell "2026-07-11 14:31:42" [ref=e217]
+                - cell "ROBOT-9" [ref=e218]
+                - cell "51.3" [ref=e219]
+                - cell "1.19" [ref=e220]
+                - cell "0.021" [ref=e221]
+        - complementary [ref=e222]:
+          - generic [ref=e223]:
+            - strong [ref=e224]: 查询上下文
+            - button "×" [ref=e225] [cursor=pointer]
+          - generic [ref=e226]:
+            - heading "对象" [level=3] [ref=e227]
+            - generic [ref=e228]:
+              - generic [ref=e229]:
+                - term [ref=e230]: 数据库
+                - definition [ref=e231]: factory
+              - generic [ref=e232]:
+                - term [ref=e233]: Measurement
+                - definition [ref=e234]: device_metrics
+              - generic [ref=e235]:
+                - term [ref=e236]: 时间范围
+                - definition [ref=e237]: 最近 1 小时
+              - generic [ref=e238]:
+                - term [ref=e239]: Series
+                - definition [ref=e240]: "128"
+          - generic [ref=e241]:
+            - heading "字段" [level=3] [ref=e242]
+            - generic [ref=e243]:
+              - generic [ref=e244]: temperature f64
+              - generic [ref=e245]: pressure f64
+              - generic [ref=e246]: vibration f64
+              - generic [ref=e247]: status string

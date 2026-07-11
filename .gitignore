@@ -755,3 +755,4 @@ package-lock.json
 /ClientApp/src/components.d.ts
 docs/yarn.lock
 /docs/yarn.lock
+.playwright-cli/

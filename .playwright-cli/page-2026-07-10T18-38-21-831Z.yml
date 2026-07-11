@@ -1,0 +1,284 @@
+- generic [ref=f1e2]:
+  - banner [ref=f1e3]:
+    - link "SonnetDB Studio" [ref=f1e4] [cursor=pointer]:
+      - /url: "#"
+      - generic [ref=f1e5]: S
+      - strong [ref=f1e6]: SonnetDB Studio
+    - generic [ref=f1e7]: 工厂数据 › factory › KV Keyspaces › device-cache
+    - button "⌕ 搜索命令 Ctrl K" [ref=f1e8] [cursor=pointer]:
+      - generic [ref=f1e9]: ⌕
+      - text: 搜索命令
+      - generic [ref=f1e10]: Ctrl K
+    - button "factory-cluster ⌄" [ref=f1e11] [cursor=pointer]:
+      - text: factory-cluster
+      - generic [ref=f1e13]: ⌄
+    - button "♢ 3" [ref=f1e14] [cursor=pointer]:
+      - text: ♢
+      - generic [ref=f1e15]: "3"
+    - button "AD" [ref=f1e16] [cursor=pointer]
+  - complementary "全局模块" [ref=f1e17]:
+    - navigation [ref=f1e18]:
+      - button "◫ 概览" [ref=f1e19] [cursor=pointer]:
+        - generic [ref=f1e20]: ◫
+        - generic [ref=f1e21]: 概览
+      - button "⌘ 查询" [ref=f1e22] [cursor=pointer]:
+        - generic [ref=f1e23]: ⌘
+        - generic [ref=f1e24]: 查询
+      - button "▤ 数据" [ref=f1e25] [cursor=pointer]:
+        - generic [ref=f1e26]: ▤
+        - generic [ref=f1e27]: 数据
+      - button "⟲ 事务" [ref=f1e28] [cursor=pointer]:
+        - generic [ref=f1e29]: ⟲
+        - generic [ref=f1e30]: 事务
+      - button "◉ Studio" [ref=f1e31] [cursor=pointer]:
+        - generic [ref=f1e32]: ◉
+        - generic [ref=f1e33]: Studio
+      - button "⌁ 监控" [ref=f1e34] [cursor=pointer]:
+        - generic [ref=f1e35]: ⌁
+        - generic [ref=f1e36]: 监控
+      - button "▱ 备份" [ref=f1e37] [cursor=pointer]:
+        - generic [ref=f1e38]: ▱
+        - generic [ref=f1e39]: 备份
+      - button "⌕ 工具" [ref=f1e40] [cursor=pointer]:
+        - generic [ref=f1e41]: ⌕
+        - generic [ref=f1e42]: 工具
+    - button "⚙ 设置" [ref=f1e43] [cursor=pointer]:
+      - generic [ref=f1e44]: ⚙
+      - generic [ref=f1e45]: 设置
+  - complementary [ref=f1e46]:
+    - generic [ref=f1e47]:
+      - generic [ref=f1e48]:
+        - strong [ref=f1e49]: 资源浏览器
+        - generic [ref=f1e50]:
+          - button "＋" [ref=f1e51] [cursor=pointer]
+          - button "↻" [ref=f1e52] [cursor=pointer]
+      - generic [ref=f1e53]:
+        - generic [ref=f1e54]: ⌕
+        - searchbox "⌕ ≡" [ref=f1e55]
+        - button "≡" [ref=f1e56] [cursor=pointer]
+      - generic [ref=f1e57]:
+        - button "树" [ref=f1e58] [cursor=pointer]
+        - button "列表" [ref=f1e59] [cursor=pointer]
+        - button "详细" [ref=f1e60] [cursor=pointer]
+        - combobox [ref=f1e61]:
+          - option "按名称" [selected]
+          - option "按类型"
+    - generic [ref=f1e62]:
+      - generic [ref=f1e63]:
+        - generic [ref=f1e64]: ⌄
+        - generic [ref=f1e65]: ◉
+        - strong [ref=f1e66]: 工厂数据
+      - generic [ref=f1e67]:
+        - generic [ref=f1e68]: ⌄
+        - generic [ref=f1e69]: ◉
+        - strong [ref=f1e70]: factory
+      - generic [ref=f1e71]:
+        - button "⌄ ▥ Measurements 3" [ref=f1e72] [cursor=pointer]:
+          - generic [ref=f1e73]: ⌄
+          - generic [ref=f1e74]: ▥
+          - text: Measurements
+          - emphasis [ref=f1e75]: "3"
+        - button "⌁ device_metrics" [ref=f1e76] [cursor=pointer]:
+          - generic [ref=f1e77]: ⌁
+          - text: device_metrics
+        - button "⌁ line_energy" [ref=f1e78] [cursor=pointer]:
+          - generic [ref=f1e79]: ⌁
+          - text: line_energy
+      - generic [ref=f1e80]:
+        - button "⌄ ▦ Tables 4" [ref=f1e81] [cursor=pointer]:
+          - generic [ref=f1e82]: ⌄
+          - generic [ref=f1e83]: ▦
+          - text: Tables
+          - emphasis [ref=f1e84]: "4"
+        - button "▦ machines" [ref=f1e85] [cursor=pointer]:
+          - generic [ref=f1e86]: ▦
+          - text: machines
+        - button "▦ work_orders" [ref=f1e87] [cursor=pointer]:
+          - generic [ref=f1e88]: ▦
+          - text: work_orders
+      - generic [ref=f1e89]:
+        - button "⌄ ◫ Collections 2" [ref=f1e90] [cursor=pointer]:
+          - generic [ref=f1e91]: ⌄
+          - generic [ref=f1e92]: ◫
+          - text: Collections
+          - emphasis [ref=f1e93]: "2"
+        - button "◫ device-events" [ref=f1e94] [cursor=pointer]:
+          - generic [ref=f1e95]: ◫
+          - text: device-events
+      - generic [ref=f1e96]:
+        - button "⌄ ⌘ KV Keyspaces 2" [ref=f1e97] [cursor=pointer]:
+          - generic [ref=f1e98]: ⌄
+          - generic [ref=f1e99]: ⌘
+          - text: KV Keyspaces
+          - emphasis [ref=f1e100]: "2"
+        - button "⌘ device-cache" [active] [ref=f1e101] [cursor=pointer]:
+          - generic [ref=f1e102]: ⌘
+          - text: device-cache
+      - generic [ref=f1e103]:
+        - button "⌄ ⌬ Vector Indexes 1" [ref=f1e104] [cursor=pointer]:
+          - generic [ref=f1e105]: ⌄
+          - generic [ref=f1e106]: ⌬
+          - text: Vector Indexes
+          - emphasis [ref=f1e107]: "1"
+        - button "⌬ embeddings.vector" [ref=f1e108] [cursor=pointer]:
+          - generic [ref=f1e109]: ⌬
+          - text: embeddings.vector
+      - generic [ref=f1e110]:
+        - button "⌄ FT FullText Indexes 1" [ref=f1e111] [cursor=pointer]:
+          - generic [ref=f1e112]: ⌄
+          - generic [ref=f1e113]: FT
+          - text: FullText Indexes
+          - emphasis [ref=f1e114]: "1"
+        - button "FT docs.search" [ref=f1e115] [cursor=pointer]:
+          - generic [ref=f1e116]: FT
+          - text: docs.search
+      - generic [ref=f1e117]:
+        - button "⌄ ♧ MQ Topics 5" [ref=f1e118] [cursor=pointer]:
+          - generic [ref=f1e119]: ⌄
+          - generic [ref=f1e120]: ♧
+          - text: MQ Topics
+          - emphasis [ref=f1e121]: "5"
+        - button "♧ telemetry.raw" [ref=f1e122] [cursor=pointer]:
+          - generic [ref=f1e123]: ♧
+          - text: telemetry.raw
+        - button "♧ commands" [ref=f1e124] [cursor=pointer]:
+          - generic [ref=f1e125]: ♧
+          - text: commands
+      - generic [ref=f1e126]:
+        - button "⌄ ▱ Object Buckets 3" [ref=f1e127] [cursor=pointer]:
+          - generic [ref=f1e128]: ⌄
+          - generic [ref=f1e129]: ▱
+          - text: Object Buckets
+          - emphasis [ref=f1e130]: "3"
+        - button "▱ raw-data" [ref=f1e131] [cursor=pointer]:
+          - generic [ref=f1e132]: ▱
+          - text: raw-data
+    - generic [ref=f1e133]:
+      - generic [ref=f1e134]:
+        - strong [ref=f1e136]: 数据库健康度
+        - generic [ref=f1e137]: 健康
+      - generic [ref=f1e138]: 存储 68% 内存 42% 连接 24
+  - button "调整资源浏览器宽度" [ref=f1e139]
+  - main [ref=f1e140]:
+    - generic [ref=f1e141]:
+      - button "⌘ factory.overview" [ref=f1e142] [cursor=pointer]:
+        - generic [ref=f1e143]: ⌘
+        - text: factory.overview
+      - button "⌘ device-cache ×" [ref=f1e604] [cursor=pointer]:
+        - generic [ref=f1e605]: ⌘
+        - text: device-cache
+        - generic [ref=f1e606]: ×
+      - button "▦ machines ×" [ref=f1e147] [cursor=pointer]:
+        - generic [ref=f1e148]: ▦
+        - text: machines
+        - generic [ref=f1e149]: ×
+      - button "＋" [ref=f1e150] [cursor=pointer]
+      - button "▤ 结果" [ref=f1e152] [cursor=pointer]
+      - button "◷ 历史" [ref=f1e153] [cursor=pointer]
+    - generic [ref=f1e607]:
+      - generic [ref=f1e608]:
+        - generic [ref=f1e609]: ⌘
+        - generic [ref=f1e610]:
+          - heading "device-cache" [level=1] [ref=f1e611]
+          - paragraph [ref=f1e612]: KV Keyspace · factory-cluster / factory
+        - generic [ref=f1e613]:
+          - generic [ref=f1e614]:
+            - generic [ref=f1e615]: Total keys
+            - strong [ref=f1e616]: 12.8k
+          - generic [ref=f1e617]:
+            - generic [ref=f1e618]: Expiring
+            - strong [ref=f1e619]: 3.2k
+          - generic [ref=f1e620]:
+            - generic [ref=f1e621]: Nearest TTL
+            - strong [ref=f1e622]: 18s
+        - generic [ref=f1e623]:
+          - button "↻ 扫描 Keyspace" [ref=f1e624] [cursor=pointer]
+          - button "暂存变更" [ref=f1e625] [cursor=pointer]
+          - button "•••" [ref=f1e626] [cursor=pointer]
+      - navigation [ref=f1e627]:
+        - button "浏览器" [ref=f1e628] [cursor=pointer]
+        - button "批量操作" [ref=f1e629] [cursor=pointer]
+        - button "统计" [ref=f1e630] [cursor=pointer]
+      - generic [ref=f1e631]:
+        - generic [ref=f1e632]:
+          - textbox [ref=f1e633]: "device:"
+          - combobox [ref=f1e634]:
+            - option "100 keys" [selected]
+            - option "250 keys"
+          - button "扫描" [ref=f1e635] [cursor=pointer]
+          - button "＋ 新增 Key" [ref=f1e636] [cursor=pointer]
+        - generic [ref=f1e637]:
+          - generic [ref=f1e638]:
+            - complementary [ref=f1e639]:
+              - strong [ref=f1e641]: 前缀
+              - 'button "device: 12480 namespace prefix" [ref=f1e642] [cursor=pointer]':
+                - strong [ref=f1e643]: "device:"
+                - generic [ref=f1e644]: "12480"
+                - generic [ref=f1e645]: namespace prefix
+              - button "device:PLC- 4820 namespace prefix" [ref=f1e646] [cursor=pointer]:
+                - strong [ref=f1e647]: device:PLC-
+                - generic [ref=f1e648]: "4820"
+                - generic [ref=f1e649]: namespace prefix
+              - button "device:SENSOR- 3160 namespace prefix" [ref=f1e650] [cursor=pointer]:
+                - strong [ref=f1e651]: device:SENSOR-
+                - generic [ref=f1e652]: "3160"
+                - generic [ref=f1e653]: namespace prefix
+              - 'button "session: 1290 namespace prefix" [ref=f1e654] [cursor=pointer]':
+                - strong [ref=f1e655]: "session:"
+                - generic [ref=f1e656]: "1290"
+                - generic [ref=f1e657]: namespace prefix
+              - 'button "cache: 840 namespace prefix" [ref=f1e658] [cursor=pointer]':
+                - strong [ref=f1e659]: "cache:"
+                - generic [ref=f1e660]: "840"
+                - generic [ref=f1e661]: namespace prefix
+            - table [ref=f1e663]:
+              - rowgroup [ref=f1e664]:
+                - row [ref=f1e665]:
+                  - columnheader "Key" [ref=f1e666]
+                  - columnheader "类型" [ref=f1e667]
+                  - columnheader "TTL" [ref=f1e668]
+                  - columnheader "大小" [ref=f1e669]
+              - rowgroup [ref=f1e670]:
+                - row [ref=f1e671]:
+                  - cell "device:PLC-101:state" [ref=f1e672]
+                  - cell "JSON" [ref=f1e673]
+                  - cell "42s" [ref=f1e674]
+                  - cell "384 B" [ref=f1e675]
+                - row [ref=f1e676]:
+                  - cell "device:PLC-101:lastSeen" [ref=f1e677]
+                  - cell "String" [ref=f1e678]
+                  - cell "18s" [ref=f1e679]
+                  - cell "28 B" [ref=f1e680]
+                - row [ref=f1e681]:
+                  - cell "device:PLC-102:state" [ref=f1e682]
+                  - cell "JSON" [ref=f1e683]
+                  - cell "55s" [ref=f1e684]
+                  - cell "378 B" [ref=f1e685]
+                - row [ref=f1e686]:
+                  - cell "device:PLC-103:alarm" [ref=f1e687]
+                  - cell "String" [ref=f1e688]
+                  - cell "persistent" [ref=f1e689]
+                  - cell "64 B" [ref=f1e690]
+          - complementary [ref=f1e691]:
+            - generic [ref=f1e692]:
+              - strong [ref=f1e693]: Key 详情
+              - button "×" [ref=f1e694] [cursor=pointer]
+            - generic [ref=f1e696]:
+              - generic [ref=f1e697]:
+                - term [ref=f1e698]: Key
+                - definition [ref=f1e699]: device:PLC-101:state
+              - generic [ref=f1e700]:
+                - term [ref=f1e701]: 类型
+                - definition [ref=f1e702]: JSON
+              - generic [ref=f1e703]:
+                - term [ref=f1e704]: TTL
+                - definition [ref=f1e705]: 42 秒
+              - generic [ref=f1e706]:
+                - term [ref=f1e707]: 过期时间
+                - definition [ref=f1e708]: 14:32:30
+            - generic [ref=f1e709]:
+              - heading "值 · JSON" [level=3] [ref=f1e710]
+              - generic [ref=f1e711]: "{ \"status\": \"online\", \"temperature\": 56.7, \"line\": \"LINE-1\" }"
+            - generic [ref=f1e712]:
+              - button "暂存 Set" [ref=f1e713] [cursor=pointer]
+              - button "修改 TTL" [ref=f1e714] [cursor=pointer]

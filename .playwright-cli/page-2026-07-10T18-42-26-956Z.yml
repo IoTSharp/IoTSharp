@@ -1,0 +1,119 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - generic [ref=e4]: ⌘
+    - navigation [ref=e5]: 文件 编辑 选择 查看 转到 运行 终端 帮助
+    - strong [ref=e6]: factory-overview.sql — SonnetDB
+    - textbox "搜索 SonnetDB Workspace" [ref=e7]
+    - generic [ref=e8]: ▢ — □ ×
+  - complementary [ref=e9]:
+    - button "▧" [ref=e10] [cursor=pointer]
+    - button "◉" [ref=e11] [cursor=pointer]
+    - button "⌕" [ref=e12] [cursor=pointer]
+    - button "⑂" [ref=e13] [cursor=pointer]
+    - button "▷" [ref=e14] [cursor=pointer]
+    - button "⚙" [ref=e16] [cursor=pointer]
+  - complementary [ref=e17]:
+    - generic [ref=e18]:
+      - strong [ref=e19]: SONNETDB
+      - generic [ref=e20]: ＋ ↻ •••
+    - generic [ref=e21]:
+      - generic [ref=e22]: ⌄ ◉
+      - strong [ref=e23]: factory-cluster
+      - generic [ref=e24]: remote · healthy
+    - generic [ref=e25]:
+      - generic [ref=e26]: ⌄ ▣
+      - strong [ref=e27]: factory
+    - generic [ref=e28]:
+      - button "⌄ ▥ Measurements" [ref=e29] [cursor=pointer]
+      - button "⌁ device_metrics" [ref=e30] [cursor=pointer]
+      - button "⌄ ▦ Tables" [ref=e31] [cursor=pointer]
+      - button "▦ machines" [ref=e32] [cursor=pointer]
+      - button "⌄ ◫ Collections" [ref=e33] [cursor=pointer]
+      - button "◫ device-events" [ref=e34] [cursor=pointer]
+      - button "⌄ ⌘ KV Keyspaces" [ref=e35] [cursor=pointer]
+      - button "⌘ device-cache" [ref=e36] [cursor=pointer]
+      - button "⌄ ⌬ Vector Indexes" [ref=e37] [cursor=pointer]
+      - button "⌬ embeddings.vector" [ref=e38] [cursor=pointer]
+      - button "⌄ FT FullText Indexes" [ref=e39] [cursor=pointer]
+      - button "FT docs.search" [ref=e40] [cursor=pointer]
+      - button "⌄ ♧ MQ Topics" [ref=e41] [cursor=pointer]
+      - button "♧ telemetry.raw" [ref=e42] [cursor=pointer]
+  - main [ref=e43]:
+    - generic [ref=e44]:
+      - button "⌘ factory-overview.sql ×" [ref=e45] [cursor=pointer]
+      - button "⌘ device-cache preview ×" [ref=e46] [cursor=pointer]
+    - generic [ref=e47]: factory-cluster › factory › query › factory-overview.sql
+    - generic [ref=e48]:
+      - generic [ref=e49]: "1234567"
+      - generic [ref=e50]: SELECT time, deviceId, temperature, pressure FROM device_metrics WHERE time > now() - interval '1 hour' AND lineId = 'LINE-1' ORDER BY time DESC LIMIT 100;
+      - generic [ref=e51]:
+        - button "▷ Run Query" [ref=e52] [cursor=pointer]
+        - button "Explain" [ref=e53] [cursor=pointer]
+        - button "Ask Copilot" [ref=e54] [cursor=pointer]
+    - generic [ref=e55]:
+      - generic [ref=e56]:
+        - button "QUERY RESULT" [ref=e57] [cursor=pointer]
+        - button "OUTPUT" [ref=e58] [cursor=pointer]
+        - button "SONNETDB" [ref=e59] [cursor=pointer]
+        - button "Table" [ref=e61] [cursor=pointer]
+        - button "Raw" [ref=e62] [cursor=pointer]
+        - button "Chart" [ref=e63] [cursor=pointer]
+        - button "×" [ref=e64] [cursor=pointer]
+      - table [ref=e65]:
+        - rowgroup [ref=e66]:
+          - row [ref=e67]:
+            - columnheader "time" [ref=e68]
+            - columnheader "deviceId" [ref=e69]
+            - columnheader "temperature" [ref=e70]
+            - columnheader "pressure" [ref=e71]
+            - columnheader "status" [ref=e72]
+        - rowgroup [ref=e73]:
+          - row [ref=e74]:
+            - cell "14:31:48.123" [ref=e75]
+            - cell "PLC-101" [ref=e76]
+            - cell "56.7" [ref=e77]
+            - cell "1.21" [ref=e78]
+            - cell "OK" [ref=e79]
+          - row [ref=e80]:
+            - cell "14:31:46.987" [ref=e81]
+            - cell "PLC-102" [ref=e82]
+            - cell "48.1" [ref=e83]
+            - cell "1.08" [ref=e84]
+            - cell "OK" [ref=e85]
+          - row [ref=e86]:
+            - cell "14:31:44.876" [ref=e87]
+            - cell "SENSOR-77" [ref=e88]
+            - cell "42.8" [ref=e89]
+            - cell "1.14" [ref=e90]
+            - cell "WARN" [ref=e91]
+      - generic [ref=e92]: 100 rows · 12 ms · factory-cluster / factory
+  - complementary [ref=e93]:
+    - generic [ref=e94]:
+      - strong [ref=e95]: SONNETDB COPILOT
+      - button "×" [ref=e96] [cursor=pointer]
+    - generic [ref=e97]:
+      - text: Read-only
+      - button "切换模式" [ref=e99] [cursor=pointer]
+    - generic [ref=e100]:
+      - article [ref=e101]: 解释当前查询，并建议减少扫描范围。
+      - article [ref=e102]:
+        - strong [ref=e103]: 查询说明
+        - paragraph [ref=e104]: 该查询读取 LINE-1 最近一小时的遥测，并按时间倒序返回 100 行。
+        - strong [ref=e105]: 建议
+        - paragraph [ref=e106]:
+          - text: 如果只查看温度异常，可增加
+          - code [ref=e107]: temperature > 80
+          - text: ；当前时间条件已经可以下推。
+        - button "插入筛选条件" [ref=e108] [cursor=pointer]
+    - generic [ref=e109]:
+      - textbox "↑" [ref=e110]:
+        - /placeholder: 询问当前数据库、Schema 或查询…
+      - button "↑" [ref=e111] [cursor=pointer]
+  - contentinfo [ref=e112]:
+    - generic [ref=e113]: ◉ factory-cluster
+    - generic [ref=e114]: ▣ factory
+    - generic [ref=e115]: SonnetDB 3.1.0
+    - generic [ref=e116]: Ln 7, Col 11
+    - generic [ref=e117]: UTF-8
+    - generic [ref=e118]: SQL
+    - generic [ref=e119]: Read-only

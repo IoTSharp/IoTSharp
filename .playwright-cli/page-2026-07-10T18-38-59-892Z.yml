@@ -1,0 +1,276 @@
+- generic [ref=f1e2]:
+  - banner [ref=f1e3]:
+    - link "SonnetDB Studio" [ref=f1e4] [cursor=pointer]:
+      - /url: "#"
+      - generic [ref=f1e5]: S
+      - strong [ref=f1e6]: SonnetDB Studio
+    - generic [ref=f1e7]: 工厂数据 › factory › MQ Topics › telemetry.raw
+    - button "⌕ 搜索命令 Ctrl K" [ref=f1e8] [cursor=pointer]:
+      - generic [ref=f1e9]: ⌕
+      - text: 搜索命令
+      - generic [ref=f1e10]: Ctrl K
+    - button "factory-cluster ⌄" [ref=f1e11] [cursor=pointer]:
+      - text: factory-cluster
+      - generic [ref=f1e13]: ⌄
+    - button "♢ 3" [ref=f1e14] [cursor=pointer]:
+      - text: ♢
+      - generic [ref=f1e15]: "3"
+    - button "AD" [ref=f1e16] [cursor=pointer]
+  - complementary "全局模块" [ref=f1e17]:
+    - navigation [ref=f1e18]:
+      - button "◫ 概览" [ref=f1e19] [cursor=pointer]:
+        - generic [ref=f1e20]: ◫
+        - generic [ref=f1e21]: 概览
+      - button "⌘ 查询" [ref=f1e22] [cursor=pointer]:
+        - generic [ref=f1e23]: ⌘
+        - generic [ref=f1e24]: 查询
+      - button "▤ 数据" [ref=f1e25] [cursor=pointer]:
+        - generic [ref=f1e26]: ▤
+        - generic [ref=f1e27]: 数据
+      - button "⟲ 事务" [ref=f1e28] [cursor=pointer]:
+        - generic [ref=f1e29]: ⟲
+        - generic [ref=f1e30]: 事务
+      - button "◉ Studio" [ref=f1e31] [cursor=pointer]:
+        - generic [ref=f1e32]: ◉
+        - generic [ref=f1e33]: Studio
+      - button "⌁ 监控" [ref=f1e34] [cursor=pointer]:
+        - generic [ref=f1e35]: ⌁
+        - generic [ref=f1e36]: 监控
+      - button "▱ 备份" [ref=f1e37] [cursor=pointer]:
+        - generic [ref=f1e38]: ▱
+        - generic [ref=f1e39]: 备份
+      - button "⌕ 工具" [ref=f1e40] [cursor=pointer]:
+        - generic [ref=f1e41]: ⌕
+        - generic [ref=f1e42]: 工具
+    - button "⚙ 设置" [ref=f1e43] [cursor=pointer]:
+      - generic [ref=f1e44]: ⚙
+      - generic [ref=f1e45]: 设置
+  - complementary [ref=f1e46]:
+    - generic [ref=f1e47]:
+      - generic [ref=f1e48]:
+        - strong [ref=f1e49]: 资源浏览器
+        - generic [ref=f1e50]:
+          - button "＋" [ref=f1e51] [cursor=pointer]
+          - button "↻" [ref=f1e52] [cursor=pointer]
+      - generic [ref=f1e53]:
+        - generic [ref=f1e54]: ⌕
+        - searchbox "⌕ ≡" [ref=f1e55]
+        - button "≡" [ref=f1e56] [cursor=pointer]
+      - generic [ref=f1e57]:
+        - button "树" [ref=f1e58] [cursor=pointer]
+        - button "列表" [ref=f1e59] [cursor=pointer]
+        - button "详细" [ref=f1e60] [cursor=pointer]
+        - combobox [ref=f1e61]:
+          - option "按名称" [selected]
+          - option "按类型"
+    - generic [ref=f1e62]:
+      - generic [ref=f1e63]:
+        - generic [ref=f1e64]: ⌄
+        - generic [ref=f1e65]: ◉
+        - strong [ref=f1e66]: 工厂数据
+      - generic [ref=f1e67]:
+        - generic [ref=f1e68]: ⌄
+        - generic [ref=f1e69]: ◉
+        - strong [ref=f1e70]: factory
+      - generic [ref=f1e71]:
+        - button "⌄ ▥ Measurements 3" [ref=f1e72] [cursor=pointer]:
+          - generic [ref=f1e73]: ⌄
+          - generic [ref=f1e74]: ▥
+          - text: Measurements
+          - emphasis [ref=f1e75]: "3"
+        - button "⌁ device_metrics" [ref=f1e76] [cursor=pointer]:
+          - generic [ref=f1e77]: ⌁
+          - text: device_metrics
+        - button "⌁ line_energy" [ref=f1e78] [cursor=pointer]:
+          - generic [ref=f1e79]: ⌁
+          - text: line_energy
+      - generic [ref=f1e80]:
+        - button "⌄ ▦ Tables 4" [ref=f1e81] [cursor=pointer]:
+          - generic [ref=f1e82]: ⌄
+          - generic [ref=f1e83]: ▦
+          - text: Tables
+          - emphasis [ref=f1e84]: "4"
+        - button "▦ machines" [ref=f1e85] [cursor=pointer]:
+          - generic [ref=f1e86]: ▦
+          - text: machines
+        - button "▦ work_orders" [ref=f1e87] [cursor=pointer]:
+          - generic [ref=f1e88]: ▦
+          - text: work_orders
+      - generic [ref=f1e89]:
+        - button "⌄ ◫ Collections 2" [ref=f1e90] [cursor=pointer]:
+          - generic [ref=f1e91]: ⌄
+          - generic [ref=f1e92]: ◫
+          - text: Collections
+          - emphasis [ref=f1e93]: "2"
+        - button "◫ device-events" [ref=f1e94] [cursor=pointer]:
+          - generic [ref=f1e95]: ◫
+          - text: device-events
+      - generic [ref=f1e96]:
+        - button "⌄ ⌘ KV Keyspaces 2" [ref=f1e97] [cursor=pointer]:
+          - generic [ref=f1e98]: ⌄
+          - generic [ref=f1e99]: ⌘
+          - text: KV Keyspaces
+          - emphasis [ref=f1e100]: "2"
+        - button "⌘ device-cache" [ref=f1e101] [cursor=pointer]:
+          - generic [ref=f1e102]: ⌘
+          - text: device-cache
+      - generic [ref=f1e103]:
+        - button "⌄ ⌬ Vector Indexes 1" [ref=f1e104] [cursor=pointer]:
+          - generic [ref=f1e105]: ⌄
+          - generic [ref=f1e106]: ⌬
+          - text: Vector Indexes
+          - emphasis [ref=f1e107]: "1"
+        - button "⌬ embeddings.vector" [ref=f1e108] [cursor=pointer]:
+          - generic [ref=f1e109]: ⌬
+          - text: embeddings.vector
+      - generic [ref=f1e110]:
+        - button "⌄ FT FullText Indexes 1" [ref=f1e111] [cursor=pointer]:
+          - generic [ref=f1e112]: ⌄
+          - generic [ref=f1e113]: FT
+          - text: FullText Indexes
+          - emphasis [ref=f1e114]: "1"
+        - button "FT docs.search" [ref=f1e115] [cursor=pointer]:
+          - generic [ref=f1e116]: FT
+          - text: docs.search
+      - generic [ref=f1e117]:
+        - button "⌄ ♧ MQ Topics 5" [ref=f1e118] [cursor=pointer]:
+          - generic [ref=f1e119]: ⌄
+          - generic [ref=f1e120]: ♧
+          - text: MQ Topics
+          - emphasis [ref=f1e121]: "5"
+        - button "♧ telemetry.raw" [ref=f1e122] [cursor=pointer]:
+          - generic [ref=f1e123]: ♧
+          - text: telemetry.raw
+        - button "♧ commands" [ref=f1e124] [cursor=pointer]:
+          - generic [ref=f1e125]: ♧
+          - text: commands
+      - generic [ref=f1e126]:
+        - button "⌄ ▱ Object Buckets 3" [ref=f1e127] [cursor=pointer]:
+          - generic [ref=f1e128]: ⌄
+          - generic [ref=f1e129]: ▱
+          - text: Object Buckets
+          - emphasis [ref=f1e130]: "3"
+        - button "▱ raw-data" [ref=f1e131] [cursor=pointer]:
+          - generic [ref=f1e132]: ▱
+          - text: raw-data
+    - generic [ref=f1e133]:
+      - generic [ref=f1e134]:
+        - strong [ref=f1e136]: 数据库健康度
+        - generic [ref=f1e137]: 健康
+      - generic [ref=f1e138]: 存储 68% 内存 42% 连接 24
+  - button "调整资源浏览器宽度" [ref=f1e139]
+  - main [ref=f1e140]:
+    - generic [ref=f1e141]:
+      - button "⌘ factory.overview" [ref=f1e142] [cursor=pointer]:
+        - generic [ref=f1e143]: ⌘
+        - text: factory.overview
+      - button "♧ telemetry.raw ×" [ref=f1e715] [cursor=pointer]:
+        - generic [ref=f1e788]: ♧
+        - text: telemetry.raw
+        - generic [ref=f1e789]: ×
+      - button "▦ machines ×" [ref=f1e147] [cursor=pointer]:
+        - generic [ref=f1e148]: ▦
+        - text: machines
+        - generic [ref=f1e149]: ×
+      - button "＋" [ref=f1e150] [cursor=pointer]
+      - button "▤ 结果" [ref=f1e152] [cursor=pointer]
+      - button "◷ 历史" [ref=f1e153] [cursor=pointer]
+    - generic [ref=f1e790]:
+      - generic [ref=f1e791]:
+        - generic [ref=f1e792]: ♧
+        - generic [ref=f1e793]:
+          - heading "telemetry.raw" [level=1] [ref=f1e794]
+          - paragraph [ref=f1e795]: SonnetMQ Topic · factory-cluster / factory
+        - generic [ref=f1e796]:
+          - generic [ref=f1e797]:
+            - generic [ref=f1e798]: Messages
+            - strong [ref=f1e799]: "48"
+          - generic [ref=f1e800]:
+            - generic [ref=f1e801]: Consumer lag
+            - strong [ref=f1e802]: "4"
+          - generic [ref=f1e803]:
+            - generic [ref=f1e804]: Consumers
+            - strong [ref=f1e805]: "1"
+        - generic [ref=f1e806]:
+          - button "↻ 刷新消息" [ref=f1e807] [cursor=pointer]
+          - button "暂存变更" [ref=f1e808] [cursor=pointer]
+          - button "•••" [ref=f1e809] [cursor=pointer]
+      - navigation [ref=f1e810]:
+        - button "概览" [ref=f1e811] [cursor=pointer]
+        - button "消息" [ref=f1e812] [cursor=pointer]
+        - button "消费者组" [ref=f1e813] [cursor=pointer]
+        - button "配置" [ref=f1e814] [cursor=pointer]
+      - generic [ref=f1e815]:
+        - generic [ref=f1e816]:
+          - button "Ⅱ 暂停消费" [ref=f1e817] [cursor=pointer]
+          - combobox [ref=f1e818]:
+            - option "实时消费" [selected]
+            - option "从 Offset"
+          - textbox [ref=f1e819]: 125,650
+          - button "定位" [ref=f1e820] [cursor=pointer]
+          - combobox [ref=f1e821]:
+            - option "最近 1 小时" [selected]
+          - button "发布测试消息" [ref=f1e822] [cursor=pointer]
+        - generic [ref=f1e823]:
+          - table [ref=f1e825]:
+            - rowgroup [ref=f1e826]:
+              - row [ref=f1e827]:
+                - columnheader "偏移量" [ref=f1e828]
+                - columnheader "时间" [ref=f1e829]
+                - columnheader "Headers" [ref=f1e830]
+                - columnheader "Payload" [ref=f1e831]
+            - rowgroup [ref=f1e832]:
+              - row [ref=f1e833]:
+                - cell "125,678" [ref=f1e834]
+                - cell "2026-07-11 14:31:48.123" [ref=f1e835]
+                - cell "deviceId=PLC-101, type=telemetry" [ref=f1e836]
+                - 'cell "{ \"temperature\": 56.7, \"pressure\": 1.21 }" [ref=f1e837]'
+              - row [ref=f1e838]:
+                - cell "125,677" [ref=f1e839]
+                - cell "2026-07-11 14:31:47.987" [ref=f1e840]
+                - cell "deviceId=PLC-102, type=telemetry" [ref=f1e841]
+                - 'cell "{ \"temperature\": 48.1, \"pressure\": 1.08 }" [ref=f1e842]'
+              - row [ref=f1e843]:
+                - cell "125,676" [ref=f1e844]
+                - cell "2026-07-11 14:31:47.876" [ref=f1e845]
+                - cell "deviceId=SENSOR-77, type=telemetry" [ref=f1e846]
+                - 'cell "{ \"vibration\": 0.032, \"status\": \"OK\" }" [ref=f1e847]'
+              - row [ref=f1e848]:
+                - cell "125,675" [ref=f1e849]
+                - cell "2026-07-11 14:31:47.765" [ref=f1e850]
+                - cell "deviceId=ROBOT-9, type=event" [ref=f1e851]
+                - 'cell "{ \"cycle\": 8812, \"durationMs\": 246 }" [ref=f1e852]'
+              - row [ref=f1e853]:
+                - cell "125,674" [ref=f1e854]
+                - cell "2026-07-11 14:31:47.654" [ref=f1e855]
+                - cell "deviceId=PLC-101, type=telemetry" [ref=f1e856]
+                - 'cell "{ \"temperature\": 56.4, \"pressure\": 1.20 }" [ref=f1e857]'
+          - complementary [ref=f1e858]:
+            - generic [ref=f1e859]:
+              - strong [ref=f1e860]: 消息详情
+              - button "×" [ref=f1e861] [cursor=pointer]
+            - generic [ref=f1e863]:
+              - generic [ref=f1e864]:
+                - term [ref=f1e865]: 偏移量
+                - definition [ref=f1e866]: 125,678
+              - generic [ref=f1e867]:
+                - term [ref=f1e868]: 时间
+                - definition [ref=f1e869]: 2026-07-11 14:31:48.123
+              - generic [ref=f1e870]:
+                - term [ref=f1e871]: 大小
+                - definition [ref=f1e872]: 512 B
+            - generic [ref=f1e873]:
+              - heading "Headers (5)" [level=3] [ref=f1e874]
+              - generic [ref=f1e875]:
+                - generic [ref=f1e876]:
+                  - term [ref=f1e877]: deviceId
+                  - definition [ref=f1e878]: PLC-101
+                - generic [ref=f1e879]:
+                  - term [ref=f1e880]: type
+                  - definition [ref=f1e881]: telemetry
+                - generic [ref=f1e882]:
+                  - term [ref=f1e883]: partition
+                  - definition [ref=f1e884]: "2"
+            - generic [ref=f1e885]:
+              - heading "Payload · JSON" [level=3] [ref=f1e886]
+              - generic [ref=f1e887]: "{ \"deviceId\": \"PLC-101\", \"temperature\": 56.7, \"pressure\": 1.21, \"status\": \"OK\" }"

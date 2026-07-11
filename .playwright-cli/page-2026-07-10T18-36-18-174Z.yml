@@ -1,0 +1,284 @@
+- generic [ref=f1e2]:
+  - banner [ref=f1e3]:
+    - link "SonnetDB Studio" [ref=f1e4] [cursor=pointer]:
+      - /url: "#"
+      - generic [ref=f1e5]: S
+      - strong [ref=f1e6]: SonnetDB Studio
+    - generic [ref=f1e7]: 工厂数据 › factory › Tables › machines
+    - button "⌕ 搜索命令 Ctrl K" [ref=f1e8] [cursor=pointer]:
+      - generic [ref=f1e9]: ⌕
+      - text: 搜索命令
+      - generic [ref=f1e10]: Ctrl K
+    - button "factory-cluster ⌄" [ref=f1e11] [cursor=pointer]:
+      - text: factory-cluster
+      - generic [ref=f1e13]: ⌄
+    - button "♢ 3" [ref=f1e14] [cursor=pointer]:
+      - text: ♢
+      - generic [ref=f1e15]: "3"
+    - button "AD" [ref=f1e16] [cursor=pointer]
+  - complementary "全局模块" [ref=f1e17]:
+    - navigation [ref=f1e18]:
+      - button "◫ 概览" [ref=f1e19] [cursor=pointer]:
+        - generic [ref=f1e20]: ◫
+        - generic [ref=f1e21]: 概览
+      - button "⌘ 查询" [ref=f1e22] [cursor=pointer]:
+        - generic [ref=f1e23]: ⌘
+        - generic [ref=f1e24]: 查询
+      - button "▤ 数据" [ref=f1e25] [cursor=pointer]:
+        - generic [ref=f1e26]: ▤
+        - generic [ref=f1e27]: 数据
+      - button "⟲ 事务" [ref=f1e28] [cursor=pointer]:
+        - generic [ref=f1e29]: ⟲
+        - generic [ref=f1e30]: 事务
+      - button "◉ Studio" [ref=f1e31] [cursor=pointer]:
+        - generic [ref=f1e32]: ◉
+        - generic [ref=f1e33]: Studio
+      - button "⌁ 监控" [ref=f1e34] [cursor=pointer]:
+        - generic [ref=f1e35]: ⌁
+        - generic [ref=f1e36]: 监控
+      - button "▱ 备份" [ref=f1e37] [cursor=pointer]:
+        - generic [ref=f1e38]: ▱
+        - generic [ref=f1e39]: 备份
+      - button "⌕ 工具" [ref=f1e40] [cursor=pointer]:
+        - generic [ref=f1e41]: ⌕
+        - generic [ref=f1e42]: 工具
+    - button "⚙ 设置" [ref=f1e43] [cursor=pointer]:
+      - generic [ref=f1e44]: ⚙
+      - generic [ref=f1e45]: 设置
+  - complementary [ref=f1e46]:
+    - generic [ref=f1e47]:
+      - generic [ref=f1e48]:
+        - strong [ref=f1e49]: 资源浏览器
+        - generic [ref=f1e50]:
+          - button "＋" [ref=f1e51] [cursor=pointer]
+          - button "↻" [ref=f1e52] [cursor=pointer]
+      - generic [ref=f1e53]:
+        - generic [ref=f1e54]: ⌕
+        - searchbox "⌕ ≡" [ref=f1e55]
+        - button "≡" [ref=f1e56] [cursor=pointer]
+      - generic [ref=f1e57]:
+        - button "树" [ref=f1e58] [cursor=pointer]
+        - button "列表" [ref=f1e59] [cursor=pointer]
+        - button "详细" [ref=f1e60] [cursor=pointer]
+        - combobox [ref=f1e61]:
+          - option "按名称" [selected]
+          - option "按类型"
+    - generic [ref=f1e62]:
+      - generic [ref=f1e63]:
+        - generic [ref=f1e64]: ⌄
+        - generic [ref=f1e65]: ◉
+        - strong [ref=f1e66]: 工厂数据
+      - generic [ref=f1e67]:
+        - generic [ref=f1e68]: ⌄
+        - generic [ref=f1e69]: ◉
+        - strong [ref=f1e70]: factory
+      - generic [ref=f1e71]:
+        - button "⌄ ▥ Measurements 3" [ref=f1e72] [cursor=pointer]:
+          - generic [ref=f1e73]: ⌄
+          - generic [ref=f1e74]: ▥
+          - text: Measurements
+          - emphasis [ref=f1e75]: "3"
+        - button "⌁ device_metrics" [ref=f1e76] [cursor=pointer]:
+          - generic [ref=f1e77]: ⌁
+          - text: device_metrics
+        - button "⌁ line_energy" [ref=f1e78] [cursor=pointer]:
+          - generic [ref=f1e79]: ⌁
+          - text: line_energy
+      - generic [ref=f1e80]:
+        - button "⌄ ▦ Tables 4" [ref=f1e81] [cursor=pointer]:
+          - generic [ref=f1e82]: ⌄
+          - generic [ref=f1e83]: ▦
+          - text: Tables
+          - emphasis [ref=f1e84]: "4"
+        - button "▦ machines" [active] [ref=f1e85] [cursor=pointer]:
+          - generic [ref=f1e86]: ▦
+          - text: machines
+        - button "▦ work_orders" [ref=f1e87] [cursor=pointer]:
+          - generic [ref=f1e88]: ▦
+          - text: work_orders
+      - generic [ref=f1e89]:
+        - button "⌄ ◫ Collections 2" [ref=f1e90] [cursor=pointer]:
+          - generic [ref=f1e91]: ⌄
+          - generic [ref=f1e92]: ◫
+          - text: Collections
+          - emphasis [ref=f1e93]: "2"
+        - button "◫ device-events" [ref=f1e94] [cursor=pointer]:
+          - generic [ref=f1e95]: ◫
+          - text: device-events
+      - generic [ref=f1e96]:
+        - button "⌄ ⌘ KV Keyspaces 2" [ref=f1e97] [cursor=pointer]:
+          - generic [ref=f1e98]: ⌄
+          - generic [ref=f1e99]: ⌘
+          - text: KV Keyspaces
+          - emphasis [ref=f1e100]: "2"
+        - button "⌘ device-cache" [ref=f1e101] [cursor=pointer]:
+          - generic [ref=f1e102]: ⌘
+          - text: device-cache
+      - generic [ref=f1e103]:
+        - button "⌄ ⌬ Vector Indexes 1" [ref=f1e104] [cursor=pointer]:
+          - generic [ref=f1e105]: ⌄
+          - generic [ref=f1e106]: ⌬
+          - text: Vector Indexes
+          - emphasis [ref=f1e107]: "1"
+        - button "⌬ embeddings.vector" [ref=f1e108] [cursor=pointer]:
+          - generic [ref=f1e109]: ⌬
+          - text: embeddings.vector
+      - generic [ref=f1e110]:
+        - button "⌄ FT FullText Indexes 1" [ref=f1e111] [cursor=pointer]:
+          - generic [ref=f1e112]: ⌄
+          - generic [ref=f1e113]: FT
+          - text: FullText Indexes
+          - emphasis [ref=f1e114]: "1"
+        - button "FT docs.search" [ref=f1e115] [cursor=pointer]:
+          - generic [ref=f1e116]: FT
+          - text: docs.search
+      - generic [ref=f1e117]:
+        - button "⌄ ♧ MQ Topics 5" [ref=f1e118] [cursor=pointer]:
+          - generic [ref=f1e119]: ⌄
+          - generic [ref=f1e120]: ♧
+          - text: MQ Topics
+          - emphasis [ref=f1e121]: "5"
+        - button "♧ telemetry.raw" [ref=f1e122] [cursor=pointer]:
+          - generic [ref=f1e123]: ♧
+          - text: telemetry.raw
+        - button "♧ commands" [ref=f1e124] [cursor=pointer]:
+          - generic [ref=f1e125]: ♧
+          - text: commands
+      - generic [ref=f1e126]:
+        - button "⌄ ▱ Object Buckets 3" [ref=f1e127] [cursor=pointer]:
+          - generic [ref=f1e128]: ⌄
+          - generic [ref=f1e129]: ▱
+          - text: Object Buckets
+          - emphasis [ref=f1e130]: "3"
+        - button "▱ raw-data" [ref=f1e131] [cursor=pointer]:
+          - generic [ref=f1e132]: ▱
+          - text: raw-data
+    - generic [ref=f1e133]:
+      - generic [ref=f1e134]:
+        - strong [ref=f1e136]: 数据库健康度
+        - generic [ref=f1e137]: 健康
+      - generic [ref=f1e138]: 存储 68% 内存 42% 连接 24
+  - button "调整资源浏览器宽度" [ref=f1e139]
+  - main [ref=f1e140]:
+    - generic [ref=f1e141]:
+      - button "⌘ factory.overview" [ref=f1e142] [cursor=pointer]:
+        - generic [ref=f1e143]: ⌘
+        - text: factory.overview
+      - button "▦ machines ×" [ref=f1e248] [cursor=pointer]:
+        - generic [ref=f1e249]: ▦
+        - text: machines
+        - generic [ref=f1e250]: ×
+      - button "▦ machines ×" [ref=f1e147] [cursor=pointer]:
+        - generic [ref=f1e148]: ▦
+        - text: machines
+        - generic [ref=f1e149]: ×
+      - button "＋" [ref=f1e150] [cursor=pointer]
+      - button "▤ 结果" [ref=f1e152] [cursor=pointer]
+      - button "◷ 历史" [ref=f1e153] [cursor=pointer]
+    - generic [ref=f1e251]:
+      - generic [ref=f1e252]:
+        - generic [ref=f1e253]: ▦
+        - generic [ref=f1e254]:
+          - heading "machines" [level=1] [ref=f1e255]
+          - paragraph [ref=f1e256]: 关系表 · factory-cluster / factory
+        - generic [ref=f1e257]:
+          - generic [ref=f1e258]:
+            - generic [ref=f1e259]: Rows
+            - strong [ref=f1e260]: "248"
+          - generic [ref=f1e261]:
+            - generic [ref=f1e262]: Columns
+            - strong [ref=f1e263]: "9"
+          - generic [ref=f1e264]:
+            - generic [ref=f1e265]: Primary key
+            - strong [ref=f1e266]: machine_id
+        - generic [ref=f1e267]:
+          - button "↻ 刷新数据" [ref=f1e268] [cursor=pointer]
+          - button "暂存变更" [ref=f1e269] [cursor=pointer]
+          - button "•••" [ref=f1e270] [cursor=pointer]
+      - navigation [ref=f1e271]:
+        - button "数据" [ref=f1e272] [cursor=pointer]
+        - button "设计器" [ref=f1e273] [cursor=pointer]
+        - button "索引" [ref=f1e274] [cursor=pointer]
+        - button "导入 / 导出" [ref=f1e275] [cursor=pointer]
+        - button "ER" [ref=f1e276] [cursor=pointer]
+        - button "DDL" [ref=f1e277] [cursor=pointer]
+      - generic [ref=f1e278]:
+        - generic [ref=f1e279]:
+          - textbox "过滤行或输入条件" [ref=f1e280]
+          - combobox [ref=f1e281]:
+            - option "全部列" [selected]
+            - option "status"
+            - option "line_id"
+          - button "应用" [ref=f1e282] [cursor=pointer]
+          - button "＋ 新增行" [ref=f1e283] [cursor=pointer]
+          - button "删除选中" [ref=f1e284] [cursor=pointer]
+        - generic [ref=f1e285]:
+          - table [ref=f1e287]:
+            - rowgroup [ref=f1e288]:
+              - row [ref=f1e289]:
+                - columnheader "machine_id" [ref=f1e290]
+                - columnheader "name" [ref=f1e291]
+                - columnheader "line_id" [ref=f1e292]
+                - columnheader "status" [ref=f1e293]
+                - columnheader "load_pct" [ref=f1e294]
+                - columnheader "updated_at" [ref=f1e295]
+            - rowgroup [ref=f1e296]:
+              - row [ref=f1e297]:
+                - cell "M-101" [ref=f1e298]
+                - cell "冲压机 A1" [ref=f1e299]
+                - cell "LINE-1" [ref=f1e300]
+                - cell "运行中" [ref=f1e301]
+                - cell "78.4" [ref=f1e303]
+                - cell "2026-07-11 14:31:48" [ref=f1e304]
+              - row [ref=f1e305]:
+                - cell "M-102" [ref=f1e306]
+                - cell "焊接机器人 B2" [ref=f1e307]
+                - cell "LINE-1" [ref=f1e308]
+                - cell "维护" [ref=f1e309]
+                - cell "12.0" [ref=f1e311]
+                - cell "2026-07-11 13:58:17" [ref=f1e312]
+              - row [ref=f1e313]:
+                - cell "M-103" [ref=f1e314]
+                - cell "视觉检测 C1" [ref=f1e315]
+                - cell "LINE-2" [ref=f1e316]
+                - cell "运行中" [ref=f1e317]
+                - cell "65.7" [ref=f1e319]
+                - cell "2026-07-11 14:31:44" [ref=f1e320]
+              - row [ref=f1e321]:
+                - cell "M-104" [ref=f1e322]
+                - cell "包装机 D4" [ref=f1e323]
+                - cell "LINE-2" [ref=f1e324]
+                - cell "告警" [ref=f1e325]
+                - cell "91.2" [ref=f1e327]
+                - cell "2026-07-11 14:30:05" [ref=f1e328]
+              - row [ref=f1e329]:
+                - cell "M-105" [ref=f1e330]
+                - cell "输送带 E3" [ref=f1e331]
+                - cell "LINE-3" [ref=f1e332]
+                - cell "离线" [ref=f1e333]
+                - cell "0.0" [ref=f1e335]
+                - cell "2026-07-11 12:46:20" [ref=f1e336]
+          - complementary [ref=f1e337]:
+            - generic [ref=f1e338]:
+              - strong [ref=f1e339]: 行详情 · M-101
+              - button "×" [ref=f1e340] [cursor=pointer]
+            - generic [ref=f1e341]:
+              - heading "字段" [level=3] [ref=f1e342]
+              - generic [ref=f1e343]:
+                - generic [ref=f1e344]:
+                  - term [ref=f1e345]: machine_id
+                  - definition [ref=f1e346]: M-101
+                - generic [ref=f1e347]:
+                  - term [ref=f1e348]: name
+                  - definition [ref=f1e349]: 冲压机 A1
+                - generic [ref=f1e350]:
+                  - term [ref=f1e351]: line_id
+                  - definition [ref=f1e352]: LINE-1
+                - generic [ref=f1e353]:
+                  - term [ref=f1e354]: status
+                  - definition [ref=f1e355]:
+                    - generic [ref=f1e356]: 运行中
+                - generic [ref=f1e357]:
+                  - term [ref=f1e358]: load_pct
+                  - definition [ref=f1e359]: "78.4"
+            - button "暂存行更新" [ref=f1e361] [cursor=pointer]
