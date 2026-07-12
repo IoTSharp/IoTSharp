@@ -54,7 +54,7 @@ IoTSharp 通过 `TelemetryStorage` 和 `IStorage` 承载遥测写入、最新值
 | TimescaleDB | `TelemetryStorage=TimescaleDB` | hypertable、time_bucket 聚合 | PostgreSQL 扩展依赖、聚合 SQL 方言 | SonnetDB 需覆盖 `Mean/Max/Min/Sum/First/Last/Median` 对应能力或不支持清单。 |
 | Taos / TDengine | `TelemetryStorage=Taos` | 超级表、tag、last_row、范围查询 | SQL 拼接、类型映射、聚合差异 | SonnetDB 需验证 tag、latest、批量写和中文/特殊 key 迁移。 |
 | IoTDB | `TelemetryStorage=IoTDB` | storage group、设备路径、聚合查询 | path 编码、类型映射、时间格式 | SonnetDB 需验证设备维度映射、点位类型和聚合结果。 |
-| SonnetDB | `TelemetryStorage=SonnetDB`，`SonnetDBStorage` | 已覆盖 auto-create measurement、写入、latest、range、聚合下推、批量写入、schema cache、健康检查、备份恢复和故障回放 | 仍需连接复用、大量 measurement 长稳、跨库回归基准和迁移双写报告 | 继续作为 RD-10 的重点生产化路径。 |
+| SonnetDB | `TelemetryStorage=SonnetDB`，`SonnetDBStorage` | 已覆盖 auto-create measurement、写入、range、批量写入、schema cache、健康检查，以及委托 SonnetDB `BackupService` 的嵌入式一致性备份恢复 | latest 当前仍有平台侧全量扫描，时间桶聚合仍是逐桶逐字段查询；普通范围查询曾被误称为故障回放；按路线图 #073~#076 整改，并继续补连接复用、大量 measurement 长稳、跨库回归基准和迁移双写报告 | 继续作为 RD-10 的重点生产化路径，数据库执行与维护能力必须留在 SonnetDB。 |
 
 时序验收用例：
 

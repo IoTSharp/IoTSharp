@@ -23,7 +23,7 @@ title: SonnetDB 容量与可靠性基准
 
 - 遥测写入吞吐来自 SonnetDB 可复现 BenchmarkDotNet 基准；IoTSharp 侧不把引擎 benchmark 包装成平台 API SLA。
 - 容量指标以落盘备份体积和实际遥测值数量计算；客户端 `Allocated` 只用于观察内存分配，不用于容量规划。
-- 恢复能力分两层验收：SonnetDB 引擎负责 WAL、segment、compaction 和 torn record；IoTSharp 负责 `SonnetDBStorage` 备份恢复 API、业务 latest 查询和故障窗口回放。
+- 恢复能力分两层验收：SonnetDB 引擎负责 WAL、segment、compaction、torn record 和一致性备份恢复；IoTSharp 只负责调用稳定接口、映射平台结果，并验收恢复后的业务 latest 查询。故障窗口业务重放按路线图 #076 独立整改。
 - 长稳、跨库迁移、双写比对和多实例高可用仍按 `sonnetdb-compat-matrix` 继续推进，不由 #071 一次性关闭。
 
 ## 遥测吞吐基线
@@ -57,7 +57,7 @@ bytes_per_telemetry_value = backup.TotalBytes / telemetry_value_count
 
 其中：
 
-- `backup.TotalBytes` 来自 `SonnetDBStorage.CreateBackup(...)` 生成的备份报告。
+- `backup.TotalBytes` 来自 `SonnetDBStorage.CreateBackup(...)` 对 SonnetDB `BackupService` 一致性 manifest 的结果映射。
 - `telemetry_value_count` 是消息数乘以每条消息写入的遥测字段数。
 - 报告同时记录 `FileCount`、`MeasurementCount`、`SegmentCount`、数据目录大小和备份目录大小。
 
@@ -85,15 +85,14 @@ SonnetDB 引擎侧已覆盖以下故障注入：
 | torn WAL tail | 重启时忽略 torn tail，已提交数据保留。 |
 | half renamed segment | pending replacement 被忽略，旧 segment 保持可读。 |
 
-IoTSharp 平台侧恢复验收覆盖：
+IoTSharp 平台侧只验证 SonnetDB 备份能力的集成结果，不实现数据库目录复制、manifest、校验和或私有文件格式解析：
 
 | API 或测试 | 验收点 |
 | --- | --- |
-| `CreateBackup` | 生成 manifest，记录文件数、总字节数、measurement 数和 segment 数。 |
-| `VerifyBackup` | 校验文件大小和 SHA-256。 |
-| `RestoreDryRun` | 在不写目标目录前验证 manifest 与目标目录可用性。 |
-| `Restore` | 恢复到新目录后可重新打开并查询 latest。 |
-| `ReplayFailureAsync` | 对设备、字段和时间窗口做故障回放，返回点数和字段列表。 |
+| `CreateBackup` | 嵌入式模式委托 SonnetDB `BackupService` 先建立 checkpoint，再生成官方 manifest，并映射文件数、总字节数、measurement 数和 segment 数。 |
+| `VerifyBackup` | 委托 SonnetDB 校验官方 manifest、文件大小和 SHA-256。 |
+| `RestoreDryRun` | 委托 SonnetDB 在不写目标目录前验证 manifest 与目标目录策略。 |
+| `Restore` | 委托 SonnetDB 恢复到新目录，IoTSharp 只验收重新打开后的 latest 查询。 |
 
 ## 运行命令
 
@@ -143,5 +142,6 @@ curl http://localhost:5080/metrics
 ## 后续缺口
 
 - 长稳容量曲线仍需独立环境补充，包括 compaction、retention、latest 清理和大量 measurement 场景。
-- 远端 SonnetDB Server 的备份恢复应接入服务端维护 API；当前 `SonnetDBStorage` 的 `CreateBackup`/`Restore` 只支持嵌入式 Data Source 路径。
+- 路线图 #073 继续补齐远端 SonnetDB Server 的备份恢复契约。当前服务端 maintenance API 已覆盖 `backup_verify` 和 `restore_dry_run`，`CreateBackup`/`Restore` 仍只支持嵌入式 Data Source 路径；在 SonnetDB 提供稳定远程入口前，IoTSharp 不直接访问服务端数据目录。
+- 路线图 #074、#075、#076 分别整改 latest 查询下推、时间桶聚合下推和故障回放语义。
 - 缓存、对象桶和 SonnetMQ 的容量与恢复报告应拆成后续报告，不能混在遥测吞吐报告里一次性宣称完成。

@@ -2,15 +2,12 @@ using IoTSharp.Contracts;
 using IoTSharp.Data;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using SonnetDB.Backup;
 using SonnetDB.Data;
-using System.Buffers.Binary;
 using System.Collections.Concurrent;
 using System.Data.Common;
 using System.Net;
 using System.Globalization;
-using System.Security.Cryptography;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Text;
 using DataType = IoTSharp.Contracts.DataType;
 
@@ -253,24 +250,57 @@ namespace IoTSharp.Storage
             return new TelemetryBatchStoreResult(report.IsComplete, telemetries, report.MessageCount);
         }
 
+        /// <summary>
+        /// 通过 SonnetDB 一致性备份服务创建嵌入式遥测数据库备份。
+        /// </summary>
+        /// <param name="destinationDirectory">备份目标目录。</param>
+        /// <param name="overwrite">是否允许复用已存在的空目录。</param>
+        /// <param name="includeFullTextIndexes">是否包含可派生的全文索引文件。</param>
+        /// <returns>平台侧备份结果摘要。</returns>
         public SonnetDbTelemetryBackupReport CreateBackup(string destinationDirectory, bool overwrite = false, bool includeFullTextIndexes = false)
         {
             EnsureEmbeddedOperation(nameof(CreateBackup));
-            _ = includeFullTextIndexes;
-            var manifest = CreateDirectoryBackup(GetEmbeddedRootDirectory(), destinationDirectory, overwrite);
+            using var connection = OpenConnection();
+            var database = connection.UnderlyingTsdb
+                ?? throw new InvalidOperationException("SonnetDB embedded connection did not expose the underlying database.");
+            var manifest = new BackupService().Create(database, new BackupCreateOptions
+            {
+                DestinationDirectory = destinationDirectory,
+                Overwrite = overwrite,
+                IncludeFullTextIndexes = includeFullTextIndexes
+            });
             return ToBackupReport(manifest);
         }
 
+        /// <summary>
+        /// 使用 SonnetDB 备份服务校验 manifest、文件大小和校验和。
+        /// </summary>
+        /// <param name="backupDirectory">备份目录。</param>
+        /// <returns>平台侧校验结果。</returns>
         public SonnetDbTelemetryBackupVerificationReport VerifyBackup(string backupDirectory)
         {
-            var result = VerifyDirectoryBackup(backupDirectory);
+            var result = new BackupService().Verify(backupDirectory);
             return new SonnetDbTelemetryBackupVerificationReport(result.IsValid, result.CheckedFiles, result.Errors);
         }
 
+        /// <summary>
+        /// 使用 SonnetDB 备份服务执行恢复预检，不写入目标目录。
+        /// </summary>
+        /// <param name="backupDirectory">备份目录。</param>
+        /// <param name="targetDirectory">恢复目标目录。</param>
+        /// <param name="overwrite">是否允许复用已存在的空目录。</param>
+        /// <param name="verifyBeforeRestore">是否在预检时校验备份。</param>
+        /// <returns>平台侧恢复预检结果。</returns>
         public SonnetDbTelemetryRestoreDryRunReport RestoreDryRun(string backupDirectory, string targetDirectory, bool overwrite = false, bool verifyBeforeRestore = true)
         {
             EnsureEmbeddedOperation(nameof(RestoreDryRun));
-            var result = RestoreDryRunDirectoryBackup(backupDirectory, targetDirectory, overwrite, verifyBeforeRestore);
+            var result = new BackupService().RestoreDryRun(new BackupRestoreOptions
+            {
+                BackupDirectory = backupDirectory,
+                TargetDirectory = targetDirectory,
+                Overwrite = overwrite,
+                VerifyBeforeRestore = verifyBeforeRestore
+            });
 
             return new SonnetDbTelemetryRestoreDryRunReport(
                 result.IsValid,
@@ -282,10 +312,24 @@ namespace IoTSharp.Storage
                 result.Errors);
         }
 
+        /// <summary>
+        /// 使用 SonnetDB 备份服务把备份离线恢复到新的嵌入式数据库目录。
+        /// </summary>
+        /// <param name="backupDirectory">备份目录。</param>
+        /// <param name="targetDirectory">恢复目标目录。</param>
+        /// <param name="overwrite">是否允许复用已存在的空目录。</param>
+        /// <param name="verifyBeforeRestore">是否在恢复前校验备份。</param>
+        /// <returns>平台侧备份结果摘要。</returns>
         public SonnetDbTelemetryBackupReport Restore(string backupDirectory, string targetDirectory, bool overwrite = false, bool verifyBeforeRestore = true)
         {
             EnsureEmbeddedOperation(nameof(Restore));
-            var manifest = RestoreDirectoryBackup(backupDirectory, targetDirectory, overwrite, verifyBeforeRestore);
+            var manifest = new BackupService().Restore(new BackupRestoreOptions
+            {
+                BackupDirectory = backupDirectory,
+                TargetDirectory = targetDirectory,
+                Overwrite = overwrite,
+                VerifyBeforeRestore = verifyBeforeRestore
+            });
             return ToBackupReport(manifest);
         }
 
@@ -1116,305 +1160,16 @@ namespace IoTSharp.Storage
             }
         }
 
-        private string GetEmbeddedRootDirectory()
-        {
-            if (string.IsNullOrWhiteSpace(_dataSource))
-            {
-                throw new InvalidOperationException("SonnetDB embedded operation requires a Data Source directory.");
-            }
-
-            return Path.GetFullPath(NormalizeEmbeddedDataSource(_dataSource));
-        }
-
-        private static string NormalizeEmbeddedDataSource(string dataSource)
-        {
-            const string prefix = "sonnetdb://";
-            return dataSource.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)
-                ? dataSource[prefix.Length..]
-                : dataSource;
-        }
-
-        private static SonnetDbTelemetryBackupManifest CreateDirectoryBackup(string sourceDirectory, string destinationDirectory, bool overwrite)
-        {
-            ArgumentException.ThrowIfNullOrWhiteSpace(destinationDirectory);
-            var source = NormalizeFullDirectoryPath(sourceDirectory);
-            var destination = NormalizeFullDirectoryPath(destinationDirectory);
-            EnsureDirectoryIsOutsideSource(source, destination);
-            PrepareEmptyDirectory(destination, overwrite, "backup");
-
-            var entries = new List<SonnetDbTelemetryBackupFileEntry>();
-            foreach (var sourcePath in Directory.EnumerateFiles(source, "*", SearchOption.AllDirectories))
-            {
-                var fileName = Path.GetFileName(sourcePath);
-                if (fileName.EndsWith(".tmp", StringComparison.OrdinalIgnoreCase)
-                    || fileName.EndsWith(".temp", StringComparison.OrdinalIgnoreCase)
-                    || string.Equals(fileName, SonnetDbTelemetryBackupManifest.FileName, StringComparison.OrdinalIgnoreCase))
-                {
-                    continue;
-                }
-
-                var relativePath = NormalizeRelativePath(Path.GetRelativePath(source, sourcePath));
-                var targetPath = ResolveManifestPath(destination, relativePath);
-                Directory.CreateDirectory(Path.GetDirectoryName(targetPath)!);
-                CopyFile(sourcePath, targetPath);
-                var info = new FileInfo(targetPath);
-                entries.Add(new SonnetDbTelemetryBackupFileEntry(relativePath, info.Length, ComputeSha256(targetPath)));
-            }
-
-            var manifest = new SonnetDbTelemetryBackupManifest(
-                SonnetDbTelemetryBackupManifest.CurrentFormatVersion,
-                DateTimeOffset.UtcNow,
-                source,
-                entries.OrderBy(static x => x.Path, StringComparer.Ordinal).ToArray());
-            WriteManifest(destination, manifest);
-            return manifest;
-        }
-
-        private static SonnetDbTelemetryBackupVerificationReport VerifyDirectoryBackup(string backupDirectory)
-        {
-            var errors = new List<string>();
-            SonnetDbTelemetryBackupManifest manifest;
-            try
-            {
-                manifest = ReadManifest(backupDirectory);
-            }
-            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or JsonException or InvalidDataException)
-            {
-                return new SonnetDbTelemetryBackupVerificationReport(false, 0, [ex.Message]);
-            }
-
-            if (manifest.FormatVersion != SonnetDbTelemetryBackupManifest.CurrentFormatVersion)
-            {
-                errors.Add($"Unsupported manifest format version {manifest.FormatVersion}.");
-            }
-
-            var checkedFiles = 0;
-            foreach (var entry in manifest.Files)
-            {
-                string path;
-                try
-                {
-                    path = ResolveManifestPath(backupDirectory, entry.Path);
-                }
-                catch (InvalidDataException ex)
-                {
-                    errors.Add(ex.Message);
-                    continue;
-                }
-
-                if (!File.Exists(path))
-                {
-                    errors.Add($"Missing file: {entry.Path}");
-                    continue;
-                }
-
-                checkedFiles++;
-                var info = new FileInfo(path);
-                if (info.Length != entry.SizeBytes)
-                {
-                    errors.Add($"Size mismatch: {entry.Path}");
-                }
-
-                if (!string.Equals(ComputeSha256(path), entry.Sha256, StringComparison.OrdinalIgnoreCase))
-                {
-                    errors.Add($"SHA-256 mismatch: {entry.Path}");
-                }
-            }
-
-            return new SonnetDbTelemetryBackupVerificationReport(errors.Count == 0, checkedFiles, errors);
-        }
-
-        private static SonnetDbTelemetryRestoreDryRunReport RestoreDryRunDirectoryBackup(string backupDirectory, string targetDirectory, bool overwrite, bool verifyBeforeRestore)
-        {
-            var errors = new List<string>();
-            SonnetDbTelemetryBackupManifest? manifest = null;
-            if (verifyBeforeRestore)
-            {
-                var verification = VerifyDirectoryBackup(backupDirectory);
-                errors.AddRange(verification.Errors);
-            }
-
-            try
-            {
-                manifest = ReadManifest(backupDirectory);
-                foreach (var entry in manifest.Files)
-                {
-                    _ = ResolveManifestPath(backupDirectory, entry.Path);
-                    _ = ResolveManifestPath(targetDirectory, entry.Path);
-                }
-            }
-            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or JsonException or InvalidDataException)
-            {
-                errors.Add(ex.Message);
-            }
-
-            var target = EvaluateTargetDirectory(targetDirectory, overwrite);
-            if (!target.IsAllowed)
-            {
-                errors.Add($"Restore target directory '{Path.GetFullPath(targetDirectory)}' exists and overwrite is not allowed.");
-            }
-
-            return new SonnetDbTelemetryRestoreDryRunReport(
-                errors.Count == 0,
-                manifest?.Files.Count ?? 0,
-                manifest?.Files.Sum(static x => x.SizeBytes) ?? 0,
-                0,
-                target.Exists,
-                target.Empty,
-                errors);
-        }
-
-        private static SonnetDbTelemetryBackupManifest RestoreDirectoryBackup(string backupDirectory, string targetDirectory, bool overwrite, bool verifyBeforeRestore)
-        {
-            var dryRun = RestoreDryRunDirectoryBackup(backupDirectory, targetDirectory, overwrite, verifyBeforeRestore);
-            if (!dryRun.IsValid)
-            {
-                throw new InvalidDataException("SonnetDB telemetry restore dry-run failed: " + string.Join("; ", dryRun.Errors));
-            }
-
-            var manifest = ReadManifest(backupDirectory);
-            PrepareEmptyDirectory(targetDirectory, overwrite, "restore target");
-            foreach (var entry in manifest.Files)
-            {
-                var sourcePath = ResolveManifestPath(backupDirectory, entry.Path);
-                var targetPath = ResolveManifestPath(targetDirectory, entry.Path);
-                Directory.CreateDirectory(Path.GetDirectoryName(targetPath)!);
-                File.Copy(sourcePath, targetPath, overwrite: true);
-            }
-
-            var restoredManifest = manifest with { SourceRoot = NormalizeFullDirectoryPath(targetDirectory) };
-            WriteManifest(targetDirectory, restoredManifest);
-            return restoredManifest;
-        }
-
-        private static SonnetDbTelemetryBackupManifest ReadManifest(string backupDirectory)
-        {
-            var path = Path.Combine(backupDirectory, SonnetDbTelemetryBackupManifest.FileName);
-            if (!File.Exists(path))
-            {
-                throw new FileNotFoundException("SonnetDB telemetry backup manifest does not exist.", path);
-            }
-
-            using var stream = File.OpenRead(path);
-            return JsonSerializer.Deserialize(stream, SonnetDbTelemetryBackupJsonContext.Default.SonnetDbTelemetryBackupManifest)
-                   ?? throw new InvalidDataException("SonnetDB telemetry backup manifest is invalid.");
-        }
-
-        private static void WriteManifest(string directory, SonnetDbTelemetryBackupManifest manifest)
-        {
-            Directory.CreateDirectory(directory);
-            var path = Path.Combine(directory, SonnetDbTelemetryBackupManifest.FileName);
-            var tempPath = path + ".tmp";
-            using (var stream = new FileStream(tempPath, FileMode.Create, FileAccess.Write, FileShare.None))
-            {
-                JsonSerializer.Serialize(stream, manifest, SonnetDbTelemetryBackupJsonContext.Default.SonnetDbTelemetryBackupManifest);
-                stream.Flush(flushToDisk: true);
-            }
-
-            File.Move(tempPath, path, overwrite: true);
-        }
-
-        private static SonnetDbTelemetryBackupReport ToBackupReport(SonnetDbTelemetryBackupManifest manifest)
+        private static SonnetDbTelemetryBackupReport ToBackupReport(BackupManifest manifest)
         {
             return new SonnetDbTelemetryBackupReport(
                 manifest.SourceRoot,
                 manifest.CreatedUtc,
                 manifest.Files.Count,
-                manifest.Files.Sum(static x => x.SizeBytes),
-                CountMeasurements(manifest.SourceRoot),
-                0,
-                manifest.Files.Count(static x => x.Path.StartsWith("segments/", StringComparison.OrdinalIgnoreCase)));
-        }
-
-        private static int CountMeasurements(string rootDirectory)
-        {
-            var path = Path.Combine(rootDirectory, "measurements.tslschema");
-            if (!File.Exists(path))
-            {
-                return 0;
-            }
-
-            Span<byte> header = stackalloc byte[20];
-            using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
-            return stream.Read(header) == header.Length
-                && header[..8].SequenceEqual("SDBMEAv1"u8)
-                ? BinaryPrimitives.ReadInt32LittleEndian(header[16..20])
-                : 0;
-        }
-
-        private static void PrepareEmptyDirectory(string directory, bool overwrite, string purpose)
-        {
-            if (Directory.Exists(directory))
-            {
-                var empty = !Directory.EnumerateFileSystemEntries(directory).Any();
-                if (!overwrite || !empty)
-                {
-                    throw new IOException($"SonnetDB telemetry {purpose} directory '{Path.GetFullPath(directory)}' exists and cannot be reused.");
-                }
-
-                return;
-            }
-
-            Directory.CreateDirectory(directory);
-        }
-
-        private static RestoreTargetEvaluation EvaluateTargetDirectory(string targetDirectory, bool overwrite)
-        {
-            var exists = Directory.Exists(targetDirectory);
-            var empty = !exists || !Directory.EnumerateFileSystemEntries(targetDirectory).Any();
-            return new RestoreTargetEvaluation(exists, empty, !exists || overwrite && empty);
-        }
-
-        private static void EnsureDirectoryIsOutsideSource(string sourceDirectory, string destinationDirectory)
-        {
-            if (string.Equals(sourceDirectory, destinationDirectory, StringComparison.OrdinalIgnoreCase)
-                || destinationDirectory.StartsWith(sourceDirectory + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
-            {
-                throw new IOException("SonnetDB telemetry backup destination cannot be inside the source database directory.");
-            }
-        }
-
-        private static string ResolveManifestPath(string rootDirectory, string relativePath)
-        {
-            var normalized = NormalizeRelativePath(relativePath);
-            if (Path.IsPathRooted(normalized) || normalized.Split('/').Any(static x => x == ".."))
-            {
-                throw new InvalidDataException($"Backup manifest contains an unsafe path: {relativePath}");
-            }
-
-            var root = NormalizeFullDirectoryPath(rootDirectory);
-            var path = Path.GetFullPath(Path.Combine(root, normalized));
-            if (!path.StartsWith(root + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase)
-                && !string.Equals(path, root, StringComparison.OrdinalIgnoreCase))
-            {
-                throw new InvalidDataException($"Backup manifest path escapes target directory: {relativePath}");
-            }
-
-            return path;
-        }
-
-        private static string NormalizeFullDirectoryPath(string path)
-        {
-            return Path.GetFullPath(path).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-        }
-
-        private static string NormalizeRelativePath(string path)
-        {
-            return path.Replace(Path.DirectorySeparatorChar, '/').Replace(Path.AltDirectorySeparatorChar, '/');
-        }
-
-        private static void CopyFile(string source, string target)
-        {
-            using var input = new FileStream(source, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
-            using var output = new FileStream(target, FileMode.Create, FileAccess.Write, FileShare.None);
-            input.CopyTo(output);
-            output.Flush(flushToDisk: true);
-        }
-
-        private static string ComputeSha256(string path)
-        {
-            using var stream = File.OpenRead(path);
-            return Convert.ToHexString(SHA256.HashData(stream)).ToLowerInvariant();
+                manifest.Consistency.TotalBytes,
+                manifest.Models.Measurements.Count,
+                manifest.Consistency.CheckpointLsn,
+                manifest.Consistency.SegmentCount);
         }
 
         private static string? GetOption(DbConnectionStringBuilder builder, string key)
@@ -1506,24 +1261,7 @@ namespace IoTSharp.Storage
         }
 
         private sealed record BatchWriteRow(DateTime Timestamp, IReadOnlyList<object> Values);
-
-        private readonly record struct RestoreTargetEvaluation(bool Exists, bool Empty, bool IsAllowed);
     }
-
-    public sealed record SonnetDbTelemetryBackupManifest(
-        int FormatVersion,
-        DateTimeOffset CreatedUtc,
-        string SourceRoot,
-        IReadOnlyList<SonnetDbTelemetryBackupFileEntry> Files)
-    {
-        public const int CurrentFormatVersion = 1;
-        public const string FileName = "iotsharp-sonnetdb-telemetry.backup.json";
-    }
-
-    public sealed record SonnetDbTelemetryBackupFileEntry(
-        string Path,
-        long SizeBytes,
-        string Sha256);
 
     public sealed record SonnetDbTelemetryBackupReport(
         string SourceRoot,
@@ -1562,6 +1300,4 @@ namespace IoTSharp.Storage
         int SkippedTelemetryValueCount,
         bool IsComplete);
 
-    [JsonSerializable(typeof(SonnetDbTelemetryBackupManifest))]
-    internal sealed partial class SonnetDbTelemetryBackupJsonContext : JsonSerializerContext;
 }

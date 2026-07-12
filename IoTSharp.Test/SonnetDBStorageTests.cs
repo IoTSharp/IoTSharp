@@ -8,6 +8,7 @@ using IoTSharp.Data;
 using IoTSharp.Storage;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
+using SonnetDB.Backup;
 using SonnetDB.Data;
 using Xunit;
 using Xunit.Abstractions;
@@ -306,25 +307,37 @@ public sealed class SonnetDBStorageTests : IDisposable
 
         var backupDirectory = _root + "-backup";
         var restoreDirectory = _root + "-restored";
-        var backup = storage.CreateBackup(backupDirectory);
-        var verification = storage.VerifyBackup(backupDirectory);
-        var dryRun = storage.RestoreDryRun(backupDirectory, restoreDirectory);
-        var restore = storage.Restore(backupDirectory, restoreDirectory);
-        var replay = await storage.ReplayFailureAsync(deviceId, "temperature,humidity", timestamp.AddMinutes(-1), timestamp.AddMinutes(1));
+        try
+        {
+            var backup = storage.CreateBackup(backupDirectory, includeFullTextIndexes: false);
+            var verification = storage.VerifyBackup(backupDirectory);
+            var dryRun = storage.RestoreDryRun(backupDirectory, restoreDirectory);
+            var restore = storage.Restore(backupDirectory, restoreDirectory);
+            var replay = await storage.ReplayFailureAsync(deviceId, "temperature,humidity", timestamp.AddMinutes(-1), timestamp.AddMinutes(1));
 
-        Assert.True(backup.FileCount > 0);
-        Assert.True(backup.MeasurementCount >= 1);
-        Assert.True(verification.IsValid);
-        Assert.True(dryRun.IsValid);
-        Assert.True(restore.FileCount > 0);
-        Assert.Equal(2, replay.PointCount);
-        Assert.Contains("temperature", replay.Fields);
-        Assert.Contains("humidity", replay.Fields);
+            Assert.True(backup.FileCount > 0);
+            Assert.True(backup.MeasurementCount >= 1);
+            Assert.True(backup.CheckpointLsn > 0);
+            Assert.True(File.Exists(Path.Combine(backupDirectory, BackupManifest.FileName)));
+            Assert.False(File.Exists(Path.Combine(backupDirectory, "iotsharp-sonnetdb-telemetry.backup.json")));
+            Assert.True(verification.IsValid);
+            Assert.True(dryRun.IsValid);
+            Assert.True(restore.FileCount > 0);
+            Assert.Equal(backup.CheckpointLsn, restore.CheckpointLsn);
+            Assert.Equal(2, replay.PointCount);
+            Assert.Contains("temperature", replay.Fields);
+            Assert.Contains("humidity", replay.Fields);
 
-        var restoredStorage = CreateStorage("TelemetryData", restoreDirectory);
-        var latest = await restoredStorage.GetTelemetryLatest(deviceId);
-        Assert.Contains(latest, x => x.KeyName == "temperature" && Equals(22.5, x.Value));
-        Assert.Contains(latest, x => x.KeyName == "humidity" && Equals(61L, x.Value));
+            var restoredStorage = CreateStorage("TelemetryData", restoreDirectory);
+            var latest = await restoredStorage.GetTelemetryLatest(deviceId);
+            Assert.Contains(latest, x => x.KeyName == "temperature" && Equals(22.5, x.Value));
+            Assert.Contains(latest, x => x.KeyName == "humidity" && Equals(61L, x.Value));
+        }
+        finally
+        {
+            TryDeleteDirectory(backupDirectory);
+            TryDeleteDirectory(restoreDirectory);
+        }
     }
 
     private SonnetDBStorage CreateStorage(string measurementPrefix)
