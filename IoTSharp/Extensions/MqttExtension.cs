@@ -15,6 +15,7 @@ using IoTSharp.Data;
 using IoTSharp.Extensions;
 using IoTSharp.Contracts;
 using System.Net.Security;
+using System.Net;
 using MQTTnet.Protocol;
 using System.Text;
 using System.Text.Json;
@@ -56,7 +57,13 @@ namespace IoTSharp
             services.AddMqttTcpServerAdapter();
             services.AddHostedMqttServerWithServices(options =>
             {
-                options.WithDefaultEndpointPort(broker.Port).WithDefaultEndpoint();
+                if (!IPAddress.TryParse(broker.BindAddress, out var bindAddress))
+                {
+                    throw new InvalidOperationException($"Invalid MQTT bind address: {broker.BindAddress}");
+                }
+                options.WithDefaultEndpoint()
+                    .WithDefaultEndpointBoundIPAddress(bindAddress)
+                    .WithDefaultEndpointPort(broker.Port);
                 if (broker.EnableTls)
                 {
                     if (broker.CACertificate != null)
