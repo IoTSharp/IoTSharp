@@ -266,7 +266,8 @@ namespace IoTSharp.Data.SonnetDB.Migrations
                 name: "AspNetRoleClaims",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INT", nullable: false),
+                    Id = table.Column<int>(type: "INT", nullable: false)
+                        .Annotation("SonnetDB:AutoIncrement", true),
                     RoleId = table.Column<string>(type: "STRING", nullable: false),
                     ClaimType = table.Column<string>(type: "STRING", nullable: true),
                     ClaimValue = table.Column<string>(type: "STRING", nullable: true)
@@ -286,7 +287,8 @@ namespace IoTSharp.Data.SonnetDB.Migrations
                 name: "AspNetUserClaims",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INT", nullable: false),
+                    Id = table.Column<int>(type: "INT", nullable: false)
+                        .Annotation("SonnetDB:AutoIncrement", true),
                     UserId = table.Column<string>(type: "STRING", nullable: false),
                     ClaimType = table.Column<string>(type: "STRING", nullable: true),
                     ClaimValue = table.Column<string>(type: "STRING", nullable: true)
