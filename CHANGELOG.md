@@ -52,7 +52,7 @@ This project follows a lightweight Keep a Changelog style. Version numbers in th
 - Adjusted data provider configuration so pending EF model changes do not crash startup in SQLite demo/bootstrap scenarios.
 - Improved Docker Desktop extension local build validation behavior for non-Marketplace development flows.
 - Preserved database-generated keys for ASP.NET Identity role and user claims in fresh SonnetDB installations.
-- Added a configurable MQTT bind address while preserving the existing all-interface default.
+- Added a configurable dual-stack MQTT bind address while preserving the existing all-interface default and disabling IPv6 when an IPv4-specific address is selected.
 
 ## [3.5.0] - 2026-03-20
 
