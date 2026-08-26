@@ -14,6 +14,8 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import { initializeUiTheme } from '/@/theme/themes';
+import { NextLoading } from '/@/utils/loading';
+import { Session } from '/@/utils/storage';
 
 initializeUiTheme();
 const app = createApp(App);
@@ -29,9 +31,17 @@ app.config.globalProperties.mittBus = mitt();
 app.config.globalProperties.$day = dayjs; //鍏ㄥ眬鎸傝浇
 
 const bootstrap = async () => {
-	await router.isReady();
-	await ensureRouteFeatureInstall(app, router.currentRoute.value);
-	app.mount('#app');
+	try {
+		await router.isReady();
+		await ensureRouteFeatureInstall(app, router.currentRoute.value);
+	} catch (error) {
+		// 最终兜底：任何未被路由守卫捕获的启动异常都不能阻止应用挂载。
+		console.error('[bootstrap] 应用初始化失败', error);
+		Session.clear();
+	} finally {
+		app.mount('#app');
+		NextLoading.done();
+	}
 };
 
 void bootstrap();
