@@ -772,4 +772,49 @@ export default defineComponent({
 .layout-navbars-tagsview-shadow {
 	box-shadow: 0 18px 38px rgba(15, 23, 42, 0.04);
 }
+
+/* 页签作为工作上下文导航，保持紧凑、实色且不制造额外浮层。 */
+.layout-navbars-tagsview,
+.layout-navbars-tagsview--page {
+	border: 1px solid var(--iotsharp-border);
+	border-radius: var(--iotsharp-radius-control);
+	background: rgba(255, 255, 255, 0.88);
+	box-shadow: none;
+}
+
+.layout-navbars-tagsview .layout-navbars-tagsview-ul,
+.layout-navbars-tagsview--page .layout-navbars-tagsview-ul {
+	height: 38px;
+	padding: 0 8px;
+	color: var(--iotsharp-text-muted);
+	font-size: 11px;
+}
+
+.layout-navbars-tagsview .layout-navbars-tagsview-ul-li,
+.layout-navbars-tagsview--page .layout-navbars-tagsview-ul-li {
+	height: 28px;
+	margin-right: 4px;
+	padding: 0 9px;
+	border-radius: 4px;
+	line-height: 28px;
+}
+
+.layout-navbars-tagsview .layout-navbars-tagsview-ul-li:hover,
+.layout-navbars-tagsview--page .layout-navbars-tagsview-ul-li:hover {
+	border-color: rgba(var(--iotsharp-accent-rgb), 0.16);
+	background: var(--iotsharp-surface-muted);
+	color: var(--iotsharp-accent);
+}
+
+.layout-navbars-tagsview .layout-navbars-tagsview-ul .is-active,
+.layout-navbars-tagsview--page .layout-navbars-tagsview-ul .is-active {
+	border-color: rgba(var(--iotsharp-accent-rgb), 0.18);
+	background: var(--iotsharp-selection);
+	color: var(--iotsharp-accent);
+	box-shadow: none;
+}
+
+.layout-navbars-tagsview-shadow {
+	box-shadow: none;
+}
 </style>

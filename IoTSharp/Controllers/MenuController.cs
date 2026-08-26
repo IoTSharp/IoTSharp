@@ -11,7 +11,7 @@ using System.Linq;
 namespace IoTSharp.Controllers
 {
     /// <summary>
-    /// this is test purpose
+    /// 提供当前用户可访问的控制台导航与基础资料。
     /// </summary>
     [Route("api/[controller]/[action]")]
     [ApiController]
@@ -32,6 +32,10 @@ namespace IoTSharp.Controllers
             return new ApiResult<dynamic>(ApiCode.Success, "OK", null);
         }
 
+        /// <summary>
+        /// 根据角色返回按领域边界组织的控制台导航。
+        /// </summary>
+        /// <returns>包含导航、用户与应用信息的结果。</returns>
         [HttpGet]
         public ApiResult<dynamic> GetProfile()
         {
@@ -55,15 +59,15 @@ namespace IoTSharp.Controllers
             {
                 new()
                 {
-                    text = "仪表盘",
-                    i18n = "仪表盘",
+                    text = "运行概览",
+                    i18n = "运行概览",
                     vi18n = "iot.dashboardmnt",
                     routename = "dashboard",
                     vpath = "/dashboard",
                     icon = "anticon-dashboard",
                     children = new MenuItem[]
                         {
-                            new() { text = "仪表盘", i18n = "", vi18n="iot.dashboard", routename="dashboard", link = "/dashboard",      vpath="/dashboard", }
+                            new() { text = "运行概览", i18n = "", vi18n="iot.dashboard", routename="dashboard", link = "/dashboard", vpath="/dashboard", }
                         }
                 }
             };
@@ -72,59 +76,63 @@ namespace IoTSharp.Controllers
                 _user_menu.Add(
                 new()
                 {
-                    text = "数字孪生",
+                    text = "接入与采集",
                     i18n = "",
                     vi18n = "iot.devicemnt",
-                    routename = "devicemnt",
-                    vpath = "/iot/devices",
+                    routename = "accessmnt",
+                    vpath = "/iot/access",
                     icon = "anticon-database",
                     children = new MenuItem[]
                         {
+                            new() { text = "产品与采集模板", i18n = "", vi18n="iot.productlist", routename="productlist", link = "/iot/product/productlist", vpath="/iot/product/productlist", },
+                            new() { text = "资产", i18n = "", vi18n="iot.assetlist", routename="assetlist", link = "/iot/assets/assetlist", vpath="/iot/assets/assetlist",},
                             new() { text = "设备管理", i18n = "", vi18n="iot.devicelist", routename="devicelist", link = "/iot/devices/devicelist" , vpath="/iot/devices/devicelist",},
-                            new() { text = "Edge 管理", i18n = "", vi18n="iot.edgelist", routename="edgelist", link = "/iot/devices/edgelist" , vpath="/iot/devices/edgelist",},
-                            new() { text = "Edge 任务", i18n = "", vi18n="iot.edgetasks", routename="edgetasks", link = "/iot/devices/edgetasks" , vpath="/iot/devices/edgetasks",},
-                            new() { text = "设备告警", i18n = "", vi18n="iot.alarmlist", routename="alarmlist", link = "/iot/alarms/alarmlist", vpath = "/iot/alarms/alarmlist", },
+                            new() { text = "网关", i18n = "", vi18n="iot.gatewaylist", routename="gatewaylist", link = "/iot/devices/gatewaylist", vpath="/iot/devices/gatewaylist",},
+                            new() { text = "Edge 节点", i18n = "", vi18n="iot.edgelist", routename="edgelist", link = "/iot/devices/edgelist" , vpath="/iot/devices/edgelist",},
+                        }
+                });
+                _user_menu.Add(new()
+                {
+                    text = "实时规则",
+                    i18n = "",
+                    vi18n = "iot.rulesmnt",
+                    routename = "rulesmnt",
+                    vpath = "/iot/rules",
+                    icon = "anticon-branches",
+                    children = new MenuItem[]
+                        {
                             new() { text = "规则链设计", i18n = "", vi18n="iot.flowlist", routename="flowlist", link = "/iot/rules/flowlist", vpath = "/iot/rules/flowlist", },
                             new() { text = "规则链审计", i18n = "", vi18n="iot.flowevents", routename="flowevents", link = "/iot/rules/flowevents", vpath = "/iot/rules/flowevents",  },
                         }
                 });
                 _user_menu.Add(new()
                 {
-                    text = "产品管理",
+                    text = "运维与发布",
                     i18n = "",
-                    vi18n = "iot.productmnt",
-                    routename = "productmnt",
-                    icon = "medicinebox",
-                    vpath = "/iot/product",
+                    vi18n = "iot.operationsmnt",
+                    routename = "operationsmnt",
+                    icon = "anticon-deployment-unit",
+                    vpath = "/iot/operations",
                     children = new MenuItem[]
                         {
-                            new() { text = "产品列表", i18n = "", vi18n="iot.productlist", routename="productlist", link = "/iot/product/productlist", vpath="/iot/product/productlist", }
+                            new() { text = "Edge 任务", i18n = "", vi18n="iot.edgetasks", routename="edgetasks", link = "/iot/devices/edgetasks" , vpath="/iot/devices/edgetasks",},
+                            new() { text = "设备告警", i18n = "", vi18n="iot.alarmlist", routename="alarmlist", link = "/iot/alarms/alarmlist", vpath = "/iot/alarms/alarmlist", },
                         }
                 });
+            }
+            if (sysmenu.Count > 0)
+            {
                 _user_menu.Add(new()
                 {
-                    text = "资产管理",
+                    text = "平台治理",
                     i18n = "",
-                    vi18n = "iot.assetsmnt",
-                    routename = "assetsmnt",
-                    vpath = "/iot/assets",
-                    icon = "anticon-gold",
-                    children = new MenuItem[]
-                        {
-                            new() { text = "资产列表", i18n = "", vi18n="iot.assetlist", routename="assetlist", link = "/iot/assets/assetlist" , vpath="/iot/assets/assetlist",},
-                        },
+                    vi18n = "iot.settingsmnt",
+                    routename = "governancemnt",
+                    vpath = "/iot/settings",
+                    icon = "anticon-setting",
+                    children = sysmenu.ToArray()
                 });
             }
-            _user_menu.Add(new()
-            {
-                text = "系统管理",
-                i18n = "",
-                vi18n = "iot.settingsmnt",
-                routename = "settingsmnt",
-                vpath = "/iot/settings",
-                icon = "anticon-setting",
-                children = sysmenu.ToArray()
-            });
             var data = new
             {
                 menu = new[]{

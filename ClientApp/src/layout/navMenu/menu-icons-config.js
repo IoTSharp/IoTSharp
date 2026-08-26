@@ -10,6 +10,9 @@ import rulesmnt from  '~icons/carbon/flow-modeler'
 import settingsmnt from  '~icons/carbon/settings'
 export const menuIconList = {
     dashboard,
+	accessmnt: devicemnt,
+	operationsmnt: alarmmnt,
+	governancemnt: settingsmnt,
     tenantmnt,
     customermnt,
     usermnt,

@@ -332,4 +332,66 @@ function onSubmit(data: any) {
 		align-items: flex-start;
 	}
 }
+
+/* 与控制台共用 XJETC 主题、紧凑边角和实色表单面。 */
+.signup-page {
+	background: var(--iotsharp-quiet-gradient);
+	overflow-y: auto;
+}
+
+.signup-page__glow,
+.signup-panel__eyebrow,
+.signup-panel__steps {
+	display: none;
+}
+
+.signup-shell {
+	border: 1px solid rgba(var(--iotsharp-accent-rgb), 0.18);
+	border-radius: 8px;
+	background: rgba(255, 255, 255, 0.66);
+	box-shadow: var(--iotsharp-shadow-float);
+	backdrop-filter: blur(20px) saturate(1.15);
+}
+
+.signup-panel {
+	gap: 18px;
+	background: rgba(255, 255, 255, 0.95);
+}
+
+.signup-panel__header h2 {
+	margin-bottom: 7px;
+	color: var(--iotsharp-ink);
+	font-size: 24px;
+	letter-spacing: 0;
+}
+
+.signup-panel__header p,
+.signup-panel__footer {
+	color: var(--iotsharp-text-muted);
+}
+
+.signup-panel__form {
+	padding: 0;
+	border: 0;
+	border-radius: 0;
+	background: transparent;
+}
+
+.signup-panel__footer {
+	border-color: var(--iotsharp-border);
+}
+
+.signup-panel__footer a {
+	color: var(--iotsharp-accent);
+}
+
+:deep(.el-input__wrapper),
+:deep(.el-button) {
+	border-radius: var(--iotsharp-radius-control);
+}
+
+:deep(.el-button) {
+	height: 42px;
+	box-shadow: 0 9px 20px rgba(var(--iotsharp-accent-rgb), 0.18);
+}
 </style>

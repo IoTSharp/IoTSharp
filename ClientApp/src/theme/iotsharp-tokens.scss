@@ -1,29 +1,113 @@
 :root {
-	/* Brand palette */
-	--iotsharp-brand-cyan: #0ea5e9;
-	--iotsharp-brand-emerald: #10b981;
-	--iotsharp-brand-ink: #0f172a;
-	--iotsharp-brand-slate: #475569;
-	--iotsharp-brand-mist: #94a3b8;
-	/* Shell surfaces */
-	--iotsharp-surface-base: rgba(255, 255, 255, 0.95);
-	--iotsharp-surface-soft: rgba(248, 250, 252, 0.88);
-	--iotsharp-surface-panel: rgba(255, 255, 255, 0.92);
-	--iotsharp-surface-panel-alt: rgba(241, 245, 249, 0.94);
-	--iotsharp-border-soft: rgba(148, 163, 184, 0.12);
-	--iotsharp-border-strong: rgba(148, 163, 184, 0.16);
-	--iotsharp-shadow-card: 0 18px 36px rgba(15, 23, 42, 0.08);
-	--iotsharp-shadow-shell: 0 24px 60px rgba(15, 23, 42, 0.08);
-	--iotsharp-radius-shell: 30px;
-	--iotsharp-radius-card: 24px;
-	--iotsharp-radius-pill: 999px;
-	/* Ambient backgrounds */
-	--iotsharp-shell-bg:
-		radial-gradient(circle at top left, rgba(14, 165, 233, 0.12), transparent 26%),
-		radial-gradient(circle at bottom right, rgba(16, 185, 129, 0.12), transparent 24%),
-		linear-gradient(180deg, #f7fbff 0%, #eef5fb 100%);
-	--iotsharp-highlight-bg: linear-gradient(135deg, rgba(14, 165, 233, 0.12), rgba(16, 185, 129, 0.12));
-	/* Layout rhythm */
-	--iotsharp-content-max-width: 1680px;
-	--iotsharp-page-gutter: 22px;
+	/* XJETC Ops Acrylic Control Plane */
+	--iotsharp-theme-dark: #1e5b4f;
+	--iotsharp-theme-light: #dceee7;
+	--iotsharp-theme-ink: #183b36;
+	--iotsharp-theme-surface: #f5fbf8;
+	--iotsharp-accent: var(--iotsharp-theme-dark);
+	--iotsharp-accent-rgb: 30, 91, 79;
+	--iotsharp-selection: var(--iotsharp-theme-light);
+	--iotsharp-page: var(--iotsharp-theme-surface);
+	--iotsharp-ink: var(--iotsharp-theme-ink);
+	--iotsharp-text: #23332f;
+	--iotsharp-text-soft: #52635f;
+	--iotsharp-text-muted: #71807c;
+	--iotsharp-surface: #ffffff;
+	--iotsharp-surface-soft: rgba(255, 255, 255, 0.76);
+	--iotsharp-surface-muted: #f4f7f6;
+	--iotsharp-border: #dfe7e4;
+	--iotsharp-border-strong: #c9d5d1;
+	--iotsharp-shadow-panel: 0 8px 22px rgba(24, 45, 39, 0.07);
+	--iotsharp-shadow-float: 0 18px 42px rgba(18, 37, 31, 0.14);
+	--iotsharp-radius-panel: 8px;
+	--iotsharp-radius-control: 6px;
+	--iotsharp-radius-small: 4px;
+	--iotsharp-nav-gradient: linear-gradient(180deg, #183b36 0%, #1e5b4f 48%, #1b4740 100%);
+	--iotsharp-topbar-gradient: linear-gradient(112deg, rgba(255, 255, 255, 0.94) 0%, rgba(220, 238, 231, 0.72) 52%, rgba(255, 255, 255, 0.9) 100%);
+	--iotsharp-accent-gradient: linear-gradient(135deg, #1e5b4f 0%, #183b36 100%);
+	--iotsharp-quiet-gradient: linear-gradient(135deg, #dceee7 0%, #f5fbf8 72%);
+	--iotsharp-success: #157347;
+	--iotsharp-success-surface: #e8f5ed;
+	--iotsharp-warning: #a85d00;
+	--iotsharp-warning-surface: #fff3d9;
+	--iotsharp-danger: #bd3e3e;
+	--iotsharp-danger-surface: #fdeaea;
+	--iotsharp-info: #24566b;
+	--iotsharp-info-surface: #e8f3f7;
+	--iotsharp-content-max-width: 1720px;
+	--iotsharp-page-gutter: 18px;
+	--el-border-radius-base: 6px;
+	--el-border-radius-small: 4px;
+	--el-border-color: var(--iotsharp-border);
+	--el-border-color-light: #e7ecea;
+	--el-border-color-lighter: #edf1f0;
+	--el-text-color-primary: var(--iotsharp-text);
+	--el-text-color-regular: var(--iotsharp-text-soft);
+	--el-text-color-secondary: var(--iotsharp-text-muted);
+	--el-fill-color-light: var(--iotsharp-surface-muted);
+	--el-fill-color-lighter: #f8faf9;
+	--el-bg-color-page: var(--iotsharp-page);
+	--el-box-shadow-light: var(--iotsharp-shadow-panel);
+	--el-color-success: var(--iotsharp-success);
+	--el-color-warning: var(--iotsharp-warning);
+	--el-color-danger: var(--iotsharp-danger);
+	--el-color-info: var(--iotsharp-info);
+}
+
+::selection {
+	background: var(--iotsharp-selection);
+	color: var(--iotsharp-ink);
+}
+
+:focus-visible {
+	outline: 2px solid var(--iotsharp-accent);
+	outline-offset: 2px;
+}
+
+* {
+	scrollbar-color: rgba(var(--iotsharp-accent-rgb), 0.42) transparent;
+	scrollbar-width: thin;
+}
+
+*::-webkit-scrollbar {
+	width: 8px;
+	height: 8px;
+}
+
+*::-webkit-scrollbar-thumb {
+	border: 2px solid transparent;
+	border-radius: 8px;
+	background: rgba(var(--iotsharp-accent-rgb), 0.38);
+	background-clip: padding-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+	background: rgba(var(--iotsharp-accent-rgb), 0.56);
+	background-clip: padding-box;
+}
+
+.iotsharp-theme-popover.el-popover.el-popper {
+	padding: 10px;
+	border: 1px solid var(--iotsharp-border);
+	border-radius: 8px;
+	background: rgba(255, 255, 255, 0.96);
+	box-shadow: var(--iotsharp-shadow-float);
+	backdrop-filter: blur(18px) saturate(1.2);
+}
+
+@media (max-width: 600px) {
+	.iotsharp-theme-popover.el-popover.el-popper {
+		width: min(340px, calc(100vw - 20px)) !important;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		scroll-behavior: auto !important;
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+	}
 }

@@ -1,35 +1,29 @@
 <template>
 	<div class="console-page-shell">
-		<section class="console-page-shell__hero">
-			<div class="console-page-shell__head">
+		<header class="console-page-shell__header">
+			<div class="console-page-shell__headline">
 				<div class="console-page-shell__copy">
-					<div class="console-page-shell__eyebrow">{{ eyebrow }}</div>
 					<h1>{{ title }}</h1>
 					<p>{{ description }}</p>
 				</div>
-				<div v-if="badges.length" class="console-page-shell__badges">
+				<div v-if="badges.length" class="console-page-shell__badges" aria-label="页面状态">
 					<span v-for="badge in badges" :key="badge" class="console-page-shell__badge">{{ badge }}</span>
 				</div>
 			</div>
 
-			<div class="console-page-shell__footer">
+			<div v-if="$slots.actions || metrics.length" class="console-page-shell__context">
 				<div v-if="$slots.actions" class="console-page-shell__actions">
 					<slot name="actions" />
 				</div>
-				<div v-if="metrics.length" class="console-page-shell__metrics">
-					<article
-						v-for="item in metrics"
-						:key="item.label"
-						class="console-metric"
-						:class="`tone-${item.tone || 'primary'}`"
-					>
-						<span>{{ item.label }}</span>
-						<strong>{{ item.value }}</strong>
+				<dl v-if="metrics.length" class="console-page-shell__metrics">
+					<div v-for="item in metrics" :key="item.label" class="console-metric" :class="`tone-${item.tone || 'primary'}`">
+						<dt>{{ item.label }}</dt>
+						<dd>{{ item.value }}</dd>
 						<small>{{ item.hint }}</small>
-					</article>
-				</div>
+					</div>
+				</dl>
 			</div>
-		</section>
+		</header>
 
 		<section class="console-page-shell__body">
 			<slot />
@@ -64,21 +58,20 @@ withDefaults(
 .console-page-shell {
 	display: flex;
 	flex-direction: column;
-	gap: 18px;
+	gap: 14px;
 }
 
-.console-page-shell__hero {
-	padding: 26px 28px;
-	border-radius: 30px;
-	border: 1px solid rgba(191, 219, 254, 0.78);
-	background:
-		radial-gradient(circle at top right, rgba(96, 165, 250, 0.16), transparent 28%),
-		linear-gradient(180deg, rgba(248, 251, 255, 0.98), rgba(240, 247, 255, 0.96));
-	box-shadow: 0 18px 42px rgba(15, 23, 42, 0.06);
+.console-page-shell__header {
+	display: grid;
+	gap: 14px;
+	padding: 18px 20px;
+	border: 1px solid rgba(var(--iotsharp-accent-rgb), 0.13);
+	border-radius: var(--iotsharp-radius-panel);
+	background: var(--iotsharp-quiet-gradient);
 }
 
-.console-page-shell__head,
-.console-page-shell__footer {
+.console-page-shell__headline,
+.console-page-shell__context {
 	display: flex;
 	align-items: flex-start;
 	justify-content: space-between;
@@ -86,159 +79,143 @@ withDefaults(
 }
 
 .console-page-shell__copy {
-	max-width: 860px;
-}
-
-.console-page-shell__eyebrow {
-	margin-bottom: 12px;
-	color: #2563eb;
-	font-size: 12px;
-	font-weight: 700;
-	letter-spacing: 0.18em;
-	text-transform: uppercase;
+	max-width: 74ch;
 }
 
 .console-page-shell__copy h1 {
 	margin: 0;
-	color: #123b6d;
-	font-size: clamp(28px, 4vw, 36px);
-	letter-spacing: -0.05em;
+	color: var(--iotsharp-ink);
+	font-size: 22px;
+	font-weight: 680;
+	letter-spacing: 0;
+	line-height: 1.25;
 }
 
 .console-page-shell__copy p {
-	margin: 12px 0 0;
-	color: #5f7289;
-	font-size: 14px;
-	line-height: 1.85;
+	margin: 6px 0 0;
+	color: var(--iotsharp-text-soft);
+	font-size: 13px;
+	line-height: 1.65;
 }
 
-.console-page-shell__badges {
+.console-page-shell__badges,
+.console-page-shell__actions {
 	display: flex;
 	flex-wrap: wrap;
 	justify-content: flex-end;
-	gap: 10px;
+	gap: 7px;
 }
 
 .console-page-shell__badge {
 	display: inline-flex;
+	min-height: 26px;
 	align-items: center;
-	min-height: 34px;
-	padding: 0 12px;
+	padding: 0 9px;
+	border: 1px solid rgba(var(--iotsharp-accent-rgb), 0.2);
 	border-radius: 999px;
-	border: 1px solid rgba(191, 219, 254, 0.9);
-	background: rgba(255, 255, 255, 0.72);
-	color: #2563eb;
-	font-size: 12px;
-	font-weight: 700;
+	background: rgba(255, 255, 255, 0.66);
+	color: var(--iotsharp-accent);
+	font-size: 11px;
+	font-weight: 650;
 	white-space: nowrap;
 }
 
-.console-page-shell__footer {
-	margin-top: 20px;
-	align-items: stretch;
-}
-
-.console-page-shell__actions {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 10px;
+.console-page-shell__context {
+	align-items: end;
+	padding-top: 12px;
+	border-top: 1px solid rgba(var(--iotsharp-accent-rgb), 0.12);
 }
 
 .console-page-shell__actions :deep(.el-button) {
-	height: 44px;
-	padding: 0 18px;
-	border-radius: 14px;
+	height: 34px;
+	padding: 0 13px;
+	border-radius: var(--iotsharp-radius-control);
 	font-weight: 600;
 }
 
 .console-page-shell__metrics {
-	display: grid;
-	grid-template-columns: repeat(4, minmax(0, 1fr));
-	gap: 12px;
+	display: flex;
 	flex: 1;
+	justify-content: flex-end;
+	margin: 0;
 }
 
 .console-metric {
-	padding: 16px 18px;
-	border-radius: 22px;
-	border: 1px solid rgba(226, 232, 240, 0.92);
-	background: rgba(255, 255, 255, 0.88);
+	display: grid;
+	grid-template-columns: auto auto;
+	gap: 1px 8px;
+	min-width: 126px;
+	padding: 0 16px;
+	border-left: 1px solid rgba(var(--iotsharp-accent-rgb), 0.14);
 }
 
-.console-metric span {
-	display: block;
-	color: #64748b;
-	font-size: 12px;
+.console-metric dt {
+	align-self: center;
+	color: var(--iotsharp-text-muted);
+	font-size: 11px;
 }
 
-.console-metric strong {
-	display: block;
-	margin-top: 10px;
-	color: #123b6d;
-	font-size: 22px;
+.console-metric dd {
+	margin: 0;
+	color: var(--iotsharp-ink);
+	font-size: 18px;
 	font-weight: 700;
-	letter-spacing: -0.04em;
+	font-variant-numeric: tabular-nums;
 }
 
 .console-metric small {
-	display: block;
-	margin-top: 8px;
-	color: #7c8da1;
-	font-size: 12px;
-	line-height: 1.6;
-}
-
-.tone-accent {
-	background: linear-gradient(180deg, rgba(14, 165, 233, 0.08), rgba(255, 255, 255, 0.9));
-}
-
-.tone-success {
-	background: linear-gradient(180deg, rgba(22, 163, 74, 0.08), rgba(255, 255, 255, 0.9));
-}
-
-.tone-warning {
-	background: linear-gradient(180deg, rgba(249, 115, 22, 0.08), rgba(255, 255, 255, 0.9));
+	grid-column: 1 / -1;
+	color: var(--iotsharp-text-muted);
+	font-size: 10px;
+	line-height: 1.4;
 }
 
 .console-page-shell__body {
 	display: flex;
 	flex-direction: column;
-	gap: 16px;
+	gap: 14px;
 }
 
-@media (max-width: 1080px) {
-	.console-page-shell__head,
-	.console-page-shell__footer {
+@media (max-width: 1040px) {
+	.console-page-shell__headline,
+	.console-page-shell__context {
 		flex-direction: column;
 	}
 
-	.console-page-shell__badges {
+	.console-page-shell__badges,
+	.console-page-shell__metrics {
 		justify-content: flex-start;
 	}
 
 	.console-page-shell__metrics {
-		grid-template-columns: repeat(2, minmax(0, 1fr));
 		width: 100%;
+	}
+
+	.console-metric:first-child {
+		border-left: 0;
+		padding-left: 0;
 	}
 }
 
-@media (max-width: 767px) {
-	.console-page-shell__hero {
-		padding: 22px 20px;
-		border-radius: 24px;
+@media (max-width: 680px) {
+	.console-page-shell__header {
+		padding: 15px;
+	}
+
+	.console-page-shell__metrics {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.console-metric {
+		min-width: 0;
+		padding: 7px 10px;
+		border-left: 0;
 	}
 
 	.console-page-shell__actions {
 		width: 100%;
-	}
-
-	.console-page-shell__actions :deep(.el-button) {
-		flex: 1;
-		min-width: 0;
-	}
-
-	.console-page-shell__metrics {
-		grid-template-columns: 1fr;
+		justify-content: flex-start;
 	}
 }
 </style>

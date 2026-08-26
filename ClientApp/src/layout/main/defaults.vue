@@ -1,9 +1,9 @@
 <template>
 	<div class="iotsharp-shell">
-		<el-container class="layout-container iotsharp-shell__container" direction="vertical">
-			<Header class="iotsharp-shell__header" />
-			<el-container class="iotsharp-shell__body">
-				<Aside />
+		<el-container class="layout-container iotsharp-shell__container">
+			<Aside />
+			<el-container class="iotsharp-shell__body" direction="vertical">
+				<Header class="iotsharp-shell__header" />
 				<el-container class="flex-center iotsharp-shell__workspace">
 					<Main />
 				</el-container>
@@ -28,13 +28,13 @@ export default defineComponent({
 <style scoped lang="scss">
 .iotsharp-shell {
 	min-height: 100%;
-	background: #f2f3f5;
+	background: var(--iotsharp-page);
 }
 
 .iotsharp-shell__container {
 	height: 100vh;
 	min-height: 100vh;
-	background: #f2f3f5;
+	background: var(--iotsharp-page);
 }
 
 .iotsharp-shell__header {
@@ -43,21 +43,22 @@ export default defineComponent({
 
 .iotsharp-shell__body {
 	flex: 1 1 auto;
+	min-width: 0;
 	min-height: 0;
-	background: #f2f3f5;
+	background: var(--iotsharp-page);
 }
 
 .iotsharp-shell__workspace {
 	flex: 1 1 auto;
 	min-width: 0;
 	min-height: 0;
-	padding: 0 16px 16px;
-	background: #f2f3f5;
+	padding: 0;
+	background: var(--iotsharp-page);
 }
 
 @media (max-width: 767px) {
 	.iotsharp-shell__workspace {
-		padding: 0 10px 10px;
+		padding: 0;
 	}
 }
 </style>

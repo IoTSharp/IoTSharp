@@ -1,38 +1,10 @@
 <template>
 	<div class="account-login">
-		<div class="account-login__tip">
-			<div class="account-login__tip-head">
-				<div>
-					<div class="account-login__tip-title">管理员入口</div>
-					<div class="account-login__tip-text">
-						默认管理员账号已预填。输入初始化后的密码并完成滑块拼图验证后，即可进入控制台首页。
-					</div>
-				</div>
-				<div class="account-login__tip-badge">Secure Access</div>
-			</div>
-
-			<div class="account-login__tip-grid">
-				<div class="account-login__tip-item account-login__tip-item--account">
-					<span>预设账号</span>
-					<strong>{{ ruleForm.userName }}</strong>
-				</div>
-				<div class="account-login__tip-item">
-					<span>验证方式</span>
-					<strong>滑块拼图</strong>
-				</div>
-				<div class="account-login__tip-item">
-					<span>进入后</span>
-					<strong>控制台工作台</strong>
-				</div>
-			</div>
-		</div>
-
-				<div class="account-login__form-card">
+		<div class="account-login__form-card">
 			<el-form class="account-login__form" size="large" @submit.prevent="onSignIn">
 				<el-form-item class="account-login__field account-login__field--1">
 					<div class="account-login__label-row">
-						<div class="account-login__label">用户名和密码</div>
-						<div class="account-login__label-note">默认管理员入口，可直接修改</div>
+						<div class="account-login__label">账号</div>
 					</div>
 					<el-input
 						v-model="ruleForm.userName"
@@ -50,7 +22,6 @@
 
 				<div class="account-login__label-row account-login__label-row--between">
 					<div class="account-login__label">密码</div>
-					<div class="account-login__label-note">输入初始化时设置的登录密码</div>
 				</div>
 
 				<el-form-item class="account-login__field account-login__field--2">
@@ -74,12 +45,6 @@
 
 				<el-form-item class="account-login__field account-login__field--3">
 					<div class="account-login__actions">
-						<div class="account-login__meta">
-							<div class="account-login__meta-copy">
-								<div class="account-login__meta-title">校验通过后自动提交登录</div>
-								<div class="account-login__meta-text">登录前需要先完成一次安全校验，验证通过后系统会自动提交登录。</div>
-							</div>
-						</div>
 						<el-button type="primary" class="account-login__submit" native-type="submit" :loading="loading.signIn">
 							登录控制台
 						</el-button>
@@ -688,6 +653,46 @@ const signInSuccess = () => {
 
 :deep(.account-login__verify-dialog .el-dialog) {
 	border-radius: 24px;
+}
+
+/* 认证表单使用单一实色工作面，避免在登录面板中继续嵌套说明卡片。 */
+.account-login {
+	gap: 14px;
+}
+
+.account-login__form-card {
+	padding: 0;
+	border: 0;
+	border-radius: 0;
+	background: transparent;
+}
+
+.account-login__label {
+	color: var(--iotsharp-text);
+	letter-spacing: 0;
+}
+
+.account-login__submit {
+	height: 42px;
+	border-radius: var(--iotsharp-radius-control);
+	background: var(--iotsharp-accent-gradient);
+	box-shadow: 0 9px 20px rgba(var(--iotsharp-accent-rgb), 0.18);
+}
+
+.account-login__signup {
+	border-color: var(--iotsharp-border);
+	color: var(--iotsharp-text-muted);
+}
+
+:deep(.el-input__wrapper) {
+	min-height: 42px;
+	border-radius: var(--iotsharp-radius-control);
+}
+
+:deep(.account-login__verify-dialog .el-dialog),
+.captcha-shell__board,
+.captcha-shell__error {
+	border-radius: var(--iotsharp-radius-panel);
 }
 
 @media (max-width: 767px) {

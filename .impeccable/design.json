@@ -1,0 +1,132 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-08-26T04:10:00+08:00",
+  "title": "Design System: IoTSharp XJETC Ops Acrylic Control Plane",
+  "extensions": {
+    "colorMeta": {
+      "theme-pine-dark": {
+        "role": "primary",
+        "displayName": "松针绿深色锚点",
+        "canonical": "#1E5B4F",
+        "tonalRamp": ["#183B36", "#1E5B4F", "#DCEEE7"]
+      },
+      "theme-pine-light": {
+        "role": "secondary",
+        "displayName": "松针绿浅色陪衬",
+        "canonical": "#DCEEE7",
+        "tonalRamp": ["#B9D9CE", "#DCEEE7", "#F5FBF8"]
+      },
+      "success": {
+        "role": "success",
+        "displayName": "成功绿",
+        "canonical": "#157347",
+        "tonalRamp": ["#0D4F30", "#157347", "#E8F5ED"]
+      },
+      "warning": {
+        "role": "warning",
+        "displayName": "警告琥珀",
+        "canonical": "#A85D00",
+        "tonalRamp": ["#704000", "#A85D00", "#FFF3D9"]
+      },
+      "danger": {
+        "role": "danger",
+        "displayName": "危险红",
+        "canonical": "#BD3E3E",
+        "tonalRamp": ["#842727", "#BD3E3E", "#FDEAEA"]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Segoe UI Variable Display",
+        "purpose": "入口、登录和初始化页面的主标题。"
+      },
+      "body": {
+        "displayName": "Segoe UI Variable Text",
+        "purpose": "控制台工作区、表格和表单的连续阅读。"
+      }
+    },
+    "shadows": [
+      {
+        "name": "panel",
+        "value": "0 8px 22px rgba(24, 45, 39, 0.07)",
+        "purpose": "普通工作区面板和实体卡片。"
+      },
+      {
+        "name": "float",
+        "value": "0 18px 42px rgba(18, 37, 31, 0.14)",
+        "purpose": "主题选择器、抽屉和入口状态卡。"
+      }
+    ],
+    "motion": [
+      {
+        "name": "state",
+        "value": "160ms ease",
+        "purpose": "按钮、主题选项和边框的状态切换。"
+      },
+      {
+        "name": "layout",
+        "value": "300ms ease",
+        "purpose": "导航展开、折叠和移动抽屉。"
+      }
+    ],
+    "breakpoints": [
+      { "name": "mobile-drawer", "value": "1000px" },
+      { "name": "stack", "value": "767px" },
+      { "name": "compact", "value": "600px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "用于进入、保存、发布和确认的主动作。",
+      "html": "<button class=\"ds-btn-primary\">进入控制台</button>",
+      "css": ".ds-btn-primary { background: var(--iotsharp-accent-gradient); color: #fff; padding: 10px 18px; border: 1px solid transparent; border-radius: 6px; font: 600 14px/1.35 'Segoe UI Variable Text', 'Segoe UI', sans-serif; transition: 160ms ease; } .ds-btn-primary:hover { box-shadow: 0 8px 18px rgba(var(--iotsharp-accent-rgb), .2); } .ds-btn-primary:focus-visible { outline: 2px solid var(--iotsharp-accent); outline-offset: 2px; }"
+    },
+    {
+      "name": "Quiet Button",
+      "kind": "button",
+      "refersTo": "button-quiet",
+      "description": "用于返回、筛选和非破坏性次要操作。",
+      "html": "<button class=\"ds-btn-quiet\">返回</button>",
+      "css": ".ds-btn-quiet { background: var(--iotsharp-selection); color: var(--iotsharp-ink); padding: 9px 14px; border: 1px solid rgba(var(--iotsharp-accent-rgb), .2); border-radius: 6px; font: 600 14px/1.35 'Segoe UI Variable Text', 'Segoe UI', sans-serif; transition: 160ms ease; } .ds-btn-quiet:hover { border-color: var(--iotsharp-accent); } .ds-btn-quiet:focus-visible { outline: 2px solid var(--iotsharp-accent); outline-offset: 2px; }"
+    },
+    {
+      "name": "Field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "控制台和认证页面的单行字段。",
+      "html": "<label class=\"ds-field\"><span>账号</span><input placeholder=\"请输入账号\" /></label>",
+      "css": ".ds-field { display: grid; gap: 6px; color: var(--iotsharp-text-soft); font: 600 12px/1.35 'Segoe UI Variable Text', 'Segoe UI', sans-serif; } .ds-field input { width: 100%; padding: 10px 12px; border: 1px solid var(--iotsharp-border); border-radius: 6px; background: #fff; color: var(--iotsharp-text); font: 400 14px/1.55 'Segoe UI Variable Text', 'Segoe UI', sans-serif; } .ds-field input:focus-visible { border-color: var(--iotsharp-accent); outline: 3px solid rgba(var(--iotsharp-accent-rgb), .1); outline-offset: 0; }"
+    },
+    {
+      "name": "Navigation Rail",
+      "kind": "nav",
+      "refersTo": "navigation",
+      "description": "按平台领域组织工作区入口。",
+      "html": "<nav class=\"ds-nav\"><a class=\"ds-nav-active\" href=\"#\">运行概览</a><a href=\"#\">设备管理</a></nav>",
+      "css": ".ds-nav { display: grid; gap: 4px; width: 220px; padding: 12px 10px; background: var(--iotsharp-nav-gradient); } .ds-nav a { padding: 10px 12px; border-radius: 6px; color: rgba(255,255,255,.72); text-decoration: none; font: 600 14px/1.35 'Segoe UI Variable Text', 'Segoe UI', sans-serif; } .ds-nav a:hover, .ds-nav .ds-nav-active { background: var(--iotsharp-selection); color: var(--iotsharp-accent); } .ds-nav a:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }"
+    },
+    {
+      "name": "Workspace Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "承载列表、状态、详情和审计证据的实色容器。",
+      "html": "<section class=\"ds-card\"><strong>实例状态</strong><p>已初始化</p></section>",
+      "css": ".ds-card { padding: 18px; border: 1px solid var(--iotsharp-border); border-radius: 8px; background: #fff; color: var(--iotsharp-text); box-shadow: 0 8px 22px rgba(24,45,39,.07); } .ds-card strong { font: 600 15px/1.3 'Segoe UI Variable Text', 'Segoe UI', sans-serif; } .ds-card p { margin: 8px 0 0; color: var(--iotsharp-text-soft); font: 400 14px/1.55 'Segoe UI Variable Text', 'Segoe UI', sans-serif; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Operations Signal Room",
+    "overview": "IoTSharp 是面向生产现场的控制平面。深色导航轨说明领域边界，浅色工作区承载真实对象、运行状态、版本和审计证据。渐变与亚克力只用于导航、顶栏和浮层，不降低表格、表单和告警区域的可读性。",
+    "keyCharacteristics": ["深色导航轨", "浅色高密度工作区", "克制渐变与亚克力", "12 套双颜色主题", "Product/Device/Asset 领域边界"],
+    "rules": [
+      { "name": "The Two-Tone Rule", "body": "每个主题同时提供深色锚点与浅色陪衬，状态语义颜色固定。", "section": "colors" },
+      { "name": "The Acrylic Boundary Rule", "body": "亚克力只表达浮层上下文，业务事实必须落在不透明表面上。", "section": "elevation" },
+      { "name": "The Evidence First Rule", "body": "标题和首屏优先说明对象、状态、版本与任务证据。", "section": "typography" }
+    ],
+    "dos": ["Do use the shared console workspaces for lists, forms, detail and audit states.", "Do keep status meaning stable when themes change."],
+    "donts": ["Don't use glass or gradients behind dense data.", "Don't invent production metrics or completion states without API evidence."]
+  }
+}

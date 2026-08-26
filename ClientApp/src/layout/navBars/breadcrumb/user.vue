@@ -1,22 +1,13 @@
 <template>
-	<div class="layout-navbars-breadcrumb-user" :style="{ flex: layoutUserFlexNum }">
-		<el-dropdown trigger="click" @command="onComponentSizeChange">
-			<div class="layout-navbars-breadcrumb-user__icon">
-				<i class="iconfont icon-ziti" :title="$t('message.user.title0')"></i>
-			</div>
-			<template #dropdown>
-				<el-dropdown-menu>
-					<el-dropdown-item command="large" :disabled="disabledSize === 'large'">{{ $t('message.user.dropdownLarge') }}</el-dropdown-item>
-					<el-dropdown-item command="default" :disabled="disabledSize === 'default'">{{ $t('message.user.dropdownDefault') }}</el-dropdown-item>
-					<el-dropdown-item command="small" :disabled="disabledSize === 'small'">{{ $t('message.user.dropdownSmall') }}</el-dropdown-item>
-				</el-dropdown-menu>
-			</template>
-		</el-dropdown>
+	<div class="layout-navbars-breadcrumb-user">
+		<button type="button" class="topbar-tool" title="搜索菜单" @click="onSearchClick">
+			<el-icon><SearchIcon /></el-icon>
+		</button>
 
 		<el-dropdown trigger="click" @command="onLanguageChange">
-			<div class="layout-navbars-breadcrumb-user__icon">
-				<i class="iconfont" :class="disabledI18n === 'en' ? 'icon-fuhao-yingwen' : 'icon-fuhao-zhongwen'" :title="$t('message.user.title1')"></i>
-			</div>
+			<button type="button" class="topbar-tool" title="切换语言">
+				<el-icon><Connection /></el-icon>
+			</button>
 			<template #dropdown>
 				<el-dropdown-menu>
 					<el-dropdown-item command="zh-cn" :disabled="disabledI18n === 'zh-cn'">简体中文</el-dropdown-item>
@@ -26,53 +17,24 @@
 			</template>
 		</el-dropdown>
 
-		<div class="layout-navbars-breadcrumb-user__icon" @click="onSearchClick">
-			<el-icon :title="$t('message.user.title2')">
-				<ele-Search />
-			</el-icon>
-		</div>
+		<button type="button" class="topbar-tool topbar-tool--desktop" :title="isScreenfull ? '退出全屏' : '进入全屏'" @click="onScreenfullClick">
+			<el-icon><FullScreen /></el-icon>
+		</button>
 
-		<div class="layout-navbars-breadcrumb-user__icon" @click="onLayoutSetingClick">
-			<i class="iconfont icon-skin" :title="$t('message.user.title3')"></i>
-		</div>
+		<ThemePicker />
 
-		<div class="layout-navbars-breadcrumb-user__icon">
-			<el-popover placement="bottom" trigger="click" transition="el-zoom-in-top" :width="300" :persistent="false">
-				<template #reference>
-					<el-badge :is-dot="true">
-						<el-icon :title="$t('message.user.title4')">
-							<ele-Bell />
-						</el-icon>
-					</el-badge>
-				</template>
-				<UserNews />
-			</el-popover>
-		</div>
-
-		<div class="layout-navbars-breadcrumb-user__icon" @click="onScreenfullClick">
-			<i
-				class="iconfont"
-				:title="isScreenfull ? $t('message.user.title6') : $t('message.user.title5')"
-				:class="!isScreenfull ? 'icon-fullscreen' : 'icon-tuichuquanping'"
-			></i>
-		</div>
-
-		<el-dropdown @command="onHandleCommandClick">
-			<span class="layout-navbars-breadcrumb-user__link">
-				<img :src="userInfos.photo" class="layout-navbars-breadcrumb-user__photo" />
-				<span class="layout-navbars-breadcrumb-user__name">{{ userInfos.userName === '' ? 'common' : userInfos.userName }}</span>
-				<el-icon class="el-icon--right">
-					<ele-ArrowDown />
-				</el-icon>
-			</span>
+		<el-dropdown trigger="click" @command="onHandleCommandClick">
+			<button type="button" class="account-trigger" aria-label="账号菜单">
+				<img v-if="userInfos.photo" :src="userInfos.photo" class="account-trigger__photo" alt="" />
+				<span v-else class="account-trigger__initial">{{ userInitial }}</span>
+				<span class="account-trigger__name">{{ displayName }}</span>
+				<el-icon><ArrowDown /></el-icon>
+			</button>
 			<template #dropdown>
 				<el-dropdown-menu>
-					<el-dropdown-item command="/home">{{ $t('message.user.dropdown1') }}</el-dropdown-item>
-					<el-dropdown-item command="/profile">{{ $t('message.user.dropdown2') }}</el-dropdown-item>
-					<el-dropdown-item command="iotsharp">{{ $t('message.user.dropdown6') }}</el-dropdown-item>
-					<el-dropdown-item command="docs">{{ $t('message.user.dropdown3') }}</el-dropdown-item>
-					<el-dropdown-item command="github">{{ $t('message.user.dropdown4') }}</el-dropdown-item>
-					<el-dropdown-item divided command="logOut">{{ $t('message.user.dropdown5') }}</el-dropdown-item>
+					<el-dropdown-item command="/dashboard">控制台首页</el-dropdown-item>
+					<el-dropdown-item command="/profile">个人中心</el-dropdown-item>
+					<el-dropdown-item divided command="logOut">退出登录</el-dropdown-item>
 				</el-dropdown-menu>
 			</template>
 		</el-dropdown>
@@ -82,24 +44,25 @@
 </template>
 
 <script lang="ts">
-import { ref, getCurrentInstance, computed, reactive, toRefs, onMounted, defineComponent } from 'vue';
+import { computed, defineComponent, getCurrentInstance, onMounted, onUnmounted, reactive, ref, toRefs } from 'vue';
 import { useRouter } from 'vue-router';
-import { ElMessageBox, ElMessage } from 'element-plus';
+import { ArrowDown, Connection, FullScreen, Search as SearchIcon } from '@element-plus/icons-vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import screenfull from 'screenfull';
 import { useI18n } from 'vue-i18n';
 import { storeToRefs } from 'pinia';
 import { useUserInfo } from '/@/stores/userInfo';
 import { useThemeConfig } from '/@/stores/themeConfig';
 import other from '/@/utils/other';
-import { Session, Local } from '/@/utils/storage';
-import UserNews from '/@/layout/navBars/breadcrumb/userNews.vue';
+import { Local, Session } from '/@/utils/storage';
 import Search from '/@/layout/navBars/breadcrumb/search.vue';
+import ThemePicker from '/@/components/theme/ThemePicker.vue';
 
 export default defineComponent({
 	name: 'layoutBreadcrumbUser',
-	components: { UserNews, Search },
+	components: { ArrowDown, Connection, FullScreen, SearchIcon, Search, ThemePicker },
 	setup() {
-		const { t, messages } = useI18n();
+		const { messages } = useI18n();
 		const { proxy } = <any>getCurrentInstance();
 		const router = useRouter();
 		const stores = useUserInfo();
@@ -107,149 +70,79 @@ export default defineComponent({
 		const { userInfos } = storeToRefs(stores);
 		const { themeConfig } = storeToRefs(storesThemeConfig);
 		const searchRef = ref();
-		const state = reactive({
-			isScreenfull: false,
-			disabledI18n: 'zh-cn',
-			disabledSize: 'large',
-		});
+		const state = reactive({ isScreenfull: false, disabledI18n: 'zh-cn' });
 
-		const layoutUserFlexNum = computed(() => {
-			const { layout, isClassicSplitMenu } = themeConfig.value;
-			const layoutArr: string[] = ['defaults', 'columns'];
-			if (layoutArr.includes(layout) || (layout === 'classic' && !isClassicSplitMenu)) return '1';
-			return '';
-		});
+		const displayName = computed(() => userInfos.value.userName || 'IoTSharp 用户');
+		const userInitial = computed(() => displayName.value.trim().slice(0, 1).toUpperCase());
+
+		const onScreenfullChange = () => {
+			state.isScreenfull = screenfull.isFullscreen;
+		};
 
 		const onScreenfullClick = () => {
 			if (!screenfull.isEnabled) {
-				ElMessage.warning('当前环境暂不支持全屏');
+				ElMessage.warning('当前浏览器不支持全屏');
 				return;
 			}
-			screenfull.toggle();
-			screenfull.on('change', () => {
-				state.isScreenfull = screenfull.isFullscreen;
-			});
+			void screenfull.toggle();
 		};
 
-		const onLayoutSetingClick = () => {
-			proxy.mittBus.emit('openSetingsDrawer');
-		};
+		const onHandleCommandClick = async (path: string) => {
+			if (path !== 'logOut') {
+				await router.push(path);
+				return;
+			}
 
-		const onHandleCommandClick = (path: string) => {
-			if (path === 'logOut') {
-				ElMessageBox({
-					closeOnClickModal: false,
-					closeOnPressEscape: false,
-					title: t('message.user.logOutTitle'),
-					message: t('message.user.logOutMessage'),
-					showCancelButton: true,
-					confirmButtonText: t('message.user.logOutConfirm'),
-					cancelButtonText: t('message.user.logOutCancel'),
-					buttonSize: 'default',
-					beforeClose: (action, instance, done) => {
-						if (action === 'confirm') {
-							instance.confirmButtonLoading = true;
-							instance.confirmButtonText = t('message.user.logOutExit');
-							setTimeout(() => {
-								done();
-								setTimeout(() => {
-									instance.confirmButtonLoading = false;
-								}, 300);
-							}, 700);
-						} else {
-							done();
-						}
-					},
-				})
-					.then(() => {
-						Session.clear();
-						window.location.reload();
-					})
-					.catch(() => {});
-			} else if (path === 'iotsharp') {
-				window.open('https://iotsharp.net/');
-			} else if (path === 'github') {
-				window.open('https://github.com/IoTSharp');
-			} else if (path === 'docs') {
-				window.open('http://docs.iotsharp.net/');
-			} else {
-				router.push(path);
+			try {
+				await ElMessageBox.confirm('退出后需要重新验证身份才能进入控制台。', '退出登录', {
+					confirmButtonText: '退出',
+					cancelButtonText: '取消',
+					type: 'warning',
+				});
+				Session.clear();
+				window.location.reload();
+			} catch {
+				// 用户取消退出时保持当前工作上下文。
 			}
 		};
 
-		const onSearchClick = () => {
-			searchRef.value.openSearch();
-		};
+		const onSearchClick = () => searchRef.value?.openSearch?.();
 
-		const onComponentSizeChange = (size: string) => {
-			Local.remove('themeConfig');
-			themeConfig.value.globalComponentSize = size;
-			Local.set('themeConfig', themeConfig.value);
-			initComponentSize();
-			window.location.reload();
-		};
-
-		const setI18nConfig = async (locale: string) => {
+		const setI18nConfig = (locale: string) => {
 			proxy.mittBus.emit('getI18nConfig', messages.value[locale]);
 		};
 
-		const initI18n = () => {
-			switch (Local.get('themeConfig').globalI18n) {
-				case 'zh-cn':
-					state.disabledI18n = 'zh-cn';
-					setI18nConfig('zh-cn');
-					break;
-				case 'en':
-					state.disabledI18n = 'en';
-					setI18nConfig('en');
-					break;
-				case 'zh-tw':
-					state.disabledI18n = 'zh-tw';
-					setI18nConfig('zh-tw');
-					break;
-			}
+		const syncLanguage = () => {
+			state.disabledI18n = themeConfig.value.globalI18n || 'zh-cn';
+			setI18nConfig(state.disabledI18n);
 		};
 
-		const onLanguageChange = (lang: string) => {
-			Local.remove('themeConfig');
-			themeConfig.value.globalI18n = lang;
+		const onLanguageChange = (language: string) => {
+			themeConfig.value.globalI18n = language;
 			Local.set('themeConfig', themeConfig.value);
-			proxy.$i18n.locale = lang;
-			initI18n();
+			proxy.$i18n.locale = language;
+			syncLanguage();
 			other.useTitle();
 		};
 
-		const initComponentSize = () => {
-			switch (Local.get('themeConfig').globalComponentSize) {
-				case 'large':
-					state.disabledSize = 'large';
-					break;
-				case 'default':
-					state.disabledSize = 'default';
-					break;
-				case 'small':
-					state.disabledSize = 'small';
-					break;
-			}
-		};
-
 		onMounted(() => {
-			if (Local.get('themeConfig')) {
-				initI18n();
-				initComponentSize();
-			}
+			syncLanguage();
+			if (screenfull.isEnabled) screenfull.on('change', onScreenfullChange);
+		});
+
+		onUnmounted(() => {
+			if (screenfull.isEnabled) screenfull.off('change', onScreenfullChange);
 		});
 
 		return {
 			userInfos,
-			onLayoutSetingClick,
+			displayName,
+			userInitial,
 			onHandleCommandClick,
 			onScreenfullClick,
 			onSearchClick,
-			onComponentSizeChange,
 			onLanguageChange,
 			searchRef,
-			layoutUserFlexNum,
 			...toRefs(state),
 		};
 	},
@@ -259,87 +152,95 @@ export default defineComponent({
 <style scoped lang="scss">
 .layout-navbars-breadcrumb-user {
 	display: flex;
+	flex: 1;
 	align-items: center;
 	justify-content: flex-end;
-	gap: 10px;
+	gap: 7px;
+	min-width: 0;
 }
 
-.layout-navbars-breadcrumb-user__icon {
-	width: 34px;
-	height: 34px;
+.topbar-tool,
+.account-trigger {
 	display: inline-flex;
+	height: 36px;
+	align-items: center;
+	justify-content: center;
+	border: 1px solid rgba(var(--iotsharp-accent-rgb), 0.18);
+	border-radius: 6px;
+	background: rgba(255, 255, 255, 0.68);
+	color: var(--iotsharp-text-soft);
+	font: inherit;
+	cursor: pointer;
+	transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease, box-shadow 160ms ease;
+}
+
+.topbar-tool {
+	width: 36px;
+}
+
+.topbar-tool:hover,
+.account-trigger:hover,
+.topbar-tool:focus-visible,
+.account-trigger:focus-visible {
+	border-color: var(--iotsharp-accent);
+	background: #ffffff;
+	color: var(--iotsharp-accent);
+	box-shadow: 0 6px 16px rgba(22, 36, 32, 0.08);
+}
+
+.account-trigger {
+	gap: 8px;
+	max-width: 190px;
+	padding: 0 9px 0 5px;
+	color: var(--iotsharp-ink);
+}
+
+.account-trigger__photo,
+.account-trigger__initial {
+	display: inline-flex;
+	width: 26px;
+	height: 26px;
+	flex: 0 0 auto;
 	align-items: center;
 	justify-content: center;
 	border-radius: 50%;
-	border: 1px solid #e5e6eb;
-	background: #ffffff;
-	color: #4e5969;
-	cursor: pointer;
-	transition:
-		background 0.2s ease,
-		border-color 0.2s ease,
-		color 0.2s ease,
-		box-shadow 0.2s ease;
-
-	&:hover {
-		background: #f7fbff;
-		border-color: #bedaff;
-		color: #165dff;
-		box-shadow: 0 6px 16px rgba(22, 93, 255, 0.08);
-	}
+	background: var(--iotsharp-accent-gradient);
+	color: #ffffff;
+	font-size: 11px;
+	font-weight: 700;
+	object-fit: cover;
 }
 
-.layout-navbars-breadcrumb-user__link {
-	height: 38px;
-	display: inline-flex;
-	align-items: center;
-	gap: 8px;
-	padding: 0 10px 0 6px;
-	border-radius: 999px;
-	border: 1px solid #e5e6eb;
-	background: #ffffff;
-	color: #1d2129;
-	font-size: 13px;
+.account-trigger__name {
+	overflow: hidden;
+	font-size: 12px;
 	font-weight: 600;
+	text-overflow: ellipsis;
 	white-space: nowrap;
 }
 
-.layout-navbars-breadcrumb-user__photo {
-	width: 28px;
-	height: 28px;
-	border-radius: 50%;
-}
-
-.layout-navbars-breadcrumb-user__name {
-	max-width: 120px;
-	overflow: hidden;
-	text-overflow: ellipsis;
-}
-
-:deep(.el-dropdown) {
-	color: inherit;
-}
-
-:deep(.el-badge) {
-	height: 34px;
-	display: inline-flex;
-	align-items: center;
-}
-
-:deep(.el-badge__content.is-fixed) {
-	top: 7px;
-}
-
-@media (max-width: 767px) {
+@media (max-width: 760px) {
 	.layout-navbars-breadcrumb-user {
-		gap: 6px;
+		gap: 5px;
 	}
 
-	.layout-navbars-breadcrumb-user__link {
-		padding-right: 8px;
+	.topbar-tool--desktop,
+	.account-trigger__name {
+		display: none;
 	}
 
-	.layout-navbars-breadcrumb-user__name {
+	.account-trigger {
+		width: 36px;
+		padding: 0;
+	}
+
+	.account-trigger > .el-icon {
+		display: none;
+	}
+}
+
+@media (max-width: 470px) {
+	.topbar-tool:nth-of-type(2) {
 		display: none;
 	}
 }

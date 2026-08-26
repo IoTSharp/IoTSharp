@@ -1,57 +1,62 @@
 <template>
-	<div class="landing-page">
-		<header class="landing-header">
-			<RouterLink class="landing-header__brand" to="/">
+	<div class="entry-page">
+		<header class="entry-header">
+			<RouterLink class="entry-header__brand" to="/">
 				<AppLogo />
 			</RouterLink>
-
-			<div class="landing-header__actions">
-				<RouterLink class="landing-header__link" to="/installer">初始化</RouterLink>
-				<RouterLink class="landing-header__button landing-header__button--plain" to="/signup">注册</RouterLink>
-				<RouterLink class="landing-header__button" to="/login">登录</RouterLink>
+			<div class="entry-header__tools">
+				<ThemePicker />
+				<RouterLink class="entry-header__login" to="/login">登录</RouterLink>
 			</div>
 		</header>
 
-		<main class="landing-main">
-			<section class="landing-entry">
-				<div class="landing-entry__main">
-					<div class="landing-entry__eyebrow">IoTSharp 控制台</div>
-					<h1>{{ pageTitle }}</h1>
-					<p>选择入口继续操作。未初始化的实例请先完成安装向导。</p>
-
-					<div class="landing-entry__actions">
-						<RouterLink class="landing-entry__primary" to="/login">登录控制台</RouterLink>
-						<RouterLink class="landing-entry__secondary" to="/installer">系统初始化</RouterLink>
-					</div>
+		<main class="entry-main">
+			<section class="entry-intro">
+				<div class="entry-intro__copy">
+					<h1>IoTSharp</h1>
+					<p>统一管理物联网接入与采集、实时规则、边缘运维和受控发布。</p>
 				</div>
 
-				<aside class="landing-status" aria-label="实例状态">
-					<div class="landing-status__head">
-						<span>实例状态</span>
-						<strong :class="{ 'is-ready': isInstalled }">{{ statusText }}</strong>
-					</div>
-
-					<div class="landing-status__grid">
-						<div v-for="item in statusItems" :key="item.label" class="landing-status__item">
-							<span>{{ item.label }}</span>
-							<strong>{{ item.value }}</strong>
+				<div class="entry-layers" aria-label="平台能力">
+					<div v-for="layer in platformLayers" :key="layer.title" class="entry-layer">
+						<el-icon><component :is="layer.icon" /></el-icon>
+						<div>
+							<strong>{{ layer.title }}</strong>
+							<span>{{ layer.description }}</span>
 						</div>
 					</div>
-				</aside>
+				</div>
 			</section>
 
-			<section class="landing-workbench">
-				<div class="landing-workbench__header">
-					<h2>常用入口</h2>
-					<p>这里保留进入系统前最常用的操作，不展示额外宣传内容。</p>
+			<section class="entry-access" aria-label="实例入口">
+				<div class="entry-access__status">
+					<div>
+						<span>实例状态</span>
+						<strong>{{ isInstalled ? '已初始化' : '等待初始化' }}</strong>
+					</div>
+					<span class="status-indicator" :class="{ 'is-ready': isInstalled }"></span>
 				</div>
 
-				<div class="landing-workbench__grid">
-					<RouterLink v-for="item in actionCards" :key="item.title" class="landing-action" :to="item.to">
-						<span>{{ item.label }}</span>
-						<strong>{{ item.title }}</strong>
-						<p>{{ item.description }}</p>
-					</RouterLink>
+				<dl class="entry-access__facts">
+					<div>
+						<dt>版本</dt>
+						<dd>{{ versionText }}</dd>
+					</div>
+					<div>
+						<dt>认证</dt>
+						<dd>账号 + 安全校验</dd>
+					</div>
+					<div>
+						<dt>工作区</dt>
+						<dd>按租户与角色加载</dd>
+					</div>
+				</dl>
+
+				<RouterLink v-if="isInstalled" class="entry-access__primary" to="/login">进入控制台</RouterLink>
+				<RouterLink v-else class="entry-access__primary" to="/installer">开始初始化</RouterLink>
+				<div class="entry-access__links">
+					<RouterLink to="/signup">注册租户账号</RouterLink>
+					<RouterLink to="/installer">系统初始化</RouterLink>
 				</div>
 			</section>
 		</main>
@@ -61,342 +66,254 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { RouterLink } from 'vue-router';
-import { storeToRefs } from 'pinia';
+import { Connection, Cpu, SetUp } from '@element-plus/icons-vue';
 import AppLogo from '/@/components/AppLogo.vue';
+import ThemePicker from '/@/components/theme/ThemePicker.vue';
 import { useAppInfo } from '/@/stores/appInfo';
-import { useThemeConfig } from '/@/stores/themeConfig';
 
 const storesAppInfo = useAppInfo();
-const storesThemeConfig = useThemeConfig();
-const { themeConfig } = storeToRefs(storesThemeConfig);
-
-const pageTitle = computed(() => themeConfig.value.globalTitle || 'IoTSharp');
 const isInstalled = computed(() => Boolean(storesAppInfo.appInfo.installed));
-const statusText = computed(() => (isInstalled.value ? '已初始化' : '待初始化'));
 const versionText = computed(() => storesAppInfo.appInfo.version || '--');
-
-const statusItems = computed(() => [
-	{ label: '版本', value: versionText.value },
-	{ label: '认证入口', value: '账号登录' },
-	{ label: '初始化', value: statusText.value },
-]);
-
-const actionCards = [
-	{
-		label: '01',
-		title: '登录',
-		description: '使用已有账号进入控制台。',
-		to: '/login',
-	},
-	{
-		label: '02',
-		title: '注册',
-		description: '创建租户和管理员账号。',
-		to: '/signup',
-	},
-	{
-		label: '03',
-		title: '初始化',
-		description: '首次部署时创建系统管理员。',
-		to: '/installer',
-	},
+const platformLayers = [
+	{ title: '接入与采集', description: 'Product、Asset、Device、Gateway、EdgeNode 与采集模板', icon: Connection },
+	{ title: '实时规则', description: '面向实时事件的规则链、模拟、追踪和审计', icon: SetUp },
+	{ title: '运维与发布', description: '配置版本、边缘任务、灰度发布、确认与回滚', icon: Cpu },
 ];
 </script>
 
 <style scoped lang="scss">
-.landing-page {
+.entry-page {
 	min-height: 100vh;
-	background:
-		linear-gradient(rgba(148, 163, 184, 0.08) 1px, transparent 1px),
-		linear-gradient(90deg, rgba(148, 163, 184, 0.08) 1px, transparent 1px),
-		linear-gradient(180deg, #f6f9fc 0%, #eef4f8 100%);
-	background-size: 44px 44px, 44px 44px, auto;
-	color: #172033;
+	background: var(--iotsharp-quiet-gradient);
+	color: var(--iotsharp-text);
 }
 
-.landing-header {
-	position: sticky;
-	top: 0;
-	z-index: 10;
+.entry-header {
 	display: flex;
+	height: 64px;
 	align-items: center;
 	justify-content: space-between;
-	gap: 20px;
-	padding: 18px 32px;
-	border-bottom: 1px solid rgba(203, 213, 225, 0.72);
-	background: rgba(255, 255, 255, 0.9);
-	backdrop-filter: blur(16px);
+	gap: 18px;
+	padding: 0 28px;
+	border-bottom: 1px solid rgba(var(--iotsharp-accent-rgb), 0.14);
+	background: var(--iotsharp-topbar-gradient);
+	backdrop-filter: blur(18px) saturate(1.15);
 }
 
-.landing-header__brand,
-.landing-header__link,
-.landing-header__button,
-.landing-entry__primary,
-.landing-entry__secondary,
-.landing-action {
+.entry-header__brand,
+.entry-header__login,
+.entry-access__primary,
+.entry-access__links a {
 	text-decoration: none;
 }
 
-.landing-header__actions,
-.landing-entry__actions {
+.entry-header__tools {
 	display: flex;
 	align-items: center;
-	gap: 12px;
+	gap: 8px;
 }
 
-.landing-header__link {
-	color: #475569;
-	font-size: 14px;
+.entry-header__login {
+	display: inline-flex;
+	height: 36px;
+	align-items: center;
+	padding: 0 14px;
+	border-radius: 6px;
+	background: var(--iotsharp-accent-gradient);
+	color: #ffffff;
+	font-size: 12px;
+	font-weight: 650;
+}
+
+.entry-main {
+	display: grid;
+	grid-template-columns: minmax(0, 1.5fr) minmax(320px, 0.65fr);
+	width: min(1080px, calc(100% - 40px));
+	min-height: calc(100vh - 64px);
+	margin: 0 auto;
+	align-items: center;
+	gap: 60px;
+	padding: 42px 0;
+}
+
+.entry-intro__copy {
+	max-width: 68ch;
+}
+
+.entry-intro h1 {
+	margin: 0;
+	color: var(--iotsharp-ink);
+	font-size: 48px;
+	font-weight: 720;
+	letter-spacing: 0;
+	line-height: 1.08;
+}
+
+.entry-intro__copy p {
+	margin: 15px 0 0;
+	color: var(--iotsharp-text-soft);
+	font-size: 17px;
+	line-height: 1.75;
+}
+
+.entry-layers {
+	display: grid;
+	margin-top: 34px;
+	border-top: 1px solid rgba(var(--iotsharp-accent-rgb), 0.16);
+}
+
+.entry-layer {
+	display: grid;
+	grid-template-columns: 36px minmax(0, 1fr);
+	align-items: center;
+	gap: 12px;
+	min-height: 70px;
+	border-bottom: 1px solid rgba(var(--iotsharp-accent-rgb), 0.16);
+}
+
+.entry-layer > .el-icon {
+	width: 34px;
+	height: 34px;
+	border-radius: 6px;
+	background: var(--iotsharp-selection);
+	color: var(--iotsharp-accent);
+}
+
+.entry-layer div {
+	display: grid;
+	gap: 3px;
+}
+
+.entry-layer strong {
+	color: var(--iotsharp-ink);
+	font-size: 13px;
+}
+
+.entry-layer span {
+	color: var(--iotsharp-text-muted);
+	font-size: 11px;
+	line-height: 1.5;
+}
+
+.entry-access {
+	padding: 22px;
+	border: 1px solid rgba(var(--iotsharp-accent-rgb), 0.18);
+	border-radius: 8px;
+	background: rgba(255, 255, 255, 0.86);
+	box-shadow: var(--iotsharp-shadow-float);
+	backdrop-filter: blur(18px) saturate(1.1);
+}
+
+.entry-access__status {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 14px;
+	padding-bottom: 16px;
+	border-bottom: 1px solid var(--iotsharp-border);
+}
+
+.entry-access__status div {
+	display: grid;
+	gap: 3px;
+}
+
+.entry-access__status span,
+.entry-access__facts dt {
+	color: var(--iotsharp-text-muted);
+	font-size: 10px;
+}
+
+.entry-access__status strong {
+	color: var(--iotsharp-ink);
+	font-size: 15px;
+}
+
+.status-indicator {
+	width: 9px;
+	height: 9px;
+	border-radius: 50%;
+	background: var(--iotsharp-warning);
+	box-shadow: 0 0 0 4px var(--iotsharp-warning-surface);
+}
+
+.status-indicator.is-ready {
+	background: var(--iotsharp-success);
+	box-shadow: 0 0 0 4px var(--iotsharp-success-surface);
+}
+
+.entry-access__facts {
+	display: grid;
+	margin: 5px 0 18px;
+}
+
+.entry-access__facts div {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 10px 0;
+	border-bottom: 1px solid var(--iotsharp-border);
+}
+
+.entry-access__facts dd {
+	margin: 0;
+	color: var(--iotsharp-text);
+	font-size: 11px;
+	font-weight: 600;
+	text-align: right;
+}
+
+.entry-access__primary {
+	display: flex;
+	height: 42px;
+	align-items: center;
+	justify-content: center;
+	border-radius: 6px;
+	background: var(--iotsharp-accent-gradient);
+	color: #ffffff;
+	font-size: 13px;
+	font-weight: 650;
+	box-shadow: 0 10px 22px rgba(var(--iotsharp-accent-rgb), 0.18);
+}
+
+.entry-access__links {
+	display: flex;
+	justify-content: space-between;
+	gap: 12px;
+	margin-top: 13px;
+}
+
+.entry-access__links a {
+	color: var(--iotsharp-accent);
+	font-size: 10px;
 	font-weight: 600;
 }
 
-.landing-header__button,
-.landing-entry__primary,
-.landing-entry__secondary {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	height: 40px;
-	padding: 0 18px;
-	border-radius: 8px;
-	font-size: 14px;
-	font-weight: 700;
-}
-
-.landing-header__button,
-.landing-entry__primary {
-	background: #165dff;
-	color: #fff;
-	box-shadow: 0 12px 24px rgba(22, 93, 255, 0.16);
-}
-
-.landing-header__button--plain,
-.landing-entry__secondary {
-	border: 1px solid rgba(148, 163, 184, 0.5);
-	background: #fff;
-	color: #1e3a5f;
-	box-shadow: none;
-}
-
-.landing-main {
-	width: min(1120px, calc(100% - 48px));
-	margin: 0 auto;
-	padding: 64px 0;
-}
-
-.landing-entry {
-	display: grid;
-	grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
-	gap: 24px;
-	align-items: stretch;
-}
-
-.landing-entry__main,
-.landing-status,
-.landing-workbench {
-	border: 1px solid rgba(203, 213, 225, 0.82);
-	border-radius: 12px;
-	background: rgba(255, 255, 255, 0.94);
-	box-shadow: 0 18px 40px rgba(15, 23, 42, 0.07);
-}
-
-.landing-entry__main {
-	padding: 40px;
-}
-
-.landing-entry__eyebrow {
-	margin-bottom: 14px;
-	color: #165dff;
-	font-size: 13px;
-	font-weight: 700;
-}
-
-.landing-entry h1 {
-	margin: 0;
-	font-size: clamp(36px, 5vw, 56px);
-	line-height: 1.08;
-	letter-spacing: 0;
-}
-
-.landing-entry p {
-	max-width: 560px;
-	margin: 18px 0 0;
-	color: #64748b;
-	font-size: 16px;
-	line-height: 1.8;
-}
-
-.landing-entry__actions {
-	margin-top: 28px;
-}
-
-.landing-status {
-	padding: 28px;
-}
-
-.landing-status__head {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: 12px;
-	padding-bottom: 18px;
-	border-bottom: 1px solid rgba(226, 232, 240, 0.9);
-}
-
-.landing-status__head span,
-.landing-status__item span {
-	color: #64748b;
-	font-size: 13px;
-}
-
-.landing-status__head strong {
-	display: inline-flex;
-	align-items: center;
-	min-height: 30px;
-	padding: 0 12px;
-	border-radius: 999px;
-	background: rgba(245, 158, 11, 0.12);
-	color: #b45309;
-	font-size: 13px;
-}
-
-.landing-status__head strong.is-ready {
-	background: rgba(22, 163, 74, 0.1);
-	color: #15803d;
-}
-
-.landing-status__grid {
-	display: grid;
-	gap: 12px;
-	margin-top: 18px;
-}
-
-.landing-status__item {
-	padding: 16px;
-	border: 1px solid rgba(226, 232, 240, 0.9);
-	border-radius: 10px;
-	background: #f8fafc;
-}
-
-.landing-status__item strong {
-	display: block;
-	margin-top: 8px;
-	color: #172033;
-	font-size: 18px;
-}
-
-.landing-workbench {
-	margin-top: 24px;
-	padding: 28px;
-}
-
-.landing-workbench__header {
-	display: flex;
-	align-items: flex-end;
-	justify-content: space-between;
-	gap: 18px;
-	margin-bottom: 18px;
-}
-
-.landing-workbench h2 {
-	margin: 0;
-	font-size: 24px;
-	letter-spacing: 0;
-}
-
-.landing-workbench__header p {
-	max-width: 420px;
-	margin: 0;
-	color: #64748b;
-	line-height: 1.7;
-}
-
-.landing-workbench__grid {
-	display: grid;
-	grid-template-columns: repeat(3, minmax(0, 1fr));
-	gap: 14px;
-}
-
-.landing-action {
-	display: block;
-	padding: 20px;
-	border: 1px solid rgba(226, 232, 240, 0.94);
-	border-radius: 10px;
-	background: #fff;
-	color: inherit;
-	transition:
-		border-color 0.18s ease,
-		box-shadow 0.18s ease,
-		transform 0.18s ease;
-}
-
-.landing-action:hover {
-	border-color: rgba(22, 93, 255, 0.36);
-	box-shadow: 0 14px 30px rgba(15, 23, 42, 0.08);
-	transform: translateY(-2px);
-}
-
-.landing-action span {
-	color: #165dff;
-	font-size: 13px;
-	font-weight: 800;
-}
-
-.landing-action strong {
-	display: block;
-	margin-top: 14px;
-	font-size: 20px;
-}
-
-.landing-action p {
-	margin: 8px 0 0;
-	color: #64748b;
-	line-height: 1.7;
-}
-
-@media (max-width: 900px) {
-	.landing-entry,
-	.landing-workbench__grid {
+@media (max-width: 820px) {
+	.entry-main {
 		grid-template-columns: 1fr;
+		align-items: start;
+		gap: 30px;
+		padding: 36px 0;
 	}
 
-	.landing-workbench__header {
-		display: block;
-	}
-
-	.landing-workbench__header p {
-		margin-top: 10px;
+	.entry-intro h1 {
+		font-size: 38px;
 	}
 }
 
-@media (max-width: 640px) {
-	.landing-header {
-		align-items: flex-start;
-		flex-direction: column;
-		padding: 16px 18px;
+@media (max-width: 520px) {
+	.entry-header {
+		padding: 0 14px;
 	}
 
-	.landing-header__actions,
-	.landing-entry__actions {
-		width: 100%;
-		flex-wrap: wrap;
+	.entry-main {
+		width: calc(100% - 24px);
 	}
 
-	.landing-header__button,
-	.landing-entry__primary,
-	.landing-entry__secondary {
-		flex: 1;
-	}
-
-	.landing-main {
-		width: min(100%, calc(100% - 28px));
-		padding: 28px 0;
-	}
-
-	.landing-entry__main,
-	.landing-status,
-	.landing-workbench {
-		padding: 22px;
+	.entry-intro__copy p {
+		font-size: 14px;
 	}
 }
 </style>

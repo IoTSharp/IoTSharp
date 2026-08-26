@@ -448,3 +448,109 @@
 		overflow: auto;
 	}
 }
+
+/* IoTSharp 控制台组件映射 */
+.el-button {
+	border-radius: var(--iotsharp-radius-control);
+	font-weight: 600;
+	letter-spacing: 0;
+}
+
+.el-button--primary:not(.is-link):not(.is-text) {
+	border-color: transparent;
+	background: var(--iotsharp-accent-gradient);
+	box-shadow: 0 6px 14px rgba(var(--iotsharp-accent-rgb), 0.14);
+}
+
+.el-button--primary:not(.is-link):not(.is-text):hover,
+.el-button--primary:not(.is-link):not(.is-text):focus-visible {
+	border-color: transparent;
+	background: var(--iotsharp-theme-dark);
+	box-shadow: 0 8px 18px rgba(var(--iotsharp-accent-rgb), 0.2);
+}
+
+.el-input__wrapper,
+.el-select__wrapper,
+.el-textarea__inner,
+.el-input-number,
+.el-date-editor.el-input__wrapper {
+	border-radius: var(--iotsharp-radius-control);
+	box-shadow: 0 0 0 1px var(--iotsharp-border) inset;
+}
+
+.el-input__wrapper:hover,
+.el-select__wrapper:hover,
+.el-textarea__inner:hover {
+	box-shadow: 0 0 0 1px var(--iotsharp-border-strong) inset;
+}
+
+.el-input__wrapper.is-focus,
+.el-select__wrapper.is-focused,
+.el-textarea__inner:focus {
+	box-shadow: 0 0 0 1px var(--iotsharp-accent) inset, 0 0 0 3px rgba(var(--iotsharp-accent-rgb), 0.1);
+}
+
+.el-card,
+.el-dialog,
+.el-message-box,
+.el-notification,
+.el-popper,
+.el-drawer {
+	border-radius: var(--iotsharp-radius-panel);
+}
+
+.el-card {
+	border-color: var(--iotsharp-border);
+	box-shadow: var(--iotsharp-shadow-panel);
+}
+
+.el-dialog,
+.el-message-box,
+.el-notification {
+	box-shadow: var(--iotsharp-shadow-float);
+}
+
+.el-table {
+	--el-table-header-bg-color: var(--iotsharp-surface-muted);
+	--el-table-row-hover-bg-color: color-mix(in srgb, var(--iotsharp-selection) 45%, #ffffff);
+	--el-table-border-color: var(--iotsharp-border);
+	color: var(--iotsharp-text);
+	font-variant-numeric: tabular-nums;
+}
+
+.el-table th.el-table__cell {
+	color: var(--iotsharp-text-soft);
+	font-size: 12px;
+	font-weight: 650;
+}
+
+.el-table td.el-table__cell {
+	font-size: 12px;
+}
+
+.el-tabs__item.is-active,
+.el-tabs__item:hover,
+.el-dropdown-menu__item:not(.is-disabled):focus {
+	color: var(--iotsharp-accent);
+}
+
+.el-dropdown-menu,
+.el-select-dropdown,
+.el-picker-panel {
+	border-color: var(--iotsharp-border);
+	box-shadow: var(--iotsharp-shadow-float);
+}
+
+.el-tag {
+	border-radius: 4px;
+	font-weight: 600;
+}
+
+.el-pagination button,
+.el-pagination .el-pager li {
+	border-radius: 4px;
+}
+
+.el-drawer .el-drawer__header {
+	background: var(--iotsharp-surface-muted);
+}

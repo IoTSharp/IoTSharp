@@ -48,8 +48,8 @@ const titleParts = computed(() => {
 
 <style lang="scss" scoped>
 .app-logo {
-  --app-logo-text: #1d2129;
-  --app-logo-subtext: #4e5969;
+  --app-logo-text: var(--iotsharp-ink);
+  --app-logo-subtext: var(--iotsharp-text-soft);
   display: inline-flex;
   align-items: center;
   gap: 12px;
@@ -75,19 +75,19 @@ const titleParts = computed(() => {
   height: 17px;
   border-radius: 6px;
   transform: rotate(45deg);
-  box-shadow: 0 8px 18px rgba(22, 93, 255, 0.12);
+  box-shadow: 0 7px 16px rgba(var(--iotsharp-accent-rgb), 0.18);
 }
 
 .app-logo__shape--primary {
   top: 0;
   left: 0;
-  background: linear-gradient(135deg, #00b2ff 0%, #36cfc9 100%);
+  background: linear-gradient(135deg, #ffffff 0%, var(--iotsharp-theme-light) 100%);
 }
 
 .app-logo__shape--secondary {
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, #165dff 0%, #4080ff 100%);
+  background: var(--iotsharp-accent-gradient);
 }
 
 .app-logo__wordmark {
@@ -100,7 +100,7 @@ const titleParts = computed(() => {
   font-size: 28px;
   font-weight: 700;
   line-height: 1;
-  letter-spacing: -0.03em;
+  letter-spacing: 0;
   white-space: nowrap;
 }
 

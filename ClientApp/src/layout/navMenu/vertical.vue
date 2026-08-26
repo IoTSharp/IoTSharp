@@ -118,7 +118,7 @@ export default defineComponent({
     margin-right: 12px;
     font-size: 16px;
     flex-shrink: 0;
-    color: #86909c;
+    color: rgba(255, 255, 255, 0.55);
   }
 
   :deep(.el-menu) {
@@ -128,29 +128,29 @@ export default defineComponent({
 
   :deep(.el-menu-item),
   :deep(.el-sub-menu__title) {
-    height: 44px;
+    height: 42px;
     margin: 2px 0;
-    border-radius: 10px;
-    color: #4e5969;
-    font-size: 14px;
+    border-radius: 6px;
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 13px;
     font-weight: 500;
   }
 
   :deep(.el-menu-item:hover),
   :deep(.el-sub-menu__title:hover) {
-    background: #f7f8fa;
-    color: #1d2129;
+    background: rgba(255, 255, 255, 0.09);
+    color: #ffffff;
   }
 
   :deep(.el-menu-item.is-active) {
-    background: #e8f3ff;
-    color: #165dff;
+    background: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
     font-weight: 600;
     box-shadow: none;
   }
 
   :deep(.el-sub-menu.is-active > .el-sub-menu__title) {
-    color: #1d2129;
+    color: #ffffff;
     font-weight: 600;
   }
 
@@ -158,7 +158,7 @@ export default defineComponent({
   :deep(.el-sub-menu.is-active > .el-sub-menu__title .z-menu-icon),
   :deep(.el-menu-item:hover .z-menu-icon),
   :deep(.el-sub-menu__title:hover .z-menu-icon) {
-    color: #165dff;
+    color: #ffffff;
   }
 
   :deep(.el-sub-menu .el-menu) {
@@ -167,12 +167,12 @@ export default defineComponent({
 
   :deep(.el-sub-menu .el-menu-item) {
     min-width: auto;
-    margin: 2px 0 2px 12px;
-    padding-left: 42px !important;
+    margin: 2px 0 2px 10px;
+    padding-left: 38px !important;
   }
 
   :deep(.el-sub-menu__icon-arrow) {
-    color: #94a3b8;
+    color: rgba(255, 255, 255, 0.45);
   }
 
   &.el-menu--collapse {

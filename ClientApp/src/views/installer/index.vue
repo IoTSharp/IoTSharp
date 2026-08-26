@@ -543,4 +543,88 @@ onMounted(() => {
 		width: 100%;
 	}
 }
+
+/* 安装器与认证入口使用同一套主题与单层表单结构。 */
+.installer-page {
+	background: var(--iotsharp-quiet-gradient);
+}
+
+.installer-page__glow,
+.installer-panel__eyebrow,
+.installer-panel__steps {
+	display: none;
+}
+
+.installer-shell {
+	border: 1px solid rgba(var(--iotsharp-accent-rgb), 0.18);
+	border-radius: 8px;
+	background: rgba(255, 255, 255, 0.66);
+	box-shadow: var(--iotsharp-shadow-float);
+	backdrop-filter: blur(20px) saturate(1.15);
+}
+
+.installer-panel {
+	gap: 18px;
+	background: rgba(255, 255, 255, 0.95);
+}
+
+.installer-panel__header h2 {
+	margin-bottom: 7px;
+	color: var(--iotsharp-ink);
+	font-size: 24px;
+	letter-spacing: 0;
+}
+
+.installer-panel__header p,
+.installer-panel__footer,
+.installer-form-card__tip-text,
+.installer-status p {
+	color: var(--iotsharp-text-muted);
+}
+
+.installer-form-card,
+.installer-status {
+	padding: 0;
+	border: 0;
+	border-radius: 0;
+	background: transparent;
+}
+
+.installer-form-card__tip {
+	padding: 10px 12px;
+	border-color: rgba(var(--iotsharp-accent-rgb), 0.16);
+	border-radius: var(--iotsharp-radius-control);
+	background: var(--iotsharp-selection);
+}
+
+.installer-form-card__tip-title,
+.installer-status__title,
+.installer-status__item strong {
+	color: var(--iotsharp-ink);
+}
+
+.installer-status__item {
+	border-color: var(--iotsharp-border);
+	border-radius: var(--iotsharp-radius-control);
+	background: var(--iotsharp-surface-muted);
+}
+
+.installer-form-card__action,
+.installer-status__action,
+.installer-status__link,
+:deep(.el-input__wrapper),
+:deep(.fc-form .el-button) {
+	border-radius: var(--iotsharp-radius-control);
+}
+
+.installer-form-card__action,
+.installer-status__action,
+:deep(.fc-form .el-button) {
+	height: 42px;
+	box-shadow: 0 9px 20px rgba(var(--iotsharp-accent-rgb), 0.18);
+}
+
+.installer-panel__footer {
+	border-color: var(--iotsharp-border);
+}
 </style>

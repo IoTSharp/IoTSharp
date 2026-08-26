@@ -8,30 +8,29 @@
 		</header>
 
 		<div class="auth-showcase__body">
-			<div class="auth-showcase__eyebrow">{{ eyebrow }}</div>
 			<h1>{{ title }}</h1>
 			<p>{{ description }}</p>
 		</div>
 
 		<div class="auth-showcase__focus">
-			<div class="auth-showcase__focus-head">
-				<span class="auth-showcase__focus-label">{{ primaryCard.label }}</span>
-				<span class="auth-showcase__focus-value">{{ primaryCard.value }}</span>
+			<div>
+				<span>{{ primaryCard.label }}</span>
+				<strong>{{ primaryCard.title }}</strong>
 			</div>
-			<strong>{{ primaryCard.title }}</strong>
+			<b>{{ primaryCard.value }}</b>
 			<p>{{ primaryCard.description }}</p>
 		</div>
 
-		<div class="auth-showcase__stats">
-			<article v-for="item in metrics" :key="item.label" class="auth-stat-card" :class="`tone-${item.tone || 'primary'}`">
-				<div class="auth-stat-card__label">{{ item.label }}</div>
-				<div class="auth-stat-card__value">{{ item.value }}</div>
-				<p>{{ item.description }}</p>
-			</article>
-		</div>
+		<dl class="auth-showcase__stats">
+			<div v-for="item in metrics" :key="item.label" class="auth-stat-row">
+				<dt>{{ item.label }}</dt>
+				<dd>{{ item.value }}</dd>
+				<small>{{ item.description }}</small>
+			</div>
+		</dl>
 
 		<footer class="auth-showcase__footer">
-			<div v-for="tag in tags" :key="tag" class="auth-showcase__tag">{{ tag }}</div>
+			<span v-for="tag in tags" :key="tag">{{ tag }}</span>
 		</footer>
 	</section>
 </template>
@@ -71,178 +70,145 @@ defineProps<{
 <style scoped lang="scss">
 .auth-showcase {
 	display: flex;
+	min-height: 100%;
 	flex-direction: column;
 	justify-content: space-between;
 	gap: 22px;
-	padding: 32px 36px;
-	background:
-		linear-gradient(rgba(191, 219, 254, 0.08) 1px, transparent 1px),
-		linear-gradient(90deg, rgba(191, 219, 254, 0.08) 1px, transparent 1px),
-		linear-gradient(160deg, #0f2f56 0%, #123f68 52%, #164c76 100%);
-	background-size: 44px 44px, 44px 44px, auto;
-	color: #eff6ff;
+	padding: 28px 32px;
+	background: var(--iotsharp-nav-gradient);
+	color: #ffffff;
+}
 
-	:deep(.app-logo) {
-		--app-logo-text: #ffffff;
-		--app-logo-subtext: #bfdbfe;
-	}
+.auth-showcase :deep(.app-logo) {
+	--app-logo-text: #ffffff;
+	--app-logo-subtext: rgba(255, 255, 255, 0.68);
 }
 
 .auth-showcase__header,
-.auth-showcase__footer,
-.auth-showcase__focus-head {
+.auth-showcase__focus,
+.auth-showcase__footer {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	gap: 14px;
-	flex-wrap: wrap;
 }
 
 .auth-showcase__home,
 .auth-showcase__link {
+	color: inherit;
 	text-decoration: none;
 }
 
 .auth-showcase__link {
-	color: rgba(239, 246, 255, 0.92);
-	font-size: 13px;
+	font-size: 12px;
 	font-weight: 600;
 }
 
-.auth-showcase__eyebrow {
-	margin-bottom: 12px;
-	color: #93c5fd;
-	font-size: 12px;
-	font-weight: 700;
-	letter-spacing: 0.18em;
-	text-transform: uppercase;
-}
-
 .auth-showcase__body {
-	max-width: 640px;
+	max-width: 60ch;
 }
 
 .auth-showcase__body h1 {
-	margin: 0 0 14px;
-	font-size: clamp(30px, 3.8vw, 42px);
-	line-height: 1.12;
+	margin: 0;
+	font-size: 34px;
+	font-weight: 700;
 	letter-spacing: 0;
+	line-height: 1.2;
 }
 
 .auth-showcase__body p {
-	margin: 0;
-	color: rgba(226, 232, 240, 0.88);
-	font-size: 14px;
-	line-height: 1.8;
+	margin: 10px 0 0;
+	color: rgba(255, 255, 255, 0.72);
+	font-size: 13px;
+	line-height: 1.7;
 }
 
 .auth-showcase__focus {
-	padding: 18px 20px;
-	border-radius: 18px;
-	border: 1px solid rgba(255, 255, 255, 0.12);
-	background: rgba(255, 255, 255, 0.07);
-	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
+	padding: 16px 0;
+	border-top: 1px solid rgba(255, 255, 255, 0.14);
+	border-bottom: 1px solid rgba(255, 255, 255, 0.14);
 }
 
-.auth-showcase__focus-label,
-.auth-showcase__focus-value {
-	display: inline-flex;
-	align-items: center;
-	min-height: 28px;
-	padding: 0 10px;
-	border-radius: 999px;
-	border: 1px solid rgba(255, 255, 255, 0.12);
-	background: rgba(255, 255, 255, 0.08);
-	font-size: 12px;
-	font-weight: 700;
-	white-space: nowrap;
+.auth-showcase__focus div {
+	display: grid;
+	gap: 4px;
+}
+
+.auth-showcase__focus span {
+	color: rgba(255, 255, 255, 0.58);
+	font-size: 10px;
 }
 
 .auth-showcase__focus strong {
-	display: block;
-	margin-top: 14px;
-	font-size: 20px;
-	font-weight: 800;
-	letter-spacing: 0;
+	font-size: 16px;
+}
+
+.auth-showcase__focus b {
+	color: var(--iotsharp-theme-light);
+	font-size: 13px;
 }
 
 .auth-showcase__focus p {
-	margin: 10px 0 0;
-	color: rgba(226, 232, 240, 0.8);
-	font-size: 13px;
-	line-height: 1.7;
+	grid-column: 1 / -1;
+	margin: 6px 0 0;
+	color: rgba(255, 255, 255, 0.68);
+	font-size: 11px;
+	line-height: 1.6;
 }
 
 .auth-showcase__stats {
 	display: grid;
-	grid-template-columns: repeat(3, minmax(0, 1fr));
-	gap: 14px;
+	margin: 0;
 }
 
-.auth-stat-card {
-	padding: 16px;
-	border-radius: 16px;
-	border: 1px solid rgba(255, 255, 255, 0.08);
-	background: rgba(255, 255, 255, 0.08);
+.auth-stat-row {
+	display: grid;
+	grid-template-columns: 88px minmax(0, 1fr);
+	gap: 2px 12px;
+	padding: 10px 0;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.auth-stat-card__label {
-	color: rgba(191, 219, 254, 0.88);
-	font-size: 13px;
+.auth-stat-row dt {
+	color: rgba(255, 255, 255, 0.58);
+	font-size: 11px;
 }
 
-.auth-stat-card__value {
-	margin-top: 10px;
-	font-size: 20px;
-	font-weight: 700;
-	letter-spacing: 0;
+.auth-stat-row dd {
+	margin: 0;
+	font-size: 12px;
+	font-weight: 650;
 }
 
-.auth-stat-card p {
-	margin: 10px 0 0;
-	color: rgba(226, 232, 240, 0.78);
-	font-size: 13px;
-	line-height: 1.7;
-}
-
-.tone-accent {
-	background: linear-gradient(180deg, rgba(14, 165, 233, 0.14), rgba(255, 255, 255, 0.08));
-}
-
-.tone-success {
-	background: linear-gradient(180deg, rgba(16, 185, 129, 0.14), rgba(255, 255, 255, 0.08));
-}
-
-.tone-warning {
-	background: linear-gradient(180deg, rgba(249, 115, 22, 0.16), rgba(255, 255, 255, 0.08));
+.auth-stat-row small {
+	grid-column: 2;
+	color: rgba(255, 255, 255, 0.62);
+	font-size: 10px;
+	line-height: 1.5;
 }
 
 .auth-showcase__footer {
 	justify-content: flex-start;
+	flex-wrap: wrap;
 }
 
-.auth-showcase__tag {
-	padding: 8px 12px;
+.auth-showcase__footer span {
+	padding: 4px 8px;
+	border: 1px solid rgba(255, 255, 255, 0.14);
 	border-radius: 999px;
-	border: 1px solid rgba(255, 255, 255, 0.12);
-	background: rgba(255, 255, 255, 0.08);
-	color: rgba(239, 246, 255, 0.92);
-	font-size: 12px;
-	font-weight: 600;
+	color: rgba(255, 255, 255, 0.72);
+	font-size: 10px;
 }
 
-@media (max-width: 767px) {
+@media (max-width: 760px) {
 	.auth-showcase {
-		padding: 24px;
+		padding: 22px;
 	}
 
-	.auth-showcase__stats {
-		grid-template-columns: 1fr;
-	}
-
-	.auth-showcase__focus-head {
-		flex-direction: column;
-		align-items: flex-start;
+	.auth-showcase__body h1 {
+		font-size: 27px;
 	}
 }
 </style>

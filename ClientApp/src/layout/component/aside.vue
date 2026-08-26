@@ -74,8 +74,8 @@ export default defineComponent({
 		};
 
 		const setShowLogo = computed(() => {
-			let { layout, isShowLogo } = themeConfig.value;
-			return isShowLogo && layout === 'columns';
+			const { layout, isShowLogo } = themeConfig.value;
+			return isShowLogo && ['defaults', 'columns'].includes(layout);
 		});
 
 		const setFilterRoutes = () => {
@@ -162,20 +162,22 @@ export default defineComponent({
 	display: flex;
 	flex-direction: column;
 	height: 100%;
-	padding: 12px 10px 10px;
-	background: #ffffff;
-	border-right: 1px solid #e5e6eb;
-	box-shadow: none;
+	padding: 0 10px 10px;
+	background: var(--iotsharp-nav-gradient);
+	border-right: 1px solid rgba(255, 255, 255, 0.08);
+	box-shadow: 10px 0 28px rgba(20, 38, 33, 0.12);
 }
 
 .layout-aside__brand {
 	display: flex;
 	align-items: center;
 	justify-content: flex-start;
-	height: 60px;
-	padding: 0 12px 10px;
-	border-bottom: 1px solid #f2f3f5;
-	background: #ffffff;
+	height: 64px;
+	padding: 0 10px;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+	background: transparent;
+	--app-logo-text: #ffffff;
+	--app-logo-subtext: rgba(255, 255, 255, 0.68);
 }
 
 .layout-aside__brand-logo {
@@ -185,7 +187,7 @@ export default defineComponent({
 .layout-aside__scroll {
 	flex: 1 1 auto;
 	min-height: 0;
-	padding: 6px 4px 12px;
-	background: #ffffff;
+	padding: 10px 4px 12px;
+	background: transparent;
 }
 </style>

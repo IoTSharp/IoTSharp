@@ -4,14 +4,14 @@ export const LOCKED_CONSOLE_LAYOUT = 'defaults';
 
 export const defaultThemeConfig: ThemeConfigState['themeConfig'] = {
 	isDrawer: false,
-	primary: '#165dff',
+	primary: '#1E5B4F',
 	isIsDark: false,
 	topBar: '#ffffff',
-	topBarColor: '#1d2129',
+	topBarColor: '#183B36',
 	isTopBarColorGradual: false,
-	menuBar: '#ffffff',
-	menuBarColor: '#4e5969',
-	menuBarActiveColor: 'rgba(22, 93, 255, 0.1)',
+	menuBar: '#183B36',
+	menuBarColor: 'rgba(255, 255, 255, 0.76)',
+	menuBarActiveColor: 'rgba(255, 255, 255, 0.14)',
 	isMenuBarColorGradual: false,
 	columnsMenuBar: '#ffffff',
 	columnsMenuBarColor: '#4e5969',
@@ -48,7 +48,7 @@ export const defaultThemeConfig: ThemeConfigState['themeConfig'] = {
 	globalViceTitle: 'IoTSharp',
 	globalViceTitleMsg: 'Open and extensible IoT platform',
 	globalI18n: 'zh-cn',
-	globalComponentSize: 'large',
+	globalComponentSize: 'default',
 };
 
 const normalizeThemeConfig = (config: Partial<ThemeConfigState['themeConfig']> = {}): ThemeConfigState['themeConfig'] => {
@@ -78,6 +78,7 @@ const normalizeThemeConfig = (config: Partial<ThemeConfigState['themeConfig']> =
 		isInvert: false,
 		isWartermark: false,
 		layout: LOCKED_CONSOLE_LAYOUT,
+		globalComponentSize: defaultThemeConfig.globalComponentSize,
 	};
 };
 

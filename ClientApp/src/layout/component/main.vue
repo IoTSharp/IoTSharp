@@ -98,7 +98,7 @@ export default defineComponent({
 .iotsharp-main__body {
 	min-width: 0;
 	min-height: 100%;
-	padding: 18px 20px 28px;
+	padding: 16px 18px 24px;
 	background: transparent;
 }
 
@@ -117,7 +117,7 @@ export default defineComponent({
 
 @media (max-width: 767px) {
 	.iotsharp-main__body {
-		padding: 12px 12px 20px;
+		padding: 10px 10px 18px;
 	}
 }
 </style>

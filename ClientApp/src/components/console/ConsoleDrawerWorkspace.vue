@@ -1,13 +1,11 @@
 <template>
 	<div class="console-drawer-workspace">
-		<section class="console-drawer-workspace__hero">
-			<div class="console-drawer-workspace__head">
+		<header class="console-drawer-workspace__header">
+			<div class="console-drawer-workspace__headline">
 				<div class="console-drawer-workspace__copy">
-					<div class="console-drawer-workspace__eyebrow">{{ eyebrow }}</div>
 					<h2>{{ title }}</h2>
 					<p>{{ description }}</p>
 				</div>
-
 				<div class="console-drawer-workspace__side">
 					<div v-if="badges.length" class="console-drawer-workspace__badges">
 						<span v-for="badge in badges" :key="badge" class="console-drawer-workspace__badge">{{ badge }}</span>
@@ -18,19 +16,14 @@
 				</div>
 			</div>
 
-			<div v-if="metrics.length" class="console-drawer-workspace__metrics">
-				<article
-					v-for="item in metrics"
-					:key="item.label"
-					class="console-drawer-metric"
-					:class="`tone-${item.tone || 'primary'}`"
-				>
-					<span>{{ item.label }}</span>
-					<strong>{{ item.value }}</strong>
+			<dl v-if="metrics.length" class="console-drawer-workspace__metrics">
+				<div v-for="item in metrics" :key="item.label" class="console-drawer-metric" :class="`tone-${item.tone || 'primary'}`">
+					<dt>{{ item.label }}</dt>
+					<dd>{{ item.value }}</dd>
 					<small>{{ item.hint }}</small>
-				</article>
-			</div>
-		</section>
+				</div>
+			</dl>
+		</header>
 
 		<section class="console-drawer-workspace__body">
 			<slot />
@@ -64,163 +57,131 @@ withDefaults(
 <style scoped lang="scss">
 .console-drawer-workspace {
 	display: flex;
-	flex-direction: column;
-	gap: 18px;
 	min-height: 100%;
+	flex-direction: column;
+	gap: 14px;
 }
 
-.console-drawer-workspace__hero {
-	padding: 24px 26px;
-	border-radius: 28px;
-	border: 1px solid rgba(191, 219, 254, 0.78);
-	background:
-		radial-gradient(circle at top right, rgba(96, 165, 250, 0.18), transparent 30%),
-		linear-gradient(180deg, rgba(248, 251, 255, 0.98), rgba(240, 247, 255, 0.96));
-	box-shadow: 0 18px 42px rgba(15, 23, 42, 0.06);
+.console-drawer-workspace__header {
+	display: grid;
+	gap: 14px;
+	padding: 16px 18px;
+	border: 1px solid rgba(var(--iotsharp-accent-rgb), 0.14);
+	border-radius: var(--iotsharp-radius-panel);
+	background: var(--iotsharp-quiet-gradient);
 }
 
-.console-drawer-workspace__head {
+.console-drawer-workspace__headline {
 	display: flex;
 	align-items: flex-start;
 	justify-content: space-between;
-	gap: 18px;
+	gap: 16px;
 }
 
 .console-drawer-workspace__copy {
-	max-width: 860px;
-}
-
-.console-drawer-workspace__eyebrow {
-	margin-bottom: 12px;
-	color: #2563eb;
-	font-size: 12px;
-	font-weight: 700;
-	letter-spacing: 0.18em;
-	text-transform: uppercase;
+	max-width: 74ch;
 }
 
 .console-drawer-workspace__copy h2 {
 	margin: 0;
-	color: #123b6d;
-	font-size: clamp(26px, 3vw, 34px);
-	letter-spacing: -0.05em;
+	color: var(--iotsharp-ink);
+	font-size: 20px;
+	font-weight: 680;
+	letter-spacing: 0;
 }
 
 .console-drawer-workspace__copy p {
-	margin: 12px 0 0;
-	color: #5f7289;
-	font-size: 14px;
-	line-height: 1.8;
-}
-
-.console-drawer-workspace__side {
-	display: flex;
-	flex-direction: column;
-	align-items: flex-end;
-	gap: 12px;
-	flex-shrink: 0;
-}
-
-.console-drawer-workspace__badges {
-	display: flex;
-	flex-wrap: wrap;
-	justify-content: flex-end;
-	gap: 10px;
-}
-
-.console-drawer-workspace__badge {
-	display: inline-flex;
-	align-items: center;
-	min-height: 34px;
-	padding: 0 12px;
-	border-radius: 999px;
-	border: 1px solid rgba(191, 219, 254, 0.9);
-	background: rgba(255, 255, 255, 0.72);
-	color: #2563eb;
-	font-size: 12px;
-	font-weight: 700;
-	white-space: nowrap;
-}
-
-.console-drawer-workspace__actions {
-	display: flex;
-	flex-wrap: wrap;
-	justify-content: flex-end;
-	gap: 10px;
-}
-
-.console-drawer-workspace__actions :deep(.el-button) {
-	height: 44px;
-	padding: 0 18px;
-	border-radius: 14px;
-	font-weight: 600;
-}
-
-.console-drawer-workspace__metrics {
-	display: grid;
-	grid-template-columns: repeat(4, minmax(0, 1fr));
-	gap: 12px;
-	margin-top: 20px;
-}
-
-.console-drawer-metric {
-	padding: 16px 18px;
-	border-radius: 22px;
-	border: 1px solid rgba(226, 232, 240, 0.92);
-	background: rgba(255, 255, 255, 0.88);
-	min-width: 0;
-}
-
-.console-drawer-metric span {
-	display: block;
-	color: #64748b;
-	font-size: 12px;
-}
-
-.console-drawer-metric strong {
-	display: block;
-	margin-top: 10px;
-	color: #123b6d;
-	font-size: 22px;
-	font-weight: 700;
-	letter-spacing: -0.04em;
-	word-break: break-word;
-}
-
-.console-drawer-metric small {
-	display: block;
-	margin-top: 8px;
-	color: #7c8da1;
+	margin: 5px 0 0;
+	color: var(--iotsharp-text-soft);
 	font-size: 12px;
 	line-height: 1.6;
 }
 
-.tone-accent {
-	background: linear-gradient(180deg, rgba(14, 165, 233, 0.08), rgba(255, 255, 255, 0.9));
+.console-drawer-workspace__side,
+.console-drawer-workspace__badges,
+.console-drawer-workspace__actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 7px;
 }
 
-.tone-success {
-	background: linear-gradient(180deg, rgba(22, 163, 74, 0.08), rgba(255, 255, 255, 0.9));
+.console-drawer-workspace__side {
+	flex-direction: column;
+	align-items: flex-end;
 }
 
-.tone-warning {
-	background: linear-gradient(180deg, rgba(249, 115, 22, 0.08), rgba(255, 255, 255, 0.9));
+.console-drawer-workspace__badge {
+	display: inline-flex;
+	min-height: 26px;
+	align-items: center;
+	padding: 0 9px;
+	border: 1px solid rgba(var(--iotsharp-accent-rgb), 0.2);
+	border-radius: 999px;
+	background: rgba(255, 255, 255, 0.68);
+	color: var(--iotsharp-accent);
+	font-size: 11px;
+	font-weight: 650;
 }
 
-.tone-danger {
-	background: linear-gradient(180deg, rgba(239, 68, 68, 0.08), rgba(255, 255, 255, 0.9));
+.console-drawer-workspace__actions :deep(.el-button) {
+	height: 34px;
+	border-radius: var(--iotsharp-radius-control);
+}
+
+.console-drawer-workspace__metrics {
+	display: flex;
+	margin: 0;
+	padding-top: 12px;
+	border-top: 1px solid rgba(var(--iotsharp-accent-rgb), 0.12);
+}
+
+.console-drawer-metric {
+	display: grid;
+	grid-template-columns: auto auto;
+	gap: 1px 8px;
+	min-width: 132px;
+	padding: 0 15px;
+	border-left: 1px solid rgba(var(--iotsharp-accent-rgb), 0.14);
+}
+
+.console-drawer-metric:first-child {
+	padding-left: 0;
+	border-left: 0;
+}
+
+.console-drawer-metric dt {
+	align-self: center;
+	color: var(--iotsharp-text-muted);
+	font-size: 11px;
+}
+
+.console-drawer-metric dd {
+	margin: 0;
+	color: var(--iotsharp-ink);
+	font-size: 17px;
+	font-weight: 700;
+	font-variant-numeric: tabular-nums;
+	word-break: break-word;
+}
+
+.console-drawer-metric small {
+	grid-column: 1 / -1;
+	color: var(--iotsharp-text-muted);
+	font-size: 10px;
 }
 
 .console-drawer-workspace__body {
 	display: flex;
-	flex-direction: column;
-	gap: 18px;
-	flex: 1;
 	min-height: 0;
+	flex: 1;
+	flex-direction: column;
+	gap: 14px;
 }
 
-@media (max-width: 1080px) {
-	.console-drawer-workspace__head {
+@media (max-width: 760px) {
+	.console-drawer-workspace__headline {
 		flex-direction: column;
 	}
 
@@ -232,27 +193,14 @@ withDefaults(
 	}
 
 	.console-drawer-workspace__metrics {
+		display: grid;
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
-}
 
-@media (max-width: 767px) {
-	.console-drawer-workspace__hero {
-		padding: 20px 18px;
-		border-radius: 22px;
-	}
-
-	.console-drawer-workspace__actions {
-		width: 100%;
-	}
-
-	.console-drawer-workspace__actions :deep(.el-button) {
-		flex: 1;
+	.console-drawer-metric {
 		min-width: 0;
-	}
-
-	.console-drawer-workspace__metrics {
-		grid-template-columns: 1fr;
+		padding: 7px 8px;
+		border-left: 0;
 	}
 }
 </style>

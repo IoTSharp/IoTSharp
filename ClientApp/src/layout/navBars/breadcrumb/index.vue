@@ -2,12 +2,12 @@
 	<div class="layout-shell-topbar">
 		<div class="layout-shell-topbar__brand">
 			<Logo v-if="setIsShowLogo" alwaysExpanded disableToggle class="layout-shell-topbar__logo" />
-			<button v-if="!isLayoutTransverse" type="button" class="layout-shell-topbar__toggle" @click="onToggleCollapse">
+			<button v-if="!isLayoutTransverse" type="button" class="layout-shell-topbar__toggle" :title="themeConfig.isCollapse ? '展开导航' : '收起导航'" @click="onToggleCollapse">
 				<SvgIcon :name="themeConfig.isCollapse ? 'ele-Expand' : 'ele-Fold'" :size="16" />
 			</button>
 			<div class="layout-shell-topbar__context">
-				<span class="layout-shell-topbar__label">IoT Platform Console</span>
 				<strong class="layout-shell-topbar__title">{{ currentSection }}</strong>
+				<span class="layout-shell-topbar__label">IoTSharp 控制台</span>
 			</div>
 		</div>
 		<Horizontal v-if="isLayoutTransverse" :menuList="menuList" class="layout-shell-topbar__nav" />
@@ -44,7 +44,7 @@ export default defineComponent({
 
 		const setIsShowLogo = computed(() => {
 			const { isShowLogo, layout } = themeConfig.value;
-			return isShowLogo && ['classic', 'transverse', 'defaults'].includes(layout);
+			return isShowLogo && ['classic', 'transverse'].includes(layout);
 		});
 
 		const isLayoutTransverse = computed(() => {
@@ -140,9 +140,11 @@ export default defineComponent({
 	display: flex;
 	align-items: center;
 	gap: 20px;
-	padding: 0 22px 0 18px;
-	background: #ffffff;
-	border-bottom: 1px solid #e5e6eb;
+	padding: 0 18px;
+	background: var(--iotsharp-topbar-gradient);
+	border-bottom: 1px solid rgba(var(--iotsharp-accent-rgb), 0.14);
+	box-shadow: 0 7px 20px rgba(22, 38, 33, 0.05);
+	backdrop-filter: blur(18px) saturate(1.15);
 }
 
 .layout-shell-topbar__brand {
@@ -163,10 +165,10 @@ export default defineComponent({
 	justify-content: center;
 	width: 34px;
 	height: 34px;
-	border: 1px solid #e5e6eb;
-	border-radius: 10px;
-	background: #ffffff;
-	color: #4e5969;
+	border: 1px solid rgba(var(--iotsharp-accent-rgb), 0.18);
+	border-radius: 6px;
+	background: rgba(255, 255, 255, 0.66);
+	color: var(--iotsharp-text-soft);
 	cursor: pointer;
 	transition:
 		border-color 0.2s ease,
@@ -174,29 +176,29 @@ export default defineComponent({
 		background-color 0.2s ease;
 
 	&:hover {
-		border-color: #bedaff;
-		background: #f7fbff;
-		color: #165dff;
+		border-color: var(--iotsharp-accent);
+		background: #ffffff;
+		color: var(--iotsharp-accent);
 	}
 }
 
 .layout-shell-topbar__context {
 	display: flex;
-	flex-direction: column;
+	align-items: baseline;
+	gap: 10px;
 	min-width: 0;
 }
 
 .layout-shell-topbar__label {
-	color: #86909c;
+	color: var(--iotsharp-text-muted);
 	font-size: 11px;
-	font-weight: 600;
-	letter-spacing: 0.08em;
-	text-transform: uppercase;
+	font-weight: 500;
+	letter-spacing: 0;
 	white-space: nowrap;
 }
 
 .layout-shell-topbar__title {
-	color: #1d2129;
+	color: var(--iotsharp-ink);
 	font-size: 15px;
 	font-weight: 600;
 	line-height: 1.2;

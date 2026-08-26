@@ -1,282 +1,135 @@
 <template>
-	<div class="workspace-page" v-loading="loading">
-		<section class="workspace-hero">
-			<div class="card hero-main">
-				<div class="eyebrow">Workspace</div>
-				<div class="hero-head">
-					<div>
-						<h1>IoTSharp 工作台</h1>
-						<p>统一查看设备在线率、消息链路、平台健康和告警压力，作为登录后的运营入口。</p>
-					</div>
-					<div class="hero-tags">
-						<span class="tag">{{ versionText }}</span>
-						<span class="tag tag-muted">最近更新 {{ lastUpdatedText }}</span>
-					</div>
+	<div class="ops-dashboard" v-loading="loading">
+		<header class="overview-bar">
+			<div class="overview-bar__head">
+				<div class="overview-bar__copy">
+					<h1>运行概览</h1>
+					<p>汇总接入状态、消息链路、平台健康和当前待处理事项。</p>
 				</div>
-				<div class="hero-actions">
-					<el-button type="primary" @click="refreshDashboard">
+				<div class="overview-bar__tools">
+					<span>{{ versionText }}</span>
+					<span>更新于 {{ lastUpdatedText }}</span>
+					<el-button type="primary" :loading="loading" @click="refreshDashboard">
 						<el-icon><RefreshRight /></el-icon>
-						刷新面板
+						刷新
 					</el-button>
-					<el-button @click="openDocs">
-						<el-icon><Reading /></el-icon>
-						文档中心
-					</el-button>
-					<el-button @click="openGithub">
-						<el-icon><Promotion /></el-icon>
-						项目仓库
-					</el-button>
-				</div>
-				<div class="hero-stats">
-					<div v-for="item in heroStats" :key="item.label" class="hero-stat">
-						<span>{{ item.label }}</span>
-						<strong>{{ item.value }}</strong>
-						<small>{{ item.hint }}</small>
-					</div>
 				</div>
 			</div>
 
-			<div class="hero-side">
-				<div class="card side-card">
-					<div class="side-top">
-						<div>
-							<div class="eyebrow">Focus</div>
-							<h2>{{ workspaceHeadline.title }}</h2>
-						</div>
-						<span class="status-pill" :class="`is-${workspaceHeadline.tone}`">{{ workspaceHeadline.tag }}</span>
-					</div>
-					<p class="side-desc">{{ workspaceHeadline.description }}</p>
-					<div class="focus-summary" :class="`focus-summary--${focusPrimaryAction.tone}`">
-						<div class="focus-summary__head">
-							<span class="focus-summary__label">{{ focusPrimaryAction.label }}</span>
-							<span class="focus-summary__value">{{ focusPrimaryAction.value }}</span>
-						</div>
-						<strong>{{ focusPrimaryAction.title }}</strong>
-						<small>{{ focusPrimaryAction.description }}</small>
-					</div>
-					<div class="focus-strip">
-						<div v-for="item in focusSignals" :key="item.label" class="focus-item" :class="`focus-item--${item.tone}`">
-							<span>{{ item.label }}</span>
-							<strong>{{ item.value }}</strong>
-							<small>{{ item.hint }}</small>
-						</div>
-					</div>
-					<div class="notice-list">
-						<div v-for="item in operationalNotices" :key="item.label" class="notice-item">
-							<div class="notice-item__value">{{ item.value }}</div>
-							<div class="notice-item__body">
-								<strong>{{ item.label }}</strong>
-								<small>{{ item.hint }}</small>
-							</div>
-						</div>
-					</div>
+			<dl class="overview-metrics">
+				<div v-for="item in overviewMetrics" :key="item.label" class="overview-metric">
+					<dt>{{ item.label }}</dt>
+					<dd>{{ item.value }}</dd>
+					<small>{{ item.hint }}</small>
 				</div>
+			</dl>
+		</header>
 
-				<div class="card side-card">
-					<div class="side-card__head">
-						<div>
-							<div class="eyebrow">Quick Actions</div>
-							<h3>常用入口</h3>
-							<p>把刷新、文档和高频业务页集中到这里，进入控制台后可以直接继续处理事务。</p>
-						</div>
-						<span class="side-kicker">{{ quickActions.length }} 个入口</span>
-					</div>
-					<div class="quick-grid">
-						<button v-for="action in quickActions" :key="action.key" type="button" class="quick-item" :style="getQuickActionStyle(action)" @click="onQuickAction(action)">
-							<div class="quick-item__top">
-								<span class="quick-item__icon">
-									<el-icon><component :is="action.icon" /></el-icon>
-								</span>
-								<span class="quick-item__badge">{{ action.badge }}</span>
-							</div>
-							<strong>{{ action.label }}</strong>
-							<small>{{ action.description }}</small>
-							<span class="quick-item__meta">
-								{{ action.meta }}
-								<el-icon><ArrowRight /></el-icon>
-							</span>
-						</button>
-					</div>
-				</div>
-			</div>
-		</section>
-
-		<section class="summary-section">
-			<div class="summary-head">
-				<div>
-					<div class="eyebrow">Overview</div>
-					<h3>核心指标概览</h3>
-					<p>保留最常看的四项平台数据，进入控制台后先看全局，再继续深入排查。</p>
-				</div>
-				<span class="summary-tag">实时同步</span>
-			</div>
-			<el-row :gutter="16" class="summary-row">
-				<HomeCardItem v-for="(item, index) in summaryCards" :key="item.label" :item="item" :index="index" />
-			</el-row>
-		</section>
-
-		<section class="workspace-grid">
-			<article class="card panel panel-trend">
-				<div class="panel-head">
+		<section class="dashboard-core">
+			<article class="dashboard-panel dashboard-panel--trend">
+				<header class="dashboard-panel__head">
 					<div>
-						<div class="eyebrow">Message Trend</div>
-						<h3>消息总线趋势</h3>
-						<p>按小时观察发布与订阅的成功、失败变化，用来快速发现消息波动。</p>
+						<h2>消息总线趋势</h2>
+						<p>最近 24 小时的发布与订阅结果，用于识别消息波动与失败时段。</p>
 					</div>
-					<div class="chip-row">
-						<span class="chip">发布成功 {{ formatCount(messageMetrics.publishedSucceeded) }}</span>
-						<span class="chip">接收成功 {{ formatCount(messageMetrics.receivedSucceeded) }}</span>
+					<div class="panel-facts">
+						<span>节点 {{ formatCount(messageMetrics.servers) }}</span>
+						<span>订阅端 {{ formatCount(messageMetrics.subscribers) }}</span>
 					</div>
-				</div>
-				<div ref="messageChartRef" class="chart chart-xl"></div>
-				<div class="trend-briefs">
-					<div v-for="item in trendHighlights" :key="item.label" class="trend-brief">
-						<span>{{ item.label }}</span>
-						<strong>{{ item.value }}</strong>
-						<small>{{ item.hint }}</small>
+				</header>
+				<div ref="messageChartRef" class="message-chart" aria-label="消息总线趋势图"></div>
+				<div class="trend-summary">
+					<div>
+						<span>24 小时消息</span>
+						<strong>{{ formatCount(messageTotal24h) }}</strong>
+					</div>
+					<div>
+						<span>处理成功率</span>
+						<strong>{{ percentText(messageSuccessRate) }}</strong>
+					</div>
+					<div>
+						<span>失败消息</span>
+						<strong :class="{ 'text-danger': messageFailureTotal > 0 }">{{ formatCount(messageFailureTotal) }}</strong>
 					</div>
 				</div>
 			</article>
 
-			<article class="card panel panel-status">
-				<div class="panel-head">
+			<article class="dashboard-panel dashboard-panel--health">
+				<header class="dashboard-panel__head">
 					<div>
-						<div class="eyebrow">Platform Pulse</div>
-						<h3>运行状态</h3>
-						<p>将连接、健康、告警和消息成功率汇总成一组快速判断指标。</p>
+						<h2>平台健康</h2>
+						<p>优先显示异常依赖与基础服务。</p>
 					</div>
-				</div>
-				<div class="status-score">
-					<div class="status-score__body">
-						<div class="status-score__eyebrow">Platform Score</div>
-						<h4>{{ systemScoreCard.title }}</h4>
-						<p>{{ systemScoreCard.description }}</p>
-						<span class="status-pill" :class="`is-${systemScoreCard.tone}`">{{ systemScoreCard.tag }}</span>
-					</div>
-					<div class="status-score__ring">
-						<strong>{{ systemScoreCard.score }}</strong>
-						<small>分</small>
-					</div>
-				</div>
-				<div class="status-list">
-					<div v-for="item in statusMetrics" :key="item.label" class="status-item">
-						<div class="status-item__line">
-							<span>{{ item.label }}</span>
-							<strong>{{ item.value }}</strong>
-						</div>
-						<el-progress :percentage="item.percentage" :stroke-width="10" :show-text="false" :color="item.color" />
-						<p>{{ item.hint }}</p>
-					</div>
-				</div>
-				<div class="mini-grid">
-					<div v-for="item in systemOverviewItems" :key="item.label" class="mini-card">
-						<span>{{ item.label }}</span>
-						<strong>{{ item.value }}</strong>
-						<small>{{ item.hint }}</small>
-					</div>
-				</div>
-			</article>
+					<span class="health-state" :class="{ 'is-warning': hasUnhealthyChecks }">
+						{{ hasUnhealthyChecks ? unhealthyChecksCount + ' 项待处理' : '检查通过' }}
+					</span>
+				</header>
 
-			<article class="card panel panel-availability">
-				<div class="panel-head">
-					<div>
-						<div class="eyebrow">Availability</div>
-						<h3>设备可用率</h3>
-						<p>直观看到在线与离线设备分布，便于追踪连接异常。</p>
-					</div>
-				</div>
-				<div ref="onlineChartRef" class="chart"></div>
-				<div class="breakdown-list">
-					<div class="breakdown-item">
-						<div class="breakdown-label"><span class="dot dot-online"></span>在线设备</div>
-						<strong>{{ formatCount(kanban.onlineDeviceCount) }}</strong>
-					</div>
-					<div class="breakdown-item">
-						<div class="breakdown-label"><span class="dot dot-offline"></span>离线设备</div>
-						<strong>{{ formatCount(offlineDevices) }}</strong>
-					</div>
-				</div>
-			</article>
-
-			<article class="card panel panel-health">
-				<div class="panel-head">
-					<div>
-						<div class="eyebrow">Health Checks</div>
-						<h3>平台健康检查</h3>
-						<p>优先展示异常依赖和基础设施状态，帮助快速定位问题。</p>
-					</div>
-					<div class="chip-row">
-						<span class="chip" :class="{ 'chip-warn': hasUnhealthyChecks }">
-							{{ hasUnhealthyChecks ? '存在待处理健康项' : '所有健康项正常' }}
-						</span>
-					</div>
-				</div>
-				<div class="health-overview">
-					<div v-for="item in healthSummaryItems" :key="item.label" class="health-overview__item" :class="`health-overview__item--${item.tone}`">
-						<span>{{ item.label }}</span>
-						<strong>{{ item.value }}</strong>
-						<small>{{ item.hint }}</small>
-					</div>
-				</div>
 				<div v-if="healthEntries.length" class="health-list">
 					<div v-for="item in healthEntries" :key="item.name" class="health-item">
-						<div class="health-main">
-							<div class="health-dot" :class="`health-dot--${item.status.toLowerCase()}`"></div>
+						<span class="health-item__indicator" :class="{ 'is-healthy': item.status === 'Healthy' }"></span>
+						<div class="health-item__copy">
+							<strong>{{ item.name }}</strong>
+							<small>{{ item.description || '未提供补充说明' }}</small>
+						</div>
+						<span class="health-item__status">{{ healthStatusLabel(item.status) }}</span>
+					</div>
+				</div>
+				<el-empty v-else description="暂无健康检查数据" :image-size="72" />
+			</article>
+		</section>
+
+		<section class="dashboard-lower">
+			<article class="dashboard-panel capability-panel">
+				<header class="dashboard-panel__head">
+					<div>
+						<h2>平台能力</h2>
+						<p>按接入采集、实时规则和运维闭环组织日常工作入口。</p>
+					</div>
+				</header>
+				<div class="capability-groups">
+					<section v-for="group in capabilityGroups" :key="group.title" class="capability-group">
+						<div class="capability-group__title">
+							<el-icon><component :is="group.icon" /></el-icon>
 							<div>
-								<div class="health-name">{{ item.name }}</div>
-								<div class="health-desc">{{ item.description || '暂无补充描述' }}</div>
+								<h3>{{ group.title }}</h3>
+								<p>{{ group.description }}</p>
 							</div>
 						</div>
-						<div class="health-meta">
-							<span class="health-tag" :class="`health-tag--${item.status.toLowerCase()}`">{{ item.status }}</span>
-							<span v-if="item.duration">{{ item.duration }}</span>
-						</div>
-					</div>
-				</div>
-				<el-empty v-else description="暂无健康检查数据" :image-size="80" />
-			</article>
-
-			<article class="card panel panel-resource">
-				<div class="panel-head">
-					<div>
-						<div class="eyebrow">Resource Mix</div>
-						<h3>资源结构</h3>
-						<p>从设备、产品、规则和用户数量上快速判断平台建设重点。</p>
-					</div>
-				</div>
-				<div ref="resourceChartRef" class="chart"></div>
-				<div class="resource-list">
-					<div v-for="item in resourceHighlights" :key="item.label" class="resource-item">
-						<div class="resource-item__main">
-							<span class="resource-item__dot" :style="{ background: item.color }"></span>
-							<div>
-								<strong>{{ item.label }}</strong>
-								<small>{{ item.hint }}</small>
-							</div>
-						</div>
-						<span class="resource-item__value">{{ item.value }}</span>
-					</div>
+						<nav class="capability-links" :aria-label="group.title">
+							<button v-for="link in group.links" :key="link.path" type="button" @click="openRoute(link.path)">
+								<span>{{ link.label }}</span>
+								<el-icon><ArrowRight /></el-icon>
+							</button>
+						</nav>
+					</section>
 				</div>
 			</article>
 
-			<article class="card panel panel-snapshot">
-				<div class="panel-head">
+			<article class="dashboard-panel attention-panel">
+				<header class="dashboard-panel__head">
 					<div>
-						<div class="eyebrow">Operations Snapshot</div>
-						<h3>运营建议</h3>
-						<p>把当前最需要处理的动作列成短清单，便于巡检后直接推进处置。</p>
+						<h2>当前关注</h2>
+						<p>根据真实运行数据生成的处置入口。</p>
 					</div>
-					<span class="summary-tag">今日待办 {{ actionRecommendations.length }}</span>
-				</div>
-				<div class="recommendation-list">
-					<div v-for="item in actionRecommendations" :key="item.title" class="recommendation-item" :class="`tone-${item.tone}`">
-						<div class="recommendation-item__head">
-							<span class="recommendation-item__label">{{ item.label }}</span>
-							<span class="recommendation-item__value">{{ item.value }}</span>
-						</div>
-						<strong>{{ item.title }}</strong>
-						<p>{{ item.description }}</p>
-					</div>
+				</header>
+				<div class="attention-list">
+					<button
+						v-for="item in attentionItems"
+						:key="item.label"
+						type="button"
+						class="attention-item"
+						:class="'tone-' + item.tone"
+						:disabled="!item.path"
+						@click="item.path && openRoute(item.path)"
+					>
+						<span class="attention-item__value">{{ item.value }}</span>
+						<span class="attention-item__copy">
+							<strong>{{ item.label }}</strong>
+							<small>{{ item.hint }}</small>
+						</span>
+						<el-icon v-if="item.path"><ArrowRight /></el-icon>
+					</button>
 				</div>
 			</article>
 		</section>
@@ -286,18 +139,13 @@
 <script lang="ts" setup>
 import dayjs from 'dayjs';
 import * as echarts from 'echarts';
-import { computed, nextTick, onActivated, onBeforeUnmount, onMounted, ref, watch } from 'vue';
-import { useRouter } from 'vue-router';
-import { useI18n } from 'vue-i18n';
-import { storeToRefs } from 'pinia';
-import { ElMessage } from 'element-plus';
 import type { EChartsOption } from 'echarts';
-import { ArrowRight, Bell, Connection, DataAnalysis, Monitor, Promotion, Reading, RefreshRight } from '@element-plus/icons-vue';
-import HomeCardItem from '/@/views/dashboard/HomeCardItem.vue';
-import { homeCardItemsConfig, type HomeCardMetricKey } from '/@/views/dashboard/homeCardItems';
-import { useThemeConfig } from '/@/stores/themeConfig';
+import { computed, nextTick, onActivated, onBeforeUnmount, onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { ArrowRight, Bell, Box, Connection, Cpu, RefreshRight, SetUp } from '@element-plus/icons-vue';
+import { ElMessage } from 'element-plus';
+import { storeToRefs } from 'pinia';
 import { useAppInfo } from '/@/stores/appInfo';
-import { useRoutesList } from '/@/stores/routesList';
 import { getHealthChecks, getKanban, getMessageInfo } from '/@/api/dashboard';
 
 interface KanbanData {
@@ -332,46 +180,24 @@ interface HealthEntry {
 	duration: string;
 }
 
-interface QuickAction {
-	key: string;
-	label: string;
-	description: string;
-	badge: string;
-	meta: string;
-	icon: any;
-	type: 'refresh' | 'external' | 'route';
-	href?: string;
-	path?: string;
-}
-
-interface RecommendationItem {
-	label: string;
-	value: string;
-	title: string;
-	description: string;
-	tone: StatusTone;
-}
-
-type StatusTone = 'success' | 'warning' | 'danger';
-type ChartKey = 'message' | 'online' | 'resource';
-
-const messageChartRef = ref<HTMLDivElement>();
-const onlineChartRef = ref<HTMLDivElement>();
-const resourceChartRef = ref<HTMLDivElement>();
-
 const router = useRouter();
-const { t } = useI18n();
-const storesThemeConfig = useThemeConfig();
 const storesAppInfo = useAppInfo();
-const storesRoutesList = useRoutesList();
-const { themeConfig } = storeToRefs(storesThemeConfig);
 const { appInfo } = storeToRefs(storesAppInfo);
-const { routesList } = storeToRefs(storesRoutesList);
-
+const messageChartRef = ref<HTMLDivElement>();
+const chartInstance = ref<echarts.ECharts | null>(null);
 const loading = ref(false);
 const lastUpdated = ref<Date | null>(null);
 const healthEntries = ref<HealthEntry[]>([]);
-const kanban = ref<KanbanData>({ eventCount: 0, onlineDeviceCount: 0, attributesDataCount: 0, deviceCount: 0, alarmsCount: 0, userCount: 0, ProductCount: 0, rulesCount: 0 });
+const kanban = ref<KanbanData>({
+	eventCount: 0,
+	onlineDeviceCount: 0,
+	attributesDataCount: 0,
+	deviceCount: 0,
+	alarmsCount: 0,
+	userCount: 0,
+	ProductCount: 0,
+	rulesCount: 0,
+});
 const messageMetrics = ref<MessageMetrics>({
 	servers: 0,
 	subscribers: 0,
@@ -386,366 +212,167 @@ const messageMetrics = ref<MessageMetrics>({
 	subscribeFailed: [],
 });
 
-const chartInstances: Record<ChartKey, echarts.ECharts | null> = { message: null, online: null, resource: null };
-const versionText = computed(() => (appInfo.value.version ? `版本 ${appInfo.value.version}` : '自托管部署'));
-const lastUpdatedText = computed(() => (lastUpdated.value ? dayjs(lastUpdated.value).format('YYYY-MM-DD HH:mm:ss') : '尚未同步'));
+const versionText = computed(() => (appInfo.value.version ? '版本 ' + appInfo.value.version : '自托管部署'));
+const lastUpdatedText = computed(() => (lastUpdated.value ? dayjs(lastUpdated.value).format('HH:mm:ss') : '尚未同步'));
 const offlineDevices = computed(() => Math.max(kanban.value.deviceCount - kanban.value.onlineDeviceCount, 0));
 const onlineRate = computed(() => ratio(kanban.value.onlineDeviceCount, kanban.value.deviceCount));
-const alarmRate = computed(() => ratio(kanban.value.alarmsCount, kanban.value.deviceCount));
 const healthyChecksCount = computed(() => healthEntries.value.filter((item) => item.status === 'Healthy').length);
 const unhealthyChecksCount = computed(() => Math.max(healthEntries.value.length - healthyChecksCount.value, 0));
-const healthRate = computed(() => ratio(healthyChecksCount.value, healthEntries.value.length));
-const hasUnhealthyChecks = computed(() => healthEntries.value.some((item) => item.status !== 'Healthy'));
-const messageTotal24h = computed(() => sumValues(messageMetrics.value.publishSuccessed) + sumValues(messageMetrics.value.publishFailed) + sumValues(messageMetrics.value.subscribeSuccessed) + sumValues(messageMetrics.value.subscribeFailed));
+const hasUnhealthyChecks = computed(() => unhealthyChecksCount.value > 0);
 const messageFailureTotal = computed(() => messageMetrics.value.publishedFailed + messageMetrics.value.receivedFailed);
-const messageFailureRate = computed(() => ratio(messageFailureTotal.value, messageMetrics.value.publishedSucceeded + messageMetrics.value.receivedSucceeded + messageFailureTotal.value));
-const messageSuccessRate = computed(() => ratio(messageMetrics.value.publishedSucceeded + messageMetrics.value.receivedSucceeded, messageMetrics.value.publishedSucceeded + messageMetrics.value.receivedSucceeded + messageFailureTotal.value));
-const lastUpdatedClockText = computed(() => (lastUpdated.value ? dayjs(lastUpdated.value).format('HH:mm:ss') : '--'));
-const actionQueueCount = computed(() => {
-	const count =
-		Number(unhealthyChecksCount.value > 0) +
-		Number(offlineDevices.value > 0) +
-		Number(messageFailureTotal.value > 0) +
-		Number(kanban.value.alarmsCount > 0);
-	return count || 1;
-});
-const hourlyTraffic = computed(() =>
-	messageMetrics.value.dayHour.map((hour, index) => ({
-		hour,
-		total:
-			(messageMetrics.value.publishSuccessed[index] || 0) +
-			(messageMetrics.value.publishFailed[index] || 0) +
-			(messageMetrics.value.subscribeSuccessed[index] || 0) +
-			(messageMetrics.value.subscribeFailed[index] || 0),
-	}))
+const messageTotal24h = computed(
+	() =>
+		sumValues(messageMetrics.value.publishSuccessed) +
+		sumValues(messageMetrics.value.publishFailed) +
+		sumValues(messageMetrics.value.subscribeSuccessed) +
+		sumValues(messageMetrics.value.subscribeFailed)
 );
-const peakTraffic = computed(() =>
-	hourlyTraffic.value.reduce(
-		(peak, current) => (current.total > peak.total ? current : peak),
-		{ hour: '--', total: 0 }
+const messageSuccessRate = computed(() =>
+	ratio(
+		messageMetrics.value.publishedSucceeded + messageMetrics.value.receivedSucceeded,
+		messageMetrics.value.publishedSucceeded + messageMetrics.value.receivedSucceeded + messageFailureTotal.value
 	)
 );
-const platformScore = computed(() => {
-	const score =
-		onlineRate.value * 0.32 +
-		healthRate.value * 0.3 +
-		messageSuccessRate.value * 0.23 +
-		Math.max(0, 100 - Math.min(alarmRate.value, 100)) * 0.15;
-	return Math.round(score);
-});
 
-const heroStats = computed(() => [
-	{ label: '设备在线率', value: percentText(onlineRate.value), hint: `在线 ${formatCount(kanban.value.onlineDeviceCount)} / 总数 ${formatCount(kanban.value.deviceCount)}` },
-	{ label: '平台健康度', value: percentText(healthRate.value), hint: `健康项 ${healthyChecksCount.value} / ${healthEntries.value.length || 0}` },
-	{ label: '24 小时消息', value: formatCount(messageTotal24h.value), hint: `成功率 ${percentText(messageSuccessRate.value)}` },
-	{ label: '告警设备', value: formatCount(kanban.value.alarmsCount), hint: `覆盖率 ${percentText(alarmRate.value)}` },
+const overviewMetrics = computed(() => [
+	{ label: '设备总数', value: formatCount(kanban.value.deviceCount), hint: '运行实例' },
+	{ label: '在线设备', value: formatCount(kanban.value.onlineDeviceCount), hint: percentText(onlineRate.value) + ' 在线' },
+	{ label: '产品', value: formatCount(kanban.value.ProductCount), hint: '能力模板' },
+	{ label: '实时规则', value: formatCount(kanban.value.rulesCount), hint: '规则链' },
+	{ label: '告警设备', value: formatCount(kanban.value.alarmsCount), hint: '当前告警' },
+	{ label: '平台事件', value: formatCount(kanban.value.eventCount), hint: '事件记录' },
 ]);
 
-const workspaceHeadline = computed(() => {
-	if (hasUnhealthyChecks.value) return { title: '存在待处理健康检查', description: `${healthEntries.value.length - healthyChecksCount.value} 个健康项异常，建议优先处理依赖问题。`, tag: '需要关注', tone: 'danger' };
-	if (messageFailureTotal.value > 0) return { title: '消息链路出现波动', description: `当前有 ${formatCount(messageFailureTotal.value)} 条失败消息，需要结合总线趋势继续排查。`, tag: '持续观察', tone: 'warning' };
-	return { title: '平台整体运行稳定', description: '连接、消息和健康检查状态正常，当前可以继续关注容量与业务增长。', tag: '运行良好', tone: 'success' };
-});
-
-const operationalNotices = computed(() => [
-	{ label: '离线设备', value: formatCount(offlineDevices.value), hint: offlineDevices.value > 0 ? '建议优先核查最近掉线设备' : '当前没有离线设备需要处理' },
-	{ label: '失败消息', value: formatCount(messageFailureTotal.value), hint: messageFailureTotal.value > 0 ? '需要检查失败波峰时段' : '最近消息处理稳定' },
-	{ label: '消息节点', value: formatCount(messageMetrics.value.servers), hint: `订阅客户端 ${formatCount(messageMetrics.value.subscribers)}` },
-	{ label: '规则规模', value: formatCount(kanban.value.rulesCount), hint: `产品模型 ${formatCount(kanban.value.ProductCount)} 个` },
-]);
-
-const systemScoreCard = computed(() => {
-	if (platformScore.value >= 90) return { score: platformScore.value, title: '平台运行稳定', description: '连接质量、消息链路和健康检查保持在较高水位，当前可以把重点放到容量与业务扩展。', tag: '稳定', tone: 'success' as const };
-	if (platformScore.value >= 75) return { score: platformScore.value, title: '平台总体可控', description: '基础服务运行正常，但仍有局部风险需要持续观察，建议优先处理当前预警项。', tag: '关注中', tone: 'warning' as const };
-	return { score: platformScore.value, title: '平台需要干预', description: '核心指标出现明显波动，建议把健康项、离线设备和失败消息作为本轮巡检的优先级。', tag: '待处理', tone: 'danger' as const };
-});
-
-const summaryCards = computed(() => {
-	const values: Record<HomeCardMetricKey, number> = {
-		deviceCount: kanban.value.deviceCount,
-		onlineDeviceCount: kanban.value.onlineDeviceCount,
-		attributesDataCount: kanban.value.attributesDataCount,
-		eventCount: kanban.value.eventCount,
-		alarmsCount: kanban.value.alarmsCount,
-		userCount: kanban.value.userCount,
-		ProductCount: kanban.value.ProductCount,
-		rulesCount: kanban.value.rulesCount,
-	};
-	const hints: Record<HomeCardMetricKey, string> = {
-		deviceCount: `在线 ${formatCount(kanban.value.onlineDeviceCount)} 台`,
-		onlineDeviceCount: `离线 ${formatCount(offlineDevices.value)} 台`,
-		attributesDataCount: `平均每设备 ${averageText(kanban.value.attributesDataCount, kanban.value.deviceCount)}`,
-		eventCount: `规则规模 ${formatCount(kanban.value.rulesCount)}`,
-		alarmsCount: `告警覆盖率 ${percentText(alarmRate.value)}`,
-		userCount: `人均管理 ${averageText(kanban.value.deviceCount, kanban.value.userCount)} 台`,
-		ProductCount: `覆盖设备 ${averageText(kanban.value.deviceCount, kanban.value.ProductCount)} 台`,
-		rulesCount: `每产品规则 ${averageText(kanban.value.rulesCount, kanban.value.ProductCount)}`,
-	};
-	return homeCardItemsConfig.slice(0, 4).map((item) => ({ ...item, value: formatCount(values[item.key]), hint: hints[item.key] }));
-});
-
-const statusMetrics = computed(() => [
-	{ label: '连接稳定度', value: percentText(onlineRate.value), percentage: onlineRate.value, color: '#165dff', hint: `在线 ${formatCount(kanban.value.onlineDeviceCount)} / 总数 ${formatCount(kanban.value.deviceCount)}` },
-	{ label: '健康通过率', value: percentText(healthRate.value), percentage: healthRate.value, color: '#00b42a', hint: `健康项 ${healthyChecksCount.value} / ${healthEntries.value.length || 0}` },
-	{ label: '告警压力', value: percentText(alarmRate.value), percentage: Math.min(alarmRate.value, 100), color: '#ff7d00', hint: `${formatCount(kanban.value.alarmsCount)} 台设备处于告警中` },
-	{ label: '消息成功率', value: percentText(messageSuccessRate.value), percentage: messageSuccessRate.value, color: '#0fc6c2', hint: `失败消息 ${formatCount(messageFailureTotal.value)} 条` },
-]);
-
-const systemOverviewItems = computed(() => [
-	{ label: '消息节点', value: formatCount(messageMetrics.value.servers), hint: '消息服务器实例数' },
-	{ label: '订阅客户端', value: formatCount(messageMetrics.value.subscribers), hint: '当前订阅终端规模' },
-	{ label: '规则总数', value: formatCount(kanban.value.rulesCount), hint: '自动化流程与联动' },
-	{ label: '产品模型', value: formatCount(kanban.value.ProductCount), hint: '产品能力模板' },
-	{ label: '系统用户', value: formatCount(kanban.value.userCount), hint: '协同管理成员数' },
-	{ label: '事件总量', value: formatCount(kanban.value.eventCount), hint: '近 24 小时平台事件' },
-]);
-
-const resourceHighlights = computed(() => [
-	{ label: '设备规模', value: formatCount(kanban.value.deviceCount), hint: '当前纳管终端总量', color: '#165dff' },
-	{ label: '在线终端', value: formatCount(kanban.value.onlineDeviceCount), hint: '处于活跃连接的设备', color: '#00b42a' },
-	{ label: '产品模型', value: formatCount(kanban.value.ProductCount), hint: '设备模板与模型沉淀', color: '#0fc6c2' },
-	{ label: '规则总数', value: formatCount(kanban.value.rulesCount), hint: '联动与自动化编排能力', color: '#722ed1' },
-	{ label: '系统用户', value: formatCount(kanban.value.userCount), hint: '协同管理的成员规模', color: '#3491fa' },
-	{ label: '告警设备', value: formatCount(kanban.value.alarmsCount), hint: '当前需要重点跟进的范围', color: '#ff7d00' },
-]);
-
-const trendHighlights = computed(() => [
-	{ label: '波峰时段', value: peakTraffic.value.hour, hint: peakTraffic.value.total > 0 ? `峰值 ${formatCount(peakTraffic.value.total)} 条消息` : '等待流量数据同步' },
-	{ label: '失败占比', value: percentText(messageFailureRate.value), hint: messageFailureTotal.value > 0 ? `近 24 小时失败 ${formatCount(messageFailureTotal.value)} 条` : '当前没有失败消息' },
+const capabilityGroups = [
 	{
-		label: '节点负载',
-		value: messageMetrics.value.servers ? `${averageText(messageTotal24h.value, messageMetrics.value.servers)} 条` : '--',
-		hint: messageMetrics.value.servers ? `${formatCount(messageMetrics.value.servers)} 个节点 / ${formatCount(messageMetrics.value.subscribers)} 个订阅端` : '暂无消息节点数据',
+		title: '接入与采集',
+		description: '建模业务对象，管理设备与边缘运行时。',
+		icon: Connection,
+		links: [
+			{ label: '产品', path: '/iot/product/productlist' },
+			{ label: '资产', path: '/iot/assets/assetlist' },
+			{ label: '设备', path: '/iot/devices/devicelist' },
+			{ label: 'Edge 节点', path: '/iot/devices/edgelist' },
+		],
 	},
-]);
+	{
+		title: '实时规则',
+		description: '设计实时规则并查看处理事件。',
+		icon: SetUp,
+		links: [
+			{ label: '规则链', path: '/iot/rules/flowlist' },
+			{ label: '规则审计', path: '/iot/rules/flowevents' },
+			{ label: '设备告警', path: '/iot/alarms/alarmlist' },
+		],
+	},
+	{
+		title: '运维与发布',
+		description: '围绕边缘任务、配置版本与运行诊断闭环。',
+		icon: Cpu,
+		links: [
+			{ label: 'Edge 任务', path: '/iot/devices/edgetasks' },
+			{ label: 'Edge 节点', path: '/iot/devices/edgelist' },
+		],
+	},
+];
 
-const healthSummaryItems = computed(() => [
-	{ label: '通过项', value: formatCount(healthyChecksCount.value), hint: `共 ${healthEntries.value.length || 0} 项健康检查`, tone: 'success' as StatusTone },
-	{ label: '待处理', value: formatCount(unhealthyChecksCount.value), hint: hasUnhealthyChecks.value ? '建议优先排查依赖与基础服务' : '当前没有待处理健康项', tone: hasUnhealthyChecks.value ? ('warning' as StatusTone) : ('success' as StatusTone) },
-	{ label: '最近巡检', value: lastUpdatedClockText.value, hint: lastUpdated.value ? dayjs(lastUpdated.value).format('YYYY-MM-DD') : '等待同步', tone: 'success' as StatusTone },
-]);
-
-const actionRecommendations = computed<RecommendationItem[]>(() => {
-	const items: RecommendationItem[] = [];
+const attentionItems = computed(() => {
+	const items = [];
 	if (hasUnhealthyChecks.value) {
-		items.push({
-			label: 'P1',
-			value: `${unhealthyChecksCount.value} 项`,
-			title: '处理健康检查异常',
-			description: '优先检查失败依赖和基础服务，让平台先恢复到稳定状态。',
-			tone: 'danger',
-		});
+		items.push({ label: '健康检查异常', value: unhealthyChecksCount.value + ' 项', hint: '检查依赖与基础服务', tone: 'danger', path: '' });
 	}
 	if (offlineDevices.value > 0) {
-		items.push({
-			label: 'P2',
-			value: `${formatCount(offlineDevices.value)} 台`,
-			title: '跟进离线设备恢复',
-			description: '建议先排查最近掉线和集中掉线的设备，尽快拉回在线覆盖率。',
-			tone: 'warning',
-		});
+		items.push({ label: '离线设备', value: formatCount(offlineDevices.value) + ' 台', hint: '进入设备列表核查连接', tone: 'warning', path: '/iot/devices/devicelist' });
 	}
 	if (messageFailureTotal.value > 0) {
-		items.push({
-			label: 'P2',
-			value: `${formatCount(messageFailureTotal.value)} 条`,
-			title: '排查失败消息波峰',
-			description: '结合消息总线趋势，重点检查失败消息出现最密集的时间段。',
-			tone: 'warning',
-		});
+		items.push({ label: '失败消息', value: formatCount(messageFailureTotal.value) + ' 条', hint: '查看规则审计与消息时段', tone: 'warning', path: '/iot/rules/flowevents' });
 	}
-	if (items.length < 3 && kanban.value.alarmsCount > 0) {
-		items.push({
-			label: 'P3',
-			value: `${formatCount(kanban.value.alarmsCount)} 台`,
-			title: '压降高频告警设备',
-			description: '先收敛重复触发的告警源，降低值班噪音和排障干扰。',
-			tone: 'warning',
-		});
+	if (kanban.value.alarmsCount > 0) {
+		items.push({ label: '设备告警', value: formatCount(kanban.value.alarmsCount) + ' 台', hint: '进入告警列表处置', tone: 'danger', path: '/iot/alarms/alarmlist' });
 	}
-	if (items.length < 3) {
-		items.push({
-			label: 'Routine',
-			value: percentText(onlineRate.value),
-			title: '复核平台容量与增长',
-			description: '当前基础面可控，建议把产品模型、规则和设备增长放到本轮复盘里。',
-			tone: 'success',
-		});
+	if (!items.length) {
+		items.push({ label: '暂无待处理异常', value: '正常', hint: '当前采集到的运行指标未发现异常', tone: 'success', path: '' });
 	}
-	if (items.length < 3) {
-		items.push({
-			label: 'Daily',
-			value: lastUpdatedText.value,
-			title: '同步今日巡检结论',
-			description: '记录这次面板刷新后的结论，方便团队接力处理后续动作。',
-			tone: 'success',
-		});
-	}
-	return items.slice(0, 3);
+	return items;
 });
 
-const focusPrimaryAction = computed<RecommendationItem>(() => actionRecommendations.value[0] ?? { label: 'Daily', value: '--', title: '继续例行巡检', description: '当前没有需要升级处理的问题，可以继续复核容量、增长和业务趋势。', tone: 'success' });
-
-const focusSignals = computed(() => [
-	{ label: '平台评分', value: `${systemScoreCard.value.score} 分`, hint: systemScoreCard.value.tag, tone: systemScoreCard.value.tone },
-	{ label: '待办事项', value: `${actionQueueCount.value} 项`, hint: focusPrimaryAction.value.title, tone: actionQueueCount.value > 1 ? ('warning' as StatusTone) : ('success' as StatusTone) },
-	{ label: '波峰时段', value: peakTraffic.value.hour, hint: peakTraffic.value.total > 0 ? `峰值 ${formatCount(peakTraffic.value.total)} 条` : '等待流量数据', tone: messageFailureTotal.value > 0 ? ('warning' as StatusTone) : ('success' as StatusTone) },
-]);
-
-const quickIcons = [Monitor, Connection, DataAnalysis, Bell];
-const quickActions = computed<QuickAction[]>(() => [
-	{ key: 'refresh', label: '刷新数据', description: '重新拉取首页接口', badge: '同步', meta: '立即获取最新状态', icon: RefreshRight, type: 'refresh' },
-	{ key: 'docs', label: '文档中心', description: '查看部署与接入说明', badge: '文档', meta: '部署与接入指南', icon: Reading, type: 'external', href: 'http://docs.iotsharp.net/' },
-	{ key: 'github', label: '项目仓库', description: '访问 GitHub 源码', badge: '开源', meta: '查看项目源码', icon: Promotion, type: 'external', href: 'https://github.com/IoTSharp' },
-	...flattenVisibleRoutes(routesList.value)
-		.filter((item) => item.path && item.path !== '/dashboard')
-		.slice(0, 3)
-		.map((item, index) => ({
-			key: `route-${item.path}`,
-			label: normalizeRouteTitle(item.meta?.title),
-			description: '进入常用业务页面',
-			badge: '业务',
-			meta: '控制台直达',
-			icon: quickIcons[index % quickIcons.length],
-			type: 'route' as const,
-			path: item.path,
-		})),
-]);
-
-function flattenVisibleRoutes(routes: any[] = []): any[] {
-	return routes.flatMap((item: any) => [...(item?.meta?.isHide ? [] : [item]), ...(Array.isArray(item?.children) ? flattenVisibleRoutes(item.children) : [])]);
-}
-
-function normalizeRouteTitle(title?: string) {
-	return !title ? '业务入口' : title.startsWith('message.') ? t(title) : title;
-}
-
-function onQuickAction(action: QuickAction) {
-	if (action.type === 'refresh') return refreshDashboard();
-	if (action.type === 'external' && action.href) return window.open(action.href, '_blank');
-	if (action.type === 'route' && action.path) router.push(action.path);
-}
-
-function getQuickActionStyle(action: QuickAction) {
-	const colorMap: Record<QuickAction['type'], string> = {
-		refresh: '#165dff',
-		external: '#0fc6c2',
-		route: '#ff7d00',
-	};
-	const color = colorMap[action.type];
-	return {
-		'--quick-accent': color,
-		'--quick-accent-soft': `${color}14`,
-		'--quick-accent-border': `${color}32`,
-	};
-}
-
-function openDocs() {
-	window.open('http://docs.iotsharp.net/', '_blank');
-}
-
-function openGithub() {
-	window.open('https://github.com/IoTSharp', '_blank');
-}
-
-async function refreshDashboard() {
-	await fetchDashboardData();
-}
-
-function formatCount(value: number) {
-	return new Intl.NumberFormat('zh-CN').format(value || 0);
-}
-
-function percentText(value: number) {
-	return `${value.toFixed(1)}%`;
-}
-
-function averageText(total: number, divisor: number) {
-	return divisor ? (total / divisor).toFixed(total / divisor >= 100 ? 0 : 1) : '0';
-}
-
-function ratio(value: number, total: number) {
-	return total ? (value / total) * 100 : 0;
-}
-
-function sumValues(values: number[]) {
-	return values.reduce((sum, current) => sum + current, 0);
-}
+const formatCount = (value: number) => new Intl.NumberFormat('zh-CN').format(value || 0);
+const percentText = (value: number) => value.toFixed(1) + '%';
+const ratio = (value: number, total: number) => (total ? (value / total) * 100 : 0);
+const sumValues = (values: number[]) => values.reduce((sum, current) => sum + current, 0);
+const healthStatusLabel = (status: string) => (status === 'Healthy' ? '正常' : status === 'Degraded' ? '降级' : '异常');
+const openRoute = (path: string) => void router.push(path);
 
 function normalizeHealthEntries(payload: any): HealthEntry[] {
 	const latestExecution = Array.isArray(payload) ? payload[0] : undefined;
 	const rawEntries = latestExecution?.entries ? Object.entries(latestExecution.entries) : [];
 	return rawEntries
-		.map(([name, entry]: [string, any]) => ({ name, status: entry?.status ?? 'Unknown', description: entry?.description ?? '', duration: entry?.duration ?? '' }))
+		.map(([name, entry]: [string, any]) => ({
+			name,
+			status: entry?.status ?? 'Unknown',
+			description: entry?.description ?? '',
+			duration: entry?.duration ?? '',
+		}))
 		.sort((left, right) => Number(left.status === 'Healthy') - Number(right.status === 'Healthy'));
 }
 
-function disposeCharts() {
-	(Object.keys(chartInstances) as ChartKey[]).forEach((key) => {
-		chartInstances[key]?.dispose();
-		chartInstances[key] = null;
-	});
-}
-
-function initChart(key: ChartKey, target: typeof messageChartRef, option: EChartsOption) {
-	if (!target.value) return;
-	chartInstances[key]?.dispose();
-	chartInstances[key] = echarts.init(target.value, themeConfig.value.isIsDark ? 'dark' : undefined);
-	chartInstances[key]?.setOption(option);
+function themeColor(name: string, fallback: string) {
+	return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback;
 }
 
 function buildLineSeries(name: string, data: number[], color: string) {
-	return { name, type: 'line', smooth: true, showSymbol: false, lineStyle: { width: 3, color }, areaStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: `${color}33` }, { offset: 1, color: `${color}05` }]) }, data };
+	return {
+		name,
+		type: 'line',
+		smooth: true,
+		showSymbol: false,
+		lineStyle: { width: 2, color },
+		areaStyle: {
+			color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+				{ offset: 0, color: color + '30' },
+				{ offset: 1, color: color + '03' },
+			]),
+		},
+		data,
+	};
 }
 
-function renderCharts() {
-	const axisLabelColor = themeConfig.value.isIsDark ? '#cbd5e1' : '#6b7785';
-	const primaryTextColor = themeConfig.value.isIsDark ? '#f8fafc' : '#1d2129';
-	const splitLineColor = themeConfig.value.isIsDark ? 'rgba(148, 163, 184, 0.18)' : 'rgba(199, 210, 221, 0.42)';
-
-	initChart('message', messageChartRef, {
-		tooltip: { trigger: 'axis', backgroundColor: themeConfig.value.isIsDark ? '#0f172a' : '#ffffff', borderColor: themeConfig.value.isIsDark ? 'rgba(148, 163, 184, 0.18)' : '#e5e6eb', textStyle: { color: primaryTextColor } },
-		legend: { top: 0, textStyle: { color: axisLabelColor } },
-		grid: { top: 52, right: 18, bottom: 18, left: 18, containLabel: true },
-		xAxis: { type: 'category', boundaryGap: false, data: messageMetrics.value.dayHour, axisLine: { lineStyle: { color: splitLineColor } }, axisLabel: { color: axisLabelColor } },
-		yAxis: { type: 'value', axisLabel: { color: axisLabelColor }, splitLine: { lineStyle: { color: splitLineColor, type: 'dashed' } } },
+function renderChart() {
+	if (!messageChartRef.value) return;
+	chartInstance.value?.dispose();
+	chartInstance.value = echarts.init(messageChartRef.value);
+	const accent = themeColor('--iotsharp-accent', '#1E5B4F');
+	const text = themeColor('--iotsharp-text-muted', '#71807C');
+	const border = themeColor('--iotsharp-border', '#DFE7E4');
+	const option: EChartsOption = {
+		animationDuration: 420,
+		tooltip: { trigger: 'axis' },
+		legend: { top: 0, textStyle: { color: text, fontSize: 11 } },
+		grid: { top: 42, right: 12, bottom: 12, left: 12, containLabel: true },
+		xAxis: {
+			type: 'category',
+			boundaryGap: false,
+			data: messageMetrics.value.dayHour,
+			axisLine: { lineStyle: { color: border } },
+			axisLabel: { color: text, fontSize: 10 },
+		},
+		yAxis: {
+			type: 'value',
+			axisLabel: { color: text, fontSize: 10 },
+			splitLine: { lineStyle: { color: border, type: 'dashed' } },
+		},
 		series: [
-			buildLineSeries('发布成功', messageMetrics.value.publishSuccessed, '#165dff'),
-			buildLineSeries('发布失败', messageMetrics.value.publishFailed, '#ff7d00'),
-			buildLineSeries('订阅成功', messageMetrics.value.subscribeSuccessed, '#00b42a'),
-			buildLineSeries('订阅失败', messageMetrics.value.subscribeFailed, '#f53f3f'),
+			buildLineSeries('发布成功', messageMetrics.value.publishSuccessed, accent),
+			buildLineSeries('发布失败', messageMetrics.value.publishFailed, '#A85D00'),
+			buildLineSeries('订阅成功', messageMetrics.value.subscribeSuccessed, '#157347'),
+			buildLineSeries('订阅失败', messageMetrics.value.subscribeFailed, '#BD3E3E'),
 		],
-	});
-
-	initChart('online', onlineChartRef, {
-		tooltip: { trigger: 'item' },
-		title: { text: percentText(onlineRate.value), subtext: '在线率', left: 'center', top: '41%', textStyle: { color: primaryTextColor, fontSize: 24, fontWeight: 700 }, subtextStyle: { color: axisLabelColor, fontSize: 13 } },
-		series: [{ type: 'pie', radius: ['66%', '82%'], center: ['50%', '48%'], label: { show: false }, labelLine: { show: false }, data: [{ value: kanban.value.onlineDeviceCount, name: '在线设备', itemStyle: { color: '#165dff' } }, { value: offlineDevices.value, name: '离线设备', itemStyle: { color: '#dbeafe' } }] }],
-	});
-
-	initChart('resource', resourceChartRef, {
-		grid: { top: 8, right: 20, bottom: 8, left: 70, containLabel: true },
-		xAxis: { type: 'value', splitLine: { lineStyle: { color: splitLineColor, type: 'dashed' } }, axisLabel: { color: axisLabelColor } },
-		yAxis: { type: 'category', axisTick: { show: false }, axisLine: { show: false }, axisLabel: { color: axisLabelColor }, data: ['设备', '在线', '产品', '规则', '用户', '告警'] },
-		series: [{
-			type: 'bar',
-			barWidth: 18,
-			data: [
-				{ value: kanban.value.deviceCount, itemStyle: { color: '#165dff' } },
-				{ value: kanban.value.onlineDeviceCount, itemStyle: { color: '#00b42a' } },
-				{ value: kanban.value.ProductCount, itemStyle: { color: '#0fc6c2' } },
-				{ value: kanban.value.rulesCount, itemStyle: { color: '#722ed1' } },
-				{ value: kanban.value.userCount, itemStyle: { color: '#3491fa' } },
-				{ value: kanban.value.alarmsCount, itemStyle: { color: '#ff7d00' } },
-			],
-			label: { show: true, position: 'right', color: primaryTextColor },
-			itemStyle: { borderRadius: [0, 10, 10, 0] },
-		}],
-	});
+	};
+	chartInstance.value.setOption(option);
 }
 
-function resizeCharts() {
-	nextTick(() => (Object.keys(chartInstances) as ChartKey[]).forEach((key) => chartInstances[key]?.resize()));
+function resizeChart() {
+	void nextTick(() => chartInstance.value?.resize());
 }
 
 async function fetchDashboardData() {
@@ -757,1065 +384,447 @@ async function fetchDashboardData() {
 		healthEntries.value = normalizeHealthEntries(healthRes);
 		lastUpdated.value = new Date();
 		await nextTick();
-		renderCharts();
-	} catch (error) {
-		ElMessage.error('首页数据加载失败');
+		renderChart();
+	} catch {
+		ElMessage.error('运行概览加载失败，请稍后重试');
 	} finally {
 		loading.value = false;
 	}
 }
 
+const refreshDashboard = () => fetchDashboardData();
+const onThemeChange = () => void nextTick(renderChart);
+
 onMounted(async () => {
 	await fetchDashboardData();
-	window.addEventListener('resize', resizeCharts);
+	window.addEventListener('resize', resizeChart);
+	window.addEventListener('iotsharp-theme-change', onThemeChange);
 });
 
-onActivated(() => resizeCharts());
+onActivated(resizeChart);
 onBeforeUnmount(() => {
-	window.removeEventListener('resize', resizeCharts);
-	disposeCharts();
+	window.removeEventListener('resize', resizeChart);
+	window.removeEventListener('iotsharp-theme-change', onThemeChange);
+	chartInstance.value?.dispose();
 });
-
-watch(
-	() => themeConfig.value.isIsDark,
-	() => nextTick(() => renderCharts())
-);
 </script>
 
 <style scoped lang="scss">
-.workspace-page {
+.ops-dashboard {
 	display: flex;
 	flex-direction: column;
-	gap: 16px;
-}
-
-.card {
-	border: 1px solid #e5e6eb;
-	border-radius: 24px;
-	background: #fff;
-	box-shadow: 0 10px 24px rgba(15, 23, 42, 0.04);
-}
-
-.workspace-hero {
-	display: grid;
-	grid-template-columns: minmax(0, 1.65fr) minmax(320px, 0.95fr);
-	gap: 16px;
-}
-
-.hero-main,
-.side-card,
-.panel {
-	padding: 22px;
-}
-
-.hero-main {
-	position: relative;
-	overflow: hidden;
-	background:
-		radial-gradient(circle at top right, rgba(22, 93, 255, 0.12), transparent 34%),
-		linear-gradient(135deg, #f7fbff 0%, #eef5ff 55%, #f9fbff 100%);
-}
-
-.hero-main::after {
-	position: absolute;
-	right: -48px;
-	bottom: -70px;
-	width: 220px;
-	height: 220px;
-	content: '';
-	border-radius: 50%;
-	background: radial-gradient(circle, rgba(14, 165, 233, 0.16), transparent 68%);
-}
-
-.eyebrow {
-	margin-bottom: 8px;
-	color: #86909c;
-	font-size: 12px;
-	font-weight: 700;
-	letter-spacing: 0.16em;
-	text-transform: uppercase;
-}
-
-.hero-head,
-.panel-head,
-.side-top {
-	display: flex;
-	align-items: flex-start;
-	justify-content: space-between;
-	gap: 16px;
-}
-
-.hero-head h1,
-.side-top h2,
-.panel-head h3 {
-	margin: 0 0 8px;
-	color: #1d2129;
-	letter-spacing: -0.03em;
-}
-
-.hero-head h1 {
-	font-size: clamp(30px, 4vw, 40px);
-	line-height: 1.05;
-}
-
-.side-top h2 {
-	font-size: 24px;
-}
-
-.panel-head h3 {
-	font-size: 22px;
-}
-
-.hero-head p,
-.panel-head p,
-.side-desc {
-	margin: 0;
-	color: #4e5969;
-	font-size: 14px;
-	line-height: 1.75;
-}
-
-.hero-tags,
-.hero-actions,
-.chip-row {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 10px;
-}
-
-.tag,
-.chip,
-.status-pill {
-	display: inline-flex;
-	align-items: center;
-	border-radius: 999px;
-	font-size: 12px;
-	font-weight: 600;
-	white-space: nowrap;
-}
-
-.tag {
-	height: 36px;
-	padding: 0 14px;
-	background: rgba(22, 93, 255, 0.1);
-	color: #165dff;
-}
-
-.tag-muted {
-	background: rgba(255, 255, 255, 0.86);
-	color: #4e5969;
-	border: 1px solid rgba(229, 230, 235, 0.9);
-}
-
-.hero-actions {
-	position: relative;
-	z-index: 1;
-	margin-top: 20px;
-}
-
-.hero-actions .el-button {
-	height: 38px;
-	padding: 0 16px;
-	border-radius: 12px;
-}
-
-.hero-stats {
-	position: relative;
-	z-index: 1;
-	display: grid;
-	grid-template-columns: repeat(4, minmax(0, 1fr));
 	gap: 14px;
-	margin-top: 22px;
+	color: var(--iotsharp-text);
 }
 
-.hero-stat,
-.mini-card,
-.breakdown-item {
-	padding: 16px;
-	border-radius: 18px;
-	border: 1px solid rgba(229, 230, 235, 0.92);
-	background: rgba(255, 255, 255, 0.92);
+.overview-bar {
+	padding: 18px 20px 0;
+	border: 1px solid rgba(var(--iotsharp-accent-rgb), 0.14);
+	border-radius: var(--iotsharp-radius-panel);
+	background: var(--iotsharp-quiet-gradient);
 }
 
-.hero-stat span,
-.mini-card span {
-	display: block;
-	color: #4e5969;
-	font-size: 13px;
-}
-
-.hero-stat strong,
-.mini-card strong {
-	display: block;
-	margin-top: 10px;
-	color: #1d2129;
-	font-weight: 700;
-	letter-spacing: -0.04em;
-}
-
-.hero-stat strong {
-	font-size: 24px;
-}
-
-.hero-stat small,
-.mini-card small {
-	display: block;
-	margin-top: 6px;
-	color: #86909c;
-	font-size: 12px;
-	line-height: 1.6;
-}
-
-.hero-side,
-.notice-list,
-.status-list {
-	display: grid;
-	gap: 16px;
-}
-
-.side-card__head {
+.overview-bar__head,
+.dashboard-panel__head,
+.overview-bar__tools,
+.panel-facts {
 	display: flex;
-	align-items: flex-start;
+	align-items: center;
 	justify-content: space-between;
-	gap: 16px;
+	gap: 12px;
 }
 
-.side-card__head h3 {
-	margin: 0 0 8px;
-	color: #1d2129;
-	font-size: 22px;
-	letter-spacing: -0.03em;
-}
-
-.side-card__head p {
+.overview-bar__copy h1 {
 	margin: 0;
-	color: #4e5969;
-	font-size: 13px;
-	line-height: 1.7;
-}
-
-.side-kicker {
-	display: inline-flex;
-	align-items: center;
-	height: 32px;
-	padding: 0 12px;
-	border-radius: 999px;
-	border: 1px solid rgba(229, 230, 235, 0.96);
-	background: rgba(255, 255, 255, 0.9);
-	color: #4e5969;
-	font-size: 12px;
-	font-weight: 600;
-	white-space: nowrap;
-}
-
-.side-card > * + * {
-	margin-top: 16px;
-}
-
-.focus-summary {
-	padding: 16px 18px;
-	border-radius: 20px;
-	border: 1px solid rgba(229, 230, 235, 0.96);
-}
-
-.focus-summary--success {
-	background: linear-gradient(180deg, rgba(240, 255, 244, 0.76), #ffffff);
-}
-
-.focus-summary--warning {
-	background: linear-gradient(180deg, rgba(255, 247, 232, 0.86), #ffffff);
-}
-
-.focus-summary--danger {
-	background: linear-gradient(180deg, rgba(255, 236, 232, 0.88), #ffffff);
-}
-
-.focus-summary__head {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: 12px;
-	margin-bottom: 12px;
-}
-
-.focus-summary__label,
-.focus-summary__value {
-	display: inline-flex;
-	align-items: center;
-	min-height: 28px;
-	padding: 0 10px;
-	border-radius: 999px;
-	background: rgba(255, 255, 255, 0.9);
-	border: 1px solid rgba(229, 230, 235, 0.96);
-	color: #4e5969;
-	font-size: 12px;
+	color: var(--iotsharp-ink);
+	font-size: 23px;
 	font-weight: 700;
-	white-space: nowrap;
+	letter-spacing: 0;
 }
 
-.focus-summary strong {
-	display: block;
-	color: #1d2129;
-	font-size: 16px;
-	font-weight: 700;
-}
-
-.focus-summary small {
-	display: block;
-	margin-top: 6px;
-	color: #6b7785;
+.overview-bar__copy p,
+.dashboard-panel__head p,
+.capability-group__title p {
+	margin: 5px 0 0;
+	color: var(--iotsharp-text-soft);
 	font-size: 12px;
-	line-height: 1.65;
+	line-height: 1.55;
 }
 
-.focus-strip {
+.overview-bar__tools {
+	justify-content: flex-end;
+	color: var(--iotsharp-text-muted);
+	font-size: 11px;
+}
+
+.overview-bar__tools .el-button {
+	height: 34px;
+	border-radius: var(--iotsharp-radius-control);
+}
+
+.overview-metrics {
 	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
-	gap: 12px;
+	grid-template-columns: repeat(6, minmax(0, 1fr));
+	margin: 16px -20px 0;
+	border-top: 1px solid rgba(var(--iotsharp-accent-rgb), 0.12);
 }
 
-.focus-item {
-	padding: 14px;
-	border-radius: 18px;
-	border: 1px solid rgba(229, 230, 235, 0.92);
-	background: #fff;
+.overview-metric {
+	min-width: 0;
+	padding: 13px 18px 15px;
+	border-left: 1px solid rgba(var(--iotsharp-accent-rgb), 0.12);
 }
 
-.focus-item span {
-	display: block;
-	color: #4e5969;
-	font-size: 12px;
+.overview-metric:first-child {
+	border-left: 0;
 }
 
-.focus-item strong {
-	display: block;
-	margin-top: 10px;
-	color: #1d2129;
+.overview-metric dt,
+.trend-summary span {
+	color: var(--iotsharp-text-muted);
+	font-size: 10px;
+}
+
+.overview-metric dd {
+	margin: 3px 0 0;
+	color: var(--iotsharp-ink);
 	font-size: 20px;
 	font-weight: 700;
-	letter-spacing: -0.04em;
+	font-variant-numeric: tabular-nums;
 }
 
-.focus-item small {
+.overview-metric small {
 	display: block;
-	margin-top: 6px;
-	color: #86909c;
-	font-size: 12px;
-	line-height: 1.6;
+	margin-top: 1px;
+	color: var(--iotsharp-text-soft);
+	font-size: 10px;
 }
 
-.focus-item--success {
-	background: linear-gradient(180deg, rgba(240, 255, 244, 0.52), #ffffff);
-}
-
-.focus-item--warning {
-	background: linear-gradient(180deg, rgba(255, 247, 232, 0.58), #ffffff);
-}
-
-.focus-item--danger {
-	background: linear-gradient(180deg, rgba(255, 236, 232, 0.58), #ffffff);
-}
-
-.status-pill {
-	height: 30px;
-	padding: 0 12px;
-	font-weight: 700;
-}
-
-.is-success {
-	background: rgba(0, 180, 42, 0.12);
-	color: #009a29;
-}
-
-.is-warning {
-	background: rgba(255, 125, 0, 0.12);
-	color: #d25f00;
-}
-
-.is-danger {
-	background: rgba(245, 63, 63, 0.12);
-	color: #cb2634;
-}
-
-.notice-item,
-.quick-item,
-.health-item {
-	display: flex;
+.dashboard-core,
+.dashboard-lower {
+	display: grid;
+	grid-template-columns: minmax(0, 2fr) minmax(300px, 1fr);
 	gap: 14px;
-	padding: 14px 16px;
-	border-radius: 18px;
-	border: 1px solid rgba(229, 230, 235, 0.92);
-	background: #fff;
 }
 
-.notice-item__value {
-	min-width: 72px;
-	color: #165dff;
-	font-size: 22px;
-	font-weight: 700;
-	letter-spacing: -0.04em;
-}
-
-.notice-item__body,
-.health-main {
-	display: flex;
-	gap: 14px;
+.dashboard-panel {
 	min-width: 0;
+	border: 1px solid var(--iotsharp-border);
+	border-radius: var(--iotsharp-radius-panel);
+	background: var(--iotsharp-surface);
+	box-shadow: var(--iotsharp-shadow-panel);
 }
 
-.notice-item__body {
-	flex-direction: column;
-	gap: 4px;
-}
-
-.notice-item__body strong,
-.quick-item strong,
-.health-name {
-	color: #1d2129;
-	font-size: 14px;
-	font-weight: 600;
-}
-
-.notice-item__body small,
-.quick-item small,
-.health-desc,
-.status-item p {
-	color: #86909c;
-	font-size: 12px;
-	line-height: 1.6;
-}
-
-.quick-grid,
-.mini-grid,
-.breakdown-list {
-	display: grid;
-	grid-template-columns: repeat(2, minmax(0, 1fr));
-	gap: 12px;
-}
-
-.quick-item {
-	--quick-accent: #165dff;
-	--quick-accent-soft: rgba(22, 93, 255, 0.08);
-	--quick-accent-border: rgba(22, 93, 255, 0.22);
-	flex-direction: column;
+.dashboard-panel__head {
+	min-height: 62px;
 	align-items: flex-start;
-	min-height: 160px;
-	text-align: left;
-	cursor: pointer;
-	background:
-		radial-gradient(circle at top right, var(--quick-accent-soft), transparent 42%),
-		linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
-	transition:
-		transform 0.2s ease,
-		border-color 0.2s ease,
-		box-shadow 0.2s ease;
+	padding: 13px 15px;
+	border-bottom: 1px solid var(--iotsharp-border);
 }
 
-.quick-item:hover {
-	transform: translateY(-2px);
-	border-color: var(--quick-accent-border);
-	box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
-}
-
-.quick-item__top {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	width: 100%;
-	gap: 12px;
-}
-
-.quick-item__icon {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	width: 40px;
-	height: 40px;
-	border-radius: 14px;
-	background: var(--quick-accent-soft);
-	color: var(--quick-accent);
-	font-size: 18px;
-}
-
-.quick-item__badge {
-	display: inline-flex;
-	align-items: center;
-	height: 28px;
-	padding: 0 10px;
-	border-radius: 999px;
-	background: rgba(255, 255, 255, 0.92);
-	border: 1px solid rgba(229, 230, 235, 0.96);
-	color: #4e5969;
-	font-size: 12px;
-	font-weight: 600;
-}
-
-.quick-item__meta {
-	display: inline-flex;
-	align-items: center;
-	gap: 6px;
-	margin-top: auto;
-	color: var(--quick-accent);
-	font-size: 12px;
-	font-weight: 600;
-}
-
-.summary-row {
-	row-gap: 16px;
-}
-
-.summary-section {
-	display: flex;
-	flex-direction: column;
-	gap: 14px;
-}
-
-.summary-head {
-	display: flex;
-	align-items: flex-end;
-	justify-content: space-between;
-	gap: 16px;
-}
-
-.summary-head h3 {
-	margin: 0 0 8px;
-	color: #1d2129;
-	font-size: 22px;
-	letter-spacing: -0.03em;
-}
-
-.summary-head p {
+.dashboard-panel__head h2 {
 	margin: 0;
-	color: #4e5969;
-	font-size: 14px;
-	line-height: 1.75;
+	color: var(--iotsharp-ink);
+	font-size: 15px;
+	font-weight: 680;
+	letter-spacing: 0;
 }
 
-.summary-tag {
-	display: inline-flex;
-	align-items: center;
-	height: 34px;
-	padding: 0 14px;
+.panel-facts {
+	justify-content: flex-end;
+	color: var(--iotsharp-text-muted);
+	font-size: 10px;
+}
+
+.panel-facts span {
+	padding: 5px 8px;
 	border-radius: 999px;
-	border: 1px solid rgba(229, 230, 235, 0.96);
-	background: rgba(255, 255, 255, 0.9);
-	color: #4e5969;
-	font-size: 12px;
-	font-weight: 600;
-	white-space: nowrap;
+	background: var(--iotsharp-surface-muted);
 }
 
-.workspace-grid {
-	display: grid;
-	grid-template-columns: repeat(12, minmax(0, 1fr));
-	gap: 16px;
-}
-
-.panel {
-	display: flex;
-	flex-direction: column;
-	gap: 18px;
-}
-
-.panel-trend {
-	grid-column: span 8;
-}
-
-.panel-status {
-	grid-column: span 4;
-}
-
-.panel-availability {
-	grid-column: span 4;
-}
-
-.panel-health {
-	grid-column: span 8;
-}
-
-.panel-resource {
-	grid-column: span 7;
-}
-
-.panel-snapshot {
-	grid-column: span 5;
-}
-
-.chip {
-	padding: 9px 12px;
-	background: rgba(22, 93, 255, 0.08);
-	color: #165dff;
-}
-
-.chip-warn {
-	background: rgba(255, 125, 0, 0.12);
-	color: #d25f00;
-}
-
-.chart {
-	min-height: 260px;
+.message-chart {
 	width: 100%;
+	height: 300px;
+	padding: 8px 8px 0;
 }
 
-.chart-xl {
-	min-height: 340px;
-}
-
-.trend-briefs,
-.health-overview {
+.trend-summary {
 	display: grid;
 	grid-template-columns: repeat(3, minmax(0, 1fr));
-	gap: 12px;
+	border-top: 1px solid var(--iotsharp-border);
 }
 
-.trend-brief,
-.health-overview__item {
-	padding: 14px 16px;
-	border-radius: 18px;
-	border: 1px solid rgba(229, 230, 235, 0.92);
-	background: linear-gradient(180deg, #fbfdff 0%, #ffffff 100%);
+.trend-summary > div {
+	padding: 11px 15px;
+	border-left: 1px solid var(--iotsharp-border);
 }
 
-.trend-brief span,
-.health-overview__item span {
+.trend-summary > div:first-child {
+	border-left: 0;
+}
+
+.trend-summary strong {
 	display: block;
-	color: #4e5969;
-	font-size: 13px;
+	margin-top: 2px;
+	color: var(--iotsharp-ink);
+	font-size: 16px;
+	font-variant-numeric: tabular-nums;
 }
 
-.trend-brief strong,
-.health-overview__item strong {
-	display: block;
-	margin-top: 10px;
-	color: #1d2129;
-	font-size: 22px;
-	font-weight: 700;
-	letter-spacing: -0.04em;
+.text-danger {
+	color: var(--iotsharp-danger) !important;
 }
 
-.trend-brief small,
-.health-overview__item small {
-	display: block;
-	margin-top: 6px;
-	color: #86909c;
-	font-size: 12px;
-	line-height: 1.6;
-}
-
-.health-overview__item--success {
-	background: linear-gradient(180deg, rgba(240, 255, 244, 0.5), #ffffff);
-}
-
-.health-overview__item--warning {
-	background: linear-gradient(180deg, rgba(255, 247, 232, 0.56), #ffffff);
-}
-
-.health-overview__item--danger {
-	background: linear-gradient(180deg, rgba(255, 236, 232, 0.56), #ffffff);
-}
-
-.status-score {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: 18px;
-	padding: 18px;
-	border-radius: 22px;
-	border: 1px solid rgba(229, 230, 235, 0.96);
-	background:
-		radial-gradient(circle at top right, rgba(22, 93, 255, 0.08), transparent 36%),
-		linear-gradient(180deg, #fbfdff 0%, #ffffff 100%);
-}
-
-.status-score__body {
-	display: flex;
-	flex: 1;
-	flex-direction: column;
-	gap: 10px;
-	min-width: 0;
-}
-
-.status-score__eyebrow {
-	color: #86909c;
-	font-size: 12px;
-	font-weight: 700;
-	letter-spacing: 0.16em;
-	text-transform: uppercase;
-}
-
-.status-score__body h4 {
-	margin: 0;
-	color: #1d2129;
-	font-size: 22px;
-	letter-spacing: -0.03em;
-}
-
-.status-score__body p {
-	margin: 0;
-	color: #4e5969;
-	font-size: 13px;
-	line-height: 1.7;
-}
-
-.status-score__ring {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-	width: 108px;
-	height: 108px;
-	border-radius: 50%;
-	border: 8px solid rgba(22, 93, 255, 0.12);
-	background: #fff;
-	box-shadow: inset 0 0 0 1px rgba(229, 230, 235, 0.96);
-	flex-shrink: 0;
-}
-
-.status-score__ring strong {
-	color: #165dff;
-	font-size: 36px;
-	font-weight: 700;
-	line-height: 1;
-	letter-spacing: -0.04em;
-}
-
-.status-score__ring small {
-	margin-top: 4px;
-	color: #86909c;
-	font-size: 12px;
-}
-
-.status-item {
-	display: flex;
-	flex-direction: column;
-	gap: 10px;
-}
-
-.status-item__line {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: 12px;
-	color: #4e5969;
-	font-size: 14px;
-}
-
-.status-item__line strong,
-.breakdown-item strong {
-	color: #1d2129;
-	font-size: 18px;
-}
-
-.mini-card {
-	background: #f9fbff;
-}
-
-.resource-list,
-.recommendation-list {
-	display: grid;
-	gap: 12px;
-}
-
-.resource-list {
-	grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.resource-item,
-.recommendation-item {
-	padding: 14px 16px;
-	border-radius: 18px;
-	border: 1px solid rgba(229, 230, 235, 0.92);
-	background: #fff;
-}
-
-.resource-item {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: 12px;
-}
-
-.resource-item__main {
-	display: flex;
-	align-items: center;
-	gap: 12px;
-	min-width: 0;
-}
-
-.resource-item__dot {
-	width: 10px;
-	height: 10px;
-	border-radius: 50%;
-	flex-shrink: 0;
-}
-
-.resource-item strong,
-.recommendation-item strong {
-	display: block;
-	color: #1d2129;
-	font-size: 14px;
-	font-weight: 600;
-}
-
-.resource-item small,
-.recommendation-item p {
-	display: block;
-	margin-top: 4px;
-	color: #86909c;
-	font-size: 12px;
-	line-height: 1.6;
-}
-
-.resource-item__value {
-	color: #1d2129;
-	font-size: 18px;
-	font-weight: 700;
-	letter-spacing: -0.04em;
-	white-space: nowrap;
-}
-
-.breakdown-item {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: 12px;
-	background: #f9fbff;
-}
-
-.breakdown-label {
+.health-state {
 	display: inline-flex;
+	min-height: 25px;
 	align-items: center;
-	gap: 8px;
-	color: #4e5969;
-	font-size: 13px;
+	padding: 0 8px;
+	border-radius: 999px;
+	background: var(--iotsharp-success-surface);
+	color: var(--iotsharp-success);
+	font-size: 10px;
+	font-weight: 650;
 }
 
-.dot,
-.health-dot {
-	width: 10px;
-	height: 10px;
-	border-radius: 50%;
-	flex-shrink: 0;
-}
-
-.dot-online {
-	background: #165dff;
-}
-
-.dot-offline {
-	background: #dbeafe;
+.health-state.is-warning {
+	background: var(--iotsharp-warning-surface);
+	color: var(--iotsharp-warning);
 }
 
 .health-list {
+	padding: 4px 0;
+}
+
+.health-item {
 	display: grid;
-	grid-template-columns: repeat(2, minmax(0, 1fr));
-	gap: 14px;
-}
-
-.health-main {
+	grid-template-columns: 8px minmax(0, 1fr) auto;
 	align-items: center;
+	gap: 10px;
+	min-height: 52px;
+	padding: 8px 14px;
+	border-bottom: 1px solid var(--iotsharp-border);
 }
 
-.health-dot {
-	width: 14px;
-	height: 14px;
+.health-item:last-child {
+	border-bottom: 0;
 }
 
-.health-dot--healthy {
-	background: #00b42a;
-	box-shadow: 0 0 0 6px rgba(0, 180, 42, 0.12);
+.health-item__indicator {
+	width: 7px;
+	height: 7px;
+	border-radius: 50%;
+	background: var(--iotsharp-danger);
 }
 
-.health-dot--unhealthy,
-.health-dot--degraded,
-.health-dot--unknown {
-	background: #f53f3f;
-	box-shadow: 0 0 0 6px rgba(245, 63, 63, 0.12);
+.health-item__indicator.is-healthy {
+	background: var(--iotsharp-success);
 }
 
-.health-meta {
-	display: flex;
-	flex-direction: column;
-	align-items: flex-end;
-	gap: 8px;
-	color: #86909c;
+.health-item__copy {
+	display: grid;
+	min-width: 0;
+	gap: 2px;
+}
+
+.health-item__copy strong {
+	overflow: hidden;
+	color: var(--iotsharp-text);
 	font-size: 12px;
+	text-overflow: ellipsis;
 	white-space: nowrap;
 }
 
-.health-tag {
-	padding: 6px 10px;
-	border-radius: 999px;
-	font-weight: 600;
+.health-item__copy small,
+.health-item__status {
+	color: var(--iotsharp-text-muted);
+	font-size: 10px;
 }
 
-.health-tag--healthy {
-	background: rgba(0, 180, 42, 0.12);
-	color: #009a29;
+.capability-groups {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-.health-tag--unhealthy,
-.health-tag--degraded,
-.health-tag--unknown {
-	background: rgba(245, 63, 63, 0.12);
-	color: #cb2634;
+.capability-group {
+	min-width: 0;
+	padding: 15px;
+	border-left: 1px solid var(--iotsharp-border);
 }
 
-.recommendation-item__head {
+.capability-group:first-child {
+	border-left: 0;
+}
+
+.capability-group__title {
+	display: grid;
+	grid-template-columns: 30px minmax(0, 1fr);
+	gap: 9px;
+}
+
+.capability-group__title > .el-icon {
+	width: 30px;
+	height: 30px;
+	border-radius: 6px;
+	background: var(--iotsharp-selection);
+	color: var(--iotsharp-accent);
+}
+
+.capability-group__title h3 {
+	margin: 0;
+	color: var(--iotsharp-ink);
+	font-size: 13px;
+}
+
+.capability-links {
+	display: grid;
+	gap: 2px;
+	margin-top: 12px;
+}
+
+.capability-links button {
 	display: flex;
+	width: 100%;
+	min-height: 32px;
 	align-items: center;
 	justify-content: space-between;
-	gap: 12px;
-	margin-bottom: 12px;
+	padding: 0 8px;
+	border: 0;
+	border-radius: 4px;
+	background: transparent;
+	color: var(--iotsharp-text-soft);
+	font: inherit;
+	font-size: 11px;
+	cursor: pointer;
 }
 
-.recommendation-item__label,
-.recommendation-item__value {
-	display: inline-flex;
+.capability-links button:hover,
+.capability-links button:focus-visible {
+	background: var(--iotsharp-surface-muted);
+	color: var(--iotsharp-accent);
+}
+
+.attention-list {
+	display: grid;
+	padding: 5px 0;
+}
+
+.attention-item {
+	display: grid;
+	grid-template-columns: 64px minmax(0, 1fr) 16px;
 	align-items: center;
-	min-height: 28px;
-	padding: 0 10px;
-	border-radius: 999px;
+	gap: 10px;
+	min-height: 58px;
+	padding: 8px 14px;
+	border: 0;
+	border-bottom: 1px solid var(--iotsharp-border);
+	background: transparent;
+	color: inherit;
+	font: inherit;
+	text-align: left;
+	cursor: pointer;
+}
+
+.attention-item:last-child {
+	border-bottom: 0;
+}
+
+.attention-item:not(:disabled):hover {
+	background: var(--iotsharp-surface-muted);
+}
+
+.attention-item:disabled {
+	cursor: default;
+}
+
+.attention-item__value {
 	font-size: 12px;
 	font-weight: 700;
-	white-space: nowrap;
+	font-variant-numeric: tabular-nums;
 }
 
-.tone-success {
-	background: linear-gradient(180deg, rgba(240, 255, 244, 0.72), #fff);
+.tone-success .attention-item__value {
+	color: var(--iotsharp-success);
 }
 
-.tone-success .recommendation-item__label,
-.tone-success .recommendation-item__value {
-	background: rgba(0, 180, 42, 0.12);
-	color: #009a29;
+.tone-warning .attention-item__value {
+	color: var(--iotsharp-warning);
 }
 
-.tone-warning {
-	background: linear-gradient(180deg, rgba(255, 247, 232, 0.82), #fff);
+.tone-danger .attention-item__value {
+	color: var(--iotsharp-danger);
 }
 
-.tone-warning .recommendation-item__label,
-.tone-warning .recommendation-item__value {
-	background: rgba(255, 125, 0, 0.12);
-	color: #d25f00;
+.attention-item__copy {
+	display: grid;
+	min-width: 0;
+	gap: 2px;
 }
 
-.tone-danger {
-	background: linear-gradient(180deg, rgba(255, 236, 232, 0.84), #fff);
+.attention-item__copy strong {
+	font-size: 11px;
 }
 
-.tone-danger .recommendation-item__label,
-.tone-danger .recommendation-item__value {
-	background: rgba(245, 63, 63, 0.12);
-	color: #cb2634;
+.attention-item__copy small {
+	color: var(--iotsharp-text-muted);
+	font-size: 10px;
+	line-height: 1.4;
 }
 
-@media (max-width: 1440px) {
-	.workspace-hero {
-		grid-template-columns: 1fr;
+@media (max-width: 1160px) {
+	.overview-metrics {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
 	}
 
-	.hero-stats {
-		grid-template-columns: repeat(2, minmax(0, 1fr));
+	.overview-metric:nth-child(4) {
+		border-left: 0;
 	}
 
-	.panel-trend,
-	.panel-health {
-		grid-column: span 7;
-	}
-
-	.panel-status,
-	.panel-availability {
-		grid-column: span 5;
-	}
-
-	.panel-resource,
-	.panel-snapshot {
-		grid-column: span 6;
-	}
-
-	.trend-briefs,
-	.health-overview {
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-	}
-}
-
-@media (max-width: 1180px) {
-	.workspace-grid {
-		grid-template-columns: 1fr;
-	}
-
-	.panel-trend,
-	.panel-status,
-	.panel-availability,
-	.panel-health,
-	.panel-resource,
-	.panel-snapshot {
-		grid-column: span 1;
-	}
-
-	.health-list {
-		grid-template-columns: 1fr;
-	}
-
-	.resource-list {
+	.dashboard-core,
+	.dashboard-lower {
 		grid-template-columns: 1fr;
 	}
 }
 
-@media (max-width: 767px) {
-	.card {
-		border-radius: 20px;
+@media (max-width: 760px) {
+	.overview-bar {
+		padding: 15px 15px 0;
 	}
 
-	.hero-main,
-	.side-card,
-	.panel {
-		padding: 18px;
-	}
-
-	.hero-head,
-	.panel-head,
-	.side-top,
-	.focus-summary__head,
-	.side-card__head,
-	.summary-head,
-	.notice-item,
-	.health-item,
-	.status-score,
-	.resource-item,
-	.recommendation-item__head,
-	.quick-item__top {
+	.overview-bar__head,
+	.overview-bar__tools {
+		align-items: flex-start;
 		flex-direction: column;
 	}
 
-	.hero-tags,
-	.chip-row {
-		justify-content: flex-start;
+	.overview-bar__tools {
+		width: 100%;
 	}
 
-	.hero-stats,
-	.quick-grid,
-	.mini-grid,
-	.trend-briefs,
-	.health-overview,
-	.resource-list,
-	.breakdown-list {
+	.overview-metrics {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		margin: 14px -15px 0;
+	}
+
+	.overview-metric:nth-child(odd) {
+		border-left: 0;
+	}
+
+	.message-chart {
+		height: 250px;
+	}
+
+	.capability-groups {
 		grid-template-columns: 1fr;
 	}
 
-	.health-meta {
-		align-items: flex-start;
+	.capability-group {
+		border-top: 1px solid var(--iotsharp-border);
+		border-left: 0;
 	}
 
-	.status-score__ring {
-		width: 92px;
-		height: 92px;
-	}
-
-	.chart-xl {
-		min-height: 300px;
+	.capability-group:first-child {
+		border-top: 0;
 	}
 }
 </style>

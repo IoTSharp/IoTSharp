@@ -18,24 +18,31 @@ export const NextLoading = {
 			<div class="loading-next__grid"></div>
 			<div class="loading-next__glow loading-next__glow--left"></div>
 			<div class="loading-next__glow loading-next__glow--right"></div>
-			<div class="loading-next__panel" role="status" aria-live="polite" aria-label="IoTSharp loading">
-				<div class="loading-next__badge">IoT Platform Control Plane</div>
-				<div class="loading-next__visual" aria-hidden="true">
-					<span class="loading-next__ring loading-next__ring--outer"></span>
-					<span class="loading-next__ring loading-next__ring--middle"></span>
-					<span class="loading-next__ring loading-next__ring--inner"></span>
-					<span class="loading-next__beam"></span>
-					<span class="loading-next__pulse"></span>
-					<span class="loading-next__core"></span>
+			<div class="loading-next__panel" role="status" aria-live="polite" aria-label="IoTSharp 正在加载">
+				<div class="loading-next__brandline">
+					<span class="loading-next__mark" aria-hidden="true">IS</span>
+					<span class="loading-next__brand">IoTSharp</span>
+					<span class="loading-next__badge">控制平面</span>
 				</div>
-				<div class="loading-next__text">
-					<div class="loading-next__brand">IoTSharp</div>
-					<div class="loading-next__title">Launching your device operations workspace</div>
-					<div class="loading-next__meta">
-						<span>Secure session handshake</span>
-						<span>Device topology syncing</span>
-						<span>Console modules loading</span>
+				<div class="loading-next__body">
+					<div class="loading-next__visual" aria-hidden="true">
+						<span class="loading-next__ring loading-next__ring--outer"></span>
+						<span class="loading-next__ring loading-next__ring--middle"></span>
+						<span class="loading-next__ring loading-next__ring--inner"></span>
+						<span class="loading-next__beam"></span>
+						<span class="loading-next__pulse"></span>
+						<span class="loading-next__core"></span>
 					</div>
+					<div class="loading-next__text">
+						<div class="loading-next__eyebrow">正在连接工作区</div>
+						<div class="loading-next__title">工作区即将就绪</div>
+						<div class="loading-next__subtitle">正在加载租户、设备与导航权限</div>
+						<div class="loading-next__progress" aria-hidden="true"><span></span></div>
+						<div class="loading-next__status"><span class="loading-next__status-dot"></span><span>加载应用模块</span><span class="loading-next__status-line"></span><span>请稍候</span></div>
+					</div>
+				</div>
+				<div class="loading-next__footer" aria-hidden="true">
+					<span>接入与采集</span><i></i><span>实时规则</span><i></i><span>运维与发布</span>
 				</div>
 			</div>
 		`;

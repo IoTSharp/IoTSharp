@@ -10,11 +10,11 @@
 }
 
 :root {
-	--el-color-primary-rgb: 22, 93, 255;
+	--el-color-primary-rgb: var(--iotsharp-accent-rgb);
 	--next-color-white: #ffffff;
-	--next-bg-main-color: #f2f3f5;
-	--next-bg-color: #f7f8fa;
-	--next-border-color-light: #e5e6eb;
+	--next-bg-main-color: var(--iotsharp-page);
+	--next-bg-color: var(--iotsharp-surface-muted);
+	--next-border-color-light: var(--iotsharp-border);
 	--next-color-primary-lighter: #ecf5ff;
 	--next-color-success-lighter: #f0f9eb;
 	--next-color-warning-lighter: #fdf6ec;
@@ -25,7 +25,7 @@
 	--next-color-seting-main: #e9eef3;
 	--next-color-seting-aside: #d3dce6;
 	--next-color-seting-header: #b3c0d1;
-	--z-page-color: #F6F6F9;
+	--z-page-color: var(--iotsharp-page);
 }
 
 html,
@@ -35,11 +35,11 @@ body,
 	padding: 0;
 	width: 100%;
 	height: 100%;
-	font-family: Helvetica Neue, Helvetica, PingFang SC, Hiragino Sans GB, Microsoft YaHei, SimSun, sans-serif;
+	font-family: 'Segoe UI Variable Text', 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
 	font-weight: 400;
 	-webkit-font-smoothing: antialiased;
 	-webkit-tap-highlight-color: transparent;
-	background-color: var(--next-bg-main-color);
+	background-color: var(--iotsharp-page);
 	font-size: 14px;
 	overflow: hidden;
 	position: relative;

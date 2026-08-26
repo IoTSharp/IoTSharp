@@ -8,7 +8,7 @@
         </el-icon>
         <span>{{ $t(val.meta.title) }} </span>
       </template>
-      <!--			<sub-item :chil="val.children" />-->
+      <SubItem :chil="val.children" />
     </el-sub-menu>
     <template v-else>
       <el-menu-item :index="val.path" :key="val.path">

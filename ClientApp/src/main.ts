@@ -13,7 +13,9 @@ import zhCn from 'element-plus/es/locale/lang/zh-cn';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
+import { initializeUiTheme } from '/@/theme/themes';
 
+initializeUiTheme();
 const app = createApp(App);
 
 directive(app);
