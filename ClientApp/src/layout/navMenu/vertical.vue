@@ -118,61 +118,61 @@ export default defineComponent({
     margin-right: 12px;
     font-size: 16px;
     flex-shrink: 0;
-    color: rgba(255, 255, 255, 0.55);
+    color: rgba(255, 255, 255, 0.74);
   }
 
-  :deep(.el-menu) {
+  .el-menu {
     border: none;
     background: transparent;
   }
 
-  :deep(.el-menu-item),
-  :deep(.el-sub-menu__title) {
+  .el-menu-item,
+  .el-sub-menu__title {
     height: 42px;
     margin: 2px 0;
     border-radius: 6px;
-    color: rgba(255, 255, 255, 0.72);
-    font-size: 13px;
+    color: rgba(255, 255, 255, 0.88);
+    font-size: 14px;
     font-weight: 500;
   }
 
-  :deep(.el-menu-item:hover),
-  :deep(.el-sub-menu__title:hover) {
-    background: rgba(255, 255, 255, 0.09);
+  .el-menu-item:hover,
+  .el-sub-menu__title:hover {
+    background-color: rgba(255, 255, 255, 0.11) !important;
     color: #ffffff;
   }
 
-  :deep(.el-menu-item.is-active) {
-    background: rgba(255, 255, 255, 0.15);
+  .el-menu-item.is-active {
+    background-color: rgba(255, 255, 255, 0.17) !important;
     color: #ffffff;
     font-weight: 600;
     box-shadow: none;
   }
 
-  :deep(.el-sub-menu.is-active > .el-sub-menu__title) {
+  .el-sub-menu.is-active > .el-sub-menu__title {
     color: #ffffff;
     font-weight: 600;
   }
 
-  :deep(.el-menu-item.is-active .z-menu-icon),
-  :deep(.el-sub-menu.is-active > .el-sub-menu__title .z-menu-icon),
-  :deep(.el-menu-item:hover .z-menu-icon),
-  :deep(.el-sub-menu__title:hover .z-menu-icon) {
+  .el-menu-item.is-active .z-menu-icon,
+  .el-sub-menu.is-active > .el-sub-menu__title .z-menu-icon,
+  .el-menu-item:hover .z-menu-icon,
+  .el-sub-menu__title:hover .z-menu-icon {
     color: #ffffff;
   }
 
-  :deep(.el-sub-menu .el-menu) {
+  .el-sub-menu .el-menu {
     background: transparent;
   }
 
-  :deep(.el-sub-menu .el-menu-item) {
+  .el-sub-menu .el-menu-item {
     min-width: auto;
     margin: 2px 0 2px 10px;
     padding-left: 38px !important;
   }
 
-  :deep(.el-sub-menu__icon-arrow) {
-    color: rgba(255, 255, 255, 0.45);
+  .el-sub-menu__icon-arrow {
+    color: rgba(255, 255, 255, 0.68);
   }
 
   &.el-menu--collapse {

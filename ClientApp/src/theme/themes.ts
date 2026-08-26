@@ -55,7 +55,7 @@ export function applyUiTheme(id: string) {
 		'--iotsharp-selection': theme.light,
 		'--iotsharp-page': theme.surface,
 		'--iotsharp-ink': theme.ink,
-		'--iotsharp-nav-gradient': `linear-gradient(180deg, ${theme.ink} 0%, ${theme.dark} 48%, ${mix(theme.dark, theme.ink, 42)} 100%)`,
+		'--iotsharp-nav-gradient': `linear-gradient(155deg, ${theme.ink} 0%, ${theme.dark} 52%, var(--iotsharp-nav-secondary) 100%)`,
 		'--iotsharp-topbar-gradient': `linear-gradient(112deg, rgba(255, 255, 255, 0.94) 0%, ${theme.light}B8 52%, rgba(255, 255, 255, 0.9) 100%)`,
 		'--iotsharp-accent-gradient': `linear-gradient(135deg, ${theme.dark} 0%, ${theme.ink} 100%)`,
 		'--iotsharp-quiet-gradient': `linear-gradient(135deg, ${theme.light} 0%, ${theme.surface} 72%)`,

@@ -22,7 +22,8 @@
 	--iotsharp-radius-panel: 8px;
 	--iotsharp-radius-control: 6px;
 	--iotsharp-radius-small: 4px;
-	--iotsharp-nav-gradient: linear-gradient(180deg, #183b36 0%, #1e5b4f 48%, #1b4740 100%);
+	--iotsharp-nav-secondary: #24566b;
+	--iotsharp-nav-gradient: linear-gradient(155deg, #183b36 0%, #1e5b4f 52%, var(--iotsharp-nav-secondary) 100%);
 	--iotsharp-topbar-gradient: linear-gradient(112deg, rgba(255, 255, 255, 0.94) 0%, rgba(220, 238, 231, 0.72) 52%, rgba(255, 255, 255, 0.9) 100%);
 	--iotsharp-accent-gradient: linear-gradient(135deg, #1e5b4f 0%, #183b36 100%);
 	--iotsharp-quiet-gradient: linear-gradient(135deg, #dceee7 0%, #f5fbf8 72%);

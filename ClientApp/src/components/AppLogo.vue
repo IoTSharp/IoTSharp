@@ -48,8 +48,6 @@ const titleParts = computed(() => {
 
 <style lang="scss" scoped>
 .app-logo {
-  --app-logo-text: var(--iotsharp-ink);
-  --app-logo-subtext: var(--iotsharp-text-soft);
   display: inline-flex;
   align-items: center;
   gap: 12px;
@@ -95,7 +93,7 @@ const titleParts = computed(() => {
   align-items: baseline;
   gap: 4px;
   min-width: 0;
-  color: var(--app-logo-text);
+  color: var(--app-logo-text, var(--iotsharp-ink));
   font-family: 'Segoe UI Variable', 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
   font-size: 28px;
   font-weight: 700;
@@ -105,7 +103,7 @@ const titleParts = computed(() => {
 }
 
 .app-logo__suffix {
-  color: var(--app-logo-subtext);
+  color: var(--app-logo-subtext, var(--iotsharp-text-soft));
   font-weight: 600;
 }
 

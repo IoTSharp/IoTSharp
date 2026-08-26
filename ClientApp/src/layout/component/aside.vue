@@ -177,7 +177,7 @@ export default defineComponent({
 	border-bottom: 1px solid rgba(255, 255, 255, 0.12);
 	background: transparent;
 	--app-logo-text: #ffffff;
-	--app-logo-subtext: rgba(255, 255, 255, 0.68);
+	--app-logo-subtext: rgba(255, 255, 255, 0.82);
 }
 
 .layout-aside__brand-logo {
