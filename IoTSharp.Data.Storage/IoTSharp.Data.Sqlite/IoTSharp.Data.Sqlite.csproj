@@ -8,6 +8,8 @@
 		<PackageReference Include="DotNetDiag.HealthChecks.UI.SQLite.Storage" />
 		<PackageReference Include="DotNetDiag.HealthChecks.UI.Core" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
+		<!-- EF Core 与健康检查包仍以易受影响版本为下限，显式选用已修复的原生库 bundle。 -->
+		<PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Design">
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
