@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using IoTSharp.Contracts;
 using IoTSharp.Data;
@@ -30,6 +31,33 @@ public sealed class SonnetDBStorageTests : IDisposable
     public void Dispose()
     {
         TryDeleteDirectory(_root);
+    }
+
+    [Theory]
+    [InlineData(HttpStatusCode.BadRequest)]
+    [InlineData(HttpStatusCode.OK)]
+    public void IsMissingMeasurement_WhenTransportReportsMissingMeasurement_ReturnsTrue(HttpStatusCode statusCode)
+    {
+        var exception = new SndbServerException(
+            "sql_error",
+            "measurement 'TelemetryData_device' does not exist",
+            statusCode);
+
+        Assert.True(SonnetDBStorage.IsMissingMeasurement(exception));
+    }
+
+    [Theory]
+    [InlineData(HttpStatusCode.InternalServerError, "sql_error", "measurement 'TelemetryData_device' does not exist")]
+    [InlineData(HttpStatusCode.OK, "frame_transport_error", "measurement 'TelemetryData_device' does not exist")]
+    [InlineData(HttpStatusCode.OK, "sql_error", "column 'temperature' does not exist")]
+    public void IsMissingMeasurement_WhenErrorIsUnrelated_ReturnsFalse(
+        HttpStatusCode statusCode,
+        string error,
+        string message)
+    {
+        var exception = new SndbServerException(error, message, statusCode);
+
+        Assert.False(SonnetDBStorage.IsMissingMeasurement(exception));
     }
 
     [Fact]

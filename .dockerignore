@@ -21,7 +21,15 @@
 **/bin
 **/dist
 docker-desktop-extension/build
+docs/build
 docs/site/_site
+SonnetDB/.codex-artifacts
+SonnetDB/.playwright-cli
+SonnetDB/.tmp
+SonnetDB/artifacts
+SonnetDB/BenchmarkDotNet.Artifacts
+SonnetDB/output
+SonnetDB/tests/SonnetDB.Parity/.env
 **/charts
 **/docker-compose*
 **/Dockerfile*

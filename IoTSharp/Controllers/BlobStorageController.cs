@@ -4,6 +4,7 @@ using IoTSharp.Data;
 using IoTSharp.EventBus;
 using IoTSharp.FlowRuleEngine;
 using IoTSharp.Storage;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -25,6 +26,7 @@ namespace IoTSharp.Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
+    [Authorize]
     public class BlobStorageController : ControllerBase
     {
         private readonly ApplicationDbContext _context;

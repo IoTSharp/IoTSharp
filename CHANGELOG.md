@@ -47,6 +47,10 @@ This project follows a lightweight Keep a Changelog style. Version numbers in th
 
 ### Fixed
 
+- Fixed SonnetDB remote telemetry writes repeatedly failing when the frame transport reports a missing measurement as an in-band `200 OK` SQL error; IoTSharp now recognizes the condition and creates the measurement before retrying.
+- Fixed the device inactivity job repeatedly publishing and logging the same offline transition, while replacing its per-device queries with a bounded projection and conditional state update.
+- Replaced the placeholder liveness response with real liveness and dependency readiness checks, and kept container restart health independent from temporary database outages.
+- Protected Product, Asset, and Blob management APIs by default, restricted cross-origin access to configured origins, and disabled Swagger by default in Production.
 - Stabilized CodeQL configuration by removing fragile autobuild assumptions for the mixed .NET and frontend repository layout.
 - Removed obsolete AppVeyor references from repository documentation.
 - Adjusted data provider configuration so pending EF model changes do not crash startup in SQLite demo/bootstrap scenarios.

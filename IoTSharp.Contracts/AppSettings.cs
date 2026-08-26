@@ -61,6 +61,16 @@ namespace IoTSharp.Contracts
         public string? JwtAudience { get; set; }
         public double JwtExpireHours { get; set; }
 
+        /// <summary>
+        /// 允许跨域访问 API 的来源列表。空列表表示拒绝跨域请求。
+        /// </summary>
+        public string[] AllowedCorsOrigins { get; set; } = Array.Empty<string>();
+
+        /// <summary>
+        /// 是否在生产环境公开 Swagger 文档和界面。
+        /// </summary>
+        public bool EnableSwagger { get; set; }
+
         [DefaultValue(EventBusFramework.CAP)]
         public EventBusFramework EventBus { get; set; } = EventBusFramework.CAP;
         /// <summary>

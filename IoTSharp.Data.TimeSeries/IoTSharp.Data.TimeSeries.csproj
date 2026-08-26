@@ -6,6 +6,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 	<ItemGroup>
+		<InternalsVisibleTo Include="IoTSharp.Test" />
+	</ItemGroup>
+	<ItemGroup>
 
 		<PackageReference Include="Apache.IoTDB.Data" />
 		<PackageReference Include="IoTSharp.Data.Taos" />

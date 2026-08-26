@@ -7,6 +7,11 @@
   </PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="DotNetDiag.HealthChecks.NpgSql" />
+		<!-- 上游 CAP、MongoDB、Pulsar 与 WCF 包尚未抬高最低依赖版本，在集成边界设置安全下限。 -->
+		<PackageReference Include="AWSSDK.Core" />
+		<PackageReference Include="SharpCompress" />
+		<PackageReference Include="Snappier" />
+		<PackageReference Include="System.Security.Cryptography.Xml" />
 		<PackageReference Include="CAP.Extensions" />
 		<PackageReference Include="DotNetCore.CAP.Dashboard" />
 		<PackageReference Include="DotNetCore.CAP.InMemoryStorage" />

@@ -19,9 +19,9 @@ using DataType = IoTSharp.Contracts.DataType;
 
 namespace IoTSharp.Test;
 
+[Collection(IntegrationTestCollectionNames.SonnetDbApplication)]
 public sealed class AppWithSonnetDBTest
-    : IoTSharpBusinessTestSuite<SonnetDbAppFixture>,
-        IClassFixture<SonnetDbAppFixture>
+    : IoTSharpBusinessTestSuite<SonnetDbAppFixture>
 {
     public AppWithSonnetDBTest(SonnetDbAppFixture fixture)
         : base(fixture)

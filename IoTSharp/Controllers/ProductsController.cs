@@ -27,6 +27,7 @@ namespace IoTSharp.Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
+    [Authorize]
     public class ProductsController : ControllerBase
     {
 

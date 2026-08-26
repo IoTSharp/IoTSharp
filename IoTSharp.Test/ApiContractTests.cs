@@ -14,7 +14,8 @@ using Xunit;
 
 namespace IoTSharp.Test
 {
-    public sealed class ApiContractTests : IClassFixture<SqliteAppFixture>
+    [Collection(IntegrationTestCollectionNames.SqliteApplication)]
+    public sealed class ApiContractTests
     {
         private readonly SqliteAppFixture _fixture;
 

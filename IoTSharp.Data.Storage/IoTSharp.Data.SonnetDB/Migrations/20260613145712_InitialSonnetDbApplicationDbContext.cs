@@ -69,7 +69,8 @@ namespace IoTSharp.Data.SonnetDB.Migrations
                 name: "BaseDictionaries",
                 columns: table => new
                 {
-                    DictionaryId = table.Column<long>(type: "INT", nullable: false),
+                    DictionaryId = table.Column<long>(type: "INT", nullable: false)
+                        .Annotation("SonnetDB:AutoIncrement", true),
                     DictionaryName = table.Column<string>(type: "STRING", nullable: true),
                     DictionaryValue = table.Column<string>(type: "STRING", nullable: true),
                     Dictionary18NKeyName = table.Column<string>(type: "STRING", nullable: true),
@@ -92,7 +93,8 @@ namespace IoTSharp.Data.SonnetDB.Migrations
                 name: "BaseDictionaryGroups",
                 columns: table => new
                 {
-                    DictionaryGroupId = table.Column<long>(type: "INT", nullable: false),
+                    DictionaryGroupId = table.Column<long>(type: "INT", nullable: false)
+                        .Annotation("SonnetDB:AutoIncrement", true),
                     DictionaryGroupName = table.Column<string>(type: "STRING", nullable: true),
                     DictionaryGroupKey = table.Column<string>(type: "STRING", nullable: true),
                     DictionaryGroupValueType = table.Column<int>(type: "INT", nullable: true),
@@ -110,7 +112,8 @@ namespace IoTSharp.Data.SonnetDB.Migrations
                 name: "BaseI18Ns",
                 columns: table => new
                 {
-                    Id = table.Column<long>(type: "INT", nullable: false),
+                    Id = table.Column<long>(type: "INT", nullable: false)
+                        .Annotation("SonnetDB:AutoIncrement", true),
                     UserId = table.Column<Guid>(type: "STRING", nullable: false),
                     Status = table.Column<int>(type: "INT", nullable: false),
                     KeyName = table.Column<string>(type: "STRING", nullable: true),
@@ -266,7 +269,8 @@ namespace IoTSharp.Data.SonnetDB.Migrations
                 name: "AspNetRoleClaims",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INT", nullable: false),
+                    Id = table.Column<int>(type: "INT", nullable: false)
+                        .Annotation("SonnetDB:AutoIncrement", true),
                     RoleId = table.Column<string>(type: "STRING", nullable: false),
                     ClaimType = table.Column<string>(type: "STRING", nullable: true),
                     ClaimValue = table.Column<string>(type: "STRING", nullable: true)
@@ -286,7 +290,8 @@ namespace IoTSharp.Data.SonnetDB.Migrations
                 name: "AspNetUserClaims",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INT", nullable: false),
+                    Id = table.Column<int>(type: "INT", nullable: false)
+                        .Annotation("SonnetDB:AutoIncrement", true),
                     UserId = table.Column<string>(type: "STRING", nullable: false),
                     ClaimType = table.Column<string>(type: "STRING", nullable: true),
                     ClaimValue = table.Column<string>(type: "STRING", nullable: true)
@@ -639,7 +644,8 @@ namespace IoTSharp.Data.SonnetDB.Migrations
                 name: "DynamicFormFieldInfos",
                 columns: table => new
                 {
-                    FieldId = table.Column<long>(type: "INT", nullable: false),
+                    FieldId = table.Column<long>(type: "INT", nullable: false)
+                        .Annotation("SonnetDB:AutoIncrement", true),
                     FieldName = table.Column<string>(type: "STRING", nullable: true),
                     FieldValue = table.Column<string>(type: "STRING", nullable: true),
                     FieldValueType = table.Column<int>(type: "INT", nullable: false),
@@ -683,7 +689,8 @@ namespace IoTSharp.Data.SonnetDB.Migrations
                 name: "DynamicFormFieldValueInfos",
                 columns: table => new
                 {
-                    FieldValueId = table.Column<long>(type: "INT", nullable: false),
+                    FieldValueId = table.Column<long>(type: "INT", nullable: false)
+                        .Annotation("SonnetDB:AutoIncrement", true),
                     FieldId = table.Column<long>(type: "INT", nullable: false),
                     FieldName = table.Column<string>(type: "STRING", nullable: true),
                     FieldValue = table.Column<string>(type: "STRING", nullable: true),
@@ -716,7 +723,8 @@ namespace IoTSharp.Data.SonnetDB.Migrations
                 name: "DynamicFormInfos",
                 columns: table => new
                 {
-                    FormId = table.Column<long>(type: "INT", nullable: false),
+                    FormId = table.Column<long>(type: "INT", nullable: false)
+                        .Annotation("SonnetDB:AutoIncrement", true),
                     BizId = table.Column<long>(type: "INT", nullable: false),
                     FormCreator = table.Column<long>(type: "INT", nullable: false),
                     FormName = table.Column<string>(type: "STRING", nullable: true),

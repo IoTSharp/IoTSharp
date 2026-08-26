@@ -126,6 +126,10 @@ namespace IoTSharp.Data.TimeSeries
                     services.AddSingleton<IStorage, EFStorage>();
                     break;
             }
+
+            healthChecks.AddCheck<TelemetryStorageHealthCheck>(
+                "TelemetryStorage",
+                tags: new[] { "ready" });
         }
 
         private static InfluxDBClientOptions CreateInfluxDbClientOptions(string connectionString)

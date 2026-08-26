@@ -207,12 +207,12 @@ Tomur 在这个体系里的角色是模型算力 Provider：
 
 ### 直接改名或迁移
 
-- `Product` 改为 Product。
-- `ProductToken` 改为 `ProductToken`。
-- 前端 `Product` 目录和 API 模块改为 `product`。
+- `Produce` 直接迁移为 Product。
+- `ProduceToken` 直接迁移为 `ProductToken`。
+- 前端 `produce` 目录和 API 模块改为 `product`。
 - 文档、菜单、按钮、DTO 和新 API 统一使用 Product。
 
-范围控制：存量 `Product` API 冻结为兼容实现细节，只保证新增面统一使用 Product，不做存量全量重命名（详见 ROADMAP M1 说明）。
+范围控制：旧 `Produce` API 不再作为兼容目标；活动 API、DTO、UI 和文档统一使用 Product，历史 EF migration 仍可保留旧名（详见 ROADMAP M1 说明）。
 
 ### 合并
 
@@ -441,12 +441,14 @@ Edge 页面围绕运行时闭环组织：
 - SonnetDB 引擎生产化（按 SonnetDB 自有路线图执行）。
 - 前端实时遥测订阅增强。
 
-## 当前第一批任务
+## 当前生产启用顺序
 
-1. 制定 Produce 命名迁移清单（#011）。
-2. 将前端产品工作台从 `Product` 目录迁移到 `product`（#013）。
-3. 新增 Product API 命名，替换旧 Produce API 命名（#012）。
-4. 梳理 `DeviceModel`、`DeviceGraph`、`DeviceDiagram` 和 Scene 的引用，决定合并或废弃（#015~#017 已完成）。
-5. 完成 Gateway 旧配置迁移方案（#018）：旧 Product Gateway 配置先做盘点和干跑，正式模板落地归 #030，配置发布闭环归 #040 之后。
-6. M2 契约固化：EdgeTask、EdgeTaskReceipt、EdgeCapability、EdgeRuntimeStatus 和 EdgeCollectionAssignment 已沉淀为正式模型（#020~#024），`edge-node-v1`/`collection-config-v1`/`edge-task-v1` 已进入 `IoTSharp.Contracts` 的 DTO、JSON Schema 和样例发布物（#027）。
-7. M3 前置：semantic-core 收敛决策已完成（#029），采用 `semantic-core-v1` 作为 Collection Template 的点位语义和协议绑定基础；下一步进入 #030。
+M1~M5 已完成的是平台能力基线，不能据此宣称生产业务闭环已经完成。下一阶段按以下顺序执行，且每一步都以前一步的真实业务数据和运行证据为准：
+
+1. 整理 Product 能力模型和 Asset 归属：选择一个明确业务范围，确认 Product 能力项、Asset 层级、Device 绑定、责任人和数据点语义。
+2. 接入真实 Gateway/EdgeNode：验证注册、连续心跳、能力、版本、任务接收和诊断，不以模拟回执代替执行端证据。
+3. 建立采集模板与配置版本：从已确认 Product 生成不可变配置版本，发布到该运行时，并核对当前版本、目标版本、哈希和执行结果。
+4. 使用 Release Center 完成一次受控灰度发布和回滚：提前确认灰度范围、成功阈值、观察窗口、暂停条件和回滚基线，保留审批、任务、回执、审计及回滚后验证。
+5. 最后增强 RuleChain trace、版本、审计与背压，并用真实规则流量验证，而不是把灰度或回滚编排放入规则链。
+
+当前只进入第 1 步。业务清单和归属未确认前，不为追求进度虚构 Product、Asset、Device 或生产发布记录。具体状态和完成证据以 `ROADMAP.md` 的 O1~O5 为准。

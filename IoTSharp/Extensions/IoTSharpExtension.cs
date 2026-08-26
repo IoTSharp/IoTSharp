@@ -194,11 +194,11 @@ namespace IoTSharp
                 int https_port = 0;
                 if (int.TryParse(hostOptions.ASPNETCORE_HTTPS_PORTS, out https_port))
                 {
-                    setup.AddHealthCheckEndpoint(typeof(Startup).Assembly.GetName().Name, $"https://{Dns.GetHostName()}:{https_port}/healthz");
+                    setup.AddHealthCheckEndpoint(typeof(Startup).Assembly.GetName().Name, $"https://{Dns.GetHostName()}:{https_port}/readyz");
                 }
                 else
                 {
-                    setup.AddHealthCheckEndpoint(typeof(Startup).Assembly.GetName().Name, $"http://{Dns.GetHostName()}:{port}/healthz");
+                    setup.AddHealthCheckEndpoint(typeof(Startup).Assembly.GetName().Name, $"http://{Dns.GetHostName()}:{port}/readyz");
                 }
             }
             else
@@ -210,16 +210,16 @@ namespace IoTSharp
                 var httpsEndpoint = uris?.FirstOrDefault(uri => uri.Scheme == "https");
                 if (httpEndpoint != null) // Create an HTTP healthcheck endpoint
                 {
-                    setup.AddHealthCheckEndpoint("IoTSharp", new UriBuilder(httpEndpoint.Scheme, httpEndpoint.Host, httpEndpoint.Port, "/healthz").ToString());
+                    setup.AddHealthCheckEndpoint("IoTSharp", new UriBuilder(httpEndpoint.Scheme, httpEndpoint.Host, httpEndpoint.Port, "/readyz").ToString());
                 }
                 else if (httpsEndpoint != null) // Create an HTTPS healthcheck endpoint
                 {
-                    setup.AddHealthCheckEndpoint("IoTSharp", new UriBuilder(httpsEndpoint.Scheme, httpsEndpoint.Host, httpsEndpoint.Port, "/healthz").ToString());
+                    setup.AddHealthCheckEndpoint("IoTSharp", new UriBuilder(httpsEndpoint.Scheme, httpsEndpoint.Host, httpsEndpoint.Port, "/readyz").ToString());
                 }
                 else
                 {
                     //One endpoint is configured in appsettings, let's add another one programatically
-                    setup.AddHealthCheckEndpoint("IoTSharp", "http://localhost:5000/healthz");
+                    setup.AddHealthCheckEndpoint("IoTSharp", "http://localhost:5000/readyz");
                 }
             }
             return setup;

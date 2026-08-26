@@ -70,6 +70,10 @@
 		<PackageReference Include="hyjiacan.pinyin4net" />
 		<PackageReference Include="Jdenticon-net" />
 		<PackageReference Include="Jdenticon.AspNetCore" />
+		<!-- Jdenticon.AspNetCore 最新版仍声明 ASP.NET Core 1.0.0，显式提高到已修复的兼容版本。 -->
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.ViewFeatures">
+			<NoWarn>NU1510</NoWarn>
+		</PackageReference>
 		<PackageReference Include="LettuceEncrypt" ExcludeAssets="all" PrivateAssets="all">
 		  <IncludeAssets>none</IncludeAssets>
 		</PackageReference>

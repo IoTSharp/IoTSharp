@@ -10,6 +10,7 @@ using IoTSharp.EventBus.CAP;
 using IoTSharp.EventBus.SonnetMQ;
 using IoTSharp.FlowRuleEngine;
 using IoTSharp.Gateways;
+using IoTSharp.HealthChecks;
 using IoTSharp.Interpreter;
 using IoTSharp.McpTools;
 using IoTSharp.Services;
@@ -30,6 +31,7 @@ using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
@@ -79,6 +81,10 @@ namespace IoTSharp
             });
 
             var healthChecks = services.AddHealthChecks()
+                .AddCheck(
+                    "self",
+                    () => HealthCheckResult.Healthy("IoTSharp 进程正在运行。"),
+                    tags: new[] { "live" })
                 .AddDiskStorageHealthCheck(dso =>
                 {
                     System.IO.DriveInfo.GetDrives()
@@ -120,6 +126,9 @@ namespace IoTSharp
                     services.ConfigureNpgsql(GetConnectionString(settings, "IoTSharp"), settings.DbContextPoolSize, healthChecks, healthChecksUI);
                     break;
             }
+            healthChecks.AddCheck<ApplicationDatabaseHealthCheck>(
+                "ApplicationDatabase",
+                tags: new[] { "ready" });
             services.AddDatabaseDeveloperPageExceptionFilter();
             services.AddIdentity<IdentityUser, IdentityRole>()
                 .AddRoles<IdentityRole>()
@@ -154,7 +163,20 @@ namespace IoTSharp
                 }; ;
             });
 
-            services.AddCors();
+            var allowedCorsOrigins = settings.AllowedCorsOrigins
+                .Where(origin => !string.IsNullOrWhiteSpace(origin))
+                .Select(origin => origin.Trim().TrimEnd('/'))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToArray();
+            services.AddCors(options => options.AddDefaultPolicy(policy =>
+            {
+                if (allowedCorsOrigins.Length > 0)
+                {
+                    policy.WithOrigins(allowedCorsOrigins)
+                        .AllowAnyMethod()
+                        .AllowAnyHeader();
+                }
+            }));
             services.AddLogging(loggingBuilder =>
                 {
                     loggingBuilder.AddRinLogger();
@@ -356,6 +378,8 @@ namespace IoTSharp
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            var settings = new AppSettings();
+            Configuration.Bind(settings);
 
             if ((env.IsDevelopment() || !env.IsEnvironment("Production")) && !env.IsEnvironment("Test"))
             {
@@ -371,23 +395,11 @@ namespace IoTSharp
                 app.UseHsts();
             }
 
-            app.Map("/healthz", healthz =>
-            {
-                healthz.Run(async context =>
-                {
-                    context.Response.ContentType = "application/json";
-                    await context.Response.WriteAsync("{\"status\":\"Healthy\",\"totalDuration\":\"00:00:00\",\"entries\":{}}");
-                });
-            });
-
             app.CheckApplicationDBMigrations();
             //添加定时任务创建表
 
             app.UseRouting();
-            app.UseCors(option => option
-                .AllowAnyOrigin()
-                .AllowAnyMethod()
-                .AllowAnyHeader());
+            app.UseCors();
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseDefaultFiles();
@@ -395,9 +407,12 @@ namespace IoTSharp
             app.UseResponseCompression();
             app.UseIotSharpMqttServer();
             app.UseCoapServer();
-            app.UseSwaggerUi();
             app.UseHealthChecksUI();
-            app.UseOpenApi();
+            if (!env.IsProduction() || settings.EnableSwagger)
+            {
+                app.UseSwaggerUi();
+                app.UseOpenApi();
+            }
             app.UseEventBus(opt =>
             {
                 var frp = app.ApplicationServices.GetService<FlowRuleProcessor>();
@@ -407,6 +422,11 @@ namespace IoTSharp
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapMqtt("/mqtt");
+                endpoints.MapHealthChecks("/healthz", new HealthCheckOptions()
+                {
+                    Predicate = check => check.Tags.Contains("live"),
+                    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+                });
                 endpoints.MapHealthChecks("/readyz", new HealthCheckOptions()
                 {
                     Predicate = check => check.Tags.Contains("ready"),

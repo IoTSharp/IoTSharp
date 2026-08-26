@@ -237,11 +237,26 @@ Deliver:
 
 ## Immediate Execution Focus
 
-The next implementation step starts with edge management.
+The platform code baseline through Release Center already exists. The next gap
+is production business modeling and actual enablement, not another broad round
+of feature development.
 
-Any first-wave design or code change should help define:
-- how Gateway registers
-- how IoTSharp tracks edge runtime state
-- how configuration and release tasks are addressed to an edge runtime
-- how cross-project responsibilities are kept clear inside the organization
-- how AI workbench capabilities can consume these contracts through governed skills instead of hidden coupling
+Work must proceed in this order:
+
+1. Model real Product capabilities and Asset ownership, then bind Devices to the
+   correct Product and Asset business context.
+2. Connect a real Gateway/EdgeNode runtime and verify registration, heartbeat,
+   capability reporting, task receipt, and diagnostics with runtime evidence.
+3. Create an approved Collection Template and immutable configuration version,
+   then deploy it to that runtime and verify current/target version convergence.
+4. Use Release Center to complete one controlled canary release and rollback,
+   retaining target scope, approval, task, receipt, audit, and post-rollback
+   evidence.
+5. Only after that production loop is proven, enhance RuleChain trace, version,
+   audit, and backpressure behavior.
+
+The completed M1-M5 implementation milestones describe available platform
+capabilities. They are not evidence that a real production model, runtime,
+configuration, canary release, or rollback has been completed. Do not advance a
+later step based only on API availability, local tests, mock receipts, or a
+healthy process.

@@ -20,7 +20,8 @@ using System.Text.Json;
 
 namespace IoTSharp.Test
 {
-    public sealed class AppWithSqliteTest : IClassFixture<SqliteAppFixture>
+    [Collection(IntegrationTestCollectionNames.SqliteApplication)]
+    public sealed class AppWithSqliteTest
     {
         private readonly SqliteAppFixture _fixture;
 

@@ -3,6 +3,7 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
   <ItemGroup>
+    <PackageVersion Include="AWSSDK.Core" Version="4.0.3.32" />
     <PackageVersion Include="Alba" Version="8.5.2" />
     <PackageVersion Include="Apache.IoTDB.Data" Version="2.0.8" />
     <PackageVersion Include="AutoMapper" Version="16.1.1" />
@@ -72,8 +73,9 @@
     <PackageVersion Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="10.0.9" />
     <PackageVersion Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.9" />
     <PackageVersion Include="Microsoft.AspNetCore.Identity.UI" Version="10.0.9" />
+    <PackageVersion Include="Microsoft.AspNetCore.Mvc.ViewFeatures" Version="2.3.12" />
     <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.9" />
-    <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.9" />
+    <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.11" />
     <PackageVersion Include="Microsoft.AspNetCore.SpaProxy" Version="10.0.9" />
     <PackageVersion Include="Microsoft.CodeAnalysis.Common" Version="5.3.0" />
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="5.3.0" />
@@ -124,6 +126,7 @@
     <PackageVersion Include="Rin.Mvc" Version="2.6.0" />
     <PackageVersion Include="RulesEngine" Version="6.0.0" />
     <PackageVersion Include="Savorboard.CAP.InMemoryMessageQueue" Version="10.0.0" />
+    <PackageVersion Include="SharpCompress" Version="0.48.0" />
     <PackageVersion Include="ShardingCore" Version="7.10.2.1" />
     <PackageVersion Include="Shashlik.EventBus" Version="2.3.1" />
     <PackageVersion Include="Shashlik.EventBus.Kafka" Version="2.3.1" />
@@ -135,18 +138,21 @@
     <PackageVersion Include="Shashlik.EventBus.SqlServer" Version="2.3.1" />
     <PackageVersion Include="SkiaSharp" Version="4.148.0" />
     <PackageVersion Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="4.148.0" />
+    <PackageVersion Include="Snappier" Version="1.3.1" />
+    <PackageVersion Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.13" />
     <PackageVersion Include="Storage.Net" Version="9.3.0" />
     <PackageVersion Include="System.Linq.Dynamic.Core" Version="1.7.2" />
     <PackageVersion Include="System.Private.ServiceModel" Version="4.10.3" />
     <PackageVersion Include="System.Resources.Extensions" Version="10.0.9" />
+    <PackageVersion Include="System.Security.Cryptography.Xml" Version="10.0.11" />
     <PackageVersion Include="System.ServiceModel.Primitives" Version="10.0.652802" />
     <PackageVersion Include="System.Text.Json" Version="10.0.9" />
-    <PackageVersion Include="Testcontainers" Version="4.12.0" />
-    <PackageVersion Include="Testcontainers.InfluxDb" Version="4.12.0" />
-    <PackageVersion Include="Testcontainers.MongoDb" Version="4.12.0" />
-    <PackageVersion Include="Testcontainers.MySql" Version="4.12.0" />
-    <PackageVersion Include="Testcontainers.PostgreSql" Version="4.12.0" />
-    <PackageVersion Include="Testcontainers.RabbitMq" Version="4.12.0" />
+    <PackageVersion Include="Testcontainers" Version="4.14.0" />
+    <PackageVersion Include="Testcontainers.InfluxDb" Version="4.14.0" />
+    <PackageVersion Include="Testcontainers.MongoDb" Version="4.14.0" />
+    <PackageVersion Include="Testcontainers.MySql" Version="4.14.0" />
+    <PackageVersion Include="Testcontainers.PostgreSql" Version="4.14.0" />
+    <PackageVersion Include="Testcontainers.RabbitMq" Version="4.14.0" />
     <PackageVersion Include="xunit" Version="2.9.3" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5" />
   </ItemGroup>

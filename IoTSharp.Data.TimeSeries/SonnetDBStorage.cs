@@ -1183,13 +1183,25 @@ namespace IoTSharp.Storage
             return bool.TryParse(value, out var result) ? result : defaultValue;
         }
 
-        private static bool IsMissingMeasurement(SndbServerException ex)
-            => ex.StatusCode == HttpStatusCode.BadRequest
+        /// <summary>
+        /// 判断服务端异常是否表示目标测量不存在，兼容 REST 状态码和帧协议的带内错误。
+        /// </summary>
+        /// <param name="ex">SonnetDB 服务端异常。</param>
+        /// <returns>仅当异常明确表示测量不存在时返回 <see langword="true"/>。</returns>
+        internal static bool IsMissingMeasurement(SndbServerException ex)
+        {
+            var supportedTransportStatus = ex.StatusCode == HttpStatusCode.BadRequest
+                || ex.StatusCode == HttpStatusCode.OK;
+            var message = ex.ServerMessage;
+
+            return supportedTransportStatus
                 && string.Equals(ex.Error, "sql_error", StringComparison.Ordinal)
-                && (ex.Message.Contains("measurement", StringComparison.OrdinalIgnoreCase)
-                    || ex.Message.Contains("MEASUREMENT", StringComparison.OrdinalIgnoreCase))
-                && (ex.Message.Contains("不存在", StringComparison.OrdinalIgnoreCase)
-                    || ex.Message.Contains("does not exist", StringComparison.OrdinalIgnoreCase));
+                && (message.Contains("measurement", StringComparison.OrdinalIgnoreCase)
+                    || message.Contains("测量", StringComparison.Ordinal))
+                && (message.Contains("不存在", StringComparison.Ordinal)
+                    || message.Contains("does not exist", StringComparison.OrdinalIgnoreCase)
+                    || message.Contains("not found", StringComparison.OrdinalIgnoreCase));
+        }
 
         private static int? GetIntOption(DbConnectionStringBuilder builder, string key)
         {
