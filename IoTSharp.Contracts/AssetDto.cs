@@ -40,6 +40,11 @@ namespace IoTSharp.Contracts
         public Guid Id { get; set; }
 
         /// <summary>
+        /// 所属资产标识。
+        /// </summary>
+        public Guid AssetId { get; set; }
+
+        /// <summary>
         /// 列名
         /// </summary>
         public string? Name { get; set; }

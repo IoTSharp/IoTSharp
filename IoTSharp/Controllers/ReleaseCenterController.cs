@@ -139,39 +139,73 @@ namespace IoTSharp.Controllers
                 return Ok(new ApiResult<ReleasePlanOperationResultDto>(ApiCode.InValidData, "name is required", null));
             }
 
-            if (request.PackageId == Guid.Empty)
-            {
-                return Ok(new ApiResult<ReleasePlanOperationResultDto>(ApiCode.InValidData, "packageId is required", null));
-            }
-
             if (request.Targets == null || request.Targets.Count == 0)
             {
                 return Ok(new ApiResult<ReleasePlanOperationResultDto>(ApiCode.InValidData, "targets are required", null));
             }
 
             var profile = this.GetUserProfile();
-            var package = await FindPackageAsync(request.PackageId, profile);
-            if (package == null)
+            var isConfigurationRollout = request.PlanType == ReleasePlanType.ConfigurationRollout;
+            ReleasePackage package = null;
+            CollectionConfigurationVersion configurationVersion = null;
+            if (isConfigurationRollout)
             {
-                return Ok(new ApiResult<ReleasePlanOperationResultDto>(ApiCode.CantFindObject, "Release package not found", null));
-            }
+                if (!request.ConfigurationVersionId.HasValue || request.ConfigurationVersionId.Value == Guid.Empty)
+                {
+                    return Ok(new ApiResult<ReleasePlanOperationResultDto>(ApiCode.InValidData, "configurationVersionId is required for ConfigurationRollout", null));
+                }
 
-            if (!IsSupportedPlanPackage(request.PlanType, package.PackageType))
+                configurationVersion = await FindConfigurationVersionAsync(request.ConfigurationVersionId.Value, profile);
+                if (configurationVersion == null)
+                {
+                    return Ok(new ApiResult<ReleasePlanOperationResultDto>(ApiCode.CantFindObject, "Collection configuration version not found", null));
+                }
+            }
+            else
             {
-                return Ok(new ApiResult<ReleasePlanOperationResultDto>(
-                    ApiCode.InValidData,
-                    $"Release plan type {request.PlanType} does not support package type {package.PackageType} in M5 first version",
-                    null));
+                if (request.PackageId == Guid.Empty)
+                {
+                    return Ok(new ApiResult<ReleasePlanOperationResultDto>(ApiCode.InValidData, "packageId is required", null));
+                }
+
+                package = await FindPackageAsync(request.PackageId, profile);
+                if (package == null)
+                {
+                    return Ok(new ApiResult<ReleasePlanOperationResultDto>(ApiCode.CantFindObject, "Release package not found", null));
+                }
+
+                if (!IsSupportedPlanPackage(request.PlanType, package.PackageType))
+                {
+                    return Ok(new ApiResult<ReleasePlanOperationResultDto>(
+                        ApiCode.InValidData,
+                        $"Release plan type {request.PlanType} does not support package type {package.PackageType}",
+                        null));
+                }
             }
 
             ReleasePackage rollbackPackage = null;
             if (request.RollbackPackageId is { } rollbackPackageId && rollbackPackageId != Guid.Empty)
             {
+                if (isConfigurationRollout)
+                {
+                    return Ok(new ApiResult<ReleasePlanOperationResultDto>(ApiCode.InValidData, "ConfigurationRollout uses rollbackConfigurationVersionId", null));
+                }
+
                 rollbackPackage = await FindPackageAsync(rollbackPackageId, profile);
                 if (rollbackPackage == null)
                 {
                     return Ok(new ApiResult<ReleasePlanOperationResultDto>(ApiCode.CantFindObject, "Rollback package not found", null));
                 }
+            }
+
+            if (isConfigurationRollout)
+            {
+                // 配置版本回滚在创建计划时显式记录目标版本，避免把可变模板状态作为回滚依据。
+                request.Metadata ??= [];
+                request.Metadata["configurationVersionId"] = configurationVersion.Id.ToString("D");
+                request.Metadata["configurationVersion"] = configurationVersion.Version.ToString();
+                request.Metadata["configurationHash"] = configurationVersion.ConfigurationHash ?? string.Empty;
+                request.Metadata["configurationGatewayId"] = configurationVersion.GatewayId.ToString("D");
             }
 
             var resolvedTargets = new List<ResolvedReleaseTarget>();
@@ -186,6 +220,14 @@ namespace IoTSharp.Controllers
 
                 foreach (var resolvedTarget in resolved.Targets)
                 {
+                    if (isConfigurationRollout && resolvedTarget.Gateway?.Id != configurationVersion.GatewayId)
+                    {
+                        return Ok(new ApiResult<ReleasePlanOperationResultDto>(
+                            ApiCode.InValidData,
+                            "Configuration version gateway does not match release target",
+                            null));
+                    }
+
                     if (resolvedTargetKeys.Add(resolvedTarget.TargetKey))
                     {
                         resolvedTargets.Add(resolvedTarget);
@@ -210,7 +252,7 @@ namespace IoTSharp.Controllers
                 Status = request.ConfirmationPolicy == ReleaseConfirmationPolicy.ManualBeforeStart
                     ? ReleasePlanStatus.WaitingConfirmation
                     : ReleasePlanStatus.Draft,
-                PackageId = package.Id,
+                PackageId = package?.Id,
                 Package = package,
                 RollbackPackageId = rollbackPackage?.Id,
                 RollbackPackage = rollbackPackage,
@@ -246,9 +288,10 @@ namespace IoTSharp.Controllers
             ApplyPlanSummary(plan, releaseTasks, now, preservePaused: false);
             AddReleasePlanAudit(profile, plan, AuditActionCreate, new
             {
-                packageId = package.Id,
-                package.PackageKey,
-                package.Version,
+                packageId = package?.Id,
+                packageKey = package?.PackageKey,
+                packageVersion = package?.Version,
+                configurationVersionId = configurationVersion?.Id,
                 targetCount = releaseTasks.Count,
                 plan.ConfirmationPolicy,
                 plan.BatchSize,
@@ -261,7 +304,7 @@ namespace IoTSharp.Controllers
             _logger.LogInformation(
                 "Created release plan {ReleasePlanId} for package {PackageId} with {TargetCount} targets",
                 plan.Id,
-                package.Id,
+                package?.Id,
                 releaseTasks.Count);
 
             return Ok(new ApiResult<ReleasePlanOperationResultDto>(
@@ -366,21 +409,46 @@ namespace IoTSharp.Controllers
                 return Ok(new ApiResult<ReleasePlanOperationResultDto>(ApiCode.CantFindObject, "Release plan not found", null));
             }
 
-            var rollbackPackageId = request?.RollbackPackageId ?? plan.RollbackPackageId;
-            if (!rollbackPackageId.HasValue || rollbackPackageId.Value == Guid.Empty)
+            if (plan.Status is ReleasePlanStatus.RollingBack or ReleasePlanStatus.RolledBack)
             {
-                return Ok(new ApiResult<ReleasePlanOperationResultDto>(ApiCode.InValidData, "rollbackPackageId is required", null));
+                return Ok(new ApiResult<ReleasePlanOperationResultDto>(ApiCode.InValidData, $"Release plan is already {plan.Status}", null));
             }
 
-            var rollbackPackage = await FindPackageAsync(rollbackPackageId.Value, profile);
-            if (rollbackPackage == null)
+            ReleasePackage rollbackPackage = null;
+            CollectionConfigurationVersion rollbackConfigurationVersion = null;
+            if (plan.PlanType == ReleasePlanType.ConfigurationRollout)
             {
-                return Ok(new ApiResult<ReleasePlanOperationResultDto>(ApiCode.CantFindObject, "Rollback package not found", null));
-            }
+                var rollbackConfigurationVersionId = request?.RollbackConfigurationVersionId
+                    ?? TryGetGuidMetadata(plan.Metadata, "rollbackConfigurationVersionId");
+                if (!rollbackConfigurationVersionId.HasValue || rollbackConfigurationVersionId.Value == Guid.Empty)
+                {
+                    return Ok(new ApiResult<ReleasePlanOperationResultDto>(ApiCode.InValidData, "rollbackConfigurationVersionId is required", null));
+                }
 
-            if (!IsSupportedPlanPackage(plan.PlanType, rollbackPackage.PackageType))
+                rollbackConfigurationVersion = await FindConfigurationVersionAsync(rollbackConfigurationVersionId.Value, profile);
+                if (rollbackConfigurationVersion == null)
+                {
+                    return Ok(new ApiResult<ReleasePlanOperationResultDto>(ApiCode.CantFindObject, "Rollback configuration version not found", null));
+                }
+            }
+            else
             {
-                return Ok(new ApiResult<ReleasePlanOperationResultDto>(ApiCode.InValidData, "Rollback package type does not match release plan type", null));
+                var rollbackPackageId = request?.RollbackPackageId ?? plan.RollbackPackageId;
+                if (!rollbackPackageId.HasValue || rollbackPackageId.Value == Guid.Empty)
+                {
+                    return Ok(new ApiResult<ReleasePlanOperationResultDto>(ApiCode.InValidData, "rollbackPackageId is required", null));
+                }
+
+                rollbackPackage = await FindPackageAsync(rollbackPackageId.Value, profile);
+                if (rollbackPackage == null)
+                {
+                    return Ok(new ApiResult<ReleasePlanOperationResultDto>(ApiCode.CantFindObject, "Rollback package not found", null));
+                }
+
+                if (!IsSupportedPlanPackage(plan.PlanType, rollbackPackage.PackageType))
+                {
+                    return Ok(new ApiResult<ReleasePlanOperationResultDto>(ApiCode.InValidData, "Rollback package type does not match release plan type", null));
+                }
             }
 
             var originalTasks = await _context.ReleaseTasks
@@ -396,6 +464,11 @@ namespace IoTSharp.Controllers
                 return Ok(new ApiResult<ReleasePlanOperationResultDto>(ApiCode.InValidData, "No dispatched release tasks can be rolled back", null));
             }
 
+            if (rollbackConfigurationVersion != null && originalTasks.Any(task => task.GatewayId != rollbackConfigurationVersion.GatewayId))
+            {
+                return Ok(new ApiResult<ReleasePlanOperationResultDto>(ApiCode.InValidData, "Rollback configuration version gateway does not match release targets", null));
+            }
+
             var now = DateTime.UtcNow;
             var operatorName = ResolveUserName(profile);
             var maxBatch = await _context.ReleaseTasks
@@ -408,24 +481,19 @@ namespace IoTSharp.Controllers
                 Id = Guid.NewGuid(),
                 PlanId = plan.Id,
                 Plan = plan,
-                PackageId = rollbackPackage.Id,
+                PackageId = rollbackPackage?.Id,
                 Package = rollbackPackage,
                 TargetType = task.TargetType,
                 TargetId = task.TargetId,
                 GatewayId = task.GatewayId,
                 EdgeNodeId = task.EdgeNodeId,
                 TargetKey = task.TargetKey,
-                RuntimeType = Coalesce(task.RuntimeType, rollbackPackage.TargetRuntimeType),
+                RuntimeType = Coalesce(task.RuntimeType, rollbackPackage?.TargetRuntimeType),
                 InstanceId = task.InstanceId ?? string.Empty,
                 BatchNo = maxBatch + 1,
                 Status = ReleaseTaskStatus.Pending,
                 IsRollback = true,
-                Metadata = MergeMetadata(task.Metadata, new Dictionary<string, string>
-                {
-                    ["rollbackOfReleaseTaskId"] = task.Id.ToString("D"),
-                    ["rollbackOperator"] = operatorName,
-                    ["rollbackReason"] = request?.Reason ?? string.Empty
-                }),
+                Metadata = BuildRollbackMetadata(task, operatorName, request, rollbackConfigurationVersion),
                 CreatedAt = now,
                 UpdatedAt = now,
                 TenantId = plan.TenantId,
@@ -434,7 +502,18 @@ namespace IoTSharp.Controllers
 
             _context.ReleaseTasks.AddRange(rollbackTasks);
             plan.Status = ReleasePlanStatus.RollingBack;
-            plan.RollbackPackageId = rollbackPackage.Id;
+            plan.RollbackPackageId = rollbackPackage?.Id;
+            if (rollbackConfigurationVersion != null)
+            {
+                plan.Metadata = MergeMetadata(plan.Metadata, new Dictionary<string, string>
+                {
+                    ["rollbackConfigurationVersionId"] = rollbackConfigurationVersion.Id.ToString("D"),
+                    ["configurationVersionId"] = rollbackConfigurationVersion.Id.ToString("D"),
+                    ["configurationVersion"] = rollbackConfigurationVersion.Version.ToString(),
+                    ["configurationHash"] = rollbackConfigurationVersion.ConfigurationHash ?? string.Empty,
+                    ["configurationGatewayId"] = rollbackConfigurationVersion.GatewayId.ToString("D")
+                });
+            }
             plan.UpdatedAt = now;
             plan.UpdatedBy = operatorName;
 
@@ -445,9 +524,10 @@ namespace IoTSharp.Controllers
             plan.Status = ReleasePlanStatus.RollingBack;
             AddReleasePlanAudit(profile, plan, AuditActionRollback, new
             {
-                rollbackPackageId = rollbackPackage.Id,
-                rollbackPackage.PackageKey,
-                rollbackPackage.Version,
+                rollbackPackageId = rollbackPackage?.Id,
+                rollbackPackageKey = rollbackPackage?.PackageKey,
+                rollbackPackageVersion = rollbackPackage?.Version,
+                rollbackConfigurationVersionId = rollbackConfigurationVersion?.Id,
                 rollbackTaskCount = rollbackTasks.Count,
                 reason = request?.Reason ?? string.Empty,
                 metadata = request?.Metadata ?? []
@@ -508,8 +588,18 @@ namespace IoTSharp.Controllers
                 return Ok(new ApiResult<ReleasePlanOperationResultDto>(ApiCode.InValidData, $"Release plan is already {plan.Status}", null));
             }
 
-            var package = await FindPackageAsync(plan.PackageId ?? Guid.Empty, profile);
-            if (package == null)
+            var package = plan.PackageId.HasValue
+                ? await FindPackageAsync(plan.PackageId.Value, profile)
+                : null;
+            var configurationVersion = plan.PlanType == ReleasePlanType.ConfigurationRollout
+                ? await FindConfigurationVersionForPlanAsync(plan, profile)
+                : null;
+            if (plan.PlanType == ReleasePlanType.ConfigurationRollout && configurationVersion == null)
+            {
+                return Ok(new ApiResult<ReleasePlanOperationResultDto>(ApiCode.CantFindObject, "Collection configuration version not found", null));
+            }
+
+            if (plan.PlanType != ReleasePlanType.ConfigurationRollout && package == null)
             {
                 return Ok(new ApiResult<ReleasePlanOperationResultDto>(ApiCode.CantFindObject, "Release package not found", null));
             }
@@ -557,6 +647,29 @@ namespace IoTSharp.Controllers
                     && !c.Deleted
                     && c.TenantId == profile.Tenant
                     && c.CustomerId == profile.Customer);
+
+        /// <summary>
+        /// 在当前租户和客户范围内读取不可变采集配置版本。
+        /// </summary>
+        /// <param name="id">配置版本 ID。</param>
+        /// <param name="profile">当前用户。</param>
+        /// <returns>配置版本快照；不在当前权限范围内时返回 null。</returns>
+        private async System.Threading.Tasks.Task<CollectionConfigurationVersion> FindConfigurationVersionAsync(Guid id, UserProfile profile)
+            => await _context.CollectionConfigurationVersions
+                .FirstOrDefaultAsync(c => c.Id == id
+                    && !c.Deleted
+                    && c.TenantId == profile.Tenant
+                    && c.CustomerId == profile.Customer);
+
+        private async System.Threading.Tasks.Task<CollectionConfigurationVersion> FindConfigurationVersionForPlanAsync(
+            ReleasePlan plan,
+            UserProfile profile)
+        {
+            var id = TryGetGuidMetadata(plan.Metadata, "configurationVersionId");
+            return id.HasValue
+                ? await FindConfigurationVersionAsync(id.Value, profile)
+                : null;
+        }
 
         private async System.Threading.Tasks.Task<List<ReleaseTask>> LoadPlanTasksAsync(Guid planId)
             => await _context.ReleaseTasks
@@ -614,7 +727,7 @@ namespace IoTSharp.Controllers
                     return ResolvedReleaseTargets.Fail("EdgeNode target not found");
                 }
 
-                var runtimeType = Coalesce(target.RuntimeType, Coalesce(node.RuntimeType, package.TargetRuntimeType));
+                var runtimeType = Coalesce(target.RuntimeType, Coalesce(node.RuntimeType, package?.TargetRuntimeType));
                 var instanceId = Coalesce(target.InstanceId, node.InstanceId ?? string.Empty);
                 var targetKey = Coalesce(target.TargetKey, BuildEdgeTargetKey(node.GatewayId, runtimeType, instanceId));
                 return ResolvedReleaseTargets.Ok([
@@ -640,7 +753,7 @@ namespace IoTSharp.Controllers
             }
 
             var edgeNode = await EnsureEdgeNodeAsync(gateway);
-            var gatewayRuntimeType = Coalesce(target.RuntimeType, Coalesce(package.TargetRuntimeType, EdgeRuntimeTypes.Gateway));
+            var gatewayRuntimeType = Coalesce(target.RuntimeType, Coalesce(package?.TargetRuntimeType, EdgeRuntimeTypes.Gateway));
             var gatewayInstanceId = Coalesce(target.InstanceId, edgeNode?.InstanceId ?? string.Empty);
             var gatewayTargetKey = Coalesce(target.TargetKey, BuildEdgeTargetKey(gateway.Id, gatewayRuntimeType, gatewayInstanceId));
             return ResolvedReleaseTargets.Ok([
@@ -788,7 +901,7 @@ namespace IoTSharp.Controllers
             var edgeNode = channel.DeviceType == DeviceType.Gateway
                 ? await EnsureEdgeNodeAsync(channel)
                 : null;
-            var runtimeType = Coalesce(sourceTarget.RuntimeType, Coalesce(package.TargetRuntimeType, DefaultDeviceRuntimeType));
+            var runtimeType = Coalesce(sourceTarget.RuntimeType, Coalesce(package?.TargetRuntimeType, DefaultDeviceRuntimeType));
             var instanceId = Coalesce(sourceTarget.InstanceId, device.Name ?? string.Empty);
             var targetKey = sourceTargetType == ReleaseTargetType.Device
                 ? Coalesce(sourceTarget.TargetKey, BuildDeviceTargetKey(channel.Id, device.Id, runtimeType, instanceId))
@@ -875,12 +988,21 @@ namespace IoTSharp.Controllers
             for (var index = 0; index < targets.Count; index++)
             {
                 var target = targets[index];
+                var targetMetadata = new Dictionary<string, string>(target.Metadata ?? [], StringComparer.OrdinalIgnoreCase);
+                if (plan.PlanType == ReleasePlanType.ConfigurationRollout)
+                {
+                    foreach (var metadata in DeserializeStringMap(plan.Metadata))
+                    {
+                        targetMetadata[metadata.Key] = metadata.Value;
+                    }
+                }
+
                 tasks.Add(new ReleaseTask
                 {
                     Id = Guid.NewGuid(),
                     PlanId = plan.Id,
                     Plan = plan,
-                    PackageId = package.Id,
+                    PackageId = package?.Id,
                     Package = package,
                     TargetType = target.TargetType,
                     TargetId = target.TargetId,
@@ -891,7 +1013,7 @@ namespace IoTSharp.Controllers
                     InstanceId = target.InstanceId,
                     BatchNo = index / normalizedBatchSize + 1,
                     Status = ReleaseTaskStatus.Pending,
-                    Metadata = SerializeStringMap(target.Metadata),
+                    Metadata = SerializeStringMap(targetMetadata),
                     CreatedAt = now,
                     UpdatedAt = now,
                     TenantId = plan.TenantId,
@@ -953,16 +1075,19 @@ namespace IoTSharp.Controllers
             string operatorName,
             bool isRollback)
         {
-            var runtimeType = Coalesce(releaseTask.RuntimeType, package.TargetRuntimeType);
+            var isConfigurationRollout = plan.PlanType == ReleasePlanType.ConfigurationRollout;
+            var runtimeType = Coalesce(releaseTask.RuntimeType, package?.TargetRuntimeType);
             var instanceId = releaseTask.InstanceId ?? string.Empty;
             var targetType = ResolveDefaultTargetType(releaseTask.TargetType, runtimeType);
             var edgeTaskType = ResolveEdgeTaskType(plan.PlanType);
-            var downloadUrl = Url.Action(nameof(ReleasePackagesController.Download), "ReleasePackages", new
-            {
-                id = package.Id,
-                token = package.DownloadToken,
-                sha256 = package.Sha256
-            }, Request.Scheme) ?? $"/api/ReleasePackages/{package.Id:D}/Download";
+            var downloadUrl = package == null
+                ? string.Empty
+                : Url.Action(nameof(ReleasePackagesController.Download), "ReleasePackages", new
+                {
+                    id = package.Id,
+                    token = package.DownloadToken,
+                    sha256 = package.Sha256
+                }, Request.Scheme) ?? $"/api/ReleasePackages/{package.Id:D}/Download";
             var metadata = DeserializeStringMap(releaseTask.Metadata);
             metadata["source"] = "release-center";
             metadata["operator"] = operatorName ?? string.Empty;
@@ -970,26 +1095,18 @@ namespace IoTSharp.Controllers
             metadata["releaseTaskId"] = releaseTask.Id.ToString("D");
             metadata["releaseBatchNo"] = releaseTask.BatchNo.ToString();
             metadata["isRollback"] = isRollback ? bool.TrueString : bool.FalseString;
-            metadata["packageId"] = package.Id.ToString("D");
-            metadata["packageKey"] = package.PackageKey ?? string.Empty;
-            metadata["packageVersion"] = package.Version ?? string.Empty;
+            if (package != null)
+            {
+                metadata["packageId"] = package.Id.ToString("D");
+                metadata["packageKey"] = package.PackageKey ?? string.Empty;
+                metadata["packageVersion"] = package.Version ?? string.Empty;
+            }
 
             var parameters = new Dictionary<string, object>
             {
-                ["releasePackageContractVersion"] = EdgeNodeContractVersions.ReleasePackageV1,
-                [PackageIdKey] = package.Id,
-                ["packageType"] = package.PackageType.ToString(),
-                ["packageKey"] = package.PackageKey ?? string.Empty,
-                ["packageName"] = package.Name ?? string.Empty,
-                [PackageVersionKey] = package.Version ?? string.Empty,
-                ["targetRuntimeType"] = package.TargetRuntimeType ?? string.Empty,
-                ["targetRuntimeVersion"] = package.TargetRuntimeVersion ?? string.Empty,
-                ["fileName"] = package.FileName ?? string.Empty,
-                ["contentType"] = package.ContentType ?? string.Empty,
-                ["size"] = package.Size,
-                [PackageSha256Key] = package.Sha256 ?? string.Empty,
+                ["targetRuntimeType"] = package?.TargetRuntimeType ?? runtimeType ?? string.Empty,
+                ["targetRuntimeVersion"] = package?.TargetRuntimeVersion ?? string.Empty,
                 ["downloadUrl"] = downloadUrl,
-                ["downloadToken"] = package.DownloadToken ?? string.Empty,
                 ["releasePlanId"] = plan.Id,
                 ["releaseTaskId"] = releaseTask.Id,
                 ["releaseBatchNo"] = releaseTask.BatchNo,
@@ -997,6 +1114,33 @@ namespace IoTSharp.Controllers
                 ["edgeNodeId"] = releaseTask.EdgeNodeId,
                 ["gatewayId"] = releaseTask.GatewayId
             };
+            if (package != null)
+            {
+                parameters["releasePackageContractVersion"] = EdgeNodeContractVersions.ReleasePackageV1;
+                parameters[PackageIdKey] = package.Id;
+                parameters["packageType"] = package.PackageType.ToString();
+                parameters["packageKey"] = package.PackageKey ?? string.Empty;
+                parameters["packageName"] = package.Name ?? string.Empty;
+                parameters[PackageVersionKey] = package.Version ?? string.Empty;
+                parameters["fileName"] = package.FileName ?? string.Empty;
+                parameters["contentType"] = package.ContentType ?? string.Empty;
+                parameters["size"] = package.Size;
+                parameters[PackageSha256Key] = package.Sha256 ?? string.Empty;
+                parameters["downloadToken"] = package.DownloadToken ?? string.Empty;
+            }
+            else if (isConfigurationRollout)
+            {
+                var configurationVersionId = TryGetGuidMetadata(plan.Metadata, "configurationVersionId");
+                var configurationVersion = TryGetIntMetadata(plan.Metadata, "configurationVersion");
+                var configurationHash = TryGetStringMetadata(plan.Metadata, "configurationHash");
+                parameters["configurationVersionId"] = configurationVersionId ?? Guid.Empty;
+                parameters["configurationVersion"] = configurationVersion ?? 0;
+                parameters["configurationHash"] = configurationHash ?? string.Empty;
+                parameters["collectionConfigContractVersion"] = EdgeNodeContractVersions.CollectionConfigV1;
+                metadata["configurationVersionId"] = configurationVersionId?.ToString("D") ?? string.Empty;
+                metadata["configurationVersion"] = configurationVersion?.ToString() ?? string.Empty;
+                metadata["configurationHash"] = configurationHash ?? string.Empty;
+            }
             if (releaseTask.TargetType == ReleaseTargetType.Device && releaseTask.TargetId.HasValue)
             {
                 parameters[DeviceIdKey] = releaseTask.TargetId.Value;
@@ -1156,6 +1300,7 @@ namespace IoTSharp.Controllers
                 PlanType = plan.PlanType,
                 Status = plan.Status,
                 PackageId = plan.PackageId,
+                ConfigurationVersionId = TryGetGuidMetadata(plan.Metadata, "configurationVersionId"),
                 RollbackPackageId = plan.RollbackPackageId,
                 ConfirmationPolicy = plan.ConfirmationPolicy,
                 BatchSize = plan.BatchSize,
@@ -1184,6 +1329,7 @@ namespace IoTSharp.Controllers
                 Id = task.Id,
                 PlanId = task.PlanId,
                 PackageId = task.PackageId,
+                ConfigurationVersionId = TryGetGuidMetadata(task.Metadata, "configurationVersionId"),
                 TargetType = task.TargetType,
                 TargetId = task.TargetId,
                 GatewayId = task.GatewayId,
@@ -1264,6 +1410,7 @@ namespace IoTSharp.Controllers
             => planType switch
             {
                 ReleasePlanType.SoftwareUpdate => IsRuntimeSoftwarePackage(packageType),
+                ReleasePlanType.ConfigurationRollout => packageType == ReleasePackageType.Configuration,
                 ReleasePlanType.DeviceScriptOta => packageType == ReleasePackageType.DeviceScript,
                 ReleasePlanType.FirmwareOta => packageType == ReleasePackageType.Firmware,
                 _ => false
@@ -1278,6 +1425,7 @@ namespace IoTSharp.Controllers
         private static EdgeTaskType ResolveEdgeTaskType(ReleasePlanType planType)
             => planType switch
             {
+                ReleasePlanType.ConfigurationRollout => EdgeTaskType.ConfigPullRequest,
                 ReleasePlanType.DeviceScriptOta => EdgeTaskType.DeviceScriptOta,
                 ReleasePlanType.FirmwareOta => EdgeTaskType.FirmwareOta,
                 _ => EdgeTaskType.SoftwareUpdate
@@ -1370,6 +1518,11 @@ namespace IoTSharp.Controllers
             ReleasePackage package,
             EdgeTaskType taskType)
         {
+            if (package == null)
+            {
+                return;
+            }
+
             var packageMetadata = DeserializeObjectMap(package.Metadata);
             switch (taskType)
             {
@@ -1430,6 +1583,29 @@ namespace IoTSharp.Controllers
             return SerializeStringMap(merged);
         }
 
+        private static string BuildRollbackMetadata(
+            ReleaseTask task,
+            string operatorName,
+            ReleasePlanActionRequestDto request,
+            CollectionConfigurationVersion configurationVersion)
+        {
+            var values = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["rollbackOfReleaseTaskId"] = task.Id.ToString("D"),
+                ["rollbackOperator"] = operatorName ?? string.Empty,
+                ["rollbackReason"] = request?.Reason ?? string.Empty
+            };
+            if (configurationVersion != null)
+            {
+                values["configurationVersionId"] = configurationVersion.Id.ToString("D");
+                values["configurationVersion"] = configurationVersion.Version.ToString();
+                values["configurationHash"] = configurationVersion.ConfigurationHash ?? string.Empty;
+                values["configurationGatewayId"] = configurationVersion.GatewayId.ToString("D");
+            }
+
+            return MergeMetadata(task.Metadata, values);
+        }
+
         private static string SerializeStringMap(IReadOnlyDictionary<string, string> values)
             => JsonSerializer.Serialize(values ?? new Dictionary<string, string>(), WebJsonOptions);
 
@@ -1451,6 +1627,33 @@ namespace IoTSharp.Controllers
             {
                 return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             }
+        }
+
+        private static Guid? TryGetGuidMetadata(string payload, string key)
+            => Guid.TryParse(TryGetStringMetadata(payload, key), out var value) && value != Guid.Empty
+                ? value
+                : null;
+
+        private static int? TryGetIntMetadata(string payload, string key)
+            => int.TryParse(TryGetStringMetadata(payload, key), out var value) && value > 0
+                ? value
+                : null;
+
+        private static string TryGetStringMetadata(string payload, string key)
+        {
+            if (string.IsNullOrWhiteSpace(key))
+            {
+                return null;
+            }
+
+            var values = DeserializeStringMap(payload);
+            if (values.TryGetValue(key, out var value))
+            {
+                return value;
+            }
+
+            var pair = values.FirstOrDefault(item => string.Equals(item.Key, key, StringComparison.OrdinalIgnoreCase));
+            return pair.Equals(default(KeyValuePair<string, string>)) ? null : pair.Value;
         }
 
         private static Dictionary<string, object> DeserializeObjectMap(string payload)

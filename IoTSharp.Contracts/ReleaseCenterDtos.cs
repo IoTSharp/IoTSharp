@@ -282,6 +282,11 @@ namespace IoTSharp.Contracts
         public Guid PackageId { get; set; }
 
         /// <summary>
+        /// 配置发布计划使用的不可变采集配置版本 ID。配置发布不需要 PackageId。
+        /// </summary>
+        public Guid? ConfigurationVersionId { get; set; }
+
+        /// <summary>
         /// 回滚包 ID；执行回滚时可覆盖为新的包。
         /// </summary>
         public Guid? RollbackPackageId { get; set; }
@@ -328,6 +333,11 @@ namespace IoTSharp.Contracts
         public Guid? RollbackPackageId { get; set; }
 
         /// <summary>
+        /// 配置发布回滚使用的配置版本 ID；为空时使用计划元数据中记录的版本。
+        /// </summary>
+        public Guid? RollbackConfigurationVersionId { get; set; }
+
+        /// <summary>
         /// 是否强制继续后续批次。
         /// </summary>
         public bool Force { get; set; }
@@ -357,6 +367,11 @@ namespace IoTSharp.Contracts
         /// 发布包 ID。
         /// </summary>
         public Guid? PackageId { get; set; }
+
+        /// <summary>
+        /// 任务使用的不可变采集配置版本 ID。
+        /// </summary>
+        public Guid? ConfigurationVersionId { get; set; }
 
         /// <summary>
         /// 目标类型。
@@ -549,6 +564,11 @@ namespace IoTSharp.Contracts
         /// 发布包 ID。
         /// </summary>
         public Guid? PackageId { get; set; }
+
+        /// <summary>
+        /// 计划使用的不可变采集配置版本 ID。
+        /// </summary>
+        public Guid? ConfigurationVersionId { get; set; }
 
         /// <summary>
         /// 回滚包 ID。

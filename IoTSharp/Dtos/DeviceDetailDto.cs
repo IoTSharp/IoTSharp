@@ -68,5 +68,15 @@ namespace IoTSharp.Dtos
         public string CustomerName { get; set; }
         public Guid TenantId { get; set; }
         public Guid CustomerId { get; set; }
+
+        /// <summary>
+        /// 设备绑定的产品模板标识。产品定义能力，设备只引用该模板。
+        /// </summary>
+        public Guid? ProductId { get; set; }
+
+        /// <summary>
+        /// 设备绑定的产品模板名称。
+        /// </summary>
+        public string ProductName { get; set; }
     }
 }

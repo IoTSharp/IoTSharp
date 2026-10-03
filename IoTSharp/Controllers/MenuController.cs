@@ -116,6 +116,7 @@ namespace IoTSharp.Controllers
                     children = new MenuItem[]
                         {
                             new() { text = "Edge 任务", i18n = "", vi18n="iot.edgetasks", routename="edgetasks", link = "/iot/devices/edgetasks" , vpath="/iot/devices/edgetasks",},
+                            new() { text = "发布中心", i18n = "", vi18n="iot.releasecenter", routename="releasecenter", link = "/iot/release/releaselist", vpath="/iot/release/releaselist",},
                             new() { text = "设备告警", i18n = "", vi18n="iot.alarmlist", routename="alarmlist", link = "/iot/alarms/alarmlist", vpath = "/iot/alarms/alarmlist", },
                         }
                 });

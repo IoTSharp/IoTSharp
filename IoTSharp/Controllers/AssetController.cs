@@ -59,7 +59,13 @@ namespace IoTSharp.Controllers
         [HttpGet]
         public async Task<ApiResult<PagedData<AssetRelation>>> AssetRelations(Guid assetid)
         {
-            var result = await _context.Assets.Include(c => c.OwnedAssets).SingleOrDefaultAsync(c => c.Id == assetid);
+            var profile = this.GetUserProfile();
+            var result = await _context.Assets
+                .Include(c => c.OwnedAssets)
+                .SingleOrDefaultAsync(c => c.Id == assetid
+                    && c.Customer.Id == profile.Customer
+                    && c.Tenant.Id == profile.Tenant
+                    && !c.Deleted);
             if (result is null)
             {
                 return new ApiResult<PagedData<AssetRelation>>(ApiCode.CantFindObject, "can't find that asset", new PagedData<AssetRelation>
@@ -90,40 +96,63 @@ namespace IoTSharp.Controllers
         {
 
             var profile = this.GetUserProfile();
+            var asset = _context.Assets
+                .Include(c => c.OwnedAssets)
+                .SingleOrDefault(x => x.Id == assetid
+                    && x.Customer.Id == profile.Customer
+                    && x.Tenant.Id == profile.Tenant
+                    && !x.Deleted);
+            if (asset == null)
+            {
+                return new ApiResult<PagedData<AssetDeviceItem>>(ApiCode.CantFindObject, "can't find that asset", new PagedData<AssetDeviceItem>
+                {
+                    total = 0,
+                    rows = new List<AssetDeviceItem>()
+                });
+            }
 
-            var result = _context.Assets.Include(c => c.OwnedAssets)
-                .SingleOrDefault(x =>
-                    x.Id == assetid && x.Customer.Id == profile.Customer && x.Tenant.Id == profile.Tenant && x.Deleted == false)?.OwnedAssets
-                .ToList().GroupBy(c => c.DeviceId).Select(c => new
+            var grouped = asset.OwnedAssets
+                .GroupBy(c => c.DeviceId)
+                .ToList();
+            var deviceIds = grouped.Select(c => c.Key).ToList();
+            var devices = _context.Device
+                .Include(c => c.DeviceIdentity)
+                .Where(c => deviceIds.Contains(c.Id)
+                    && c.CustomerId == profile.Customer
+                    && c.TenantId == profile.Tenant
+                    && !c.Deleted)
+                .ToDictionary(c => c.Id);
+            var result = grouped
+                .Where(c => devices.ContainsKey(c.Key))
+                .Select(c =>
                 {
-                    Device = c.Key,
-                    Attrs = c.Where(c => c.DataCatalog == DataCatalog.AttributeLatest).ToList(),
-                    Temps = c.Where(c => c.DataCatalog == DataCatalog.TelemetryLatest).ToList()
-                }
-                ).ToList().Join(_context.Device, x => x.Device, y => y.Id, (x, y) => new AssetDeviceItem
-                {
-                    Id = x.Device,
-                    Name = y.Name,
-                    DeviceIdentity = y.DeviceIdentity,
-                    DeviceType = y.DeviceType,
-                    Timeout = y.Timeout,
-                    Attrs = x.Attrs.Select(c => new ModelAssetAttrItem
+                    var device = devices[c.Key];
+                    return new AssetDeviceItem
                     {
-                        dataSide = c.DataCatalog,
-                        keyName = c.KeyName,
-                        Name = c.Name,
-                        Description = c.Description,
-                        Id = c.Id
-                    }).ToArray(),
-                    Temps = x.Temps.Select(c => new ModelAssetAttrItem
-                    {
-                        dataSide = c.DataCatalog,
-                        keyName = c.KeyName,
-                        Name = c.Name,
-                        Description = c.Description,
-                        Id = c.Id
-                    }).ToArray(),
-                }).ToList();
+                        Id = device.Id,
+                        Name = device.Name,
+                        DeviceIdentity = device.DeviceIdentity,
+                        DeviceType = device.DeviceType,
+                        Timeout = device.Timeout,
+                        Attrs = c.Where(r => r.DataCatalog == DataCatalog.AttributeLatest).Select(r => new ModelAssetAttrItem
+                        {
+                            dataSide = r.DataCatalog,
+                            keyName = r.KeyName,
+                            Name = r.Name,
+                            Description = r.Description,
+                            Id = r.Id
+                        }).ToArray(),
+                        Temps = c.Where(r => r.DataCatalog == DataCatalog.TelemetryLatest).Select(r => new ModelAssetAttrItem
+                        {
+                            dataSide = r.DataCatalog,
+                            keyName = r.KeyName,
+                            Name = r.Name,
+                            Description = r.Description,
+                            Id = r.Id
+                        }).ToArray()
+                    };
+                })
+                .ToList();
             return new ApiResult<PagedData<AssetDeviceItem>>(ApiCode.Success, "OK",
                 new PagedData<AssetDeviceItem>() { total = result?.Count ?? 0, rows = result }
             );
@@ -240,6 +269,10 @@ namespace IoTSharp.Controllers
                     return new ApiResult<bool>(ApiCode.CantFindObject, "Not found asset", false);
                 }
                 asset.Deleted = true;
+                if (asset.OwnedAssets.Count > 0)
+                {
+                    _context.AssetRelations.RemoveRange(asset.OwnedAssets);
+                }
                 _context.Assets.Update(asset);
                 await _context.SaveChangesAsync();
                 return new ApiResult<bool>(ApiCode.Success, "Ok", true);
@@ -264,6 +297,10 @@ namespace IoTSharp.Controllers
             var profile = this.GetUserProfile();
             try
             {
+                if (m == null || m.AssetId == Guid.Empty || m.Deviceid == Guid.Empty)
+                {
+                    return new ApiResult<bool>(ApiCode.InValidData, "asset and device are required", false);
+                }
                 var asset = await _context.Assets.Include(c => c.Customer).Include(c => c.Tenant)
                     .Include(c => c.OwnedAssets).SingleOrDefaultAsync(c =>
                         c.Id == m.AssetId && c.Customer.Id == profile.Customer && c.Tenant.Id == profile.Tenant && c.Deleted == false);
@@ -273,33 +310,58 @@ namespace IoTSharp.Controllers
                     return new ApiResult<bool>(ApiCode.CantFindObject, "Not found asset", false);
                 }
 
-                foreach (var item in m.Attrs)
+                var deviceExists = await _context.Device.AnyAsync(c => c.Id == m.Deviceid
+                    && c.CustomerId == profile.Customer
+                    && c.TenantId == profile.Tenant
+                    && !c.Deleted);
+                if (!deviceExists)
                 {
-                    if (asset.OwnedAssets.All(c => c.KeyName != item.keyName))
+                    return new ApiResult<bool>(ApiCode.NotFoundDevice, "Not found device", false);
+                }
+
+                foreach (var item in m.Attrs ?? Array.Empty<ModelAddAssetDevice.ModelAddAssetDeviceItem>())
+                {
+                    var keyName = item.keyName?.Trim();
+                    if (string.IsNullOrWhiteSpace(keyName))
+                    {
+                        continue;
+                    }
+                    if (asset.OwnedAssets.All(c => c.DeviceId != m.Deviceid
+                        || c.DataCatalog != DataCatalog.AttributeLatest
+                        || !string.Equals(c.KeyName, keyName, StringComparison.OrdinalIgnoreCase)))
                     {
                         asset.OwnedAssets.Add(new AssetRelation()
                         {
+                            AssetId = asset.Id,
                             DeviceId = m.Deviceid,
                             DataCatalog = DataCatalog.AttributeLatest,
                             Description = "",
-                            KeyName = item.keyName,
-                            Name = item.keyName,
+                            KeyName = keyName,
+                            Name = string.IsNullOrWhiteSpace(item.Name) ? keyName : item.Name.Trim(),
                         });
                     }
 
                 }
 
-                foreach (var item in m.Temps)
+                foreach (var item in m.Temps ?? Array.Empty<ModelAddAssetDevice.ModelAddAssetDeviceItem>())
                 {
-                    if (asset.OwnedAssets.All(c => c.KeyName != item.keyName))
+                    var keyName = item.keyName?.Trim();
+                    if (string.IsNullOrWhiteSpace(keyName))
+                    {
+                        continue;
+                    }
+                    if (asset.OwnedAssets.All(c => c.DeviceId != m.Deviceid
+                        || c.DataCatalog != DataCatalog.TelemetryLatest
+                        || !string.Equals(c.KeyName, keyName, StringComparison.OrdinalIgnoreCase)))
                     {
                         asset.OwnedAssets.Add(new AssetRelation()
                         {
+                            AssetId = asset.Id,
                             DeviceId = m.Deviceid,
                             DataCatalog = DataCatalog.TelemetryLatest,
                             Description = "",
-                            KeyName = item.keyName,
-                            Name = item.keyName
+                            KeyName = keyName,
+                            Name = string.IsNullOrWhiteSpace(item.Name) ? keyName : item.Name.Trim()
                         });
                     }
                 }
@@ -326,10 +388,25 @@ namespace IoTSharp.Controllers
             var profile = this.GetUserProfile();
             try
             {
+                if (m == null || m.AssetId == Guid.Empty || m.Deviceid == Guid.Empty)
+                {
+                    return new ApiResult<bool>(ApiCode.InValidData, "asset and device are required", false);
+                }
                 var asset = await _context.Assets.Include(c => c.Customer).Include(c => c.Tenant)
                     .Include(c => c.OwnedAssets).SingleOrDefaultAsync(c =>
                         c.Id == m.AssetId && c.Customer.Id == profile.Customer && c.Tenant.Id == profile.Tenant && c.Deleted == false);
 
+                if (asset == null)
+                {
+                    return new ApiResult<bool>(ApiCode.CantFindObject, "Not found asset", false);
+                }
+
+                var relations = asset.OwnedAssets.Where(c => c.DeviceId == m.Deviceid).ToList();
+                if (relations.Count == 0)
+                {
+                    return new ApiResult<bool>(ApiCode.CantFindObject, "Device is not related to this asset", false);
+                }
+                _context.AssetRelations.RemoveRange(relations);
                 await _context.SaveChangesAsync();
                 return new ApiResult<bool>(ApiCode.Success, "Ok", true);
             }
@@ -352,7 +429,15 @@ namespace IoTSharp.Controllers
             var profile = this.GetUserProfile();
             try
             {
-                var attr = _context.AssetRelations.SingleOrDefault(c => c.Id == relationId);
+                var attr = await _context.AssetRelations
+                    .Include(c => c.Asset)
+                    .ThenInclude(c => c.Customer)
+                    .Include(c => c.Asset)
+                    .ThenInclude(c => c.Tenant)
+                    .SingleOrDefaultAsync(c => c.Id == relationId
+                        && c.Asset.Customer.Id == profile.Customer
+                        && c.Asset.Tenant.Id == profile.Tenant
+                        && !c.Asset.Deleted);
                 if (attr != null)
                 {
                     _context.AssetRelations.Remove(attr);
@@ -382,7 +467,15 @@ namespace IoTSharp.Controllers
             var profile = this.GetUserProfile();
             try
             {
-                var attr = _context.AssetRelations.SingleOrDefault(c => c.Id == m.Id);
+                var attr = await _context.AssetRelations
+                    .Include(c => c.Asset)
+                    .ThenInclude(c => c.Customer)
+                    .Include(c => c.Asset)
+                    .ThenInclude(c => c.Tenant)
+                    .SingleOrDefaultAsync(c => c.Id == m.Id
+                        && c.Asset.Customer.Id == profile.Customer
+                        && c.Asset.Tenant.Id == profile.Tenant
+                        && !c.Asset.Deleted);
                 if (attr != null)
                 {
                     attr.Description = m.Description;

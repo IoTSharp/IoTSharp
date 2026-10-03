@@ -57,6 +57,7 @@ namespace IoTSharp.Controllers
         private const string RetryReasonKey = "retryReason";
         private const string RetryOperatorKey = "retryOperator";
         private const string RetryAttemptKey = "retryAttempt";
+        private const string EdgeAccessTokenHeader = "X-Edge-Access-Token";
         private static readonly TimeSpan DefaultRetryTtl = TimeSpan.FromDays(1);
         private static readonly IReadOnlyDictionary<EdgeTaskStatus, EdgeTaskStatus[]> AllowedTransitions = EdgeTaskStateMachine.AllowedTransitions;
         private static readonly JsonSerializerOptions ContractJsonOptions = new(JsonSerializerDefaults.Web) { PropertyNameCaseInsensitive = true };
@@ -163,7 +164,9 @@ namespace IoTSharp.Controllers
         [HttpPost("Receipt")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesDefaultResponseType]
-        public async System.Threading.Tasks.Task<ActionResult<ApiResult<EdgeTaskReceiptDto>>> Receipt([FromBody] EdgeTaskReceiptDto request)
+        public async System.Threading.Tasks.Task<ActionResult<ApiResult<EdgeTaskReceiptDto>>> Receipt(
+            [FromBody] EdgeTaskReceiptDto request,
+            [FromHeader(Name = EdgeAccessTokenHeader)] string edgeAccessToken = null)
         {
             if (request == null)
             {
@@ -185,21 +188,6 @@ namespace IoTSharp.Controllers
                 return Ok(new ApiResult<EdgeTaskReceiptDto>(ApiCode.InValidData, "targetKey is required", null));
             }
 
-            if (request.Progress is < 0 or > 100)
-            {
-                return Ok(new ApiResult<EdgeTaskReceiptDto>(ApiCode.InValidData, "progress must be between 0 and 100", null));
-            }
-
-            if (request.Status == EdgeTaskStatus.Running && request.Progress == null)
-            {
-                return Ok(new ApiResult<EdgeTaskReceiptDto>(ApiCode.InValidData, "progress is required when status is Running", null));
-            }
-
-            if (request.Status is EdgeTaskStatus.Succeeded or EdgeTaskStatus.Failed or EdgeTaskStatus.TimedOut or EdgeTaskStatus.Cancelled && request.Progress is > 0 and < 100)
-            {
-                return Ok(new ApiResult<EdgeTaskReceiptDto>(ApiCode.InValidData, "terminal status progress should be null, 0 or 100", null));
-            }
-
             var deviceId = await ResolveDeviceIdAsync(request.TargetKey, request.InstanceId, null);
             if (deviceId == null)
             {
@@ -210,6 +198,43 @@ namespace IoTSharp.Controllers
             if (formalTask == null)
             {
                 return Ok(new ApiResult<EdgeTaskReceiptDto>(ApiCode.InValidData, "Task request not found for receipt", null));
+            }
+
+            // 保持既有匿名回执客户端兼容；执行端提供令牌时，必须绑定到该任务的 Gateway，
+            // 防止持有其他设备令牌的调用方推进本 Gateway 的正式任务。
+            if (!string.IsNullOrWhiteSpace(edgeAccessToken) &&
+                !IsAccessTokenBoundToGateway(edgeAccessToken, formalTask.GatewayId))
+            {
+                return Ok(new ApiResult<EdgeTaskReceiptDto>(ApiCode.InValidData, "Edge access token does not match task gateway", null));
+            }
+
+            // 设备 ID 只用于定位通道；回执必须继续匹配下发任务的完整地址，
+            // 防止同一 Gateway 下的任务被其他实例或伪造的目标键推进状态。
+            if (!string.Equals(request.TargetKey, formalTask.TargetKey, StringComparison.OrdinalIgnoreCase))
+            {
+                return Ok(new ApiResult<EdgeTaskReceiptDto>(ApiCode.InValidData, "Receipt targetKey does not match task request", null));
+            }
+
+            if (!string.IsNullOrWhiteSpace(request.RuntimeType) &&
+                !string.Equals(request.RuntimeType, formalTask.RuntimeType, StringComparison.OrdinalIgnoreCase))
+            {
+                return Ok(new ApiResult<EdgeTaskReceiptDto>(ApiCode.InValidData, "Receipt runtimeType does not match task request", null));
+            }
+
+            if (!string.IsNullOrWhiteSpace(request.InstanceId) &&
+                !string.Equals(request.InstanceId, formalTask.InstanceId, StringComparison.OrdinalIgnoreCase))
+            {
+                return Ok(new ApiResult<EdgeTaskReceiptDto>(ApiCode.InValidData, "Receipt instanceId does not match task request", null));
+            }
+
+            var latestReportedAt = await _context.EdgeTaskReceipts
+                .Where(receipt => receipt.TaskId == formalTask.Id && !receipt.Deleted)
+                .OrderByDescending(receipt => receipt.ReportedAt)
+                .Select(receipt => (DateTime?)receipt.ReportedAt)
+                .FirstOrDefaultAsync();
+            if (!EdgeRuntimeContractValidation.TryValidateReceipt(request, latestReportedAt, DateTime.UtcNow, out var receiptValidationError))
+            {
+                return Ok(new ApiResult<EdgeTaskReceiptDto>(ApiCode.InValidData, receiptValidationError, null));
             }
 
             if (!IsTransitionAllowed(formalTask.Status, request.Status))
@@ -491,6 +516,17 @@ namespace IoTSharp.Controllers
             request.RuntimeType = string.IsNullOrWhiteSpace(request.RuntimeType) ? formalTask.RuntimeType ?? string.Empty : request.RuntimeType;
             request.InstanceId = string.IsNullOrWhiteSpace(request.InstanceId) ? formalTask.InstanceId ?? string.Empty : request.InstanceId;
             request.Status = EdgeTaskStatus.Accepted;
+
+            var latestReportedAt = await _context.EdgeTaskReceipts
+                .Where(receipt => receipt.TaskId == formalTask.Id && !receipt.Deleted)
+                .OrderByDescending(receipt => receipt.ReportedAt)
+                .Select(receipt => (DateTime?)receipt.ReportedAt)
+                .FirstOrDefaultAsync();
+            if (!EdgeRuntimeContractValidation.TryValidateReceipt(request, latestReportedAt, DateTime.UtcNow, out var receiptValidationError))
+            {
+                return Ok(new ApiResult(ApiCode.InValidData, receiptValidationError));
+            }
+
             request.ReportedAt = request.ReportedAt == default ? DateTime.UtcNow : request.ReportedAt;
             request.ReportedAt = request.ReportedAt.ToUniversalTime();
 
@@ -1364,6 +1400,11 @@ namespace IoTSharp.Controllers
                 return "ConfigPullRequest task parameters require configurationVersion and configurationHash";
             }
 
+            if (receipt.Status == EdgeTaskStatus.Succeeded && !expectedVersionId.HasValue)
+            {
+                return "Succeeded ConfigPullRequest receipt requires configurationVersionId in task parameters";
+            }
+
             var resultVersionId = TryGetGuid(receipt.Result, ConfigurationVersionIdKey);
             var metadataVersionId = TryGetGuid(receipt.Metadata, ConfigurationVersionIdKey);
             var resultVersion = TryGetInt(receipt.Result, ConfigurationVersionKey);
@@ -1390,9 +1431,9 @@ namespace IoTSharp.Controllers
             }
 
             if (receipt.Status == EdgeTaskStatus.Succeeded &&
-                (resultVersion is not > 0 || string.IsNullOrWhiteSpace(resultHash)))
+                (!resultVersionId.HasValue || resultVersion is not > 0 || string.IsNullOrWhiteSpace(resultHash)))
             {
-                return "Succeeded configuration receipt requires result.configurationVersion and result.configurationHash";
+                return "Succeeded configuration receipt requires result.configurationVersionId, result.configurationVersion and result.configurationHash";
             }
 
             var assignment = await FindCollectionAssignmentForTaskAsync(task.GatewayId, expectedVersionId, expectedVersion.Value, expectedHash);
@@ -1961,13 +2002,30 @@ namespace IoTSharp.Controllers
 
         private Device GetGatewayByAccessToken(string accessToken)
         {
+            if (string.IsNullOrWhiteSpace(accessToken))
+            {
+                return null;
+            }
+
             var (ok, gateway) = _context.GetDeviceByToken(accessToken);
-            if (ok || gateway == null || gateway.Deleted)
+            if (ok || gateway == null || gateway.Deleted || gateway.DeviceType != DeviceType.Gateway)
             {
                 return null;
             }
 
             return gateway;
+        }
+
+        /// <summary>
+        /// 验证可选 Edge 访问令牌是否属于指定 Gateway。
+        /// </summary>
+        /// <param name="accessToken">执行端提供的 Edge 访问令牌。</param>
+        /// <param name="gatewayId">正式任务所属 Gateway 设备 ID。</param>
+        /// <returns>令牌解析成功且绑定同一 Gateway 时返回 true。</returns>
+        private bool IsAccessTokenBoundToGateway(string accessToken, Guid gatewayId)
+        {
+            var gateway = GetGatewayByAccessToken(accessToken);
+            return gateway != null && gateway.Id == gatewayId;
         }
 
         private static string SerializeOrNull<T>(T value)

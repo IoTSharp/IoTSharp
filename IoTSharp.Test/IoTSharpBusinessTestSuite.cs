@@ -124,6 +124,93 @@ public abstract class IoTSharpBusinessTestSuite<TFixture>
     }
 
     [Fact]
+    public async Task ProductAndAssetBindings_PreserveDeviceBusinessContext()
+    {
+        using var client = Fixture.CreateClient();
+        await Fixture.AuthorizeClientAsync(client);
+
+        var productName = $"binding-product-{Guid.NewGuid():N}";
+        var saveProduct = await client.PostAsJsonAsync("/api/Products/Save", new ProductAddDto
+        {
+            Name = productName,
+            ProductToken = $"binding-{Guid.NewGuid():N}",
+            DefaultDeviceType = DeviceType.Device,
+            DefaultIdentityType = IdentityType.AccessToken,
+            DefaultTimeout = 30,
+            GatewayConfiguration = string.Empty
+        });
+        var savedProduct = await ReadApiResultAsync<bool>(saveProduct);
+        Assert.Equal((int)ApiCode.Success, savedProduct.Code);
+
+        var products = await GetApiResultAsync<PagedData<ProductDto>>(client,
+            $"/api/Products/List?offset=0&limit=20&name={Uri.EscapeDataString(productName)}");
+        var product = Assert.Single(products.Data!.rows, item => item.Name == productName);
+
+        var createdDevice = await client.PostAsJsonAsync("/api/Devices", new DevicePostDto
+        {
+            Name = $"binding-device-{Guid.NewGuid():N}",
+            DeviceType = DeviceType.Device,
+            IdentityType = IdentityType.AccessToken,
+            Timeout = 30,
+            ProductId = product.Id
+        });
+        var deviceResult = await ReadApiResultAsync<Device>(createdDevice);
+        Assert.Equal((int)ApiCode.Success, deviceResult.Code);
+        var deviceId = deviceResult.Data!.Id;
+
+        var deviceDetail = await Fixture.GetDeviceDetailAsync(client, deviceId);
+        Assert.Equal(product.Id, deviceDetail.Data!.ProductId);
+        Assert.Equal(productName, deviceDetail.Data.ProductName);
+
+        var assetName = $"binding-asset-{Guid.NewGuid():N}";
+        var savedAssetResponse = await client.PostAsJsonAsync("/api/Asset/Save", new AssetAddDto
+        {
+            Name = assetName,
+            AssetType = "lane",
+            Description = "device business context"
+        });
+        var savedAsset = await ReadApiResultAsync<bool>(savedAssetResponse);
+        Assert.Equal((int)ApiCode.Success, savedAsset.Code);
+
+        var assets = await GetApiResultAsync<PagedData<AssetDto>>(client,
+            $"/api/Asset/List?offset=0&limit=20&name={Uri.EscapeDataString(assetName)}");
+        var asset = Assert.Single(assets.Data!.rows, item => item.Name == assetName);
+
+        var addRelation = await client.PostAsJsonAsync("/api/Asset/addDevice", new ModelAddAssetDevice
+        {
+            AssetId = asset.Id,
+            Deviceid = deviceId,
+            Attrs =
+            [
+                new ModelAddAssetDevice.ModelAddAssetDeviceItem { keyName = "temperature", Name = "Temperature" },
+                new ModelAddAssetDevice.ModelAddAssetDeviceItem { keyName = "temperature", Name = "Duplicate" }
+            ],
+            Temps =
+            [
+                new ModelAddAssetDevice.ModelAddAssetDeviceItem { keyName = "temperature", Name = "Temperature" }
+            ]
+        });
+        var addResult = await ReadApiResultAsync<bool>(addRelation);
+        Assert.Equal((int)ApiCode.Success, addResult.Code);
+
+        var relations = await GetApiResultAsync<PagedData<AssetRelation>>(client,
+            $"/api/Asset/AssetRelations?assetid={asset.Id}");
+        Assert.Equal(2, relations.Data!.total);
+        Assert.All(relations.Data.rows, relation => Assert.Equal(asset.Id, relation.AssetId));
+
+        var remove = await client.SendAsync(new HttpRequestMessage(HttpMethod.Delete, "/api/Asset/RemoveDevice")
+        {
+            Content = JsonContent.Create(new ModelAssetDevice { AssetId = asset.Id, Deviceid = deviceId })
+        });
+        var removeResult = await ReadApiResultAsync<bool>(remove);
+        Assert.Equal((int)ApiCode.Success, removeResult.Code);
+
+        var afterRemove = await GetApiResultAsync<PagedData<AssetRelation>>(client,
+            $"/api/Asset/AssetRelations?assetid={asset.Id}");
+        Assert.Equal(0, afterRemove.Data!.total);
+    }
+
+    [Fact]
     public async Task Telemetry_HttpIngestStoresLatestAndHistory()
     {
         using var client = Fixture.CreateClient();

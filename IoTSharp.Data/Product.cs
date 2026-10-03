@@ -57,11 +57,11 @@ namespace IoTSharp.Data
         /// <summary>
         /// 默认属性
         /// </summary>
-        public List<ProductData> DefaultAttributes { get; set; }
+        public List<ProductData> DefaultAttributes { get; set; } = new();
         /// <summary>
         /// 所属设备
         /// </summary>
-        public List<Device> Devices { get; set; }
+        public List<Device> Devices { get; set; } = new();
         /// <summary>
         /// 默认设备类型
         /// </summary>
@@ -69,17 +69,17 @@ namespace IoTSharp.Data
         /// <summary>
         /// 产品字典
         /// </summary>
-        public List<ProductDictionary> Dictionaries { get; set; }
+        public List<ProductDictionary> Dictionaries { get; set; } = new();
 
         /// <summary>
         /// 产品命令定义。
         /// </summary>
-        public List<ProductCommand> Commands { get; set; }
+        public List<ProductCommand> Commands { get; set; } = new();
 
         /// <summary>
         /// 产品采集模板集合。
         /// </summary>
-        public List<CollectionTemplate> CollectionTemplates { get; set; }
+        public List<CollectionTemplate> CollectionTemplates { get; set; } = new();
 
         public string ProductToken { get; set; }
 

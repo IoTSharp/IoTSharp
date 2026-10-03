@@ -94,14 +94,22 @@ namespace IoTSharp.Controllers
         [ProducesDefaultResponseType]
         public async Task<ApiResult<List<Device>>> GetAllDevices([FromQuery] Guid customerId)
         {
-            var f = from c in _context.Device where c.Customer.Id == customerId select c;
+            var profile = this.GetUserProfile();
+            var scopedCustomerId = User.IsInRole(nameof(UserRole.TenantAdmin)) && customerId != Guid.Empty
+                ? customerId
+                : profile.Customer;
+            var f = from c in _context.Device
+                    where c.CustomerId == scopedCustomerId
+                        && c.TenantId == profile.Tenant
+                        && !c.Deleted
+                    select c;
             if (!f.Any())
             {
-                return new ApiResult<List<Device>>(ApiCode.CustomerDoesNotHaveDevice, $"The customer {customerId} does not have any device", null);
+                return new ApiResult<List<Device>>(ApiCode.CustomerDoesNotHaveDevice, $"The customer {scopedCustomerId} does not have any device", null);
             }
             else
             {
-                return new ApiResult<List<Device>>(ApiCode.Success, $"Successfully retrieved devices for customer {customerId}", await f.ToListAsync());
+                return new ApiResult<List<Device>>(ApiCode.Success, $"Successfully retrieved devices for customer {scopedCustomerId}", await f.ToListAsync());
             }
         }
 
@@ -122,8 +130,11 @@ namespace IoTSharp.Controllers
             try
             {
 
+                var scopedCustomerId = User.IsInRole(nameof(UserRole.TenantAdmin)) && m.customerId != Guid.Empty
+                    ? m.customerId
+                    : profile.Customer;
                 var query = from c in _context.Device
-                             where c.CustomerId == m.customerId
+                             where c.CustomerId == scopedCustomerId
                                  && c.TenantId == profile.Tenant
                                  && !c.Deleted
                              select c;
@@ -287,7 +298,9 @@ namespace IoTSharp.Controllers
                 CustomerId = x.Customer.Id,
                 CustomerName = x.Customer.Name,
                 Timeout = x.Timeout,
-                IdentityType = x.DeviceIdentity?.IdentityType ?? IdentityType.AccessToken
+                IdentityType = x.DeviceIdentity?.IdentityType ?? IdentityType.AccessToken,
+                ProductId = x.Product?.Id,
+                ProductName = x.Product?.Name
             };
         }
 
@@ -880,7 +893,27 @@ namespace IoTSharp.Controllers
             dev.DeviceType = device.DeviceType;
             try
             {
-                var product = await FindDeviceProductAsync(dev.Id);
+                Product product = null;
+                if (device.ProductId.HasValue)
+                {
+                    product = await _context.Products
+                        .Include(p => p.Tenant)
+                        .Include(p => p.Customer)
+                        .SingleOrDefaultAsync(p => p.Id == device.ProductId.Value
+                            && !p.Deleted
+                            && p.Tenant.Id == dev.TenantId
+                            && p.Customer.Id == dev.CustomerId);
+                    if (product == null)
+                    {
+                        return new ApiResult<bool>(ApiCode.NotFoundProduct, "Product not found in the current tenant and customer", false);
+                    }
+
+                    dev.Product = product;
+                }
+                else
+                {
+                    product = await FindDeviceProductAsync(dev.Id);
+                }
                 if (device.IdentityType == IdentityType.ProductToken && product == null)
                 {
                     return new ApiResult<bool>(ApiCode.InValidData, "Product token authentication requires the device to belong to a product", false);
@@ -914,7 +947,12 @@ namespace IoTSharp.Controllers
         [ProducesDefaultResponseType]
         public async Task<ApiResult<Device>> PostDevice(Guid id, DevicePostProductDto device)
         {
-            var product = await _context.Products.Include(p => p.DefaultAttributes).FirstOrDefaultAsync(p => p.Id == id && p.Deleted == false);
+            var profile = this.GetUserProfile();
+            var product = await _context.Products.Include(p => p.DefaultAttributes)
+                .FirstOrDefaultAsync(p => p.Id == id
+                    && !p.Deleted
+                    && p.Tenant.Id == profile.Tenant
+                    && p.Customer.Id == profile.Customer);
             if (product == null)
             {
                 return new ApiResult<Device>(ApiCode.NotFoundProduct, "Not found Product", null);
@@ -963,7 +1001,13 @@ namespace IoTSharp.Controllers
             Product product = null;
             if (device.ProductId.HasValue && device.ProductId.Value != Guid.Empty)
             {
-                product = await _context.Products.FirstOrDefaultAsync(p => p.Id == device.ProductId.Value && p.Deleted == false);
+                product = await _context.Products
+                    .Include(p => p.Tenant)
+                    .Include(p => p.Customer)
+                    .FirstOrDefaultAsync(p => p.Id == device.ProductId.Value
+                        && !p.Deleted
+                        && p.Tenant.Id == devvalue.Tenant.Id
+                        && p.Customer.Id == devvalue.Customer.Id);
                 if (product == null)
                 {
                     return new ApiResult<Device>(ApiCode.NotFoundProduct, "Not found Product", null);

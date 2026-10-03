@@ -11,7 +11,15 @@ namespace IoTSharp.Data
     public class AssetRelation
     {
         [Key]
-        public Guid Id { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
+        /// <summary>
+        /// 所属资产。通过显式外键保持关系查询的租户和资产边界。
+        /// </summary>
+        // 历史迁移允许为空，保持旧数据和各 provider 快照兼容。
+        public Guid? AssetId { get; set; }
+
+        [System.Text.Json.Serialization.JsonIgnore]
+        public Asset Asset { get; set; }
         /// <summary>
         /// 列名
         /// </summary>
@@ -25,6 +33,7 @@ namespace IoTSharp.Data
         /// 设备Id
         /// </summary>
         public Guid DeviceId { get; set; }
+
         /// <summary>
         /// 数据类型， 是遥测， 还是属性
         /// </summary>

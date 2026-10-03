@@ -284,6 +284,11 @@ namespace IoTSharp.Controllers
                 return Ok(new ApiResult<EdgeRegistrationResultDto>(ApiCode.InValidData, "Registration payload is required", null));
             }
 
+            if (!EdgeRuntimeContractValidation.TryValidateRegistration(request, out var registrationError))
+            {
+                return Ok(new ApiResult<EdgeRegistrationResultDto>(ApiCode.InValidData, registrationError, null));
+            }
+
             if (!IsSupportedEdgeRuntimeContract(request.ContractVersion))
             {
                 return Ok(new ApiResult<EdgeRegistrationResultDto>(ApiCode.InValidData, $"Unsupported contractVersion: {request.ContractVersion}", null));
@@ -365,11 +370,17 @@ namespace IoTSharp.Controllers
                 return Ok(new ApiResult(ApiCode.InValidData, $"Unsupported contractVersion: {request.ContractVersion}"));
             }
 
-            var heartbeatAt = request?.Timestamp?.ToUniversalTime() ?? DateTime.UtcNow;
             var node = await EnsureEdgeNodeAsync(gateway);
+            var receivedAt = DateTime.UtcNow;
+            if (!EdgeRuntimeContractValidation.TryValidateHeartbeat(request, node.LastHeartbeatDateTime, receivedAt, out var heartbeatError))
+            {
+                return Ok(new ApiResult(ApiCode.InValidData, heartbeatError));
+            }
+
+            var heartbeatAt = request?.Timestamp?.ToUniversalTime() ?? receivedAt;
             node.LastHeartbeatDateTime = heartbeatAt;
             node.Status = string.IsNullOrWhiteSpace(request?.Status) ? EdgeNodeStatusNames.Running : request.Status;
-            node.UpdatedAt = DateTime.UtcNow;
+            node.UpdatedAt = receivedAt;
 
             var attrs = new Dictionary<string, object>
             {
@@ -439,6 +450,16 @@ namespace IoTSharp.Controllers
 
             var now = DateTime.UtcNow;
             var node = await EnsureEdgeNodeAsync(gateway);
+            var previousCapability = DeserializeEdgeCapabilityDto(node.Capabilities ?? string.Empty);
+            if (!EdgeRuntimeContractValidation.TryValidateCapabilities(
+                    request,
+                    previousCapability?.ReportedAt,
+                    now,
+                    out var capabilityError))
+            {
+                return Ok(new ApiResult(ApiCode.InValidData, capabilityError));
+            }
+
             var capability = CreateEdgeCapabilityDto(node, request, now);
             node.Capabilities = SerializeOrNull(capability) ?? "{}";
             node.UpdatedAt = now;

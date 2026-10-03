@@ -19,6 +19,11 @@
 [Dd]ebugPublic/
 [Rr]elease/
 [Rr]eleases/
+# Release Center source folders are application code, not build output.
+!ClientApp/src/api/release/
+!ClientApp/src/api/release/index.ts
+!ClientApp/src/views/iot/release/
+!ClientApp/src/views/iot/release/releaselist.vue
 x64/
 x86/
 bld/

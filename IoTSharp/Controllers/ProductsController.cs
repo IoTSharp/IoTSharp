@@ -105,7 +105,14 @@ namespace IoTSharp.Controllers
         [HttpGet]
         public async Task<ApiResult<List<ProductData>>> ProductDatas(Guid ProductId)
         {
-            var result = await _context.ProductDatas.Include(c => c.Owner).Where(p => p.Owner.Id == ProductId)
+            var product = await FindCurrentProductAsync(ProductId);
+            if (product == null)
+            {
+                return new ApiResult<List<ProductData>>(ApiCode.CantFindObject, "Product is not found", null);
+            }
+
+            var result = await _context.ProductDatas
+                .Where(p => p.Owner.Id == product.Id)
                 .ToListAsync();
             return new ApiResult<List<ProductData>>(ApiCode.Success, "OK", result);
         }
@@ -119,7 +126,7 @@ namespace IoTSharp.Controllers
         [HttpGet]
         public async Task<ApiResult<ProductAddDto>> Get(Guid id)
         {
-            var result = await _context.Products.SingleOrDefaultAsync(c => c.Id == id && c.Deleted == false);
+            var result = await FindCurrentProductAsync(id);
             if (result != null)
             {
                 return new ApiResult<ProductAddDto>(ApiCode.Success, "OK", new ProductAddDto
@@ -156,9 +163,16 @@ namespace IoTSharp.Controllers
 
             try
             {
-                var Product = await _context.Products.FindAsync(ProductId);
+                var Product = await FindCurrentProductAsync(ProductId);
                 if (Product != null)
                 {
+                    var deviceCount = await _context.Device.CountAsync(d => d.Product.Id == Product.Id && !d.Deleted);
+                    if (deviceCount > 0)
+                    {
+                        return new ApiResult<bool>(ApiCode.InValidData,
+                            "Product still has active devices; reassign or remove them before deleting the product", false);
+                    }
+
                     Product.Deleted = true;
                     _context.Products.Update(Product);
                     await _context.SaveChangesAsync();
@@ -230,7 +244,7 @@ namespace IoTSharp.Controllers
 
             try
             {
-                var Product = await _context.Products.SingleOrDefaultAsync(c => c.Id == dto.Id && c.Deleted == false);
+                var Product = await FindCurrentProductAsync(dto.Id);
                 if (Product != null)
                 {
                     Product.DefaultIdentityType = dto.DefaultIdentityType;
@@ -275,11 +289,13 @@ namespace IoTSharp.Controllers
         [HttpGet]
         public async Task<ApiResult<List<ProductDataItemDto>>> GetProductData(Guid ProductId)
         {
-            var Product = await _context.Products.Include(c => c.DefaultAttributes)
-                .SingleOrDefaultAsync(c => c.Id == ProductId && c.Deleted == false);
+            var Product = await FindCurrentProductAsync(ProductId);
             if (Product != null)
             {
-                var result = Product.DefaultAttributes.Select(c =>
+                var attributes = await _context.ProductDatas
+                    .Where(c => c.Owner.Id == Product.Id)
+                    .ToListAsync();
+                var result = attributes.Select(c =>
                     new ProductDataItemDto
                     { KeyName = c.KeyName, DataSide = c.DataSide, Type = c.Type }).ToList();
                 return new ApiResult<List<ProductDataItemDto>>(ApiCode.Success, "Ok", result);
@@ -530,12 +546,10 @@ namespace IoTSharp.Controllers
 
             try
             {
-                var Product = await _context.Products.Include(c => c.DefaultAttributes)
-                    .SingleOrDefaultAsync(c => c.Id == dto.ProductId && c.Deleted == false);
+                var Product = await FindCurrentProductAsync(dto.ProductId);
                 if (Product != null)
                 {
 
-                    var d = _context.ProductDatas.ToList();
                     var pds = _context.ProductDatas.Include(c => c.Owner).Where(c => c.Owner.Id == dto.ProductId).ToList();
                     if (dto.ProductData != null && dto.ProductData.Length > 0)
                     {
@@ -561,7 +575,7 @@ namespace IoTSharp.Controllers
                             }
                             else
                             {
-                                Product.DefaultAttributes.Add(item);
+                                _context.ProductDatas.Add(item);
                             }
                         }
                         await _context.SaveChangesAsync();
@@ -599,13 +613,15 @@ namespace IoTSharp.Controllers
         [HttpGet]
         public async Task<ApiResult<List<ProductDictionary>>> GetProductDictionary(Guid ProductId)
         {
-            var Product = await _context.Products.Include(c => c.Dictionaries)
-                .SingleOrDefaultAsync(c => c.Id == ProductId && c.Deleted == false);
+            var Product = await _context.Products
+                .Include(c => c.Dictionaries)
+                .SingleOrDefaultAsync(c => c.Id == ProductId
+                    && !c.Deleted
+                    && c.Tenant.Id == this.GetUserProfile().Tenant
+                    && c.Customer.Id == this.GetUserProfile().Customer);
             if (Product != null)
             {
-
-
-                var dic = Product.Dictionaries.Where(d => d.Deleted == false).ToList();
+                var dic = Product.Dictionaries.Where(d => !d.Deleted).ToList();
                 return new ApiResult<List<ProductDictionary>>(ApiCode.Success, "Ok", dic);
             }
 
@@ -624,8 +640,12 @@ namespace IoTSharp.Controllers
             var profile = this.GetUserProfile();
             try
             {
-                var Product = await _context.Products.Include(c => c.Dictionaries)
-                    .SingleOrDefaultAsync(c => c.Id == dto.ProductId && c.Deleted == false);
+                var Product = await _context.Products
+                    .Include(c => c.Dictionaries)
+                    .SingleOrDefaultAsync(c => c.Id == dto.ProductId
+                        && !c.Deleted
+                        && c.Tenant.Id == profile.Tenant
+                        && c.Customer.Id == profile.Customer);
                 if (Product != null)
                 {
                     var deletedic = Product.Dictionaries.Select(c => c.Id)
@@ -656,8 +676,7 @@ namespace IoTSharp.Controllers
                         }
                         else
                         {
-                            var ProductDictionary =
-                                await _context.ProductDictionaries.SingleOrDefaultAsync(c => c.Id == item.Id);
+                            var ProductDictionary = Product.Dictionaries.SingleOrDefault(c => c.Id == item.Id);
                             if (ProductDictionary != null)
                             {
                                 ProductDictionary.KeyName = item.KeyName;
@@ -708,15 +727,15 @@ namespace IoTSharp.Controllers
                 return new ApiResult<List<ProductDataMappingDto>>(ApiCode.NotFoundProduct, "Product not found", new List<ProductDataMappingDto>());
             }
 
-            var productExists = await _context.Products.AnyAsync(p => p.Id == ProductId && !p.Deleted);
-            if (!productExists)
+            var product = await FindCurrentProductAsync(ProductId);
+            if (product == null)
             {
                 return new ApiResult<List<ProductDataMappingDto>>(ApiCode.NotFoundProduct, "Product not found", new List<ProductDataMappingDto>());
             }
 
             var mappings = await _context.ProductDataMappings
                 .Include(m => m.Product)
-                .Where(m => m.Product.Id == ProductId && !m.Deleted)
+                .Where(m => m.Product.Id == product.Id && !m.Deleted)
                 .Select(m => new ProductDataMappingDto
                 {
                     Id = m.Id,
@@ -740,8 +759,7 @@ namespace IoTSharp.Controllers
         {
             try
             {
-                var Product = await _context.Products.Include(p => p.DefaultAttributes)
-                    .SingleOrDefaultAsync(p => p.Id == dto.ProductId && !p.Deleted);
+                var Product = await FindCurrentProductAsync(dto.ProductId);
                 if (Product == null)
                     return new ApiResult<bool>(ApiCode.CantFindObject, "Product not found", false);
 
@@ -757,6 +775,23 @@ namespace IoTSharp.Controllers
                 {
                     foreach (var item in dto.Mappings)
                     {
+                        if (string.IsNullOrWhiteSpace(item.ProductKeyName)
+                            || string.IsNullOrWhiteSpace(item.DeviceKeyName)
+                            || item.DeviceId == Guid.Empty)
+                        {
+                            return new ApiResult<bool>(ApiCode.InValidData, "Product mapping contains an invalid key or device", false);
+                        }
+
+                        var deviceBelongsToProduct = await _context.Device.AnyAsync(d => d.Id == item.DeviceId
+                            && !d.Deleted
+                            && d.Product.Id == Product.Id
+                            && d.TenantId == Product.Tenant.Id
+                            && d.CustomerId == Product.Customer.Id);
+                        if (!deviceBelongsToProduct)
+                        {
+                            return new ApiResult<bool>(ApiCode.InValidData, "Product mapping device does not belong to the product", false);
+                        }
+
                         _context.ProductDataMappings.Add(new ProductDataMapping
                         {
                             Id = item.Id == Guid.Empty ? Guid.NewGuid() : item.Id,
@@ -801,6 +836,7 @@ namespace IoTSharp.Controllers
                     .Include(m => m.Product)
                     .Where(m => m.Product.Id == Product.Id && !m.Deleted && m.DataCatalog == DataCatalog.TelemetryData)
                     .ToListAsync();
+                mappings = mappings.Where(m => Product.Devices.Any(d => d.Id == m.DeviceId && !d.Deleted)).ToList();
 
                 // Group by device and route each mapped key
                 var byDevice = mappings
@@ -852,6 +888,7 @@ namespace IoTSharp.Controllers
                     .Include(m => m.Product)
                     .Where(m => m.Product.Id == Product.Id && !m.Deleted && m.DataCatalog == DataCatalog.AttributeData)
                     .ToListAsync();
+                mappings = mappings.Where(m => Product.Devices.Any(d => d.Id == m.DeviceId && !d.Deleted)).ToList();
 
                 string[] keyFilter = string.IsNullOrEmpty(keys)
                     ? Array.Empty<string>()
@@ -916,6 +953,7 @@ namespace IoTSharp.Controllers
                     .Include(m => m.Product)
                     .Where(m => m.Product.Id == Product.Id && !m.Deleted && m.DataCatalog == DataCatalog.AttributeData)
                     .ToListAsync();
+                mappings = mappings.Where(m => Product.Devices.Any(d => d.Id == m.DeviceId && !d.Deleted)).ToList();
 
                 // Group by device and route each mapped key
                 var byDevice = mappings
