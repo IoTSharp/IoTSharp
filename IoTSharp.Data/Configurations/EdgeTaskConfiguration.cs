@@ -23,7 +23,9 @@ namespace IoTSharp.Data.Configurations
             builder.Property(c => c.TargetKey).HasMaxLength(450);
             builder.Property(c => c.RuntimeType).HasMaxLength(128);
             builder.Property(c => c.InstanceId).HasMaxLength(128);
-            builder.Property(c => c.Status).HasConversion<string>().HasMaxLength(64);
+            builder.Property(c => c.Status).HasConversion<string>().HasMaxLength(64).IsConcurrencyToken();
+            builder.Property(c => c.LastReceiptAt).IsConcurrencyToken();
+            builder.Property(c => c.StateRevision).IsConcurrencyToken();
             builder.Property(c => c.Message).HasMaxLength(1024);
 
             builder.HasIndex(c => new { c.GatewayId, c.Status, c.CreatedAt });

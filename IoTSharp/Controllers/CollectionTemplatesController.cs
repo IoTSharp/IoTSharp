@@ -15,6 +15,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace IoTSharp.Controllers
@@ -32,11 +33,22 @@ namespace IoTSharp.Controllers
 
         private readonly ApplicationDbContext _context;
         private readonly ILogger<CollectionTemplatesController> _logger;
+        private readonly ConfigurationOperationLeaseService _configurationLeaseService;
 
-        public CollectionTemplatesController(ApplicationDbContext context, ILogger<CollectionTemplatesController> logger)
+        /// <summary>
+        /// 创建采集模板入口并共享 Gateway 配置写事务边界。
+        /// </summary>
+        /// <param name="context">当前请求数据库上下文。</param>
+        /// <param name="logger">日志记录器。</param>
+        /// <param name="configurationLeaseService">配置写事务互斥服务。</param>
+        public CollectionTemplatesController(
+            ApplicationDbContext context,
+            ILogger<CollectionTemplatesController> logger,
+            ConfigurationOperationLeaseService configurationLeaseService)
         {
             _context = context;
             _logger = logger;
+            _configurationLeaseService = configurationLeaseService;
         }
 
         /// <summary>
@@ -355,6 +367,7 @@ namespace IoTSharp.Controllers
         /// </summary>
         /// <param name="id">采集模板 ID。</param>
         /// <param name="request">配置发布请求。</param>
+        /// <param name="cancellationToken">请求取消令牌。</param>
         /// <returns>配置版本、目标分配和 EdgeTask 发布请求。</returns>
         [HttpPost("{id:guid}/PublishConfig")]
         [Authorize(Roles = nameof(UserRole.NormalUser))]
@@ -362,7 +375,8 @@ namespace IoTSharp.Controllers
         [ProducesDefaultResponseType]
         public async Task<ActionResult<ApiResult<CollectionTemplateConfigurationPublishResultDto>>> PublishConfig(
             Guid id,
-            [FromBody] CollectionTemplateConfigurationPublishRequestDto request)
+            [FromBody] CollectionTemplateConfigurationPublishRequestDto request,
+            CancellationToken cancellationToken = default)
         {
             var profile = this.GetUserProfile();
             var template = await FindTemplateAsync(id, profile.Tenant, profile.Customer);
@@ -411,6 +425,20 @@ namespace IoTSharp.Controllers
             var now = DateTime.UtcNow;
             var updatedBy = ResolveUserName(profile);
             var node = await EnsureEdgeNodeAsync(gateway);
+            await using var lease = await _configurationLeaseService.TryAcquireAsync(
+                gateway.Id,
+                updatedBy,
+                cancellationToken);
+            if (lease == null)
+            {
+                return Ok(new ApiResult<CollectionTemplateConfigurationPublishResultDto>(ApiCode.InValidData, _configurationLeaseService.UnavailableReason, null));
+            }
+
+            if (await _configurationLeaseService.HasConfigurationInFlightAsync(gateway.Id, cancellationToken))
+            {
+                return Ok(new ApiResult<CollectionTemplateConfigurationPublishResultDto>(ApiCode.InValidData, "Wait for gateway configuration tasks to finish before publishing", null));
+            }
+
             var version = await GetNextCollectionConfigVersionAsync(gateway.Id);
             var configuration = CollectionTemplateService.BuildRuntimeConfiguration(template, gateway.Id, version, updatedBy, now);
             var payload = JsonSerializer.Serialize(configuration, WebJsonOptions);
@@ -434,6 +462,8 @@ namespace IoTSharp.Controllers
                 [Constants._EdgeCollectionConfigVersion] = configuration.Version,
                 [Constants._EdgeCollectionConfigUpdatedAt] = now
             }, gateway.Id, DataSide.ServerSide);
+
+            await lease.CompleteAsync(cancellationToken);
 
             _logger.LogInformation(
                 "Published collection configuration version {Version} from template {TemplateId} to edge node {GatewayId} with task {TaskId}",
@@ -514,8 +544,7 @@ namespace IoTSharp.Controllers
             };
 
             _context.EdgeNodes.Add(node);
-            await _context.SaveChangesAsync();
-            return node;
+            return await _configurationLeaseService.SaveNewNodeAsync(node, HttpContext.RequestAborted);
         }
 
         /// <summary>
@@ -533,7 +562,8 @@ namespace IoTSharp.Controllers
             if (storedVersion <= 0)
             {
                 storedVersion = (int?)await _context.AttributeLatest
-                    .Where(attr => attr.DeviceId == gatewayId && attr.KeyName == Constants._EdgeCollectionConfigVersion)
+                    .Where(attr => attr.DeviceId == gatewayId && attr.DataSide == DataSide.ServerSide
+                        && attr.KeyName == Constants._EdgeCollectionConfigVersion)
                     .Select(attr => attr.Value_Long)
                     .FirstOrDefaultAsync() ?? 0;
             }

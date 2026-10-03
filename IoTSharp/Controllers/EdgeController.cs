@@ -3,6 +3,7 @@ using IoTSharp.Data;
 using IoTSharp.EventBus;
 using IoTSharp.Extensions;
 using IoTSharp.Models;
+using IoTSharp.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -14,6 +15,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using CollectionConfigurationVersionQueryDto = IoTSharp.Dtos.CollectionConfigurationVersionQueryDto;
 using EdgeCollectionAssignmentQueryDto = IoTSharp.Dtos.EdgeCollectionAssignmentQueryDto;
@@ -37,12 +39,25 @@ namespace IoTSharp.Controllers
         private readonly ApplicationDbContext _context;
         private readonly IPublisher _queue;
         private readonly ILogger _logger;
+        private readonly ConfigurationOperationLeaseService _configurationLeaseService;
 
-        public EdgeController(ApplicationDbContext context, IPublisher queue, ILogger<EdgeController> logger)
+        /// <summary>
+        /// 创建复用授权数据库上下文和配置事务互斥服务的 Edge 管理入口。
+        /// </summary>
+        /// <param name="context">当前请求数据库上下文。</param>
+        /// <param name="queue">设备活动事件发布器。</param>
+        /// <param name="logger">日志记录器。</param>
+        /// <param name="configurationLeaseService">配置写事务互斥服务。</param>
+        public EdgeController(
+            ApplicationDbContext context,
+            IPublisher queue,
+            ILogger<EdgeController> logger,
+            ConfigurationOperationLeaseService configurationLeaseService)
         {
             _context = context;
             _queue = queue;
             _logger = logger;
+            _configurationLeaseService = configurationLeaseService;
         }
 
         [HttpGet]
@@ -498,11 +513,21 @@ namespace IoTSharp.Controllers
             return new ApiResult<EdgeCollectionConfigurationDto>(ApiCode.Success, "OK", await ReadCollectionConfigAsync(gateway.Id));
         }
 
+        /// <summary>
+        /// 在配置事务中保存不可变版本并切换目标；在途配置任务未终结时拒绝覆盖。
+        /// </summary>
+        /// <param name="id">已授权的 Gateway 设备标识。</param>
+        /// <param name="request">采集配置正文和来源信息。</param>
+        /// <param name="cancellationToken">请求取消令牌。</param>
+        /// <returns>保存的配置文档或竞争拒绝原因。</returns>
         [HttpPut("{id:guid}/CollectionConfig")]
         [Authorize(Roles = nameof(UserRole.NormalUser))]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesDefaultResponseType]
-        public async Task<ActionResult<ApiResult<EdgeCollectionConfigurationDto>>> SaveCollectionConfig(Guid id, [FromBody] EdgeCollectionConfigurationUpdateDto request)
+        public async Task<ActionResult<ApiResult<EdgeCollectionConfigurationDto>>> SaveCollectionConfig(
+            Guid id,
+            [FromBody] EdgeCollectionConfigurationUpdateDto request,
+            CancellationToken cancellationToken = default)
         {
             var profile = this.GetUserProfile();
             var gateway = await GetGatewayForProfileAsync(id, profile.Tenant, profile.Customer);
@@ -516,6 +541,21 @@ namespace IoTSharp.Controllers
             if (!string.IsNullOrWhiteSpace(validationError))
             {
                 return Ok(new ApiResult<EdgeCollectionConfigurationDto>(ApiCode.InValidData, validationError, null));
+            }
+
+            var node = await EnsureEdgeNodeAsync(gateway);
+            await using var lease = await _configurationLeaseService.TryAcquireAsync(
+                gateway.Id,
+                string.IsNullOrWhiteSpace(profile.Name) ? profile.Email : profile.Name,
+                cancellationToken);
+            if (lease == null)
+            {
+                return Ok(new ApiResult<EdgeCollectionConfigurationDto>(ApiCode.InValidData, _configurationLeaseService.UnavailableReason, null));
+            }
+
+            if (await _configurationLeaseService.HasConfigurationInFlightAsync(gateway.Id, cancellationToken))
+            {
+                return Ok(new ApiResult<EdgeCollectionConfigurationDto>(ApiCode.InValidData, "Wait for gateway configuration tasks to finish before saving configuration", null));
             }
 
             var version = await GetCurrentCollectionConfigVersionAsync(gateway.Id) + 1;
@@ -539,7 +579,6 @@ namespace IoTSharp.Controllers
                 Tasks = normalizedTasks
             };
             var payload = JsonSerializer.Serialize(document, WebJsonOptions);
-            var node = await EnsureEdgeNodeAsync(gateway);
             var sourceMetadataJson = SerializeOrNull(sourceMetadata) ?? "{}";
             var configurationVersion = CreateCollectionConfigurationVersion(gateway, node, document, payload, updatedBy, updatedAt, sourceType, sourceId, sourceVersion, sourceMetadataJson);
             _context.CollectionConfigurationVersions.Add(configurationVersion);
@@ -551,6 +590,8 @@ namespace IoTSharp.Controllers
                 [Constants._EdgeCollectionConfigVersion] = version,
                 [Constants._EdgeCollectionConfigUpdatedAt] = updatedAt
             }, gateway.Id, DataSide.ServerSide);
+
+            await lease.CompleteAsync(cancellationToken);
 
             _logger.LogInformation("Saved collection configuration version {Version} for edge node {GatewayId}", version, gateway.Id);
             return Ok(new ApiResult<EdgeCollectionConfigurationDto>(ApiCode.Success, "OK", document));
@@ -1325,8 +1366,7 @@ namespace IoTSharp.Controllers
             };
 
             _context.EdgeNodes.Add(node);
-            await _context.SaveChangesAsync();
-            return node;
+            return await _configurationLeaseService.SaveNewNodeAsync(node, HttpContext.RequestAborted);
         }
 
         private EdgeNodeDto ToEdgeNodeDto(
@@ -1809,13 +1849,15 @@ namespace IoTSharp.Controllers
             }
 
             var storedJson = await _context.AttributeLatest
-                .Where(attr => attr.DeviceId == gatewayId && attr.KeyName == Constants._EdgeCollectionConfig)
+                .Where(attr => attr.DeviceId == gatewayId && attr.DataSide == DataSide.ServerSide
+                    && attr.KeyName == Constants._EdgeCollectionConfig)
                 .Select(attr => attr.Value_String)
                 .FirstOrDefaultAsync();
 
             var storedVersion = await GetCurrentCollectionConfigVersionAsync(gatewayId);
             var storedUpdatedAt = await _context.AttributeLatest
-                .Where(attr => attr.DeviceId == gatewayId && attr.KeyName == Constants._EdgeCollectionConfigUpdatedAt)
+                .Where(attr => attr.DeviceId == gatewayId && attr.DataSide == DataSide.ServerSide
+                    && attr.KeyName == Constants._EdgeCollectionConfigUpdatedAt)
                 .Select(attr => attr.Value_DateTime)
                 .FirstOrDefaultAsync();
 
@@ -2016,7 +2058,8 @@ namespace IoTSharp.Controllers
             }
 
             return (int?)await _context.AttributeLatest
-                .Where(attr => attr.DeviceId == gatewayId && attr.KeyName == Constants._EdgeCollectionConfigVersion)
+                .Where(attr => attr.DeviceId == gatewayId && attr.DataSide == DataSide.ServerSide
+                    && attr.KeyName == Constants._EdgeCollectionConfigVersion)
                 .Select(attr => attr.Value_Long)
                 .FirstOrDefaultAsync() ?? 0;
         }

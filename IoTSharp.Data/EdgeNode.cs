@@ -103,6 +103,21 @@ namespace IoTSharp.Data
         public string Metrics { get; set; }
 
         /// <summary>
+        /// 当前配置写操作租约标识。用于跨请求、跨实例串行化配置发布与回滚。
+        /// </summary>
+        public Guid? ConfigurationOperationId { get; set; }
+
+        /// <summary>
+        /// 当前配置写操作租约到期时间；到期后允许其他请求接管。
+        /// </summary>
+        public DateTime? ConfigurationOperationExpiresAt { get; set; }
+
+        /// <summary>
+        /// 当前配置写操作租约持有者显示名或实例标识。
+        /// </summary>
+        public string ConfigurationOperationOwner { get; set; }
+
+        /// <summary>
         /// 当前节点是否被删除。
         /// </summary>
         public bool Deleted { get; set; }

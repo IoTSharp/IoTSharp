@@ -19,6 +19,9 @@ namespace IoTSharp.Data.Configurations
             builder.HasIndex(c => new { c.CustomerId, c.TenantId, c.Deleted });
             builder.HasIndex(c => new { c.RuntimeType, c.Status });
             builder.HasIndex(c => c.InstanceId);
+            builder.Property(c => c.ConfigurationOperationOwner).HasMaxLength(256);
+            builder.HasIndex(c => c.ConfigurationOperationExpiresAt)
+                .HasDatabaseName("IX_EdgeNodes_ConfigLeaseExpires");
             builder.HasOne(c => c.Gateway).WithOne().HasForeignKey<EdgeNode>(c => c.GatewayId);
             builder.HasOne(c => c.Tenant).WithMany().HasForeignKey(c => c.TenantId);
             builder.HasOne(c => c.Customer).WithMany().HasForeignKey(c => c.CustomerId);

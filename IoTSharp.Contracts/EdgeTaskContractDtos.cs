@@ -409,7 +409,8 @@ namespace IoTSharp.Contracts
         public Dictionary<string, object> Result { get; set; } = [];
 
         /// <summary>
-        /// 非敏感回执元数据。
+        /// 非敏感回执元数据。平台保留 receiptSource 与 receiptActorId，接收时会覆盖客户端值。
+        /// RuntimeAuthenticated 表示通道令牌认证；ManagementAuthenticated 表示授权人工回执，不能作为现场执行证据。
         /// </summary>
         public Dictionary<string, string> Metadata { get; set; } = [];
     }

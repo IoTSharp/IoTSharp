@@ -1809,6 +1809,7 @@ namespace IoTSharp.Test
             var created = await _fixture.CreateDeviceAsync(client, $"sqlite-edge-publish-{Guid.NewGuid():N}", DeviceType.Gateway);
             var deviceId = created.Data!.Id;
             var token = await _fixture.GetDeviceAccessTokenAsync(client, deviceId);
+            client.DefaultRequestHeaders.Add("X-Edge-Access-Token", token);
 
             await _fixture.AuthorizeClientAsync(client);
             var productName = $"sqlite-product-{Guid.NewGuid():N}";

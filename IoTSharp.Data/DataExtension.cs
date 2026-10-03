@@ -76,20 +76,22 @@ namespace IoTSharp.Data
             }
         }
         /// <summary>
-        /// Preparing Data to Device's   <typeparamref name="L"/>
+        /// 准备设备数据；非服务器侧属性来源不能写入采集配置保留键。
         /// </summary>
-        /// <typeparam name="L"></typeparam>
-        /// <param name="_context"></param>
-        /// <param name="data"></param>
-        /// <param name="deviceId"></param>
-        /// <param name="dataSide"></param>
-        /// <returns></returns>
+        /// <typeparam name="L">待保存的数据类型。</typeparam>
+        /// <param name="_context">用于准备待保存实体的数据库上下文。</param>
+        /// <param name="data">待保存的键值数据。</param>
+        /// <param name="deviceId">目标设备标识。</param>
+        /// <param name="dataSide">属性来源；服务器侧来源允许专用配置入口保存保留键。</param>
+        /// <returns>逐键准备错误；拒绝的保留键不会修改跟踪实体。</returns>
         public static Dic PreparingData<L>(this ApplicationDbContext _context, Dictionary<string, object> data, Guid deviceId, DataSide dataSide)
             where L : DataStorage, new()
         {
             Dic exceptions = new Dic();
             var keyNames = data
                 .Where(kp => kp.Key != null && kp.Value != null)
+                .Where(kp => typeof(L) != typeof(AttributeLatest) || dataSide == DataSide.ServerSide
+                    || !IsReservedCollectionConfigurationKey(kp.Key))
                 .Select(kp => kp.Key)
                 .Distinct()
                 .ToList();
@@ -102,6 +104,13 @@ namespace IoTSharp.Data
 
             foreach (var kp in data)
             {
+                if (typeof(L) == typeof(AttributeLatest) && dataSide != DataSide.ServerSide
+                    && IsReservedCollectionConfigurationKey(kp.Key))
+                {
+                    exceptions[kp.Key] = new InvalidOperationException("采集配置保留属性只允许由服务器侧专用配置入口更新。");
+                    continue;
+                }
+
                 try
                 {
                     if (kp.Key != null && kp.Value != null)
@@ -135,12 +144,21 @@ namespace IoTSharp.Data
             return exceptions;
         }
 
+        /// <summary>
+        /// 准备产品属性定义对应的设备数据；缺少明确服务器侧来源的列表不能写入配置保留键。
+        /// </summary>
+        /// <typeparam name="L">待保存的数据类型。</typeparam>
+        /// <param name="_context">用于准备待保存实体的数据库上下文。</param>
+        /// <param name="attributes">产品属性定义列表。</param>
+        /// <param name="deviceId">目标设备标识。</param>
+        /// <returns>逐键准备错误；普通属性继续按原有规则准备。</returns>
         public static Dic PreparingData<L>(this ApplicationDbContext _context, List<ProductData> attributes, Guid deviceId)
          where L : DataStorage, new()
         {
             Dic exceptions = new Dic();
             var keyNames = attributes
                 .Where(kp => kp.KeyName != null)
+                .Where(kp => !IsReservedCollectionConfigurationKey(kp.KeyName))
                 .Select(kp => kp.KeyName)
                 .Distinct()
                 .ToList();
@@ -153,6 +171,12 @@ namespace IoTSharp.Data
 
             foreach (var kp in attributes)
             {
+                if (IsReservedCollectionConfigurationKey(kp.KeyName))
+                {
+                    exceptions[kp.KeyName] = new InvalidOperationException("采集配置保留属性只允许由服务器侧专用配置入口更新。");
+                    continue;
+                }
+
                 try
                 {
                     if (deviceData.TryGetValue(kp.KeyName, out var tx))
@@ -176,6 +200,16 @@ namespace IoTSharp.Data
             }
             return exceptions;
         }
+
+        /// <summary>
+        /// 识别由控制面维护的三个采集配置保留键，避免大小写变化绕过写入边界。
+        /// </summary>
+        /// <param name="key">待核对的属性键。</param>
+        /// <returns>是否为采集配置正文、版本或更新时间键。</returns>
+        private static bool IsReservedCollectionConfigurationKey(string key)
+            => string.Equals(key, Constants._EdgeCollectionConfig, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(key, Constants._EdgeCollectionConfigVersion, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(key, Constants._EdgeCollectionConfigUpdatedAt, StringComparison.OrdinalIgnoreCase);
 
         private static DataCatalog GetCatalog<L>() where L : DataStorage, new()
         {

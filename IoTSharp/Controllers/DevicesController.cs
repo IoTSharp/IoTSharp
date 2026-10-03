@@ -392,10 +392,10 @@ namespace IoTSharp.Controllers
         }
 
         /// <summary>
-        /// 获取指定设备的认证方式信息
+        /// 为当前用户可访问且未删除的设备生成 X509 认证信息，并保存新身份。
         /// </summary>
-        /// <param name="deviceId"></param>
-        /// <returns></returns>
+        /// <param name="deviceId">设备标识；沿用设备查询的租户和客户权限范围。</param>
+        /// <returns>生成后的认证摘要，不返回私钥。</returns>
         [Authorize(Roles = nameof(UserRole.NormalUser))]
         [HttpGet("{deviceId}/CreateX509Identity")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -410,8 +410,7 @@ namespace IoTSharp.Controllers
             }
             else
             {
-                var cust = from c in _context.Device.Include(d => d.Customer).Include(d => d.Tenant) where c.Id == deviceId select c;
-                var dev = cust.FirstOrDefault();
+                var dev = await FoundAsync(deviceId);
                 if (dev != null)
                 {
                     await EnsureDeviceIdentityAsync(dev);
@@ -458,19 +457,20 @@ namespace IoTSharp.Controllers
 
 
         /// <summary>
-        /// 下载证书
+        /// 下载当前用户可访问且未删除设备的证书包，兼容新旧 JSON 证书字段大小写。
         /// </summary>
-        /// <param name="deviceId"></param>
+        /// <param name="deviceId">设备标识；沿用设备查询的租户和客户权限范围。</param>
         /// <returns>一个压缩包，包含ca.crt client.crt client.key</returns>
         [HttpGet("{deviceId}/DownloadCertificates")]
         [ProducesResponseType(typeof(ApiResult), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ApiResult), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ApiResult), StatusCodes.Status200OK)]
-        public ActionResult DownloadCertificates(Guid deviceId)
+        public async Task<ActionResult> DownloadCertificates(Guid deviceId)
         {
             try
             {
-                var dt = _context.DeviceIdentities.Include(d => d.Device).FirstOrDefault(c => c.Device.Id == deviceId);
+                var device = await FoundAsync(deviceId);
+                var dt = device?.DeviceIdentity;
                 if (dt == null || dt.IdentityType != IdentityType.X509Certificate || string.IsNullOrEmpty(dt.IdentityValue))
                 {
                     return Ok(new ApiResult(ApiCode.NotFoundDevice, "未找到设备或设备公钥、秘钥为空"));
@@ -478,6 +478,10 @@ namespace IoTSharp.Controllers
                 else
                 {
                     var tsl = JsonObjectSerializer.Deserialize<Dictionary<string, string>>(dt.IdentityValue);
+                    if (tsl != null)
+                    {
+                        tsl = new Dictionary<string, string>(tsl, StringComparer.OrdinalIgnoreCase);
+                    }
                     if (tsl == null
                         || !tsl.TryGetValue("PrivateKey", out var privateKey)
                         || !tsl.TryGetValue("PublicKey", out var publicKey)
@@ -1450,9 +1454,11 @@ namespace IoTSharp.Controllers
         }
 
         /// <summary>
-        /// 服务侧新增属性
+        /// 为当前用户可访问且未删除的设备新增属性定义，配置保留键应使用专用入口。
         /// </summary>
-        /// <returns></returns>
+        /// <param name="access_token">保留现有路由参数；设备范围使用当前登录账号校验。</param>
+        /// <param name="attribute">待新增的设备属性定义。</param>
+        /// <returns>新增结果；不可访问设备和配置保留键均不会写入。</returns>
         [Authorize(Roles = nameof(UserRole.NormalUser))]
         [HttpPost("{access_token}/AddAttribute")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -1465,9 +1471,15 @@ namespace IoTSharp.Controllers
                 return new ApiResult<bool>(ApiCode.InValidData, "attribute payload is invalid", false);
             }
 
-            if (!_context.Device.Any(c => c.Id == attribute.DeviceId))
+            if (await FoundAsync(attribute.DeviceId) == null)
             {
                 return new ApiResult<bool>(ApiCode.NotFoundDevice, "device not found", false);
+            }
+
+            if (IsReservedConfigurationAttribute(attribute.KeyName))
+            {
+                return new ApiResult<bool>(ApiCode.InValidData,
+                    "采集配置保留属性请使用专用 CollectionConfig API 更新。", false);
             }
 
             if (_context.DataStorage.Any(c =>
@@ -1475,7 +1487,7 @@ namespace IoTSharp.Controllers
             {
                 return new ApiResult<bool>(ApiCode.AlreadyExists, "this field name is exist", false);
             }
-            _context.DataStorage.Add(new DataStorage()
+            _context.AttributeLatest.Add(new AttributeLatest()
             {
                 DataSide = attribute.DataSide,
                 DeviceId = attribute.DeviceId,
@@ -1489,11 +1501,11 @@ namespace IoTSharp.Controllers
         }
 
         /// <summary>
-        /// 服务侧和任意侧属性修改
+        /// 修改设备属性；采集配置保留键必须通过专用配置入口更新。
         /// </summary>
-        /// <param name="devid"></param>
-        /// <param name="attributes"></param>
-        /// <returns></returns>
+        /// <param name="devid">待修改设备标识。</param>
+        /// <param name="attributes">按服务器侧、客户端侧和任意侧分组的属性值。</param>
+        /// <returns>保存结果；任一侧含配置保留键时拒绝整个请求，不写入任何属性。</returns>
         [Authorize(Roles = nameof(UserRole.NormalUser))]
         [HttpPost("{devid}/EditAttribute")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -1501,7 +1513,7 @@ namespace IoTSharp.Controllers
         [ProducesDefaultResponseType]
         public async Task<ApiResult<Dic>> EditAttribute(Guid devid, DeviceAttrEditDto attributes)
         {
-            if (devid == Guid.Empty || !_context.Device.Any(c => c.Id == devid))
+            if (devid == Guid.Empty || await FoundAsync(devid) == null)
             {
                 return new ApiResult<Dic>(ApiCode.NotFoundDevice, "device not found", null);
             }
@@ -1510,6 +1522,13 @@ namespace IoTSharp.Controllers
             attributes.anyside ??= new Dictionary<string, object>();
             attributes.serverside ??= new Dictionary<string, object>();
             attributes.clientside ??= new Dictionary<string, object>();
+
+            if (attributes.serverside.Keys.Concat(attributes.clientside.Keys).Concat(attributes.anyside.Keys)
+                .Any(IsReservedConfigurationAttribute))
+            {
+                return new ApiResult<Dic>(ApiCode.InValidData,
+                    "采集配置保留属性请使用专用 CollectionConfig API 更新。", null);
+            }
 
             var result = await _context.SaveAsync<AttributeLatest>(attributes.anyside, devid, DataSide.AnySide);
             var result1 = await _context.SaveAsync<AttributeLatest>(attributes.serverside, devid, DataSide.ServerSide);
@@ -1539,12 +1558,29 @@ namespace IoTSharp.Controllers
         }
 
         /// <summary>
-        /// 属性删除
+        /// 删除当前用户可访问且未删除设备的普通属性，配置保留键应使用专用入口。
         /// </summary>
         /// <param name="input">要删除的属性。</param>
+        /// <returns>删除结果；不可访问设备和配置保留键均不会删除。</returns>
         [HttpDelete("[action]")]
         public async Task<ApiResult<bool>> RemoveAttribute(RemoveDeviceAttributeInput input)
         {
+            if (input is null || input.DeviceId == Guid.Empty || string.IsNullOrWhiteSpace(input.KeyName))
+            {
+                return new ApiResult<bool>(ApiCode.InValidData, "attribute payload is invalid", false);
+            }
+
+            if (await FoundAsync(input.DeviceId) == null)
+            {
+                return new ApiResult<bool>(ApiCode.NotFoundDevice, "device not found", false);
+            }
+
+            if (IsReservedConfigurationAttribute(input.KeyName))
+            {
+                return new ApiResult<bool>(ApiCode.InValidData,
+                    "采集配置保留属性请使用专用 CollectionConfig API 更新。", false);
+            }
+
             var attribute = await _context.DataStorage.FirstOrDefaultAsync(c => c.DeviceId == input.DeviceId && c.KeyName == input.KeyName && c.DataSide == input.DataSide);
             if (attribute != null)
             {
@@ -1557,6 +1593,16 @@ namespace IoTSharp.Controllers
                 return new ApiResult<bool>(ApiCode.CantFindObject, $"this attribute '{input.KeyName}' does not exist", false);
             }
         }
+
+        /// <summary>
+        /// 按不区分大小写的键名识别由专用采集配置入口管理的属性。
+        /// </summary>
+        /// <param name="key">请求中的属性键名。</param>
+        /// <returns>是否属于采集配置保留键。</returns>
+        private static bool IsReservedConfigurationAttribute(string key) =>
+            string.Equals(key, Constants._EdgeCollectionConfig, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(key, Constants._EdgeCollectionConfigVersion, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(key, Constants._EdgeCollectionConfigUpdatedAt, StringComparison.OrdinalIgnoreCase);
 
         /// <summary>
         /// SessionStatus

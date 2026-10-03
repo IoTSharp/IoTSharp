@@ -60,6 +60,11 @@ namespace IoTSharp.Data
         public EdgeTaskStatus Status { get; set; } = EdgeTaskStatus.Pending;
 
         /// <summary>
+        /// 平台状态写入的并发版本；不表示执行端回执的事件顺序。
+        /// </summary>
+        public long StateRevision { get; set; }
+
+        /// <summary>
         /// 最近一次状态说明。
         /// </summary>
         public string Message { get; set; }

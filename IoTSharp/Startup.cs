@@ -195,6 +195,7 @@ namespace IoTSharp
             });
 
             services.AddTransient<ApplicationDBInitializer>();
+            services.AddScoped<ConfigurationOperationLeaseService>();
             services.AddIoTSharpMqttServer(settings.MqttBroker);
             services.AddMqttClient(settings.MqttClient);
             services.AddQuartz(q =>

@@ -3,6 +3,7 @@ using IoTSharp.Controllers.Models;
 using IoTSharp.Data;
 using IoTSharp.Extensions;
 using IoTSharp.Models;
+using IoTSharp.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -12,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using System.Threading;
 
 namespace IoTSharp.Controllers
 {
@@ -42,11 +44,22 @@ namespace IoTSharp.Controllers
 
         private readonly ApplicationDbContext _context;
         private readonly ILogger<ReleaseCenterController> _logger;
+        private readonly ConfigurationOperationLeaseService _configurationLeaseService;
 
-        public ReleaseCenterController(ApplicationDbContext context, ILogger<ReleaseCenterController> logger)
+        /// <summary>
+        /// 创建发布中心入口并共享 Gateway 配置写事务边界。
+        /// </summary>
+        /// <param name="context">当前请求数据库上下文。</param>
+        /// <param name="logger">日志记录器。</param>
+        /// <param name="configurationLeaseService">配置写事务互斥服务。</param>
+        public ReleaseCenterController(
+            ApplicationDbContext context,
+            ILogger<ReleaseCenterController> logger,
+            ConfigurationOperationLeaseService configurationLeaseService)
         {
             _context = context;
             _logger = logger;
+            _configurationLeaseService = configurationLeaseService;
         }
 
         /// <summary>
@@ -122,12 +135,15 @@ namespace IoTSharp.Controllers
         /// 创建发布计划，并按确认策略决定是否立即下发首批任务。
         /// </summary>
         /// <param name="request">创建发布计划请求。</param>
+        /// <param name="cancellationToken">请求取消令牌。</param>
         /// <returns>发布计划状态和本次创建的 EdgeTask。</returns>
         [HttpPost("Plans")]
         [Authorize(Roles = nameof(UserRole.NormalUser))]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesDefaultResponseType]
-        public async System.Threading.Tasks.Task<ActionResult<ApiResult<ReleasePlanOperationResultDto>>> CreatePlan([FromBody] ReleasePlanCreateRequestDto request)
+        public async System.Threading.Tasks.Task<ActionResult<ApiResult<ReleasePlanOperationResultDto>>> CreatePlan(
+            [FromBody] ReleasePlanCreateRequestDto request,
+            CancellationToken cancellationToken = default)
         {
             if (request == null)
             {
@@ -240,6 +256,34 @@ namespace IoTSharp.Controllers
                 return Ok(new ApiResult<ReleasePlanOperationResultDto>(ApiCode.InValidData, "No release targets resolved", null));
             }
 
+            if (isConfigurationRollout && resolvedTargets.GroupBy(target => target.Gateway.Id).Any(group => group.Count() > 1))
+            {
+                return Ok(new ApiResult<ReleasePlanOperationResultDto>(ApiCode.InValidData, "Configuration rollout supports one target per Gateway", null));
+            }
+
+            if (isConfigurationRollout)
+            {
+                await _context.SaveChangesAsync(cancellationToken);
+            }
+            var configurationLease = isConfigurationRollout
+                ? await _configurationLeaseService.TryAcquireManyAsync(
+                    resolvedTargets.Select(target => target.Gateway.Id),
+                    ResolveUserName(profile),
+                    cancellationToken)
+                : null;
+            if (isConfigurationRollout && configurationLease == null)
+            {
+                return Ok(new ApiResult<ReleasePlanOperationResultDto>(ApiCode.InValidData, _configurationLeaseService.UnavailableReason, null));
+            }
+
+            await using var configurationLeaseScope = configurationLease;
+            if (isConfigurationRollout && request.AutoStart
+                && request.ConfirmationPolicy != ReleaseConfirmationPolicy.ManualBeforeStart
+                && await _configurationLeaseService.HasConfigurationInFlightAsync(configurationVersion.GatewayId, cancellationToken))
+            {
+                return Ok(new ApiResult<ReleasePlanOperationResultDto>(ApiCode.InValidData, "Wait for gateway configuration tasks to finish before publishing", null));
+            }
+
             var now = DateTime.UtcNow;
             var operatorName = ResolveUserName(profile);
             var batchSize = request.Strategy?.BatchSize ?? 0;
@@ -300,6 +344,10 @@ namespace IoTSharp.Controllers
             }, plan.Status.ToString(), now);
 
             await _context.SaveChangesAsync();
+            if (configurationLease != null)
+            {
+                await configurationLease.CompleteAsync(cancellationToken);
+            }
 
             _logger.LogInformation(
                 "Created release plan {ReleasePlanId} for package {PackageId} with {TargetCount} targets",
@@ -322,38 +370,50 @@ namespace IoTSharp.Controllers
         /// </summary>
         /// <param name="id">发布计划 ID。</param>
         /// <param name="request">操作原因和元数据。</param>
+        /// <param name="cancellationToken">请求取消令牌。</param>
         /// <returns>发布计划状态和本次下发的 EdgeTask。</returns>
         [HttpPost("Plans/{id:guid}/Start")]
         [Authorize(Roles = nameof(UserRole.NormalUser))]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesDefaultResponseType]
-        public async System.Threading.Tasks.Task<ActionResult<ApiResult<ReleasePlanOperationResultDto>>> Start(Guid id, [FromBody] ReleasePlanActionRequestDto request)
-            => await DispatchNextBatchActionAsync(id, request, AuditActionStart, allowPaused: false);
+        public async System.Threading.Tasks.Task<ActionResult<ApiResult<ReleasePlanOperationResultDto>>> Start(
+            Guid id,
+            [FromBody] ReleasePlanActionRequestDto request,
+            CancellationToken cancellationToken = default)
+            => await DispatchNextBatchActionAsync(id, request, AuditActionStart, allowPaused: false, cancellationToken);
 
         /// <summary>
         /// 人工确认并继续下发下一批任务。
         /// </summary>
         /// <param name="id">发布计划 ID。</param>
         /// <param name="request">确认原因和元数据。</param>
+        /// <param name="cancellationToken">请求取消令牌。</param>
         /// <returns>发布计划状态和本次下发的 EdgeTask。</returns>
         [HttpPost("Plans/{id:guid}/Confirm")]
         [Authorize(Roles = nameof(UserRole.NormalUser))]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesDefaultResponseType]
-        public async System.Threading.Tasks.Task<ActionResult<ApiResult<ReleasePlanOperationResultDto>>> Confirm(Guid id, [FromBody] ReleasePlanActionRequestDto request)
-            => await DispatchNextBatchActionAsync(id, request, AuditActionConfirm, allowPaused: false);
+        public async System.Threading.Tasks.Task<ActionResult<ApiResult<ReleasePlanOperationResultDto>>> Confirm(
+            Guid id,
+            [FromBody] ReleasePlanActionRequestDto request,
+            CancellationToken cancellationToken = default)
+            => await DispatchNextBatchActionAsync(id, request, AuditActionConfirm, allowPaused: false, cancellationToken);
 
         /// <summary>
         /// 暂停发布计划。已下发的 EdgeTask 不会被撤回，后续批次不会继续下发。
         /// </summary>
         /// <param name="id">发布计划 ID。</param>
         /// <param name="request">暂停原因和元数据。</param>
+        /// <param name="cancellationToken">请求取消令牌。</param>
         /// <returns>发布计划状态。</returns>
         [HttpPost("Plans/{id:guid}/Pause")]
         [Authorize(Roles = nameof(UserRole.NormalUser))]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesDefaultResponseType]
-        public async System.Threading.Tasks.Task<ActionResult<ApiResult<ReleasePlanOperationResultDto>>> Pause(Guid id, [FromBody] ReleasePlanActionRequestDto request)
+        public async System.Threading.Tasks.Task<ActionResult<ApiResult<ReleasePlanOperationResultDto>>> Pause(
+            Guid id,
+            [FromBody] ReleasePlanActionRequestDto request,
+            CancellationToken cancellationToken = default)
         {
             var profile = this.GetUserProfile();
             var plan = await FindPlanAsync(id, profile);
@@ -362,6 +422,21 @@ namespace IoTSharp.Controllers
                 return Ok(new ApiResult<ReleasePlanOperationResultDto>(ApiCode.CantFindObject, "Release plan not found", null));
             }
 
+            await using var configurationLease = plan.PlanType == ReleasePlanType.ConfigurationRollout
+                ? await _configurationLeaseService.TryAcquireAsync(
+                    TryGetGuidMetadata(plan.Metadata, "configurationGatewayId").GetValueOrDefault(),
+                    ResolveUserName(profile),
+                    cancellationToken)
+                : null;
+            if (plan.PlanType == ReleasePlanType.ConfigurationRollout && configurationLease == null)
+            {
+                return Ok(new ApiResult<ReleasePlanOperationResultDto>(ApiCode.InValidData, _configurationLeaseService.UnavailableReason, null));
+            }
+
+            if (configurationLease != null)
+            {
+                await _context.Entry(plan).ReloadAsync(cancellationToken);
+            }
             if (IsFinalPlanStatus(plan.Status))
             {
                 return Ok(new ApiResult<ReleasePlanOperationResultDto>(ApiCode.InValidData, $"Release plan is already {plan.Status}", null));
@@ -373,6 +448,10 @@ namespace IoTSharp.Controllers
             plan.UpdatedBy = ResolveUserName(profile);
             AddReleasePlanAudit(profile, plan, AuditActionPause, BuildActionAuditData(request), plan.Status.ToString(), now);
             await _context.SaveChangesAsync();
+            if (configurationLease != null)
+            {
+                await configurationLease.CompleteAsync(cancellationToken);
+            }
 
             return Ok(await BuildOperationResultAsync(plan, []));
         }
@@ -382,25 +461,33 @@ namespace IoTSharp.Controllers
         /// </summary>
         /// <param name="id">发布计划 ID。</param>
         /// <param name="request">继续原因和元数据。</param>
+        /// <param name="cancellationToken">请求取消令牌。</param>
         /// <returns>发布计划状态和本次下发的 EdgeTask。</returns>
         [HttpPost("Plans/{id:guid}/Resume")]
         [Authorize(Roles = nameof(UserRole.NormalUser))]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesDefaultResponseType]
-        public async System.Threading.Tasks.Task<ActionResult<ApiResult<ReleasePlanOperationResultDto>>> Resume(Guid id, [FromBody] ReleasePlanActionRequestDto request)
-            => await DispatchNextBatchActionAsync(id, request, AuditActionResume, allowPaused: true);
+        public async System.Threading.Tasks.Task<ActionResult<ApiResult<ReleasePlanOperationResultDto>>> Resume(
+            Guid id,
+            [FromBody] ReleasePlanActionRequestDto request,
+            CancellationToken cancellationToken = default)
+            => await DispatchNextBatchActionAsync(id, request, AuditActionResume, allowPaused: true, cancellationToken);
 
         /// <summary>
         /// 使用回滚包创建回滚任务并下发到已参与发布的目标。
         /// </summary>
         /// <param name="id">发布计划 ID。</param>
         /// <param name="request">回滚请求。</param>
+        /// <param name="cancellationToken">请求取消令牌。</param>
         /// <returns>发布计划状态和本次下发的回滚 EdgeTask。</returns>
         [HttpPost("Plans/{id:guid}/Rollback")]
         [Authorize(Roles = nameof(UserRole.NormalUser))]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesDefaultResponseType]
-        public async System.Threading.Tasks.Task<ActionResult<ApiResult<ReleasePlanOperationResultDto>>> Rollback(Guid id, [FromBody] ReleasePlanActionRequestDto request)
+        public async System.Threading.Tasks.Task<ActionResult<ApiResult<ReleasePlanOperationResultDto>>> Rollback(
+            Guid id,
+            [FromBody] ReleasePlanActionRequestDto request,
+            CancellationToken cancellationToken = default)
         {
             var profile = this.GetUserProfile();
             var plan = await FindPlanAsync(id, profile);
@@ -448,6 +535,27 @@ namespace IoTSharp.Controllers
                 if (!IsSupportedPlanPackage(plan.PlanType, rollbackPackage.PackageType))
                 {
                     return Ok(new ApiResult<ReleasePlanOperationResultDto>(ApiCode.InValidData, "Rollback package type does not match release plan type", null));
+                }
+            }
+
+            var configurationLease = plan.PlanType == ReleasePlanType.ConfigurationRollout
+                ? await _configurationLeaseService.TryAcquireAsync(
+                    TryGetGuidMetadata(plan.Metadata, "configurationGatewayId").GetValueOrDefault(),
+                    ResolveUserName(profile),
+                    cancellationToken)
+                : null;
+            if (plan.PlanType == ReleasePlanType.ConfigurationRollout && configurationLease == null)
+            {
+                return Ok(new ApiResult<ReleasePlanOperationResultDto>(ApiCode.InValidData, _configurationLeaseService.UnavailableReason, null));
+            }
+
+            await using var configurationLeaseScope = configurationLease;
+            if (configurationLease != null)
+            {
+                await _context.Entry(plan).ReloadAsync(cancellationToken);
+                if (plan.Status is ReleasePlanStatus.RollingBack or ReleasePlanStatus.RolledBack)
+                {
+                    return Ok(new ApiResult<ReleasePlanOperationResultDto>(ApiCode.InValidData, $"Release plan is already {plan.Status}", null));
                 }
             }
 
@@ -552,6 +660,10 @@ namespace IoTSharp.Controllers
             }, plan.Status.ToString(), now);
 
             await _context.SaveChangesAsync();
+            if (configurationLease != null)
+            {
+                await configurationLease.CompleteAsync(cancellationToken);
+            }
             return Ok(await BuildOperationResultAsync(plan, edgeTasks));
         }
 
@@ -583,11 +695,21 @@ namespace IoTSharp.Controllers
             return new ApiResult<List<ReleaseReceiptDto>>(ApiCode.Success, "OK", receipts.Select(ToReleaseReceiptDto).ToList());
         }
 
+        /// <summary>
+        /// 在重新核对计划状态后下发后续批次，配置任务使用共享 Gateway 事务拒绝并发覆盖。
+        /// </summary>
+        /// <param name="id">发布计划标识。</param>
+        /// <param name="request">操作请求及原因。</param>
+        /// <param name="auditAction">审计动作名称。</param>
+        /// <param name="allowPaused">是否允许恢复暂停计划。</param>
+        /// <param name="cancellationToken">请求取消令牌。</param>
+        /// <returns>计划状态及本次投递任务。</returns>
         private async System.Threading.Tasks.Task<ActionResult<ApiResult<ReleasePlanOperationResultDto>>> DispatchNextBatchActionAsync(
             Guid id,
             ReleasePlanActionRequestDto request,
             string auditAction,
-            bool allowPaused)
+            bool allowPaused,
+            CancellationToken cancellationToken = default)
         {
             var profile = this.GetUserProfile();
             var plan = await FindPlanAsync(id, profile);
@@ -623,6 +745,37 @@ namespace IoTSharp.Controllers
             }
 
             var tasks = await LoadPlanTasksAsync(plan.Id);
+            var configurationLease = plan.PlanType == ReleasePlanType.ConfigurationRollout
+                ? await _configurationLeaseService.TryAcquireManyAsync(
+                    tasks.Select(task => task.GatewayId.GetValueOrDefault()),
+                    ResolveUserName(profile),
+                    cancellationToken)
+                : null;
+            if (plan.PlanType == ReleasePlanType.ConfigurationRollout && configurationLease == null)
+            {
+                return Ok(new ApiResult<ReleasePlanOperationResultDto>(ApiCode.InValidData, _configurationLeaseService.UnavailableReason, null));
+            }
+
+            await using var configurationLeaseScope = configurationLease;
+            if (configurationLease != null)
+            {
+                await _context.Entry(plan).ReloadAsync(cancellationToken);
+                foreach (var task in tasks)
+                {
+                    await _context.Entry(task).ReloadAsync(cancellationToken);
+                }
+
+                tasks = await LoadPlanTasksAsync(plan.Id);
+                if ((plan.Status == ReleasePlanStatus.Paused && !allowPaused) || IsFinalPlanStatus(plan.Status))
+                {
+                    return Ok(new ApiResult<ReleasePlanOperationResultDto>(ApiCode.InValidData, $"Release plan is already {plan.Status}", null));
+                }
+
+                if (await _configurationLeaseService.HasConfigurationInFlightAsync(configurationVersion.GatewayId, cancellationToken))
+                {
+                    return Ok(new ApiResult<ReleasePlanOperationResultDto>(ApiCode.InValidData, "Wait for gateway configuration tasks to finish before publishing", null));
+                }
+            }
             if (HasActiveTasks(tasks))
             {
                 return Ok(new ApiResult<ReleasePlanOperationResultDto>(ApiCode.InValidData, "Wait for active release tasks to finish before continuing", null));
@@ -639,6 +792,10 @@ namespace IoTSharp.Controllers
                 var now = DateTime.UtcNow;
                 ApplyPlanSummary(plan, tasks, now, preservePaused: false);
                 await _context.SaveChangesAsync();
+                if (configurationLease != null)
+                {
+                    await configurationLease.CompleteAsync(cancellationToken);
+                }
                 return Ok(await BuildOperationResultAsync(plan, []));
             }
 
@@ -648,6 +805,10 @@ namespace IoTSharp.Controllers
             ApplyPlanSummary(plan, tasks, nowDispatch, preservePaused: false);
             AddReleasePlanAudit(profile, plan, auditAction, BuildActionAuditData(request), plan.Status.ToString(), nowDispatch);
             await _context.SaveChangesAsync();
+            if (configurationLease != null)
+            {
+                await configurationLease.CompleteAsync(cancellationToken);
+            }
 
             return Ok(await BuildOperationResultAsync(plan, edgeTasks));
         }

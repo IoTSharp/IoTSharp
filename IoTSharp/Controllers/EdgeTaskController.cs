@@ -2,6 +2,7 @@ using IoTSharp.Contracts;
 using IoTSharp.Data;
 using IoTSharp.Extensions;
 using IoTSharp.Models;
+using IoTSharp.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -11,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using System.Threading;
 using EdgeNodeQueryDto = IoTSharp.Dtos.EdgeNodeQueryDto;
 using EdgeTaskAuditLogDto = IoTSharp.Dtos.EdgeTaskAuditLogDto;
 using EdgeTaskRetryRequestDto = IoTSharp.Dtos.EdgeTaskRetryRequestDto;
@@ -58,24 +60,45 @@ namespace IoTSharp.Controllers
         private const string RetryOperatorKey = "retryOperator";
         private const string RetryAttemptKey = "retryAttempt";
         private const string EdgeAccessTokenHeader = "X-Edge-Access-Token";
+        private const string ReceiptSourceKey = "receiptSource";
+        private const string ReceiptActorIdKey = "receiptActorId";
+        private const string RuntimeReceiptSource = "RuntimeAuthenticated";
+        private const string ManagementReceiptSource = "ManagementAuthenticated";
+        private const string AuditActionManagementReceipt = "EdgeTaskManagementReceipt";
         private static readonly TimeSpan DefaultRetryTtl = TimeSpan.FromDays(1);
         private static readonly IReadOnlyDictionary<EdgeTaskStatus, EdgeTaskStatus[]> AllowedTransitions = EdgeTaskStateMachine.AllowedTransitions;
         private static readonly JsonSerializerOptions ContractJsonOptions = new(JsonSerializerDefaults.Web) { PropertyNameCaseInsensitive = true };
 
         private readonly ApplicationDbContext _context;
         private readonly ILogger<EdgeTaskController> _logger;
+        private readonly ConfigurationOperationLeaseService _configurationLeaseService;
 
-        public EdgeTaskController(ApplicationDbContext context, ILogger<EdgeTaskController> logger)
+        /// <summary>
+        /// 创建正式任务入口，配置任务共享 Gateway 配置写互斥事务。
+        /// </summary>
+        /// <param name="context">当前请求数据库上下文。</param>
+        /// <param name="logger">日志记录器。</param>
+        /// <param name="configurationLeaseService">配置写事务互斥服务。</param>
+        public EdgeTaskController(ApplicationDbContext context, ILogger<EdgeTaskController> logger,
+            ConfigurationOperationLeaseService configurationLeaseService)
         {
             _context = context;
             _logger = logger;
+            _configurationLeaseService = configurationLeaseService;
         }
 
+        /// <summary>
+        /// 投递正式任务；配置任务必须指向当前分配并在共享事务中拒绝在途覆盖。
+        /// </summary>
+        /// <param name="request">正式任务请求。</param>
+        /// <param name="cancellationToken">请求取消令牌。</param>
+        /// <returns>已创建或幂等命中的任务。</returns>
         [HttpPost("Dispatch")]
         [Authorize(Roles = nameof(UserRole.NormalUser))]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesDefaultResponseType]
-        public async System.Threading.Tasks.Task<ActionResult<ApiResult<EdgeTaskRequestDto>>> Dispatch([FromBody] EdgeTaskRequestDto request)
+        public async System.Threading.Tasks.Task<ActionResult<ApiResult<EdgeTaskRequestDto>>> Dispatch(
+            [FromBody] EdgeTaskRequestDto request, CancellationToken cancellationToken = default)
         {
             if (request == null)
             {
@@ -113,6 +136,10 @@ namespace IoTSharp.Controllers
             {
                 return Ok(new ApiResult<EdgeTaskRequestDto>(ApiCode.NotFoundDevice, "Edge device not found", null));
             }
+            if (request.TaskType == EdgeTaskType.ConfigPullRequest && device.DeviceType != DeviceType.Gateway)
+            {
+                return Ok(new ApiResult<EdgeTaskRequestDto>(ApiCode.InValidData, "Configuration tasks require a Gateway target", null));
+            }
 
             var now = DateTime.UtcNow;
             request.ContractVersion = TaskContractVersion;
@@ -131,8 +158,52 @@ namespace IoTSharp.Controllers
                 return Ok(new ApiResult<EdgeTaskRequestDto>(ApiCode.Success, "OK", ToEdgeTaskRequestDto(formalTask)));
             }
 
+            if (request.TaskType == EdgeTaskType.ConfigPullRequest)
+            {
+                await EnsureEdgeNodeAsync(device);
+                await _context.SaveChangesAsync(cancellationToken);
+            }
+            await using var configurationLease = request.TaskType == EdgeTaskType.ConfigPullRequest
+                ? await _configurationLeaseService.TryAcquireAsync(device.Id, ResolveUserName(profile), cancellationToken)
+                : null;
+            if (request.TaskType == EdgeTaskType.ConfigPullRequest
+                && (configurationLease == null
+                    || await _configurationLeaseService.HasConfigurationInFlightAsync(device.Id, cancellationToken)))
+            {
+                return Ok(new ApiResult<EdgeTaskRequestDto>(ApiCode.InValidData,
+                    configurationLease == null ? _configurationLeaseService.UnavailableReason
+                        : "Wait for gateway configuration tasks to finish before dispatching", null));
+            }
+
+            EdgeCollectionAssignment configurationAssignment = null;
+            if (configurationLease != null)
+            {
+                var versionId = TryGetGuid(request.Parameters, ConfigurationVersionIdKey);
+                var version = TryGetInt(request.Parameters, ConfigurationVersionKey);
+                var hash = TryGetString(request.Parameters, ConfigurationHashKey);
+                configurationAssignment = await _context.EdgeCollectionAssignments.FirstOrDefaultAsync(assignment =>
+                    assignment.GatewayId == device.Id && !assignment.Deleted
+                    && assignment.Status == EdgeCollectionAssignmentStatus.Active
+                    && assignment.CollectionConfigurationVersionId == versionId
+                    && assignment.ConfigurationVersion == version
+                    && assignment.ConfigurationHash == hash, cancellationToken);
+                if (configurationAssignment == null)
+                {
+                    return Ok(new ApiResult<EdgeTaskRequestDto>(ApiCode.InValidData, "Configuration task must reference the current assigned version and hash", null));
+                }
+            }
+
             formalTask = await CreateFormalEdgeTaskAsync(request, device, requestPayload);
             _context.EdgeTasks.Add(formalTask);
+            if (configurationAssignment != null)
+            {
+                configurationAssignment.LastExecutionTaskId = formalTask.Id;
+                configurationAssignment.LastExecutionStatus = EdgeTaskStatus.Pending;
+                configurationAssignment.LastExecutionAt = now;
+                configurationAssignment.LastExecutionMessage = "配置发布任务已创建，等待执行端拉取";
+                configurationAssignment.UpdatedAt = now;
+                configurationAssignment.UpdatedBy = ResolveUserName(profile);
+            }
             AddUserEdgeTaskAudit(
                 profile,
                 formalTask,
@@ -148,6 +219,10 @@ namespace IoTSharp.Controllers
                 EdgeTaskStatus.Pending.ToString(),
                 now);
             await _context.SaveChangesAsync();
+            if (configurationLease != null)
+            {
+                await configurationLease.CompleteAsync(cancellationToken);
+            }
 
             _logger.LogInformation(
                 "Dispatched edge task {TaskId} to {TargetKey}, type {TaskType}, runtime {RuntimeType}, instance {InstanceId}",
@@ -160,6 +235,13 @@ namespace IoTSharp.Controllers
             return Ok(new ApiResult<EdgeTaskRequestDto>(ApiCode.Success, "OK", request));
         }
 
+        /// <summary>
+        /// 接收令牌认证的执行端回执或授权管理回执，并持久化服务端核验的来源及操作者。
+        /// 管理回执可以推进任务状态，但不能作为现场执行证据。
+        /// </summary>
+        /// <param name="request">与正式任务地址和状态匹配的回执。</param>
+        /// <param name="edgeAccessToken">执行端通道令牌；未提供时要求同租户、同客户的管理权限。</param>
+        /// <returns>已核验并标注来源的回执或验证错误。</returns>
         [AllowAnonymous]
         [HttpPost("Receipt")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -200,6 +282,7 @@ namespace IoTSharp.Controllers
                 return Ok(new ApiResult<EdgeTaskReceiptDto>(ApiCode.InValidData, "Task request not found for receipt", null));
             }
 
+            UserProfile managementProfile = null;
             // 执行端必须证明通道身份；管理端保留同租户、同客户的授权回执入口。
             if (string.IsNullOrWhiteSpace(edgeAccessToken))
             {
@@ -208,8 +291,8 @@ namespace IoTSharp.Controllers
                     return Ok(new ApiResult<EdgeTaskReceiptDto>(ApiCode.InValidData, "Edge access token is required for runtime receipt", null));
                 }
 
-                var profile = this.GetUserProfile();
-                if (formalTask.TenantId != profile.Tenant || formalTask.CustomerId != profile.Customer)
+                managementProfile = this.GetUserProfile();
+                if (formalTask.TenantId != managementProfile.Tenant || formalTask.CustomerId != managementProfile.Customer)
                 {
                     return Ok(new ApiResult<EdgeTaskReceiptDto>(ApiCode.InValidData, "Receipt task is outside the authenticated user scope", null));
                 }
@@ -272,12 +355,21 @@ namespace IoTSharp.Controllers
                 return Ok(new ApiResult<EdgeTaskReceiptDto>(ApiCode.InValidData, releasePackageReceiptError, null));
             }
 
+            SetReceiptProvenance(request,
+                managementProfile == null ? RuntimeReceiptSource : ManagementReceiptSource,
+                managementProfile?.Id ?? formalTask.GatewayId);
             var receiptPayload = SerializeOrNull(request) ?? "{}";
             var receivedAt = DateTime.UtcNow;
             ApplyFormalReceipt(formalTask, request);
             _context.EdgeTaskReceipts.Add(CreateFormalEdgeTaskReceipt(formalTask, request, receiptPayload, receivedAt));
             await ApplyReleaseTaskReceiptAsync(formalTask, request, receiptPayload, receivedAt);
-            if (IsTerminalStatus(request.Status))
+            if (managementProfile != null)
+            {
+                AddUserEdgeTaskAudit(managementProfile, formalTask, AuditActionManagementReceipt,
+                    new { taskId = formalTask.Id, status = request.Status.ToString(), receiptSource = ManagementReceiptSource },
+                    request.Status.ToString(), receivedAt);
+            }
+            else if (IsTerminalStatus(request.Status))
             {
                 AddRuntimeEdgeTaskAudit(
                     formalTask,
@@ -294,7 +386,10 @@ namespace IoTSharp.Controllers
                     request.Status.ToString());
             }
 
-            await _context.SaveChangesAsync();
+            if (!await TrySaveTaskStateAsync())
+            {
+                return Ok(new ApiResult<EdgeTaskReceiptDto>(ApiCode.InValidData, "Task state changed concurrently; reload task before reporting receipt", null));
+            }
 
             _logger.LogInformation(
                 "Received edge task receipt {TaskId} for {TargetKey}, runtime {RuntimeType}, instance {InstanceId}, status {Status}",
@@ -487,7 +582,10 @@ namespace IoTSharp.Controllers
                     }
                 }
 
-                await _context.SaveChangesAsync();
+                if (!await TrySaveTaskStateAsync())
+                {
+                    return new ApiResult<List<EdgeTaskRequestDto>>(ApiCode.InValidData, "Task state changed concurrently; pull tasks again", null);
+                }
             }
 
             return new ApiResult<List<EdgeTaskRequestDto>>(ApiCode.Success, "OK", formalTasks.Select(ToEdgeTaskRequestDto).ToList());
@@ -522,6 +620,16 @@ namespace IoTSharp.Controllers
                 return Ok(new ApiResult(ApiCode.InValidData, "Task request not found for acceptance"));
             }
 
+            if ((!string.IsNullOrWhiteSpace(request.TargetKey)
+                    && !string.Equals(request.TargetKey, formalTask.TargetKey, StringComparison.OrdinalIgnoreCase))
+                || (!string.IsNullOrWhiteSpace(request.RuntimeType)
+                    && !string.Equals(request.RuntimeType, formalTask.RuntimeType, StringComparison.OrdinalIgnoreCase))
+                || (!string.IsNullOrWhiteSpace(request.InstanceId)
+                    && !string.Equals(request.InstanceId, formalTask.InstanceId, StringComparison.OrdinalIgnoreCase)))
+            {
+                return Ok(new ApiResult(ApiCode.InValidData, "Acceptance address does not match task request"));
+            }
+
             if (!IsTransitionAllowed(formalTask.Status, EdgeTaskStatus.Accepted))
             {
                 return Ok(new ApiResult(ApiCode.InValidData, $"Invalid edge task transition: {formalTask.Status} -> {EdgeTaskStatus.Accepted}"));
@@ -553,12 +661,16 @@ namespace IoTSharp.Controllers
                 return Ok(new ApiResult(ApiCode.InValidData, collectionReceiptError));
             }
 
+            SetReceiptProvenance(request, RuntimeReceiptSource, gateway.Id);
             var receiptPayload = SerializeOrNull(request) ?? "{}";
             var receivedAt = DateTime.UtcNow;
             ApplyFormalReceipt(formalTask, request);
             _context.EdgeTaskReceipts.Add(CreateFormalEdgeTaskReceipt(formalTask, request, receiptPayload, receivedAt));
             await ApplyReleaseTaskReceiptAsync(formalTask, request, receiptPayload, receivedAt);
-            await _context.SaveChangesAsync();
+            if (!await TrySaveTaskStateAsync())
+            {
+                return Ok(new ApiResult(ApiCode.InValidData, "Task state changed concurrently; reload task before acceptance"));
+            }
             return Ok(new ApiResult(ApiCode.Success, "OK"));
         }
 
@@ -635,11 +747,19 @@ namespace IoTSharp.Controllers
             });
         }
 
+        /// <summary>
+        /// 为失败任务创建重试；配置重试只允许当前目标且拒绝其他在途配置任务。
+        /// </summary>
+        /// <param name="taskId">失败的正式任务标识。</param>
+        /// <param name="request">重试任务标识、过期时间及原因。</param>
+        /// <param name="cancellationToken">请求取消令牌。</param>
+        /// <returns>原任务和本次重试请求。</returns>
         [HttpPost("{taskId:guid}/Retry")]
         [Authorize(Roles = nameof(UserRole.NormalUser))]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesDefaultResponseType]
-        public async System.Threading.Tasks.Task<ActionResult<ApiResult<EdgeTaskRetryResultDto>>> Retry(Guid taskId, [FromBody] EdgeTaskRetryRequestDto request)
+        public async System.Threading.Tasks.Task<ActionResult<ApiResult<EdgeTaskRetryResultDto>>> Retry(
+            Guid taskId, [FromBody] EdgeTaskRetryRequestDto request, CancellationToken cancellationToken = default)
         {
             var profile = this.GetUserProfile();
             request ??= new EdgeTaskRetryRequestDto();
@@ -684,6 +804,48 @@ namespace IoTSharp.Controllers
             if (gateway == null)
             {
                 return Ok(new ApiResult<EdgeTaskRetryResultDto>(ApiCode.NotFoundDevice, "Edge device not found", null));
+            }
+
+            if (originalTask.TaskType == EdgeTaskType.ConfigPullRequest)
+            {
+                await EnsureEdgeNodeAsync(gateway);
+                await _context.SaveChangesAsync(cancellationToken);
+            }
+            await using var configurationLease = originalTask.TaskType == EdgeTaskType.ConfigPullRequest
+                ? await _configurationLeaseService.TryAcquireAsync(gateway.Id, ResolveUserName(profile), cancellationToken)
+                : null;
+            if (originalTask.TaskType == EdgeTaskType.ConfigPullRequest
+                && (configurationLease == null
+                    || await _configurationLeaseService.HasConfigurationInFlightAsync(gateway.Id, cancellationToken)))
+            {
+                return Ok(new ApiResult<EdgeTaskRetryResultDto>(ApiCode.InValidData,
+                    configurationLease == null ? _configurationLeaseService.UnavailableReason
+                        : "Wait for gateway configuration tasks to finish before retrying", null));
+            }
+
+            if (configurationLease != null)
+            {
+                await _context.Entry(originalTask).ReloadAsync(cancellationToken);
+                if (!IsRetryableFailureStatus(originalTask.Status))
+                {
+                    return Ok(new ApiResult<EdgeTaskRetryResultDto>(ApiCode.InValidData, "Configuration task is no longer retryable", null));
+                }
+
+                var parameters = DeserializeObjectDictionary(originalTask.Parameters);
+                var versionId = TryGetGuid(parameters, ConfigurationVersionIdKey);
+                var version = TryGetInt(parameters, ConfigurationVersionKey);
+                var hash = TryGetString(parameters, ConfigurationHashKey);
+                var targetIsCurrent = await _context.EdgeCollectionAssignments.AnyAsync(assignment =>
+                    assignment.GatewayId == gateway.Id && !assignment.Deleted
+                    && assignment.Status == EdgeCollectionAssignmentStatus.Active
+                    && assignment.CollectionConfigurationVersionId == versionId
+                    && assignment.ConfigurationVersion == version
+                    && assignment.ConfigurationHash == hash
+                    && assignment.LastExecutionTaskId == originalTask.Id, cancellationToken);
+                if (!targetIsCurrent)
+                {
+                    return Ok(new ApiResult<EdgeTaskRetryResultDto>(ApiCode.InValidData, "Configuration task target has been superseded; publish the current target instead", null));
+                }
             }
 
             var now = DateTime.UtcNow;
@@ -734,6 +896,11 @@ namespace IoTSharp.Controllers
                 now);
 
             await _context.SaveChangesAsync();
+
+            if (configurationLease != null)
+            {
+                await configurationLease.CompleteAsync(cancellationToken);
+            }
 
             return Ok(new ApiResult<EdgeTaskRetryResultDto>(
                 ApiCode.Success,
@@ -794,6 +961,35 @@ namespace IoTSharp.Controllers
                 transitions = data,
                 terminalStates = EdgeTaskStateMachine.TerminalStates.Select(status => status.ToString()).ToArray()
             });
+        }
+
+        /// <summary>
+        /// 建立 Gateway 配置事务使用的持久化互斥锚点。
+        /// </summary>
+        /// <param name="gateway">已验证权限的 Gateway。</param>
+        private async System.Threading.Tasks.Task EnsureEdgeNodeAsync(Device gateway)
+        {
+            if (await _context.EdgeNodes.AnyAsync(node => node.GatewayId == gateway.Id && !node.Deleted))
+            {
+                return;
+            }
+
+            var node = new EdgeNode
+            {
+                Id = gateway.Id,
+                GatewayId = gateway.Id,
+                Gateway = gateway,
+                Name = gateway.Name,
+                RuntimeType = EdgeRuntimeTypes.Gateway,
+                RuntimeName = gateway.Name,
+                Status = EdgeNodeStatusNames.Pending,
+                TenantId = gateway.TenantId ?? gateway.Tenant?.Id,
+                CustomerId = gateway.CustomerId ?? gateway.Customer?.Id,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+            _context.EdgeNodes.Add(node);
+            await _configurationLeaseService.SaveNewNodeAsync(node, HttpContext.RequestAborted);
         }
 
         /// <summary>
@@ -1183,6 +1379,7 @@ namespace IoTSharp.Controllers
         private static void ApplyFormalStatus(EdgeTask task, EdgeTaskStatus status, DateTime at, string message, int? progress, string receiptPayload)
         {
             var utc = at == default ? DateTime.UtcNow : at.ToUniversalTime();
+            task.StateRevision = checked(task.StateRevision + 1);
             task.Status = status;
             task.UpdatedAt = utc;
 
@@ -2090,6 +2287,45 @@ namespace IoTSharp.Controllers
             var parameters = DeserializeObjectDictionary(task.Parameters);
             var targetDeviceId = TryGetGuid(parameters, TargetDeviceIdKey) ?? TryGetGuid(parameters, DeviceIdKey);
             return Guid.TryParse(targetIdPart, out var targetId) && targetId == device.Id && targetDeviceId == device.Id;
+        }
+
+        /// <summary>
+        /// 覆盖客户端提供的来源保留键，确保回执来源由认证结果决定。
+        /// </summary>
+        /// <param name="receipt">待持久化回执。</param>
+        /// <param name="source">服务端核验的认证来源。</param>
+        /// <param name="actorId">认证用户或通道设备标识。</param>
+        private static void SetReceiptProvenance(EdgeTaskReceiptDto receipt, string source, Guid actorId)
+        {
+            receipt.Metadata ??= [];
+            var reservedKeys = receipt.Metadata.Keys.Where(key =>
+                string.Equals(key, ReceiptSourceKey, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(key, ReceiptActorIdKey, StringComparison.OrdinalIgnoreCase)).ToList();
+            foreach (var key in reservedKeys)
+            {
+                receipt.Metadata.Remove(key);
+            }
+
+            receipt.Metadata[ReceiptSourceKey] = source;
+            receipt.Metadata[ReceiptActorIdKey] = actorId.ToString("D");
+        }
+
+        /// <summary>
+        /// 原子保存任务状态及其回执、分配和审计；旧快照冲突时回滚并要求调用方重新读取。
+        /// </summary>
+        /// <returns>保存成功返回 true，任务已被其他请求更新时返回 false。</returns>
+        private async System.Threading.Tasks.Task<bool> TrySaveTaskStateAsync()
+        {
+            try
+            {
+                await _context.SaveChangesAsync(HttpContext.RequestAborted);
+                return true;
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                _context.ChangeTracker.Clear();
+                return false;
+            }
         }
 
         private static string SerializeOrNull<T>(T value)
