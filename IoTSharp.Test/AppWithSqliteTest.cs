@@ -39,6 +39,92 @@ namespace IoTSharp.Test
         [Fact]
         public Task AppDevicesCreate() => _fixture.AssertAppDevicesCreateAsync();
 
+        /// <summary>
+        /// 验证资产关联拒绝无有效点位的请求，并且不会留下虚假的设备绑定。
+        /// </summary>
+        [Fact]
+        public async Task AssetBinding_RejectsEmptyPointsAndPreservesValidBinding()
+        {
+            using var client = _fixture.CreateClient();
+            var created = await _fixture.CreateDeviceAsync(client, $"asset-empty-points-{Guid.NewGuid():N}");
+            Assert.Equal((int)ApiCode.Success, created.Code);
+            var deviceId = created.Data!.Id;
+            await _fixture.AuthorizeClientAsync(client);
+
+            var assetName = $"asset-empty-points-{Guid.NewGuid():N}";
+            var savedResponse = await client.PostAsJsonAsync("/api/Asset/Save", new AssetAddDto
+            {
+                Name = assetName,
+                AssetType = "lane",
+                Description = "资产点位绑定回归验证"
+            });
+            var saved = await ReadApiResultAsync<bool>(savedResponse);
+            Assert.Equal((int)ApiCode.Success, saved.Code);
+            var assets = await GetApiResultAsync<PagedData<AssetDto>>(client,
+                $"/api/Asset/List?offset=0&limit=10&name={Uri.EscapeDataString(assetName)}");
+            var asset = Assert.Single(assets.Data!.rows, item => item.Name == assetName);
+
+            var emptyResponse = await client.PostAsJsonAsync("/api/Asset/addDevice", new ModelAddAssetDevice
+            {
+                AssetId = asset.Id,
+                Deviceid = deviceId
+            });
+            var empty = await ReadApiResultAsync<bool>(emptyResponse);
+            Assert.Equal((int)ApiCode.InValidData, empty.Code);
+            Assert.False(empty.Data);
+
+            var blankResponse = await client.PostAsJsonAsync("/api/Asset/addDevice", new ModelAddAssetDevice
+            {
+                AssetId = asset.Id,
+                Deviceid = deviceId,
+                Attrs = [],
+                Temps = [new ModelAddAssetDevice.ModelAddAssetDeviceItem { keyName = "  " }]
+            });
+            var blank = await ReadApiResultAsync<bool>(blankResponse);
+            Assert.Equal((int)ApiCode.InValidData, blank.Code);
+            Assert.False(blank.Data);
+            var beforeBinding = await GetApiResultAsync<PagedData<AssetRelation>>(client,
+                $"/api/Asset/AssetRelations?assetid={asset.Id}");
+            Assert.Empty(beforeBinding.Data!.rows);
+
+            var validResponse = await client.PostAsJsonAsync("/api/Asset/addDevice", new ModelAddAssetDevice
+            {
+                AssetId = asset.Id,
+                Deviceid = deviceId,
+                Temps = [new ModelAddAssetDevice.ModelAddAssetDeviceItem { keyName = " temperature " }]
+            });
+            var valid = await ReadApiResultAsync<bool>(validResponse);
+            Assert.Equal((int)ApiCode.Success, valid.Code);
+            Assert.True(valid.Data);
+            var afterBinding = await GetApiResultAsync<PagedData<AssetRelation>>(client,
+                $"/api/Asset/AssetRelations?assetid={asset.Id}");
+            var relation = Assert.Single(afterBinding.Data!.rows);
+            Assert.Equal(deviceId, relation.DeviceId);
+            Assert.Equal(asset.Id, relation.AssetId);
+            Assert.Equal("temperature", relation.KeyName);
+            Assert.Equal(DataCatalog.TelemetryLatest, relation.DataCatalog);
+
+            var duplicateResponse = await client.PostAsJsonAsync("/api/Asset/addDevice", new ModelAddAssetDevice
+            {
+                AssetId = asset.Id,
+                Deviceid = deviceId,
+                Temps =
+                [
+                    null!,
+                    new ModelAddAssetDevice.ModelAddAssetDeviceItem { keyName = "  " },
+                    new ModelAddAssetDevice.ModelAddAssetDeviceItem { keyName = " TEMPERATURE " },
+                    new ModelAddAssetDevice.ModelAddAssetDeviceItem { keyName = "temperature" }
+                ]
+            });
+            var duplicate = await ReadApiResultAsync<bool>(duplicateResponse);
+            Assert.Equal((int)ApiCode.Success, duplicate.Code);
+            Assert.True(duplicate.Data);
+            var afterDuplicate = await GetApiResultAsync<PagedData<AssetRelation>>(client,
+                $"/api/Asset/AssetRelations?assetid={asset.Id}");
+            Assert.Equal(1, afterDuplicate.Data!.total);
+            Assert.Equal(relation.Id, Assert.Single(afterDuplicate.Data.rows).Id);
+        }
+
         [Fact]
         public async Task products_UpdatePersistsDefaultDeviceType()
         {
@@ -634,12 +720,116 @@ namespace IoTSharp.Test
         }
 
         [Fact]
+        public async Task DirectDeviceOtaChannel_RejectsNonOtaAndForeignTasks()
+        {
+            using var client = _fixture.CreateClient();
+            var created = await _fixture.CreateDeviceAsync(client, $"sqlite-direct-ota-{Guid.NewGuid():N}", DeviceType.Device);
+            var deviceId = created.Data!.Id;
+            var token = await _fixture.GetDeviceAccessTokenAsync(client, deviceId);
+            var other = await _fixture.CreateDeviceAsync(client, $"sqlite-other-ota-{Guid.NewGuid():N}", DeviceType.Device);
+            var otherId = other.Data!.Id;
+            var otherToken = await _fixture.GetDeviceAccessTokenAsync(client, otherId);
+            var targetKey = $"{deviceId:D}:iotembedded";
+            var allowedId = Guid.NewGuid();
+            var configurationId = Guid.NewGuid();
+            var foreignTargetId = Guid.NewGuid();
+            using (var scope = _fixture.Services.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                var device = await context.Device.SingleAsync(item => item.Id == deviceId);
+                context.EdgeTasks.AddRange(
+                    CreateTask(allowedId, EdgeTaskType.DeviceScriptOta, deviceId, EdgeTaskStatus.Pending),
+                    CreateTask(configurationId, EdgeTaskType.ConfigPullRequest, deviceId, EdgeTaskStatus.Sent),
+                    CreateTask(foreignTargetId, EdgeTaskType.FirmwareOta, otherId, EdgeTaskStatus.Sent));
+                await context.SaveChangesAsync();
+
+                EdgeTask CreateTask(Guid id, EdgeTaskType taskType, Guid targetDeviceId, EdgeTaskStatus status) => new()
+                {
+                    Id = id,
+                    GatewayId = deviceId,
+                    TenantId = device.TenantId,
+                    CustomerId = device.CustomerId,
+                    TargetType = EdgeTaskTargetType.Device,
+                    TargetKey = targetKey,
+                    RuntimeType = "iotembedded",
+                    InstanceId = string.Empty,
+                    TaskType = taskType,
+                    Status = status,
+                    Parameters = JsonSerializer.Serialize(new { targetDeviceId }),
+                    Metadata = "{}",
+                    RequestPayload = string.Empty
+                };
+            }
+
+            using var runtimeClient = _fixture.CreateClient();
+            runtimeClient.DefaultRequestHeaders.Add("X-Edge-Access-Token", token);
+            var pulled = await GetApiResultAsync<List<EdgeTaskRequestDto>>(runtimeClient, $"/api/EdgeTask/Dispatch/{token}");
+            Assert.Equal((int)ApiCode.Success, pulled.Code);
+            Assert.Equal(allowedId, Assert.Single(pulled.Data!).TaskId);
+            var blockedAccept = await runtimeClient.PostAsJsonAsync($"/api/EdgeTask/Dispatch/{token}/Accept", new EdgeTaskReceiptDto
+            {
+                TaskId = configurationId,
+                ReportedAt = DateTime.UtcNow
+            });
+            Assert.Equal((int)ApiCode.InValidData, (await ReadApiResultAsync<object>(blockedAccept)).Code);
+            var foreignAccept = await runtimeClient.PostAsJsonAsync($"/api/EdgeTask/Dispatch/{token}/Accept", new EdgeTaskReceiptDto
+            {
+                TaskId = foreignTargetId,
+                ReportedAt = DateTime.UtcNow
+            });
+            Assert.Equal((int)ApiCode.InValidData, (await ReadApiResultAsync<object>(foreignAccept)).Code);
+            var allowedAccept = await runtimeClient.PostAsJsonAsync($"/api/EdgeTask/Dispatch/{token}/Accept", new EdgeTaskReceiptDto
+            {
+                TaskId = allowedId,
+                ReportedAt = DateTime.UtcNow
+            });
+            Assert.Equal((int)ApiCode.Success, (await ReadApiResultAsync<object>(allowedAccept)).Code);
+            var blockedReceipt = await runtimeClient.PostAsJsonAsync("/api/EdgeTask/Receipt", new EdgeTaskReceiptDto
+            {
+                TaskId = configurationId,
+                TargetKey = targetKey,
+                Status = EdgeTaskStatus.Accepted,
+                ReportedAt = DateTime.UtcNow
+            });
+            Assert.Equal((int)ApiCode.InValidData, (await ReadApiResultAsync<EdgeTaskReceiptDto>(blockedReceipt)).Code);
+            var foreignReceipt = await runtimeClient.PostAsJsonAsync("/api/EdgeTask/Receipt", new EdgeTaskReceiptDto
+            {
+                TaskId = foreignTargetId,
+                TargetKey = targetKey,
+                Status = EdgeTaskStatus.Accepted,
+                ReportedAt = DateTime.UtcNow
+            });
+            Assert.Equal((int)ApiCode.InValidData, (await ReadApiResultAsync<EdgeTaskReceiptDto>(foreignReceipt)).Code);
+            using var wrongTokenRequest = new HttpRequestMessage(HttpMethod.Post, "/api/EdgeTask/Receipt")
+            {
+                Content = JsonContent.Create(new EdgeTaskReceiptDto
+                {
+                    TaskId = allowedId,
+                    TargetKey = targetKey,
+                    Status = EdgeTaskStatus.Running,
+                    Progress = 50,
+                    ReportedAt = DateTime.UtcNow
+                })
+            };
+            wrongTokenRequest.Headers.Add("X-Edge-Access-Token", otherToken);
+            using var otherRuntimeClient = _fixture.CreateClient();
+            var wrongToken = await otherRuntimeClient.SendAsync(wrongTokenRequest);
+            Assert.Equal((int)ApiCode.InValidData, (await ReadApiResultAsync<EdgeTaskReceiptDto>(wrongToken)).Code);
+            using var verifyScope = _fixture.Services.CreateScope();
+            var verifyContext = verifyScope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            Assert.Equal(EdgeTaskStatus.Sent, (await verifyContext.EdgeTasks.SingleAsync(item => item.Id == configurationId)).Status);
+            Assert.Equal(EdgeTaskStatus.Sent, (await verifyContext.EdgeTasks.SingleAsync(item => item.Id == foreignTargetId)).Status);
+            Assert.Equal(EdgeTaskStatus.Accepted, (await verifyContext.EdgeTasks.SingleAsync(item => item.Id == allowedId)).Status);
+        }
+
+        [Fact]
         public async Task ReleaseCenter_AssetScopeDispatchesDeviceScriptOtaAndTracksReceipts()
         {
             using var client = _fixture.CreateClient();
             var created = await _fixture.CreateDeviceAsync(client, $"sqlite-device-script-{Guid.NewGuid():N}", DeviceType.Device);
             var deviceId = created.Data!.Id;
             var token = await _fixture.GetDeviceAccessTokenAsync(client, deviceId);
+            client.DefaultRequestHeaders.Add("X-Edge-Access-Token", token);
             Guid assetId;
 
             using (var scope = _fixture.Services.CreateScope())
@@ -1413,6 +1603,7 @@ namespace IoTSharp.Test
             using var client = _fixture.CreateClient();
             var created = await _fixture.CreateDeviceAsync(client, $"sqlite-release-config-{Guid.NewGuid():N}", DeviceType.Gateway);
             var gatewayId = created.Data!.Id;
+            var token = await _fixture.GetDeviceAccessTokenAsync(client, gatewayId);
             await _fixture.AuthorizeClientAsync(client);
 
             var saveConfig = await client.PutAsJsonAsync($"/api/Edge/{gatewayId}/CollectionConfig", new EdgeCollectionConfigurationUpdateDto
@@ -1469,8 +1660,20 @@ namespace IoTSharp.Test
             Assert.Equal((int)ApiCode.Success, savedConfig.Code);
 
             var versions = await GetApiResultAsync<PagedData<CollectionConfigurationVersionDto>>(client, $"/api/Edge/{gatewayId}/CollectionConfigVersions?limit=10");
-            var version = Assert.Single(versions.Data!.rows);
+            var rollbackVersion = Assert.Single(versions.Data!.rows);
+            var secondTasks = savedConfig.Data!.Tasks.ToList();
+            secondTasks[0] = secondTasks[0] with { Connection = secondTasks[0].Connection with { Port = 1503 } };
+            var secondSave = await client.PutAsJsonAsync($"/api/Edge/{gatewayId}/CollectionConfig", new EdgeCollectionConfigurationUpdateDto
+            {
+                SourceType = "InlineCollectionConfig",
+                SourceVersion = "immutable-2",
+                Tasks = secondTasks
+            });
+            Assert.Equal((int)ApiCode.Success, (await ReadApiResultAsync<EdgeCollectionConfigurationDto>(secondSave)).Code);
+            versions = await GetApiResultAsync<PagedData<CollectionConfigurationVersionDto>>(client, $"/api/Edge/{gatewayId}/CollectionConfigVersions?limit=10");
+            var version = versions.Data!.rows.Single(item => item.Version == rollbackVersion.Version + 1);
             Assert.NotEqual(Guid.Empty, version.Id);
+            Assert.NotEqual(rollbackVersion.ConfigurationHash, version.ConfigurationHash);
 
             var create = await client.PostAsJsonAsync("/api/ReleaseCenter/Plans", new ReleasePlanCreateRequestDto
             {
@@ -1500,17 +1703,63 @@ namespace IoTSharp.Test
             Assert.Equal(version.Version.ToString(), edgeTask.Parameters["configurationVersion"]?.ToString());
             Assert.Equal(version.ConfigurationHash, edgeTask.Parameters["configurationHash"]?.ToString());
 
+            var prematureRollback = await client.PostAsJsonAsync($"/api/ReleaseCenter/Plans/{createdPlan.Data.Plan.Id}/Rollback", new ReleasePlanActionRequestDto
+            {
+                RollbackConfigurationVersionId = rollbackVersion.Id
+            });
+            Assert.Equal((int)ApiCode.InValidData, (await ReadApiResultAsync<ReleasePlanOperationResultDto>(prematureRollback)).Code);
+
+            // 这里只验证受令牌约束的 API 回执闭环，不代表真实采集运行时已经执行。
+            using var runtimeClient = _fixture.CreateClient();
+            runtimeClient.DefaultRequestHeaders.Authorization = null;
+            var dispatched = await GetApiResultAsync<List<EdgeTaskRequestDto>>(runtimeClient, $"/api/EdgeTask/Dispatch/{token}");
+            Assert.Contains(dispatched.Data!, item => item.TaskId == edgeTask.TaskId);
+            var unauthenticatedReceipt = await runtimeClient.PostAsJsonAsync("/api/EdgeTask/Receipt", new EdgeTaskReceiptDto
+            {
+                TaskId = edgeTask.TaskId,
+                TargetKey = edgeTask.Address.TargetKey,
+                Status = EdgeTaskStatus.Accepted,
+                ReportedAt = DateTime.UtcNow
+            });
+            var unauthenticatedResult = await ReadApiResultAsync<EdgeTaskReceiptDto>(unauthenticatedReceipt);
+            Assert.Equal((int)ApiCode.InValidData, unauthenticatedResult.Code);
+            Assert.Contains("access token is required", unauthenticatedResult.Msg);
+            runtimeClient.DefaultRequestHeaders.Add("X-Edge-Access-Token", token);
+            await CompleteConfigurationTaskAsync(edgeTask, version);
+            var forwardStatus = await GetApiResultAsync<EdgeCollectionVersionStatusDto>(client, $"/api/Edge/{gatewayId}/CollectionVersionStatus");
+            Assert.True(forwardStatus.Data!.IsTargetApplied);
+
             var rollback = await client.PostAsJsonAsync($"/api/ReleaseCenter/Plans/{createdPlan.Data.Plan.Id}/Rollback", new ReleasePlanActionRequestDto
             {
-                RollbackConfigurationVersionId = version.Id,
+                RollbackConfigurationVersionId = rollbackVersion.Id,
                 Reason = "immutable configuration rollback"
             });
             var rollbackResult = await ReadApiResultAsync<ReleasePlanOperationResultDto>(rollback);
             Assert.Equal((int)ApiCode.Success, rollbackResult.Code);
             Assert.Equal(ReleasePlanStatus.RollingBack, rollbackResult.Data!.Plan.Status);
             var rollbackTask = Assert.Single(rollbackResult.Data.Plan.Tasks, task => task.IsRollback);
-            Assert.Equal(version.Id, rollbackTask.ConfigurationVersionId);
-            Assert.Equal(EdgeTaskType.ConfigPullRequest, Assert.Single(rollbackResult.Data.EdgeTasks).TaskType);
+            Assert.Equal(rollbackVersion.Id, rollbackTask.ConfigurationVersionId);
+            var rollbackEdgeTask = Assert.Single(rollbackResult.Data.EdgeTasks);
+            Assert.Equal(EdgeTaskType.ConfigPullRequest, rollbackEdgeTask.TaskType);
+            var pendingRollbackStatus = await GetApiResultAsync<EdgeCollectionVersionStatusDto>(client, $"/api/Edge/{gatewayId}/CollectionVersionStatus");
+            Assert.Equal(rollbackVersion.Id, pendingRollbackStatus.Data!.TargetConfigurationVersionId);
+            Assert.Equal(version.Version, pendingRollbackStatus.Data.CurrentConfigurationVersion);
+            Assert.False(pendingRollbackStatus.Data.IsTargetApplied);
+            var pulledRollback = await GetApiResultAsync<EdgeCollectionConfigurationPullResultDto>(runtimeClient, $"/api/Edge/{token}/CollectionConfig/Pull");
+            Assert.Equal(rollbackVersion.Id, pulledRollback.Data!.ConfigurationVersionId);
+            Assert.Equal(rollbackVersion.ConfigurationHash, pulledRollback.Data.ConfigurationHash);
+            Assert.Equal(1502, Assert.Single(pulledRollback.Data.Configuration.Tasks).Connection.Port);
+            await GetApiResultAsync<List<EdgeTaskRequestDto>>(runtimeClient, $"/api/EdgeTask/Dispatch/{token}");
+            await CompleteConfigurationTaskAsync(rollbackEdgeTask, rollbackVersion);
+            var converged = await GetApiResultAsync<EdgeCollectionVersionStatusDto>(client, $"/api/Edge/{gatewayId}/CollectionVersionStatus");
+            Assert.True(converged.Data!.IsTargetApplied);
+            Assert.False(converged.Data.HasDifference);
+            Assert.Equal(rollbackVersion.Version, converged.Data.CurrentConfigurationVersion);
+            Assert.Equal(rollbackVersion.ConfigurationHash, converged.Data.CurrentConfigurationHash);
+            var completedPlan = await GetApiResultAsync<ReleasePlanDto>(client, $"/api/ReleaseCenter/Plans/{createdPlan.Data.Plan.Id}");
+            Assert.Equal(ReleasePlanStatus.RolledBack, completedPlan.Data!.Status);
+            var retainedReceipts = await GetApiResultAsync<List<ReleaseReceiptDto>>(client, $"/api/ReleaseCenter/Plans/{createdPlan.Data.Plan.Id}/Receipts");
+            Assert.Contains(retainedReceipts.Data!, item => item.Status == ReleaseTaskStatus.RolledBack);
 
             var duplicateRollback = await client.PostAsJsonAsync($"/api/ReleaseCenter/Plans/{createdPlan.Data.Plan.Id}/Rollback", new ReleasePlanActionRequestDto
             {
@@ -1518,6 +1767,39 @@ namespace IoTSharp.Test
             });
             var duplicateResult = await ReadApiResultAsync<ReleasePlanOperationResultDto>(duplicateRollback);
             Assert.Equal((int)ApiCode.InValidData, duplicateResult.Code);
+
+            async Task CompleteConfigurationTaskAsync(EdgeTaskRequestDto task, CollectionConfigurationVersionDto targetVersion)
+            {
+                var accepted = await runtimeClient.PostAsJsonAsync($"/api/EdgeTask/Dispatch/{token}/Accept", new EdgeTaskReceiptDto
+                {
+                    TaskId = task.TaskId,
+                    ReportedAt = DateTime.UtcNow
+                });
+                Assert.Equal((int)ApiCode.Success, (await ReadApiResultAsync<object>(accepted)).Code);
+                var running = await runtimeClient.PostAsJsonAsync("/api/EdgeTask/Receipt", new EdgeTaskReceiptDto
+                {
+                    TaskId = task.TaskId,
+                    TargetKey = task.Address.TargetKey,
+                    Status = EdgeTaskStatus.Running,
+                    Progress = 50,
+                    ReportedAt = DateTime.UtcNow
+                });
+                Assert.Equal((int)ApiCode.Success, (await ReadApiResultAsync<EdgeTaskReceiptDto>(running)).Code);
+                var succeeded = await runtimeClient.PostAsJsonAsync("/api/EdgeTask/Receipt", new EdgeTaskReceiptDto
+                {
+                    TaskId = task.TaskId,
+                    TargetKey = task.Address.TargetKey,
+                    Status = EdgeTaskStatus.Succeeded,
+                    ReportedAt = DateTime.UtcNow,
+                    Result = new Dictionary<string, object>
+                    {
+                        ["configurationVersionId"] = targetVersion.Id,
+                        ["configurationVersion"] = targetVersion.Version,
+                        ["configurationHash"] = targetVersion.ConfigurationHash
+                    }
+                });
+                Assert.Equal((int)ApiCode.Success, (await ReadApiResultAsync<EdgeTaskReceiptDto>(succeeded)).Code);
+            }
         }
 
         [Fact]

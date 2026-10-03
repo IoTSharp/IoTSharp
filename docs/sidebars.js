@@ -63,6 +63,7 @@ const sidebars = {
       label: '运维发布',
       items: [
         'operations/release-distribution-plan',
+        'operations/production-loop-acceptance',
         'operations/sonnetdb-compat-matrix',
         'operations/sonnetdb-capacity-reliability-baseline',
         'operations/cloud-edge-sonnetdb-reference',

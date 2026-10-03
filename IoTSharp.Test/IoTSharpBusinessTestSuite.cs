@@ -176,6 +176,30 @@ public abstract class IoTSharpBusinessTestSuite<TFixture>
             $"/api/Asset/List?offset=0&limit=20&name={Uri.EscapeDataString(assetName)}");
         var asset = Assert.Single(assets.Data!.rows, item => item.Name == assetName);
 
+        var emptyBindingResponse = await client.PostAsJsonAsync("/api/Asset/addDevice", new ModelAddAssetDevice
+        {
+            AssetId = asset.Id,
+            Deviceid = deviceId
+        });
+        var emptyBinding = await ReadApiResultAsync<bool>(emptyBindingResponse);
+        Assert.Equal((int)ApiCode.InValidData, emptyBinding.Code);
+        Assert.False(emptyBinding.Data);
+
+        var blankBindingResponse = await client.PostAsJsonAsync("/api/Asset/addDevice", new ModelAddAssetDevice
+        {
+            AssetId = asset.Id,
+            Deviceid = deviceId,
+            Attrs = [],
+            Temps = [new ModelAddAssetDevice.ModelAddAssetDeviceItem { keyName = "  " }]
+        });
+        var blankBinding = await ReadApiResultAsync<bool>(blankBindingResponse);
+        Assert.Equal((int)ApiCode.InValidData, blankBinding.Code);
+        Assert.False(blankBinding.Data);
+
+        var beforeBinding = await GetApiResultAsync<PagedData<AssetRelation>>(client,
+            $"/api/Asset/AssetRelations?assetid={asset.Id}");
+        Assert.Equal(0, beforeBinding.Data!.total);
+
         var addRelation = await client.PostAsJsonAsync("/api/Asset/addDevice", new ModelAddAssetDevice
         {
             AssetId = asset.Id,

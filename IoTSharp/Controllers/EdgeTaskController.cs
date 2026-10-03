@@ -200,10 +200,23 @@ namespace IoTSharp.Controllers
                 return Ok(new ApiResult<EdgeTaskReceiptDto>(ApiCode.InValidData, "Task request not found for receipt", null));
             }
 
-            // 保持既有匿名回执客户端兼容；执行端提供令牌时，必须绑定到该任务的 Gateway，
-            // 防止持有其他设备令牌的调用方推进本 Gateway 的正式任务。
+            // 执行端必须证明通道身份；管理端保留同租户、同客户的授权回执入口。
+            if (string.IsNullOrWhiteSpace(edgeAccessToken))
+            {
+                if (User.Identity?.IsAuthenticated != true || !User.IsInRole(nameof(UserRole.NormalUser)))
+                {
+                    return Ok(new ApiResult<EdgeTaskReceiptDto>(ApiCode.InValidData, "Edge access token is required for runtime receipt", null));
+                }
+
+                var profile = this.GetUserProfile();
+                if (formalTask.TenantId != profile.Tenant || formalTask.CustomerId != profile.Customer)
+                {
+                    return Ok(new ApiResult<EdgeTaskReceiptDto>(ApiCode.InValidData, "Receipt task is outside the authenticated user scope", null));
+                }
+            }
+
             if (!string.IsNullOrWhiteSpace(edgeAccessToken) &&
-                !IsAccessTokenBoundToGateway(edgeAccessToken, formalTask.GatewayId))
+                !IsAccessTokenBoundToTask(edgeAccessToken, formalTask))
             {
                 return Ok(new ApiResult<EdgeTaskReceiptDto>(ApiCode.InValidData, "Edge access token does not match task gateway", null));
             }
@@ -431,7 +444,7 @@ namespace IoTSharp.Controllers
         [ProducesDefaultResponseType]
         public async System.Threading.Tasks.Task<ApiResult<List<EdgeTaskRequestDto>>> PullPendingDispatch(string accessToken, [FromQuery] int take = 10)
         {
-            var gateway = GetGatewayByAccessToken(accessToken);
+            var gateway = GetDispatchDeviceByAccessToken(accessToken);
             if (gateway == null)
             {
                 return new ApiResult<List<EdgeTaskRequestDto>>(ApiCode.NotFoundDevice, "gateway access token not found", null);
@@ -439,14 +452,18 @@ namespace IoTSharp.Controllers
 
             var takeCount = Math.Clamp(take, 1, 50);
             var now = DateTime.UtcNow;
+            var isGateway = gateway.DeviceType == DeviceType.Gateway;
             var formalTasks = await _context.EdgeTasks
                 .Where(task => task.GatewayId == gateway.Id
                     && !task.Deleted
+                    && (isGateway || (task.TargetType == EdgeTaskTargetType.Device
+                        && (task.TaskType == EdgeTaskType.DeviceScriptOta || task.TaskType == EdgeTaskType.FirmwareOta)))
                     && (task.ExpireAt == null || task.ExpireAt > now)
                     && (task.Status == EdgeTaskStatus.Pending || task.Status == EdgeTaskStatus.Sent))
                 .OrderBy(task => task.CreatedAt)
                 .Take(takeCount)
                 .ToListAsync();
+            formalTasks = formalTasks.Where(task => CanDispatchTask(gateway, task)).ToList();
 
             if (formalTasks.Count > 0)
             {
@@ -482,7 +499,7 @@ namespace IoTSharp.Controllers
         [ProducesDefaultResponseType]
         public async System.Threading.Tasks.Task<ActionResult<ApiResult>> AcceptDispatch(string accessToken, [FromBody] EdgeTaskReceiptDto request)
         {
-            var gateway = GetGatewayByAccessToken(accessToken);
+            var gateway = GetDispatchDeviceByAccessToken(accessToken);
             if (gateway == null)
             {
                 return Ok(new ApiResult(ApiCode.NotFoundDevice, "gateway access token not found"));
@@ -500,7 +517,7 @@ namespace IoTSharp.Controllers
             }
 
             var formalTask = await GetFormalEdgeTaskAsync(gateway.Id, request.TaskId);
-            if (formalTask == null)
+            if (formalTask == null || !CanDispatchTask(gateway, formalTask))
             {
                 return Ok(new ApiResult(ApiCode.InValidData, "Task request not found for acceptance"));
             }
@@ -1357,7 +1374,7 @@ namespace IoTSharp.Controllers
             }
 
             var assignment = await FindCollectionAssignmentForTaskAsync(
-                task.GatewayId,
+                task,
                 configurationVersionId,
                 configurationVersion.Value,
                 configurationHash);
@@ -1436,7 +1453,7 @@ namespace IoTSharp.Controllers
                 return "Succeeded configuration receipt requires result.configurationVersionId, result.configurationVersion and result.configurationHash";
             }
 
-            var assignment = await FindCollectionAssignmentForTaskAsync(task.GatewayId, expectedVersionId, expectedVersion.Value, expectedHash);
+            var assignment = await FindCollectionAssignmentForTaskAsync(task, expectedVersionId, expectedVersion.Value, expectedHash);
             if (assignment == null)
             {
                 return "Collection configuration assignment not found for task receipt";
@@ -1449,24 +1466,34 @@ namespace IoTSharp.Controllers
         /// <summary>
         /// 按任务参数定位本次配置发布对应的分配记录。
         /// </summary>
-        /// <param name="gatewayId">承载任务通道的 Gateway 设备 ID。</param>
+        /// <param name="task">配置任务及其明确的重试来源。</param>
         /// <param name="configurationVersionId">配置版本快照 ID。</param>
         /// <param name="configurationVersion">配置版本号。</param>
         /// <param name="configurationHash">配置哈希。</param>
         /// <returns>匹配的配置分配；找不到时返回 null。</returns>
         private async System.Threading.Tasks.Task<EdgeCollectionAssignment> FindCollectionAssignmentForTaskAsync(
-            Guid gatewayId,
+            EdgeTask task,
             Guid? configurationVersionId,
             int configurationVersion,
             string configurationHash)
         {
+            var gatewayId = task.GatewayId;
+            var metadata = DeserializeStringDictionary(task.Metadata);
+            var retryOfTaskId = metadata.TryGetValue(RetryOfTaskIdKey, out var retryOf) && Guid.TryParse(retryOf, out var originalId)
+                ? (Guid?)originalId : null;
+            // 相同配置可重复发布；旧任务只能更新自己的分配，重试必须显式关联原任务。
+            var candidates = _context.EdgeCollectionAssignments.Where(assignment =>
+                assignment.LastExecutionTaskId == task.Id
+                || assignment.LastExecutionTaskId == null
+                || (retryOfTaskId.HasValue && assignment.LastExecutionTaskId == retryOfTaskId));
             if (configurationVersionId.HasValue)
             {
-                var byVersionId = await _context.EdgeCollectionAssignments
+                var byVersionId = await candidates
                     .Where(assignment => assignment.GatewayId == gatewayId
                         && assignment.CollectionConfigurationVersionId == configurationVersionId.Value
                         && !assignment.Deleted)
-                    .OrderByDescending(assignment => assignment.Status == EdgeCollectionAssignmentStatus.Active)
+                    .OrderByDescending(assignment => assignment.LastExecutionTaskId == task.Id)
+                    .ThenByDescending(assignment => assignment.Status == EdgeCollectionAssignmentStatus.Active)
                     .ThenByDescending(assignment => assignment.AssignedAt)
                     .FirstOrDefaultAsync();
 
@@ -1476,12 +1503,13 @@ namespace IoTSharp.Controllers
                 }
             }
 
-            return await _context.EdgeCollectionAssignments
+            return await candidates
                 .Where(assignment => assignment.GatewayId == gatewayId
                     && assignment.ConfigurationVersion == configurationVersion
                     && assignment.ConfigurationHash == configurationHash
                     && !assignment.Deleted)
-                .OrderByDescending(assignment => assignment.Status == EdgeCollectionAssignmentStatus.Active)
+                .OrderByDescending(assignment => assignment.LastExecutionTaskId == task.Id)
+                .ThenByDescending(assignment => assignment.Status == EdgeCollectionAssignmentStatus.Active)
                 .ThenByDescending(assignment => assignment.AssignedAt)
                 .FirstOrDefaultAsync();
         }
@@ -2000,7 +2028,12 @@ namespace IoTSharp.Controllers
             return EdgeTaskStateMachine.IsTransitionAllowed(current, next);
         }
 
-        private Device GetGatewayByAccessToken(string accessToken)
+        /// <summary>
+        /// 解析任务投递凭据；普通设备仅能进入自身 OTA 通道，具体任务仍需单独核验。
+        /// </summary>
+        /// <param name="accessToken">设备访问令牌。</param>
+        /// <returns>有效的 Gateway 或普通 Device；其他类型返回空。</returns>
+        private Device GetDispatchDeviceByAccessToken(string accessToken)
         {
             if (string.IsNullOrWhiteSpace(accessToken))
             {
@@ -2008,7 +2041,8 @@ namespace IoTSharp.Controllers
             }
 
             var (ok, gateway) = _context.GetDeviceByToken(accessToken);
-            if (ok || gateway == null || gateway.Deleted || gateway.DeviceType != DeviceType.Gateway)
+            if (ok || gateway == null || gateway.Deleted
+                || (gateway.DeviceType != DeviceType.Gateway && gateway.DeviceType != DeviceType.Device))
             {
                 return null;
             }
@@ -2017,15 +2051,45 @@ namespace IoTSharp.Controllers
         }
 
         /// <summary>
-        /// 验证可选 Edge 访问令牌是否属于指定 Gateway。
+        /// 验证访问令牌绑定任务通道，普通 Device 仅允许自身脚本或固件 OTA。
         /// </summary>
         /// <param name="accessToken">执行端提供的 Edge 访问令牌。</param>
-        /// <param name="gatewayId">正式任务所属 Gateway 设备 ID。</param>
-        /// <returns>令牌解析成功且绑定同一 Gateway 时返回 true。</returns>
-        private bool IsAccessTokenBoundToGateway(string accessToken, Guid gatewayId)
+        /// <param name="task">待推进状态的正式任务。</param>
+        /// <returns>令牌绑定通道且任务符合设备能力边界时返回 true。</returns>
+        private bool IsAccessTokenBoundToTask(string accessToken, EdgeTask task)
         {
-            var gateway = GetGatewayByAccessToken(accessToken);
-            return gateway != null && gateway.Id == gatewayId;
+            var device = GetDispatchDeviceByAccessToken(accessToken);
+            return device != null && CanDispatchTask(device, task);
+        }
+
+        /// <summary>
+        /// 限定直连设备的投递与回执权限，禁止借用设备令牌访问配置、诊断或其他目标。
+        /// </summary>
+        /// <param name="device">令牌解析到的设备。</param>
+        /// <param name="task">正式任务。</param>
+        /// <returns>允许该设备拉取、接受及上报该任务时返回 true。</returns>
+        private static bool CanDispatchTask(Device device, EdgeTask task)
+        {
+            if (task.GatewayId != device.Id)
+            {
+                return false;
+            }
+
+            if (device.DeviceType == DeviceType.Gateway)
+            {
+                return true;
+            }
+
+            if (device.DeviceType != DeviceType.Device || task.TargetType != EdgeTaskTargetType.Device
+                || task.TaskType is not (EdgeTaskType.DeviceScriptOta or EdgeTaskType.FirmwareOta))
+            {
+                return false;
+            }
+
+            var targetIdPart = task.TargetKey?.Split(':', 2)[0];
+            var parameters = DeserializeObjectDictionary(task.Parameters);
+            var targetDeviceId = TryGetGuid(parameters, TargetDeviceIdKey) ?? TryGetGuid(parameters, DeviceIdKey);
+            return Guid.TryParse(targetIdPart, out var targetId) && targetId == device.Id && targetDeviceId == device.Id;
         }
 
         private static string SerializeOrNull<T>(T value)

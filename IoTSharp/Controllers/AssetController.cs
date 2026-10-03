@@ -285,10 +285,10 @@ namespace IoTSharp.Controllers
 
         }
         /// <summary>
-        /// 增加资产
+        /// 将设备的有效属性或遥测点位关联到当前租户和客户的资产。
         /// </summary>
-        /// <param name="m"></param>
-        /// <returns></returns>
+        /// <param name="m">资产、设备标识及待关联点位；至少提供一个非空点位键。</param>
+        /// <returns>关联结果；无有效点位时拒绝请求，避免报告没有实际关系的绑定成功。</returns>
 
         [HttpPost]
         public async Task<ApiResult<bool>> addDevice(ModelAddAssetDevice m)
@@ -300,6 +300,11 @@ namespace IoTSharp.Controllers
                 if (m == null || m.AssetId == Guid.Empty || m.Deviceid == Guid.Empty)
                 {
                     return new ApiResult<bool>(ApiCode.InValidData, "asset and device are required", false);
+                }
+                if (!(m.Attrs?.Any(item => !string.IsNullOrWhiteSpace(item?.keyName)) ?? false)
+                    && !(m.Temps?.Any(item => !string.IsNullOrWhiteSpace(item?.keyName)) ?? false))
+                {
+                    return new ApiResult<bool>(ApiCode.InValidData, "at least one attribute or telemetry point key is required", false);
                 }
                 var asset = await _context.Assets.Include(c => c.Customer).Include(c => c.Tenant)
                     .Include(c => c.OwnedAssets).SingleOrDefaultAsync(c =>
@@ -321,7 +326,7 @@ namespace IoTSharp.Controllers
 
                 foreach (var item in m.Attrs ?? Array.Empty<ModelAddAssetDevice.ModelAddAssetDeviceItem>())
                 {
-                    var keyName = item.keyName?.Trim();
+                    var keyName = item?.keyName?.Trim();
                     if (string.IsNullOrWhiteSpace(keyName))
                     {
                         continue;
@@ -330,7 +335,7 @@ namespace IoTSharp.Controllers
                         || c.DataCatalog != DataCatalog.AttributeLatest
                         || !string.Equals(c.KeyName, keyName, StringComparison.OrdinalIgnoreCase)))
                     {
-                        asset.OwnedAssets.Add(new AssetRelation()
+                        var relation = new AssetRelation()
                         {
                             AssetId = asset.Id,
                             DeviceId = m.Deviceid,
@@ -338,14 +343,17 @@ namespace IoTSharp.Controllers
                             Description = "",
                             KeyName = keyName,
                             Name = string.IsNullOrWhiteSpace(item.Name) ? keyName : item.Name.Trim(),
-                        });
+                        };
+                        asset.OwnedAssets.Add(relation);
+                        // 关系使用预生成的 Guid，显式标记新增，避免 EF 将新关系识别为已有记录的更新。
+                        _context.AssetRelations.Add(relation);
                     }
 
                 }
 
                 foreach (var item in m.Temps ?? Array.Empty<ModelAddAssetDevice.ModelAddAssetDeviceItem>())
                 {
-                    var keyName = item.keyName?.Trim();
+                    var keyName = item?.keyName?.Trim();
                     if (string.IsNullOrWhiteSpace(keyName))
                     {
                         continue;
@@ -354,7 +362,7 @@ namespace IoTSharp.Controllers
                         || c.DataCatalog != DataCatalog.TelemetryLatest
                         || !string.Equals(c.KeyName, keyName, StringComparison.OrdinalIgnoreCase)))
                     {
-                        asset.OwnedAssets.Add(new AssetRelation()
+                        var relation = new AssetRelation()
                         {
                             AssetId = asset.Id,
                             DeviceId = m.Deviceid,
@@ -362,7 +370,9 @@ namespace IoTSharp.Controllers
                             Description = "",
                             KeyName = keyName,
                             Name = string.IsNullOrWhiteSpace(item.Name) ? keyName : item.Name.Trim()
-                        });
+                        };
+                        asset.OwnedAssets.Add(relation);
+                        _context.AssetRelations.Add(relation);
                     }
                 }
 

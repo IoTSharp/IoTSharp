@@ -275,7 +275,7 @@ namespace IoTSharp.Controllers
             var createdEdgeTasks = new List<EdgeTaskRequestDto>();
             if (request.AutoStart && request.ConfirmationPolicy != ReleaseConfirmationPolicy.ManualBeforeStart)
             {
-                createdEdgeTasks.AddRange(DispatchSelectableTasks(
+                createdEdgeTasks.AddRange(await DispatchSelectableTasksAsync(
                     plan,
                     package,
                     releaseTasks,
@@ -464,6 +464,24 @@ namespace IoTSharp.Controllers
                 return Ok(new ApiResult<ReleasePlanOperationResultDto>(ApiCode.InValidData, "No dispatched release tasks can be rolled back", null));
             }
 
+            if (HasActiveTasks(originalTasks))
+            {
+                return Ok(new ApiResult<ReleasePlanOperationResultDto>(ApiCode.InValidData, "Wait for active release tasks to finish before rolling back", null));
+            }
+
+            if (plan.PlanType == ReleasePlanType.ConfigurationRollout)
+            {
+                var gatewayIds = originalTasks.Select(task => task.GatewayId).Distinct().ToList();
+                var hasConfigurationInFlight = await _context.EdgeTasks.AnyAsync(task =>
+                    gatewayIds.Contains(task.GatewayId) && !task.Deleted && task.TaskType == EdgeTaskType.ConfigPullRequest
+                    && (task.Status == EdgeTaskStatus.Pending || task.Status == EdgeTaskStatus.Sent
+                        || task.Status == EdgeTaskStatus.Accepted || task.Status == EdgeTaskStatus.Running));
+                if (hasConfigurationInFlight)
+                {
+                    return Ok(new ApiResult<ReleasePlanOperationResultDto>(ApiCode.InValidData, "Wait for gateway configuration tasks to finish before rolling back", null));
+                }
+            }
+
             if (rollbackConfigurationVersion != null && originalTasks.Any(task => task.GatewayId != rollbackConfigurationVersion.GatewayId))
             {
                 return Ok(new ApiResult<ReleasePlanOperationResultDto>(ApiCode.InValidData, "Rollback configuration version gateway does not match release targets", null));
@@ -517,7 +535,7 @@ namespace IoTSharp.Controllers
             plan.UpdatedAt = now;
             plan.UpdatedBy = operatorName;
 
-            var edgeTasks = DispatchSelectableTasks(plan, rollbackPackage, rollbackTasks, dispatchAll: true, now, operatorName, isRollback: true);
+            var edgeTasks = await DispatchSelectableTasksAsync(plan, rollbackPackage, rollbackTasks, dispatchAll: true, now, operatorName, isRollback: true);
             var allTasks = await LoadPlanTasksAsync(plan.Id);
             allTasks.AddRange(rollbackTasks);
             ApplyPlanSummary(plan, allTasks, now, preservePaused: false);
@@ -626,7 +644,7 @@ namespace IoTSharp.Controllers
 
             var nowDispatch = DateTime.UtcNow;
             var operatorName = ResolveUserName(profile);
-            var edgeTasks = DispatchSelectableTasks(plan, package, pending, dispatchAll: true, nowDispatch, operatorName, isRollback: false);
+            var edgeTasks = await DispatchSelectableTasksAsync(plan, package, pending, dispatchAll: true, nowDispatch, operatorName, isRollback: false);
             ApplyPlanSummary(plan, tasks, nowDispatch, preservePaused: false);
             AddReleasePlanAudit(profile, plan, auditAction, BuildActionAuditData(request), plan.Status.ToString(), nowDispatch);
             await _context.SaveChangesAsync();
@@ -1024,7 +1042,10 @@ namespace IoTSharp.Controllers
             return tasks;
         }
 
-        private List<EdgeTaskRequestDto> DispatchSelectableTasks(
+        /// <summary>
+        /// 下发选中批次；配置任务同时切换不可变版本目标，保持拉取正文与回执收敛一致。
+        /// </summary>
+        private async System.Threading.Tasks.Task<List<EdgeTaskRequestDto>> DispatchSelectableTasksAsync(
             ReleasePlan plan,
             ReleasePackage package,
             IReadOnlyList<ReleaseTask> tasks,
@@ -1046,6 +1067,11 @@ namespace IoTSharp.Controllers
                 var formalTask = CreateFormalEdgeTask(taskRequest, releaseTask, SerializeOrNull(taskRequest) ?? "{}");
                 _context.EdgeTasks.Add(formalTask);
 
+                if (plan.PlanType == ReleasePlanType.ConfigurationRollout)
+                {
+                    await PrepareConfigurationAssignmentAsync(plan, releaseTask, formalTask, now, operatorName);
+                }
+
                 releaseTask.EdgeTaskId = formalTask.Id;
                 releaseTask.DispatchedAt = now;
                 releaseTask.UpdatedAt = now;
@@ -1065,6 +1091,69 @@ namespace IoTSharp.Controllers
             plan.UpdatedAt = now;
             plan.UpdatedBy = operatorName;
             return edgeTasks;
+        }
+
+        /// <summary>
+        /// 将发布或回滚版本设为当前目标，保留上一目标的已应用快照直到执行端确认。
+        /// </summary>
+        /// <param name="plan">已核对版本边界的发布计划。</param>
+        /// <param name="releaseTask">目标寻址信息。</param>
+        /// <param name="edgeTask">本次配置投递任务。</param>
+        /// <param name="now">平台分配时间。</param>
+        /// <param name="operatorName">审计操作者。</param>
+        private async System.Threading.Tasks.Task PrepareConfigurationAssignmentAsync(
+            ReleasePlan plan, ReleaseTask releaseTask, EdgeTask edgeTask, DateTime now, string operatorName)
+        {
+            var versionId = TryGetGuidMetadata(plan.Metadata, "configurationVersionId");
+            var version = await _context.CollectionConfigurationVersions.SingleAsync(item =>
+                item.Id == versionId && item.GatewayId == edgeTask.GatewayId && !item.Deleted
+                && item.TenantId == plan.TenantId && item.CustomerId == plan.CustomerId);
+            var active = await _context.EdgeCollectionAssignments
+                .Where(item => item.GatewayId == edgeTask.GatewayId && !item.Deleted
+                    && item.Status == EdgeCollectionAssignmentStatus.Active)
+                .OrderByDescending(item => item.AssignedAt).ToListAsync();
+            var previous = active.FirstOrDefault();
+            foreach (var assignment in active)
+            {
+                assignment.Status = EdgeCollectionAssignmentStatus.Superseded;
+                assignment.UpdatedAt = now;
+                assignment.UpdatedBy = operatorName;
+            }
+
+            _context.EdgeCollectionAssignments.Add(new EdgeCollectionAssignment
+            {
+                Id = Guid.NewGuid(),
+                CollectionConfigurationVersionId = version.Id,
+                ContractVersion = version.ContractVersion,
+                GatewayId = edgeTask.GatewayId,
+                EdgeNodeId = releaseTask.EdgeNodeId ?? version.EdgeNodeId,
+                TargetType = edgeTask.TargetType,
+                TargetKey = edgeTask.TargetKey,
+                RuntimeType = edgeTask.RuntimeType,
+                InstanceId = edgeTask.InstanceId,
+                ConfigurationVersion = version.Version,
+                ConfigurationHash = version.ConfigurationHash,
+                TaskCount = version.TaskCount,
+                SourceType = version.SourceType,
+                SourceId = version.SourceId,
+                SourceVersion = version.SourceVersion,
+                Metadata = version.SourceMetadata ?? "{}",
+                Status = EdgeCollectionAssignmentStatus.Active,
+                AppliedConfigurationVersion = previous?.AppliedConfigurationVersion,
+                AppliedConfigurationHash = previous?.AppliedConfigurationHash,
+                AppliedAt = previous?.AppliedAt,
+                LastExecutionTaskId = edgeTask.Id,
+                LastExecutionStatus = EdgeTaskStatus.Pending,
+                LastExecutionAt = now,
+                LastExecutionMessage = "配置目标已分配，等待执行端确认",
+                AssignedAt = now,
+                CreatedAt = now,
+                UpdatedAt = now,
+                CreatedBy = operatorName,
+                UpdatedBy = operatorName,
+                TenantId = plan.TenantId,
+                CustomerId = plan.CustomerId
+            });
         }
 
         private EdgeTaskRequestDto CreateReleaseTaskRequest(
