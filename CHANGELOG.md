@@ -8,6 +8,7 @@ This project follows a lightweight Keep a Changelog style. Version numbers in th
 
 ### Added
 
+- Documented the planned Ontology Engineering application track (#180-#185), covering equipment, alarms, maintenance records, optional Sezika decision integration, review, provenance, and separate acceptance gates. Runtime implementation and domain validation remain pending.
 - Docker Desktop extension skeleton and local SQLite demo flow.
 - OpenClaw-oriented SQLite setup runbook and reusable prompt text.
 - Custom Docusaurus theme wrappers for the docs landing page, blog list page, blog post page, and doc detail headers.

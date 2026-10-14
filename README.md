@@ -29,6 +29,7 @@ IoTSharp brings together the core building blocks needed to run an IoT platform 
 - Relational and time-series storage options for different deployment and scaling needs.
 - Multiple delivery modes including Docker, Windows service, Linux service, installer flows, and release artifacts.
 - The roadmap now also treats AI workbench, MCP tools, and agent-assisted operations as a cross-cutting capability for collection, rules, and release workflows.
+- Planned: [Ontology Engineering application track](ROADMAP.md#ontology-engineering) for equipment, alarms, and maintenance records, with optional Sezika-assisted candidate decisions. Implementation and domain validation remain pending.
 
 The current main application targets `.NET 10`, and the web console is maintained as an IoTSharp-branded Vue 3 application.
 
