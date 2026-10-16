@@ -6,6 +6,7 @@
 
 - 主机：`iotsharp.online / 111.228.23.26`
 - 发布链接：`/opt/iotsharp-demo/current` → `/opt/iotsharp-releases/20261017-studio-config-v2/demo`
+- 远端程序集 SHA-256：IoTSharp `3fd224762b5ab784d6cda0474d6c59251e4ad296657505c4178615fbcc048f63`；SonnetDB `41ac2cd53382395950c7daebedd55495251e4ad296657505c4178615fbcc048f63`。
 - SonnetDB：`d8d83c5b`，已推送 `codex/online-demo-service-20261016`
 - 演示账号：`demo@iotsharp.online`，只允许 `demo` 数据库；实例配置端点返回 403
 - v1 候选因漏传 `SONNETDB_WEB_BASE_PATH=/sonnetdb/` 未作为最终版本使用；v2 已修正并重新构建
