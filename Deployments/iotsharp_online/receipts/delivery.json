@@ -1,0 +1,15 @@
+{
+  "completedAt": "2026-10-16T16:59:17.4870395+08:00",
+  "release": "20261016-online-67a5c8c8-r2",
+  "sourceBase": "e35121cd2502b725b895f1f4747e2f8be703ae47",
+  "sonnetSourceBase": "67a5c8c8d64c36002aee5ebcfcb40634e7d5f482",
+  "sourceChangesCommitted": false,
+  "sonnetReleaseKind": "source snapshot with local integration patches",
+  "iotsharpTestCount": 36,
+  "sonnetAuthAndDiagnosticsTests": 53,
+  "sonnetParserTests": 52,
+  "businessAcceptance": "passed",
+  "productionDowngradeDrill": "NOT_RUN; new storage format requires compatible backup and preservation of newer writes",
+  "iotsharpAssemblySha256": "349f2c251b74075e4f16f6e9ceadb3f52afe91ec919e48c5eba77516fcdb70cb",
+  "sonnetAssemblySha256": "7d14d07c9aa631767da5c24914b4b6b3b8c7fe1946713f77043a9a0800ead2b7"
+}

@@ -128,7 +128,7 @@ namespace IoTSharp.McpTools
             [Description("name of attribute")] string attributeName, McpServer _server)
         {
             var query = QueryByApiKey(_server);
-            var f = from c in _context.Device where c.Name == deviceName select c;
+            var f = from c in query where c.Name == deviceName select c;
             var devid = f.FirstOrDefault()?.Id;
             var al = from a in _context.AttributeLatest where devid == a.DeviceId && a.KeyName == attributeName select a;// new KeyValuePair<string,object>( a.KeyName,a.ToObject());
             return al.FirstOrDefault()?.ToObject();

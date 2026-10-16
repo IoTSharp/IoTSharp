@@ -4,6 +4,7 @@ using IoTSharp.Data;
 using IoTSharp.EventBus;
 using IoTSharp.FlowRuleEngine;
 using IoTSharp.Storage;
+using IoTSharp.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -66,7 +67,9 @@ namespace IoTSharp.Controllers
         [HttpGet]
         public async Task<ApiResult<List<Blob>>> List()
         {
-            var lst = await _blob.ListAsync();
+            if (!TenantBlobPath.TryGetPrefix(User, out var prefix))
+                return new ApiResult<List<Blob>>(ApiCode.DoNotAllow, "缺少租户或客户身份。", null);
+            var lst = await _blob.ListAsync(new ListOptions { FolderPath = prefix, Recurse = true, MaxResults = 1000 });
             return new ApiResult<List<Blob>>(ApiCode.Success, "OK", lst.ToList());
         }
 
@@ -75,6 +78,8 @@ namespace IoTSharp.Controllers
         [ProducesResponseType(typeof(FileResult), StatusCodes.Status200OK)]
         public async Task<ActionResult<ApiResult>> Download([FromQuery] string fullpath)
         {
+            if (!TenantBlobPath.TryResolve(User, fullpath, out var scopedPath)) return Forbid();
+            fullpath = scopedPath;
             if (string.IsNullOrWhiteSpace(fullpath))
             {
                 return NotFound(new ApiResult(ApiCode.NotFile, "file path is required"));
@@ -94,7 +99,7 @@ namespace IoTSharp.Controllers
                     {
                         await ss.CopyToAsync(stream);
                     }
-                    return File(stream, MimeMapping.MimeUtility.GetMimeMapping(blob.Name), blob.Name);
+                    return File(stream.ToArray(), MimeMapping.MimeUtility.GetMimeMapping(blob.Name), blob.Name);
                 }
             }
 
@@ -108,6 +113,8 @@ namespace IoTSharp.Controllers
             var result = new ApiResult<Dictionary<string, string>>(ApiCode.Success, "OK", new Dictionary<string, string>());
             foreach (var formFile in files)
             {
+                if (!TenantBlobPath.TryResolve(User, $"{path}/{formFile.FileName}", out var scopedPath))
+                    return new ApiResult<Dictionary<string, string>>(ApiCode.DoNotAllow, "对象路径不属于当前客户。", null);
                 if (formFile.Length > 0)
                 {
                     var fi = new FileInfo(Path.GetTempFileName());
@@ -117,7 +124,7 @@ namespace IoTSharp.Controllers
                         {
                             await formFile.CopyToAsync(stream);
                         }
-                        await _blob.WriteFileAsync($"{path}/{formFile.FileName}", fi.FullName);
+                        await _blob.WriteFileAsync(scopedPath, fi.FullName);
                         result.Data.Add(formFile.FileName, "OK");
                     }
                     catch (Exception ex)
@@ -141,6 +148,8 @@ namespace IoTSharp.Controllers
         [HttpPut()]
         public async Task<ApiResult> Modify([FromQuery] string path, IFormFile file)
         {
+            if (!TenantBlobPath.TryResolve(User, $"{path}/{file.FileName}", out var scopedPath))
+                return new ApiResult(ApiCode.DoNotAllow, "对象路径不属于当前客户。");
             var result = new ApiResult(ApiCode.Success, "OK");
             if (file.Length > 0)
             {
@@ -151,7 +160,7 @@ namespace IoTSharp.Controllers
                     {
                         await file.CopyToAsync(stream);
                     }
-                    await _blob.WriteFileAsync($"{path}/{file.FileName}", fi.FullName);
+                    await _blob.WriteFileAsync(scopedPath, fi.FullName);
                     result.Msg = "OK";
                 }
                 catch (Exception ex)
@@ -175,7 +184,9 @@ namespace IoTSharp.Controllers
         [HttpDelete()]
         public async Task<ApiResult> Delete([FromQuery] string fullpath)
         {
-            await _blob.DeleteAsync(fullpath);
+            if (!TenantBlobPath.TryResolve(User, fullpath, out var scopedPath))
+                return new ApiResult(ApiCode.DoNotAllow, "对象路径不属于当前客户。");
+            await _blob.DeleteAsync(scopedPath);
             return new ApiResult(ApiCode.Success, "OK");
         }
     }

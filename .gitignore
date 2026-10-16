@@ -761,4 +761,5 @@ package-lock.json
 docs/yarn.lock
 /docs/yarn.lock
 .playwright-cli/
+/output/playwright/
 graphify-out/

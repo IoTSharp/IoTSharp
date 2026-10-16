@@ -19,6 +19,14 @@
 
 IoTSharp 是一个面向工业与企业场景的开源 IoT 平台，覆盖设备接入、遥测采集、规则链处理、可视化管理、多租户运营与产品化交付。
 
+## 在线演示与测试账号
+
+- 演示地址：<https://iotsharp.online/#/login>
+- 演示账号：`demo@iotsharp.online`
+- 演示密码：`P@ssw0rd`
+
+仅公共演示账号的用户名和密码每半小时恢复一次。**正常注册账号可用于测试服务，账号、密码和业务数据均不参与演示重置，长期保留。** [注册自己的测试账号](https://iotsharp.online/#/signup)。
+
 ## 🚀 项目概览
 
 IoTSharp 将构建生产级 IoT 平台所需的关键能力组合在一起：
@@ -108,7 +116,7 @@ docker compose -f docker-compose.sonnetdb.yml up -d
 
 在线演示：
 
-- <https://host.iotsharp.net>
+- <https://iotsharp.online/#/login>（账号、密码和长期测试账号说明见上方“在线演示与测试账号”）。
 
 ## 🗂️ 仓库结构
 

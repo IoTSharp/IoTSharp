@@ -1,0 +1,43 @@
+{
+  "otherPasswordsUnchangedAfterScheduledAndManualReset": true,
+  "iotsharpAccounts": 3,
+  "sonnetAccounts": [
+    {
+      "name": "admin@iotsharp.online",
+      "isSuperuser": true
+    },
+    {
+      "name": "iotsharp-service",
+      "isSuperuser": true
+    },
+    {
+      "name": "demo@iotsharp.online",
+      "isSuperuser": false
+    }
+  ],
+  "services": [
+    {
+      "unit": "iotsharp-demo.service",
+      "pid": 1894579,
+      "executable": "/opt/iotsharp-releases/20261016-online-67a5c8c8-r2/demo/iotsharp/IoTSharp",
+      "assemblySha256": "349f2c251b74075e4f16f6e9ceadb3f52afe91ec919e48c5eba77516fcdb70cb",
+      "profile": {
+        "CachingUseIn": "SonnetDB",
+        "TelemetryStorage": "SonnetDB",
+        "EventBusMQ": "SonnetMQ",
+        "DataBase": "SonnetDB",
+        "EventBus": "SonnetMQ"
+      }
+    },
+    {
+      "unit": "sonnetdb-demo.service",
+      "pid": 1894497,
+      "executable": "/opt/iotsharp-releases/20261016-online-67a5c8c8-r2/demo/sonnetdb/SonnetDB",
+      "assemblySha256": "7d14d07c9aa631767da5c24914b4b6b3b8c7fe1946713f77043a9a0800ead2b7",
+      "profile": {
+        "SONNETDB_SonnetDBServer__DataRoot": "/var/lib/iotsharp-demo/data/sonnetdb"
+      }
+    }
+  ],
+  "nginxSha256": "6b5d788a59cd3a6cdf54fd4fb172172b089eac73a1c44fd57305a85ed882ba60"
+}

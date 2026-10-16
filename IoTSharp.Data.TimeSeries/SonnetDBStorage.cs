@@ -669,7 +669,8 @@ namespace IoTSharp.Storage
         private TelemetryDataDto? QueryLatestTelemetry(SndbConnection connection, string measurement, ColumnInfo field)
         {
             using var command = connection.CreateCommand();
-            command.CommandText = $"SELECT time, {QuoteIdentifier(field.Name)} FROM {QuoteIdentifier(measurement)} WHERE {QuoteIdentifier(field.Name)} IS NOT NULL";
+            // 让引擎处理乱序、稀疏字段和最新值选择，远程只传回一个候选点。
+            command.CommandText = $"SELECT time, {QuoteIdentifier(field.Name)} FROM {QuoteIdentifier(measurement)} WHERE {QuoteIdentifier(field.Name)} IS NOT NULL ORDER BY time DESC LIMIT 1";
             using var reader = command.ExecuteReader();
             TelemetryDataDto? latest = null;
             while (reader.Read())
@@ -735,6 +736,35 @@ namespace IoTSharp.Storage
             }
 
             var bucketCount = (int)((end - begin).Ticks / every.Ticks);
+            var bucketMilliseconds = (long)every.TotalMilliseconds;
+            // 引擎的 time 桶按 Unix epoch 对齐；非对齐范围保留既有 begin 起点语义。
+            if (bucketMilliseconds > 0 && every.Ticks % TimeSpan.TicksPerMillisecond == 0
+                && ToUnixMilliseconds(begin) % bucketMilliseconds == 0 && bucketCount > 0)
+            {
+                using var command = connection.CreateCommand();
+                var projections = numericFields.Select((field, index) => $"{aggregateFunction}({QuoteIdentifier(field.Name)}) AS {QuoteIdentifier("value" + index)}");
+                command.CommandText = $"SELECT time, {string.Join(", ", projections)} FROM {QuoteIdentifier(measurement)} WHERE time >= @begin AND time < @end GROUP BY time({bucketMilliseconds}ms) ORDER BY time";
+                command.Parameters.AddWithValue("@begin", ToUnixMilliseconds(begin));
+                command.Parameters.AddWithValue("@end", ToUnixMilliseconds(begin + bucketCount * every));
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var bucketEnd = ReadTime(reader.GetValue(0)) + every;
+                    for (var index = 0; index < numericFields.Length; index++)
+                    {
+                        if (reader.IsDBNull(index + 1)) continue;
+                        var field = numericFields[index];
+                        data.Add(new TelemetryDataDto
+                        {
+                            DateTime = bucketEnd,
+                            KeyName = field.Name,
+                            DataType = field.DataType,
+                            Value = ConvertAggregateValue(reader.GetValue(index + 1), field, aggregate)
+                        });
+                    }
+                }
+                return true;
+            }
             for (var i = 0; i < bucketCount; i++)
             {
                 var bucketBegin = begin + (i * every);
@@ -779,6 +809,12 @@ namespace IoTSharp.Storage
                 return null;
             }
 
+            return ConvertAggregateValue(raw, field, aggregate);
+        }
+
+        /// <summary>保留平台既有整数聚合返回合同，统一单桶与引擎分组查询的映射。</summary>
+        private static object ConvertAggregateValue(object raw, ColumnInfo field, Aggregate aggregate)
+        {
             if (field.DataType == DataType.Long && aggregate != Aggregate.Mean)
             {
                 return Convert.ToInt64(raw, CultureInfo.InvariantCulture);

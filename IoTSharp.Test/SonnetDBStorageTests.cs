@@ -61,6 +61,26 @@ public sealed class SonnetDBStorageTests : IDisposable
     }
 
     [Fact]
+    public async Task LatestAndGroupedQueries_PreserveSparseOutOfOrderValues()
+    {
+        var deviceId = Guid.NewGuid();
+        var storage = CreateStorage("TelemetryData");
+        var begin = new DateTime(2026, 10, 16, 0, 0, 0, DateTimeKind.Utc);
+        await storage.StoreTelemetryAsync(CreatePayload(deviceId, begin.AddSeconds(20), new Dictionary<string, object> { ["temperature"] = 30.0 }));
+        await storage.StoreTelemetryAsync(CreatePayload(deviceId, begin.AddSeconds(10), new Dictionary<string, object> { ["temperature"] = 10.0, ["humidity"] = 60L }));
+        await storage.StoreTelemetryAsync(CreatePayload(deviceId, begin.AddSeconds(70), new Dictionary<string, object> { ["humidity"] = 80L }));
+
+        var latest = await storage.GetTelemetryLatest(deviceId, "temperature,humidity");
+        Assert.Equal(30.0, latest.Single(x => x.KeyName == "temperature").Value);
+        Assert.Equal(begin.AddSeconds(20), latest.Single(x => x.KeyName == "temperature").DateTime);
+        Assert.Equal(80L, latest.Single(x => x.KeyName == "humidity").Value);
+        var aggregates = await storage.LoadTelemetryAsync(deviceId, "temperature,humidity", begin, begin.AddMinutes(2), TimeSpan.FromMinutes(1), Aggregate.Mean);
+        Assert.Contains(aggregates, x => x.KeyName == "temperature" && Equals(x.Value, 20.0) && x.DateTime == begin.AddMinutes(1));
+        Assert.Contains(aggregates, x => x.KeyName == "humidity" && Equals(x.Value, 60L) && x.DateTime == begin.AddMinutes(1));
+        Assert.Contains(aggregates, x => x.KeyName == "humidity" && Equals(x.Value, 80L) && x.DateTime == begin.AddMinutes(2));
+    }
+
+    [Fact]
     public async Task StoreTelemetryAsync_WhenUsingSonnetDB_CreatesOneMeasurementPerDevice()
     {
         var deviceA = Guid.NewGuid();

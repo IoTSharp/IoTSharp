@@ -344,12 +344,15 @@ namespace IoTSharp.Controllers
         /// </summary>
         /// <param name="model"></param>
         /// <returns >返回登录结果</returns>
-        [AllowAnonymous]
+        [Authorize(Roles = nameof(UserRole.CustomerAdmin))]
         [HttpPost]
         public async Task<ApiResult<LoginResult>> Register([FromBody] RegisterDto model)
         {
             try
             {
+                var customer = await _context.Customer.Include(c => c.Tenant).FirstOrDefaultAsync(c => c.Email == model.Customer);
+                if (!CanManageCustomer(customer))
+                    return new ApiResult<LoginResult>(ApiCode.DoNotAllow, "无权为该客户创建账号。", null);
                 var user = new IdentityUser
                 {
                     Email = model.Email,
@@ -360,15 +363,13 @@ namespace IoTSharp.Controllers
 
                 if (result.Succeeded)
                 {
-                    await _signInManager.SignInAsync(user, false);
-                    await _signInManager.UserManager.AddClaimAsync(user, new Claim(ClaimTypes.Email, model.Email));
-                    var customer = await _context.Customer.Include(c => c.Tenant).FirstOrDefaultAsync(c => c.Email == model.Customer);
+                    await _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Email, model.Email));
                     if (customer != null)
                     {
-                        await _signInManager.UserManager.AddClaimAsync(user, new Claim(ClaimTypes.Email, model.Email));
-                        await _signInManager.UserManager.AddClaimAsync(user, new Claim(IoTSharpClaimTypes.Customer, customer.Id.ToString()));
-                        await _signInManager.UserManager.AddClaimAsync(user, new Claim(IoTSharpClaimTypes.Tenant, customer.Tenant.Id.ToString()));
-                        await _signInManager.UserManager.AddToRolesAsync(user, new[] { nameof(UserRole.NormalUser) });
+                        await _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Email, model.Email));
+                        await _userManager.AddClaimAsync(user, new Claim(IoTSharpClaimTypes.Customer, customer.Id.ToString()));
+                        await _userManager.AddClaimAsync(user, new Claim(IoTSharpClaimTypes.Tenant, customer.Tenant.Id.ToString()));
+                        await _userManager.AddToRolesAsync(user, new[] { nameof(UserRole.NormalUser) });
                         return new ApiResult<LoginResult>(ApiCode.Success, "Ok", new LoginResult()
                         {
                             Code = ApiCode.Success,
@@ -399,8 +400,17 @@ namespace IoTSharp.Controllers
         [HttpPost]
         public async Task<ApiResult<LoginResult>> Create([FromBody] InstallDto model)
         {
+            if (string.IsNullOrWhiteSpace(model.TenantEMail) || string.IsNullOrWhiteSpace(model.CustomerEMail))
+                return new ApiResult<LoginResult>(ApiCode.InValidData, "注册新租户必须提供租户与客户邮箱。", null);
+            if (await _userManager.FindByEmailAsync(model.Email) != null)
+                return new ApiResult<LoginResult>(ApiCode.UserAlreadyExists, "用户已存在。", null);
             var tenant = _context.Tenant.FirstOrDefault(t => t.Email == model.TenantEMail && t.Deleted == false);
             var customer = _context.Customer.FirstOrDefault(t => t.Email == model.CustomerEMail && t.Deleted == false);
+            // 自助注册只能创建独立租户，不能凭已有业务邮箱加入他人的客户范围。
+            if (tenant != null || customer != null)
+                return new ApiResult<LoginResult>(ApiCode.AlreadyExists, "租户或客户已存在，请由对应管理员邀请。", null);
+            await using var registrationTransaction = _context.Database.IsRelational()
+                ? await _context.Database.BeginTransactionAsync() : null;
             if (tenant == null && customer == null)
             {
                 tenant = new Tenant() { Id = Guid.NewGuid(), Name = model.TenantName, Email = model.TenantEMail };
@@ -424,14 +434,13 @@ namespace IoTSharp.Controllers
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
-                    await _signInManager.SignInAsync(user, false);
-                    await _signInManager.UserManager.AddClaimAsync(user, new Claim(ClaimTypes.Email, model.Email));
-                    await _signInManager.UserManager.AddClaimAsync(user, new Claim(IoTSharpClaimTypes.Customer, customer.Id.ToString()));
-                    await _signInManager.UserManager.AddClaimAsync(user, new Claim(IoTSharpClaimTypes.Tenant, tenant.Id.ToString()));
-                    await _signInManager.UserManager.AddToRoleAsync(user, nameof(UserRole.Anonymous));
-                    await _signInManager.UserManager.AddToRoleAsync(user, nameof(UserRole.NormalUser));
-                    await _signInManager.UserManager.AddToRoleAsync(user, nameof(UserRole.CustomerAdmin));
-                    await _signInManager.UserManager.AddToRoleAsync(user, nameof(UserRole.TenantAdmin));
+                    await _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Email, model.Email));
+                    await _userManager.AddClaimAsync(user, new Claim(IoTSharpClaimTypes.Customer, customer.Id.ToString()));
+                    await _userManager.AddClaimAsync(user, new Claim(IoTSharpClaimTypes.Tenant, tenant.Id.ToString()));
+                    await _userManager.AddToRoleAsync(user, nameof(UserRole.Anonymous));
+                    await _userManager.AddToRoleAsync(user, nameof(UserRole.NormalUser));
+                    await _userManager.AddToRoleAsync(user, nameof(UserRole.CustomerAdmin));
+                    await _userManager.AddToRoleAsync(user, nameof(UserRole.TenantAdmin));
                     _context.Relationship.Add(new Relationship
                     {
                         IdentityUser = _context.Users.Find(user.Id),
@@ -439,6 +448,7 @@ namespace IoTSharp.Controllers
                         Tenant = _context.Tenant.Find(tenant.Id)
                     });
                     await _context.SaveChangesAsync();
+                    if (registrationTransaction != null) await registrationTransaction.CommitAsync();
                     return new ApiResult<LoginResult>(ApiCode.Success, "OK", null);
                 }
                 else
@@ -457,11 +467,13 @@ namespace IoTSharp.Controllers
         /// </summary>
         /// <param name="model"></param>
         /// <returns >返回登录结果</returns>
-        [AllowAnonymous]
+        [Authorize(Roles = nameof(UserRole.CustomerAdmin))]
         [HttpPost]
         public async Task<ApiResult<LoginResult>> CreateUser([FromBody] CreateUserDto model)
         {
             var customer = await _context.Customer.Include(c => c.Tenant).FirstOrDefaultAsync(c => c.Id == model.Customer);
+            if (!CanManageCustomer(customer))
+                return new ApiResult<LoginResult>(ApiCode.DoNotAllow, "无权为该客户创建账号。", null);
             if (customer != null && customer.Tenant != null)
             {
                 var tid = customer.Tenant.Id;
@@ -477,11 +489,10 @@ namespace IoTSharp.Controllers
                     var result = await _userManager.CreateAsync(user, model.Password);
                     if (result.Succeeded)
                     {
-                        await _signInManager.SignInAsync(user, false);
-                        await _signInManager.UserManager.AddClaimAsync(user, new Claim(ClaimTypes.Email, model.Email));
-                        await _signInManager.UserManager.AddClaimAsync(user, new Claim(IoTSharpClaimTypes.Customer, model.Customer.ToString()));
-                        await _signInManager.UserManager.AddClaimAsync(user, new Claim(IoTSharpClaimTypes.Tenant, tid.ToString()));
-                        await _signInManager.UserManager.AddToRoleAsync(user, nameof(UserRole.NormalUser));
+                        await _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Email, model.Email));
+                        await _userManager.AddClaimAsync(user, new Claim(IoTSharpClaimTypes.Customer, model.Customer.ToString()));
+                        await _userManager.AddClaimAsync(user, new Claim(IoTSharpClaimTypes.Tenant, tid.ToString()));
+                        await _userManager.AddToRoleAsync(user, nameof(UserRole.NormalUser));
                         var rship = new Relationship
                         {
                             IdentityUser = _context.Users.Find(user.Id),
@@ -518,6 +529,9 @@ namespace IoTSharp.Controllers
         {
             try
             {
+                var targetCustomer = await _context.Customer.Include(c => c.Tenant).FirstOrDefaultAsync(c => c.Id == model.CustomerId);
+                if (!CanManageCustomer(targetCustomer))
+                    return new ApiResult<LoginResult>(ApiCode.DoNotAllow, "无权为该客户创建账号。", null);
                 var user = new IdentityUser
                 {
                     Email = model.Email,
@@ -528,23 +542,18 @@ namespace IoTSharp.Controllers
 
                 if (result.Succeeded)
                 {
-                    await _signInManager.SignInAsync(user, false);
-                    await _signInManager.UserManager.AddClaimAsync(user, new Claim(ClaimTypes.Email, model.Email));
+                    await _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Email, model.Email));
                     if (model.CustomerId != Guid.Empty)
                     {
                         var customer = await _context.Customer.Include(c => c.Tenant).FirstOrDefaultAsync(c => c.Id == model.CustomerId);
                         if (customer != null)
                         {
-                            await _signInManager.UserManager.AddClaimAsync(user, new Claim(ClaimTypes.Email, model.Email));
-                            await _signInManager.UserManager.AddClaimAsync(user, new Claim(IoTSharpClaimTypes.Customer, customer.Id.ToString()));
-                            await _signInManager.UserManager.AddClaimAsync(user, new Claim(IoTSharpClaimTypes.Tenant, customer.Tenant.Id.ToString()));
-                            await _signInManager.UserManager.AddToRolesAsync(user, new[] { nameof(UserRole.NormalUser) });
+                            await _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Email, model.Email));
+                            await _userManager.AddClaimAsync(user, new Claim(IoTSharpClaimTypes.Customer, customer.Id.ToString()));
+                            await _userManager.AddClaimAsync(user, new Claim(IoTSharpClaimTypes.Tenant, customer.Tenant.Id.ToString()));
+                            await _userManager.AddToRolesAsync(user, new[] { nameof(UserRole.NormalUser) });
 
-                            await _signInManager.UserManager.AddToRoleAsync(user, nameof(UserRole.Anonymous));
-                            await _signInManager.UserManager.AddToRoleAsync(user, nameof(UserRole.NormalUser));
-                            await _signInManager.UserManager.AddToRoleAsync(user, nameof(UserRole.CustomerAdmin));
-                            await _signInManager.UserManager.AddToRoleAsync(user, nameof(UserRole.TenantAdmin));
-                            await _signInManager.UserManager.AddToRoleAsync(user, nameof(UserRole.SystemAdmin));
+                            // 客户管理员创建普通用户，不能通过此入口授予系统或租户管理权限。
                             var rship = new Relationship
                             {
                                 IdentityUser = _context.Users.Find(user.Id),
@@ -585,6 +594,15 @@ namespace IoTSharp.Controllers
             return new ApiResult<LoginResult>(ApiCode.InValidData, "", null);
         }
 
+        /// <summary>限制客户账号管理范围，跨租户操作仅允许系统管理员。</summary>
+        private bool CanManageCustomer(Customer customer)
+        {
+            if (customer?.Tenant == null || customer.Deleted || customer.Tenant.Deleted) return false;
+            if (User.IsInRole(nameof(UserRole.SystemAdmin))) return true;
+            return customer.Tenant.Id == User.GetTenantId()
+                && (User.IsInRole(nameof(UserRole.TenantAdmin)) || customer.Id == User.GetCustomerId());
+        }
+
         /// <summary>
         /// 列出指定租户的所有用户。
         /// </summary>
@@ -592,6 +610,13 @@ namespace IoTSharp.Controllers
         /// <returns></returns>
         public async Task<ApiResult<PagedData<UserItemDto>>> List([FromQuery] UserQueryDto m)
         {
+            if (!User.IsInRole(nameof(UserRole.SystemAdmin)))
+            {
+                if (m.CustomerId == Guid.Empty) m.CustomerId = User.GetCustomerId();
+                var customer = await _context.Customer.Include(c => c.Tenant).FirstOrDefaultAsync(c => c.Id == m.CustomerId);
+                if (!CanManageCustomer(customer))
+                    return new ApiResult<PagedData<UserItemDto>>(ApiCode.DoNotAllow, "无权查询该客户的账号。", null);
+            }
             var mx = m.CustomerId.ToString();
             //如果前端传参有 客户Id，则查询， 为空暂时查全部
             var srcDb = _context.Users.Join<IdentityUser, Relationship, string, UserItemDto>(_context.Relationship.Include(p => p.Tenant).ThenInclude(p => p.Customers).Where(x => x.Customer.Id == m.CustomerId).AsEnumerable(),
@@ -655,6 +680,8 @@ namespace IoTSharp.Controllers
         public async Task<ApiResult<UserItemDto>> Get(String Id)
         {
             var user = await _userManager.FindByIdAsync(Id);
+            if (!await CanManageUserAsync(user, allowSelf: true))
+                return new ApiResult<UserItemDto>(ApiCode.DoNotAllow, "无权查看该账号。", null);
             if (user != null)
             {
                 return new ApiResult<UserItemDto>(ApiCode.Success, "", new UserItemDto { PhoneNumber = user.PhoneNumber, Id = Id, Email = user.Email });
@@ -675,11 +702,14 @@ namespace IoTSharp.Controllers
         ///CanNotLockYourself =10028 
         ///CanNotUnlockYourself =10029 
         ///</returns>
+        [Authorize(Roles = nameof(UserRole.CustomerAdmin))]
         [HttpPut]
         public async Task<ApiResult> Lock(LockDto dto)
         {
             var result = new ApiResult();
             var user = await _userManager.FindByIdAsync(dto.Id.ToString());
+            if (!await CanManageUserAsync(user, allowSelf: false))
+                return new ApiResult(ApiCode.DoNotAllow, "无权锁定该账号。 ");
             if (user != null)
             {
                 var les = await _userManager.GetLockoutEnabledAsync(user);
@@ -782,6 +812,8 @@ namespace IoTSharp.Controllers
             }
 
             var idu = await _userManager.FindByIdAsync(user.Id);
+            if (!await CanManageUserAsync(idu, allowSelf: true))
+                return new ApiResult<bool>(ApiCode.DoNotAllow, "无权修改该账号。", false);
             if (idu is null)
             {
                 return new ApiResult<bool>(ApiCode.NotFoundUser, "can't find that user", false);
@@ -827,7 +859,7 @@ namespace IoTSharp.Controllers
                         return new ApiResult<bool>(ApiCode.NotFoundUser, "can't find current user", false);
                     }
 
-                    var result = await _signInManager.UserManager.ChangePasswordAsync(cuser, password.Pass, password.PassNew);
+                    var result = await _userManager.ChangePasswordAsync(cuser, password.Pass, password.PassNew);
                     if (result.Succeeded)
                     {
                         return new ApiResult<bool>(ApiCode.Success, "Ok", result.Succeeded);
@@ -863,7 +895,8 @@ namespace IoTSharp.Controllers
                 return new ApiResult<bool>(ApiCode.Success, "OK", false);
             }
         }
-        [AllowAnonymous]
+        /// <summary>仅系统管理员可使用受保护的旧账号恢复入口。</summary>
+        [Authorize(Roles = nameof(UserRole.SystemAdmin))]
         [HttpGet]
         public async Task<ApiResult> ResetPasswordAsync(string email, string rootkey, string newpassword)
         {
@@ -899,6 +932,18 @@ namespace IoTSharp.Controllers
                 }
 
             }
+        }
+        /// <summary>用户只能维护自己，业务管理员只能维护授权范围内的非系统账号。</summary>
+        private async Task<bool> CanManageUserAsync(IdentityUser target, bool allowSelf)
+        {
+            if (target == null) return false;
+            if (User.IsInRole(nameof(UserRole.SystemAdmin))) return true;
+            if (allowSelf && User.FindFirstValue(ClaimTypes.NameIdentifier) == target.Id) return true;
+            if (!User.IsInRole(nameof(UserRole.CustomerAdmin)) || await _userManager.IsInRoleAsync(target, nameof(UserRole.SystemAdmin))) return false;
+            if (await _userManager.IsInRoleAsync(target, nameof(UserRole.TenantAdmin)) && !User.IsInRole(nameof(UserRole.TenantAdmin))) return false;
+            var relation = await _context.Relationship.Include(r => r.Customer).ThenInclude(c => c.Tenant)
+                .FirstOrDefaultAsync(r => r.IdentityUser.Id == target.Id);
+            return CanManageCustomer(relation?.Customer);
         }
     }
 }

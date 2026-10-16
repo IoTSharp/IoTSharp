@@ -19,6 +19,14 @@
 
 IoTSharp is an open-source industrial IoT platform for device access, telemetry collection, rule-chain processing, visualization, multi-tenant operations, and product delivery.
 
+## Online demo and testing accounts
+
+- Demo: <https://iotsharp.online/#/login>
+- Username: `demo@iotsharp.online`
+- Password: `P@ssw0rd`
+
+Only the shared demo account has its username and password restored every 30 minutes. **Regular registered accounts can be used to test the service. Their accounts, passwords, and business data are not reset and are retained long term.** [Register a testing account](https://iotsharp.online/#/signup).
+
 ## 🚀 Overview
 
 IoTSharp brings together the core building blocks needed to run an IoT platform in production:

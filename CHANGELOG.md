@@ -8,6 +8,11 @@ This project follows a lightweight Keep a Changelog style. Version numbers in th
 
 ### Added
 
+- 在官方演示首页和中英文 README 展示公开演示地址、账号及密码，并明确正常注册账号可用于测试服务、账号和业务数据不参与演示重置且长期保留。
+
+- 增加受保护的 Online 演示账号维护命令，绑定用户 ID 和演示租户，只恢复指定演示凭据；IoTSharp Online 与 SonnetDB 最新主干客户端完成同版本部署及公开注册/数据保留验收。
+- 升级 SonnetDB 子模块到 `67a5c8c8`，下推遥测最新值与对齐时间桶的多字段聚合；公开用户管理补充租户范围与系统管理员保护，文件接口按客户前缀隔离并修复下载流提前关闭，修正 MCP 单属性查询丢失授权范围。
+
 - Documented the planned Ontology Engineering application track (#180-#185), covering equipment, alarms, maintenance records, optional Sezika decision integration, review, provenance, and separate acceptance gates. Runtime implementation and domain validation remain pending.
 - Docker Desktop extension skeleton and local SQLite demo flow.
 - OpenClaw-oriented SQLite setup runbook and reusable prompt text.

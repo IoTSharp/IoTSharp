@@ -1,0 +1,81 @@
+{
+  "status": "passed",
+  "durationMs": 71394,
+  "results": [
+    {
+      "product": "IoTSharp",
+      "account": "demo-business",
+      "loginCode": 10000,
+      "roles": [
+        "TenantAdmin",
+        "NormalUser",
+        "CustomerAdmin"
+      ],
+      "profileCode": 10000,
+      "url": "https://iotsharp.online/#/dashboard"
+    },
+    {
+      "product": "IoTSharp",
+      "account": "registered",
+      "loginCode": 10000,
+      "roles": [
+        "TenantAdmin",
+        "NormalUser",
+        "Anonymous",
+        "CustomerAdmin"
+      ],
+      "profileCode": 10000,
+      "url": "https://iotsharp.online/#/dashboard"
+    },
+    {
+      "product": "IoTSharp",
+      "account": "demo-restored",
+      "loginCode": 10000,
+      "roles": [
+        "TenantAdmin",
+        "NormalUser",
+        "CustomerAdmin"
+      ],
+      "profileCode": 10000,
+      "url": "https://iotsharp.online/#/dashboard"
+    },
+    {
+      "product": "SonnetDB",
+      "account": "demo-restored",
+      "loginStatus": 200,
+      "isSuperuser": false,
+      "databases": {
+        "databases": [
+          "demo"
+        ]
+      },
+      "internalSchemaStatus": 403,
+      "url": "https://iotsharp.online/sonnetdb/admin/app/dashboard"
+    },
+    {
+      "product": "IoTSharp",
+      "account": "registered-after-reset",
+      "loginCode": 10000,
+      "roles": [
+        "TenantAdmin",
+        "NormalUser",
+        "Anonymous",
+        "CustomerAdmin"
+      ],
+      "profileCode": 10000,
+      "url": "https://iotsharp.online/#/dashboard"
+    },
+    {
+      "businessAcceptance": true,
+      "productId": "6cc03f5a-d365-4d35-a478-9f67b29c7faa",
+      "deviceId": "bac93e5b-b3f4-4a78-930c-3576af94af85",
+      "syntheticTelemetry": true,
+      "crossTenantDeviceDenied": true,
+      "blobRoundTrip": true,
+      "crossTenantBlobStatus": 403,
+      "demoPasswordsRestored": true,
+      "registeredLoginPreserved": true,
+      "dataSurvivedServiceRestart": true
+    }
+  ]
+}

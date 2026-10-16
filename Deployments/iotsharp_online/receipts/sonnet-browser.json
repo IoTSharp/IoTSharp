@@ -1,0 +1,37 @@
+{
+  "status": "passed",
+  "durationMs": 12708,
+  "results": [
+    {
+      "product": "SonnetDB",
+      "account": "demo",
+      "loginStatus": 200,
+      "isSuperuser": false,
+      "databases": {
+        "databases": [
+          "demo"
+        ]
+      },
+      "internalSchemaStatus": 403,
+      "url": "https://iotsharp.online/sonnetdb/admin/app/dashboard"
+    },
+    {
+      "product": "SonnetDB",
+      "account": "admin",
+      "loginStatus": 200,
+      "isSuperuser": true,
+      "databases": {
+        "databases": [
+          "cache",
+          "demo",
+          "events",
+          "iotsharp",
+          "objects",
+          "telemetry"
+        ]
+      },
+      "internalSchemaStatus": 200,
+      "url": "https://iotsharp.online/sonnetdb/admin/app/dashboard"
+    }
+  ]
+}

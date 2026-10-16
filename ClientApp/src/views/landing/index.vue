@@ -52,6 +52,14 @@
 					</div>
 				</dl>
 
+				<section class="entry-demo" aria-labelledby="public-demo-title">
+					<h2 id="public-demo-title">官方在线演示</h2>
+					<a href="https://iotsharp.online/#/login">打开 IoTSharp 演示</a>
+					<p>账号：<code>demo@iotsharp.online</code><br />密码：<code>P@ssw0rd</code></p>
+					<p>仅公共演示账号的用户名和密码每半小时恢复一次。</p>
+					<p><strong>正常注册账号可用于测试服务，账号、密码和业务数据均不参与演示重置，长期保留。</strong></p>
+				</section>
+
 				<RouterLink v-if="isInstalled" class="entry-access__primary" to="/login">进入控制台</RouterLink>
 				<RouterLink v-else class="entry-access__primary" to="/installer">开始初始化</RouterLink>
 				<div class="entry-access__links">
@@ -82,6 +90,20 @@ const platformLayers = [
 </script>
 
 <style scoped lang="scss">
+.entry-demo {
+	margin: 16px 0;
+	padding: 16px 0;
+	border-top: 1px solid var(--iotsharp-border);
+	border-bottom: 1px solid var(--iotsharp-border);
+	font-size: 13px;
+	line-height: 1.7;
+	overflow-wrap: anywhere;
+
+	h2 { margin: 0 0 8px; font-size: 16px; }
+	p { margin: 8px 0 0; }
+	a { color: var(--iotsharp-accent); }
+}
+
 .entry-page {
 	min-height: 100vh;
 	background: var(--iotsharp-quiet-gradient);

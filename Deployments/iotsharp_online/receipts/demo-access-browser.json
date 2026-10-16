@@ -1,0 +1,37 @@
+{
+  "status": "passed",
+  "results": [
+    {
+      "page": "iotsharp",
+      "viewport": 1365,
+      "publicDemoShown": true,
+      "persistentAccountPolicyShown": true,
+      "loginLink": "https://iotsharp.online/#/login",
+      "horizontalOverflow": false
+    },
+    {
+      "page": "sonnetdb",
+      "viewport": 1365,
+      "publicDemoShown": true,
+      "persistentAccountPolicyShown": true,
+      "loginLink": "https://iotsharp.online/sonnetdb/admin/login",
+      "horizontalOverflow": false
+    },
+    {
+      "page": "iotsharp",
+      "viewport": 390,
+      "publicDemoShown": true,
+      "persistentAccountPolicyShown": true,
+      "loginLink": "https://iotsharp.online/#/login",
+      "horizontalOverflow": false
+    },
+    {
+      "page": "sonnetdb",
+      "viewport": 390,
+      "publicDemoShown": true,
+      "persistentAccountPolicyShown": true,
+      "loginLink": "https://iotsharp.online/sonnetdb/admin/login",
+      "horizontalOverflow": false
+    }
+  ]
+}

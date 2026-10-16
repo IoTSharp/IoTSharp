@@ -16,17 +16,26 @@ using Figgle.Fonts;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.EventLog;
 using System.Net;
+using Microsoft.Extensions.DependencyInjection;
+using IoTSharp.Services;
 
 namespace IoTSharp
 {
     public class Program
     {
 
-        public static void Main(string[] args)
+        public static async Task<int> Main(string[] args)
         {
             InitializeProcessPaths();
+            if (args.Length == 1 && args[0] == "--online-account-maintenance")
+            {
+                using var maintenanceHost = CreateHostBuilder(Array.Empty<string>()).Build();
+                using var scope = maintenanceHost.Services.CreateScope();
+                return await OnlineAccountMaintenance.RunCommandAsync(scope.ServiceProvider);
+            }
             Console.WriteLine(FiggleFonts.Doom.Render("IoTSharp"));
-            CreateHostBuilder(args).Build().Run();
+            await CreateHostBuilder(args).Build().RunAsync();
+            return 0;
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
