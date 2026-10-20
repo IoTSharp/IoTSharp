@@ -146,7 +146,8 @@ const getData = async () => {
   if (params.datetimeRange[1]) params.end = params.datetimeRange[1]
   console.log(`%cgetData@DeviceDetailTelemetryHistory:148`, 'color:black;font-size:16px;background:yellow;font-weight: bold;', params.keys)
   params.keys = params.keys.join(',')
-  params.every = '0.' + params.every + ':000';
+  // queryForm.every 由 el-time-picker 的 value-format="HH:mm:ss" 保证格式，直接透传即可；
+  // 若拼成 '0.HH:mm:ss:000' 不是合法 TimeSpan，后端模型绑定失败会恒返回 HTTP 400。
   loading.value = true
   try {
     const res = await deviceApi().getDeviceTelemetryData(props.deviceId, params)
