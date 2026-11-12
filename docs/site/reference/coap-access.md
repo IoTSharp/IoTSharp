@@ -28,7 +28,7 @@ IoTSharp 通过 NuGet `PackageReference` 消费 CoAP.NET fork `3.0.1`，平台�
 | `IoTSharp/IoTSharp.csproj` | `IoTSharp.CoAP.NET`、`IoTSharp.CoAP.NET.AspNetCore` NuGet `3.0.1` |
 | `tools/IoTSharp.Benchmarks/IoTSharp.Benchmarks.csproj` | `IoTSharp.CoAP.NET` NuGet `3.0.1` |
 
-CoAP 组件不再依赖本仓的 SonnetDB 子模块源码。MQTT 路由组件独立通过 `MQTTnet.AspNetCore.Routing` NuGet `5.3.0` 消费；设备访问路径和平台业务分发仍由 IoTSharp 维护。
+CoAP 组件不再依赖本仓的 SonnetDB 子模块源码。MQTT 路由组件独立通过 `MQTTnet.AspNetCore.Routing` NuGet `5.3.1` 消费；设备访问路径和平台业务分发仍由 IoTSharp 维护。
 
 配置驱动的 `AddCoapServer(IConfiguration)`、`UseCoapServer()` 和查询参数辅助方法由组件提供，平台不复制实现。`3.0.0` 不含这些后续扩展；当前正式版本为 `3.0.1`。
 
