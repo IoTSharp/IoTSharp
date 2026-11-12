@@ -157,10 +157,10 @@ namespace IoTSharp.Controllers
 
 
         /// <summary>
-        /// 返回指定id的客户
+        /// 返回当前用户权限范围内的未删除客户信息。
         /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
+        /// <param name="id">客户标识。</param>
+        /// <returns>可访问的客户；不存在或超出权限范围时不返回客户数据。</returns>
         [Authorize(Roles = nameof(UserRole.NormalUser))]
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -168,8 +168,18 @@ namespace IoTSharp.Controllers
         [ProducesDefaultResponseType]
         public async Task<ApiResult<Customer>> GetCustomer(Guid id)
         {
-            var customer = await _context.Customer.FindAsync(id);
-            if (customer == null)
+            if (id == Guid.Empty)
+            {
+                return new ApiResult<Customer>(ApiCode.NotFoundCustomer, "This customer was not found", null);
+            }
+
+            var customer = await _context.Customer
+                .Include(c => c.Tenant)
+                .FirstOrDefaultAsync(c => c.Id == id
+                    && !c.Deleted
+                    && c.Tenant != null
+                    && !c.Tenant.Deleted);
+            if (customer == null || !CanAccessCustomer(customer))
             {
                 return new ApiResult<Customer>(ApiCode.NotFoundCustomer, "This customer was not found", null);
             }
@@ -177,11 +187,11 @@ namespace IoTSharp.Controllers
         }
 
         /// <summary>
-        /// 修改指定租户为 指定的信息
+        /// 修改当前用户权限范围内的客户资料，保留数据库中的租户归属和管理状态。
         /// </summary>
-        /// <param name="id"></param>
-        /// <param name="customer"></param>
-        /// <returns></returns>
+        /// <param name="id">客户标识，必须与请求中的标识一致。</param>
+        /// <param name="customer">客户资料；空 TenantId 兼容旧客户端，非空值必须等于持久化归属。</param>
+        /// <returns>更新后的客户；非法请求或超出权限范围时不返回客户数据。</returns>
         [Authorize(Roles = nameof(UserRole.CustomerAdmin))]
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -191,32 +201,99 @@ namespace IoTSharp.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ApiResult<Customer>> PutCustomer(Guid id, CustomerDto customer)
         {
-            if (id != customer.Id)
+            if (customer is null || id == Guid.Empty || id != customer.Id)
             {
-                return new ApiResult<Customer>(ApiCode.InValidData, "InValidData", customer);
+                return new ApiResult<Customer>(ApiCode.InValidData, "InValidData", null);
             }
-            if (customer.TenantId != Guid.Empty)
+
+            var persisted = await _context.Customer
+                .Include(c => c.Tenant)
+                .FirstOrDefaultAsync(c => c.Id == id
+                    && !c.Deleted
+                    && c.Tenant != null
+                    && !c.Tenant.Deleted);
+            if (persisted == null || !CanAccessCustomer(persisted))
             {
-                customer.Tenant = _context.Tenant.Find(customer.TenantId);
+                return new ApiResult<Customer>(ApiCode.NotFoundCustomer, "This customer was not found", null);
             }
-            _context.Entry(customer).State = EntityState.Modified;
+
+            // 空 TenantId 兼容旧客户端；导航对象和管理字段由下方资料字段白名单忽略。
+            if (customer.TenantId != Guid.Empty && customer.TenantId != persisted.Tenant.Id)
+            {
+                return new ApiResult<Customer>(ApiCode.InValidData, "InValidData", null);
+            }
+
+            persisted.Name = customer.Name;
+            persisted.Email = customer.Email;
+            persisted.Phone = customer.Phone;
+            persisted.Country = customer.Country;
+            persisted.Province = customer.Province;
+            persisted.City = customer.City;
+            persisted.Street = customer.Street;
+            persisted.Address = customer.Address;
+            persisted.ZipCode = customer.ZipCode;
             try
             {
                 await _context.SaveChangesAsync();
 
-                return new ApiResult<Customer>(ApiCode.Success, "", customer);
+                return new ApiResult<Customer>(ApiCode.Success, "", persisted);
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!_context.Customer.Any(e => e.Id == id && e.Tenant.Id == customer.TenantId))
-                {
-                    return new ApiResult<Customer>(ApiCode.NotFoundCustomer, "This customer was not found", customer);
-                }
-                else
-                {
-                    throw;
-                }
+                return new ApiResult<Customer>(ApiCode.NotFoundCustomer, "This customer was not found", null);
             }
+        }
+
+        /// <summary>
+        /// 按当前用户角色和 JWT 归属声明校验客户范围。
+        /// </summary>
+        /// <param name="customer">已从数据库加载并包含租户的客户。</param>
+        /// <returns>客户属于当前用户可管理范围时返回 <see langword="true"/>。</returns>
+        private bool CanAccessCustomer(Customer customer)
+        {
+            if (User.IsInRole(nameof(UserRole.SystemAdmin)))
+            {
+                return true;
+            }
+
+            if (customer.Tenant == null || customer.Tenant.Deleted)
+            {
+                return false;
+            }
+
+            if (!TryGetClaimId(IoTSharpClaimTypes.Tenant, out var tenantId)
+                || tenantId != customer.Tenant.Id)
+            {
+                return false;
+            }
+
+            if (User.IsInRole(nameof(UserRole.TenantAdmin)))
+            {
+                return true;
+            }
+
+            return (User.IsInRole(nameof(UserRole.CustomerAdmin))
+                    || User.IsInRole(nameof(UserRole.NormalUser)))
+                && TryGetClaimId(IoTSharpClaimTypes.Customer, out var customerId)
+                && customerId == customer.Id;
+        }
+
+        /// <summary>
+        /// 严格读取单一的非空 GUID 声明，缺失、重复或格式错误均拒绝。
+        /// </summary>
+        /// <param name="claimType">声明类型。</param>
+        /// <param name="id">解析后的标识。</param>
+        /// <returns>声明有效时返回 <see langword="true"/>。</returns>
+        private bool TryGetClaimId(string claimType, out Guid id)
+        {
+            id = Guid.Empty;
+            var values = User.Claims
+                .Where(claim => claim.Type == claimType)
+                .Select(claim => claim.Value)
+                .ToArray();
+            return values.Length == 1
+                && Guid.TryParse(values[0], out id)
+                && id != Guid.Empty;
         }
 
         /// <summary>

@@ -63,10 +63,10 @@ namespace IoTSharp.Controllers
         }
 
         /// <summary>
-        /// 普通用户用于活的自身的租户信息
+        /// 读取当前账号可访问的未删除租户，系统管理员可跨租户查询。
         /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
+        /// <param name="id">目标租户标识。</param>
+        /// <returns>租户资料；不存在或超出授权范围时不返回数据。</returns>
         [Authorize(Roles = nameof(UserRole.NormalUser))]
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -74,7 +74,14 @@ namespace IoTSharp.Controllers
         [ProducesDefaultResponseType]
         public async Task<ApiResult<Tenant>> GetTenant(Guid id)
         {
-            var tenant = await _context.Tenant.FindAsync(id);
+            if (!HasTenantAccess(id))
+            {
+                return new ApiResult<Tenant>(ApiCode.CantFindObject, "can't find this object", null);
+            }
+
+            var tenant = await _context.Tenant
+                .AsNoTracking()
+                .FirstOrDefaultAsync(c => c.Id == id && !c.Deleted);
             if (tenant == null)
             {
                 return new ApiResult<Tenant>(ApiCode.CantFindObject, "can't find this object", null);
@@ -84,11 +91,11 @@ namespace IoTSharp.Controllers
 
         }
         /// <summary>
-        /// 修改指定的租户信息， 仅限租户管理员
+        /// 修改授权范围内租户的联系和地址资料，保留身份、删除状态和关联配置。
         /// </summary>
-        /// <param name="id"></param>
-        /// <param name="tenant"></param>
-        /// <returns></returns>
+        /// <param name="id">目标租户标识，必须与请求体一致。</param>
+        /// <param name="tenant">待更新的租户资料，仅复制允许编辑的字段。</param>
+        /// <returns>更新后的租户；校验失败、越权或保存失败时不返回数据。</returns>
         [Authorize(Roles = nameof(UserRole.TenantAdmin))]
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -98,12 +105,33 @@ namespace IoTSharp.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ApiResult<Tenant>> PutTenant(Guid id, Tenant tenant)
         {
-            if (id != tenant.Id)
+            if (tenant == null || id == Guid.Empty || id != tenant.Id)
             {
-                return new ApiResult<Tenant>(ApiCode.InValidData, "InValidData", tenant);
+                return new ApiResult<Tenant>(ApiCode.InValidData, "InValidData", null);
             }
 
-            _context.Entry(tenant).State = EntityState.Modified;
+            if (!HasTenantAccess(id))
+            {
+                return new ApiResult<Tenant>(ApiCode.CantFindObject, "can't find this object", null);
+            }
+
+            var existingTenant = await _context.Tenant
+                .FirstOrDefaultAsync(c => c.Id == id && !c.Deleted);
+            if (existingTenant == null)
+            {
+                return new ApiResult<Tenant>(ApiCode.CantFindObject, "can't find this object", null);
+            }
+
+            // 只更新租户资料字段，禁止请求体覆盖身份、删除标记和导航属性。
+            existingTenant.Name = tenant.Name;
+            existingTenant.Email = tenant.Email;
+            existingTenant.Phone = tenant.Phone;
+            existingTenant.Country = tenant.Country;
+            existingTenant.Province = tenant.Province;
+            existingTenant.City = tenant.City;
+            existingTenant.Street = tenant.Street;
+            existingTenant.Address = tenant.Address;
+            existingTenant.ZipCode = tenant.ZipCode;
 
             try
             {
@@ -113,20 +141,44 @@ namespace IoTSharp.Controllers
             {
                 if (!_context.Tenant.Any(c => c.Id == id && c.Deleted == false))
                 {
-                    return new ApiResult<Tenant>(ApiCode.CantFindObject, "cant't find this object", tenant);
+                    return new ApiResult<Tenant>(ApiCode.CantFindObject, "cant't find this object", null);
                 }
                 else
                 {
 
-                    return new ApiResult<Tenant>(ApiCode.Exception, ex.Message, tenant);
+                    return new ApiResult<Tenant>(ApiCode.Exception, ex.Message, null);
                 }
             }
             catch (Exception ex)
             {
-                return new ApiResult<Tenant>(ApiCode.Exception, ex.Message, tenant);
+                return new ApiResult<Tenant>(ApiCode.Exception, ex.Message, null);
             }
 
-            return new ApiResult<Tenant>(ApiCode.Success, "Ok", tenant);
+            return new ApiResult<Tenant>(ApiCode.Success, "Ok", existingTenant);
+        }
+
+        /// <summary>
+        /// 验证当前用户是否可以访问指定租户，缺失或无效的租户声明默认拒绝。
+        /// </summary>
+        /// <param name="tenantId">请求访问的租户标识。</param>
+        /// <returns>系统管理员或同租户用户返回 true，否则返回 false。</returns>
+        private bool HasTenantAccess(Guid tenantId)
+        {
+            if (tenantId == Guid.Empty)
+            {
+                return false;
+            }
+
+            if (User.IsInRole(nameof(UserRole.SystemAdmin)))
+            {
+                return true;
+            }
+
+            var tenantClaims = User.FindAll(IoTSharpClaimTypes.Tenant).Take(2).ToArray();
+            return tenantClaims.Length == 1
+                && Guid.TryParse(tenantClaims[0].Value, out var scopedTenantId)
+                && scopedTenantId != Guid.Empty
+                && scopedTenantId == tenantId;
         }
         /// <summary>
         /// 新增租户， 仅限系统管理员
