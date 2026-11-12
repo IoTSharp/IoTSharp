@@ -39,6 +39,7 @@ This project follows a lightweight Keep a Changelog style. Version numbers in th
 
 - SonnetDB 改为消费正式 `5.0.0` NuGet 包和 `iotsharp/sonnetdb:5.0.0` 镜像，移除源码子模块和构建依赖；保留自有 Provider、缓存、SonnetMQ、MQTT 路由、CoAP 和容器测试能力，统一 EF Core `10.0.14` 依赖下限。
 - 修正 CI 的 `.slnx`、JsonDB 项目路径和子模块初始化，测试夹具默认使用 SonnetDB 发布镜像。
+- CoAP.NET `3.0.1` 和 MQTTnet.AspNetCore.Routing `5.3.1` 已发布到 NuGet.org，并完成独立公开包消费验证；CoAP 配置、UDP/DTLS 和查询辅助能力继续由组件提供。
 
 - Reworked the documentation site information architecture, homepage, blog presentation, and doc detail layout.
 - Renamed `setup` user-facing flows and docs toward `installer`.

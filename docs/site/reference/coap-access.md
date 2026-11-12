@@ -21,16 +21,16 @@ IoTSharp 的 CoAP 接入用于受约束设备、UDP 上报和需要保留 CoAP/C
 
 ## 组件消费与版本
 
-IoTSharp 通过 NuGet `PackageReference` 消费 CoAP.NET fork，平台和基准工具均使用根目录 `Directory.Packages.props` 管理版本。当前准备消费 `3.0.1` 补丁候选；该候选已完成本地打包与回归，正式 NuGet 发布和公开源消费仍待完成。
+IoTSharp 通过 NuGet `PackageReference` 消费 CoAP.NET fork `3.0.1`，平台和基准工具均使用根目录 `Directory.Packages.props` 管理版本。三个包已经发布到 NuGet.org，并完成公开源全新缓存消费验证。
 
 | 项目 | 引用方式 |
 | --- | --- |
-| `IoTSharp/IoTSharp.csproj` | `IoTSharp.CoAP.NET`、`IoTSharp.CoAP.NET.AspNetCore` NuGet `3.0.1` 候选 |
-| `tools/IoTSharp.Benchmarks/IoTSharp.Benchmarks.csproj` | `IoTSharp.CoAP.NET` NuGet `3.0.1` 候选 |
+| `IoTSharp/IoTSharp.csproj` | `IoTSharp.CoAP.NET`、`IoTSharp.CoAP.NET.AspNetCore` NuGet `3.0.1` |
+| `tools/IoTSharp.Benchmarks/IoTSharp.Benchmarks.csproj` | `IoTSharp.CoAP.NET` NuGet `3.0.1` |
 
 CoAP 组件不再依赖本仓的 SonnetDB 子模块源码。MQTT 路由组件独立通过 `MQTTnet.AspNetCore.Routing` NuGet `5.3.0` 消费；设备访问路径和平台业务分发仍由 IoTSharp 维护。
 
-配置驱动的 `AddCoapServer(IConfiguration)`、`UseCoapServer()` 和查询参数辅助方法由组件提供，平台不复制实现。已公开的 `3.0.0` 不含这些后续扩展，不能直接替代当前候选；本地候选源和验证记录见 `artifacts/nuget/coap-3.0.1/`。
+配置驱动的 `AddCoapServer(IConfiguration)`、`UseCoapServer()` 和查询参数辅助方法由组件提供，平台不复制实现。`3.0.0` 不含这些后续扩展；当前正式版本为 `3.0.1`。
 
 宿主入口保留 Resource 命名：
 
@@ -53,7 +53,7 @@ app.Run();
 - `app.MapCoapResources()` 映射 CoAP resource endpoint。
 - 平台 DTO、授权、租户、审计和领域服务调用保留在 IoTSharp 宿主应用。
 
-3.0.0 fork 发布三个包：
+3.0.1 fork 发布三个包：
 
 | 包 | 用途 |
 | --- | --- |
@@ -61,19 +61,19 @@ app.Run();
 | `IoTSharp.CoAP.NET.AspNetCore` | ASP.NET Core 宿主适配，提供 `app.MapCoapResources()`。 |
 | `IoTSharp.CoAP.NET.SourceGeneration` | Resource/MVC endpoint factory source generator，供 AOT 或低反射宿主选择性引用。 |
 
-外部项目按 NuGet 方式消费时应显式固定 `3.0.0` 或后续批准的 `3.0.x` 版本。
+外部项目按 NuGet 方式消费时应显式固定 `3.0.1` 或后续批准的 `3.0.x` 版本。
 
 ```powershell
-dotnet add package IoTSharp.CoAP.NET --version 3.0.0
-dotnet add package IoTSharp.CoAP.NET.AspNetCore --version 3.0.0
-dotnet add package IoTSharp.CoAP.NET.SourceGeneration --version 3.0.0
+dotnet add package IoTSharp.CoAP.NET --version 3.0.1
+dotnet add package IoTSharp.CoAP.NET.AspNetCore --version 3.0.1
+dotnet add package IoTSharp.CoAP.NET.SourceGeneration --version 3.0.1
 ```
 
 回滚必须显式选择路径：
 
 1. 如果问题来自组件包升级，在 `Directory.Packages.props` 中将 `IoTSharp.CoAP.NET` 和 `IoTSharp.CoAP.NET.AspNetCore` 成组切回已批准、已验证的版本。
 2. 回滚后重新 restore、构建，并验证平台 route adapter、DTLS PSK、Observe 和业务分发；保留包版本和验证结果。
-3. 不把旧 `2.0.8` 作为隐式回滚目标；它不代表当前 3.0.0 fork 的 Resource/MVC route adapter、DTLS PSK、source generation 与 host-managed resource 能力。
+3. 不把旧 `2.0.8` 作为隐式回滚目标；它不代表当前 3.0.1 fork 的 Resource/MVC route adapter、DTLS PSK、source generation 与 host-managed resource 能力。
 
 ## 推荐 Uri-Path
 
