@@ -2,7 +2,3 @@
 	path = IoTSharp.Data.JsonDB
 	url = https://github.com/IoTSharp/Data.JsonDB.git
 	branch = main
-[submodule "SonnetDB"]
-	path = SonnetDB
-	url = https://github.com/IoTSharp/SonnetDB.git
-	branch = main

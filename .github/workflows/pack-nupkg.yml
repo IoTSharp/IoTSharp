@@ -15,6 +15,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+        with:
+          submodules: true
 
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v5
@@ -40,10 +42,10 @@ jobs:
           fi
 
       - name: Restore solution
-        run: dotnet restore IoTSharp.sln
+        run: dotnet restore IoTSharp.slnx
 
       - name: Verify formatting
-        run: dotnet format IoTSharp.sln --verify-no-changes --severity error --no-restore
+        run: dotnet format IoTSharp.slnx --verify-no-changes --severity error --no-restore
 
       - name: Pack publishable projects
         shell: bash
@@ -53,7 +55,7 @@ jobs:
             {
               git grep -l '<GeneratePackageOnBuild>true</GeneratePackageOnBuild>' -- '*.csproj'
               printf '%s\n' \
-                "IoTSharp.Data.JsonDB/IoTSharp.Data.JsonDB.csproj" \
+                "IoTSharp.Data.JsonDB/src/IoTSharp.Data.JsonDB/IoTSharp.Data.JsonDB.csproj" \
                 "IoTSharp.SDKs/IoTSharp.Sdk.CSharp/IoTSharp.Sdk.Http.csproj" \
                 "IoTSharp.SDKs/IoTSharp.Sdk.MQTT/IoTSharp.Sdk.MQTT.csproj" \
                 "IoTSharp.Extensions/IoTSharp.Extensions.csproj" \

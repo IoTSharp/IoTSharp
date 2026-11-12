@@ -1,8 +1,6 @@
 services:
   sonnetdb:
-    build:
-      context: SonnetDB
-      dockerfile: src/SonnetDB/Dockerfile
+    image: ${SONNETDB_IMAGE:-iotsharp/sonnetdb:5.0.0}
 
   pg_iotsharp:
     build:

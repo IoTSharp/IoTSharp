@@ -68,6 +68,8 @@ docker compose -f docker-compose.sonnetdb.yml up -d
 
 该 Profile 使用 `ASPNETCORE_ENVIRONMENT=SonnetDB` 并挂载 `appsettings.SonnetDB.json`。传统 PostgreSQL / TimescaleDB Compose 仍保留用于兼容性和生产拓扑验证，但快速体验默认优先走 SonnetDB。
 
+IoTSharp 通过已发布的 SonnetDB `5.0.0` NuGet 包和 `iotsharp/sonnetdb:5.0.0` 容器镜像集成数据库，无需检出 SonnetDB 源码。包版本统一维护在 `Directory.Packages.props`，部署镜像可通过 `SONNETDB_IMAGE` 覆盖。保留的 `IoTSharp.Data.JsonDB` 子模块使用 `git submodule update --init IoTSharp.Data.JsonDB` 初始化。
+
 ### 🖥️ 本地运行 IoTSharp
 
 建议先从以下文档入口开始：

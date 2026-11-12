@@ -10,7 +10,7 @@ x-iotedge-sonnetdb-env: &iotedge-sonnetdb-env
 
 services:
   edge-sonnetdb:
-    image: ${SONNETDB_IMAGE:-registry.uixe.net/iotsharp/sonnetdb:latest}
+    image: ${SONNETDB_IMAGE:-iotsharp/sonnetdb:5.0.0}
     restart: unless-stopped
     environment:
       - TZ=${TZ:-Asia/Shanghai}

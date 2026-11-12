@@ -68,6 +68,8 @@ Then open `http://localhost:2927` and complete the Installer initialization.
 
 This profile uses `ASPNETCORE_ENVIRONMENT=SonnetDB` and mounts `appsettings.SonnetDB.json`. The traditional PostgreSQL / TimescaleDB Docker compose remains available for compatibility and production topology validation, but SonnetDB is the recommended quick-start entry.
 
+IoTSharp consumes SonnetDB through the published `5.0.0` NuGet packages and the `iotsharp/sonnetdb:5.0.0` container image. Package versions are managed in `Directory.Packages.props`; `SONNETDB_IMAGE` can override the deployment image. A SonnetDB source checkout is not required. The remaining `IoTSharp.Data.JsonDB` submodule is initialized with `git submodule update --init IoTSharp.Data.JsonDB`.
+
 ### 🖥️ Run IoTSharp locally
 
 The recommended documentation entry points are:

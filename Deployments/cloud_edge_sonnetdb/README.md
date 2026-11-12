@@ -56,6 +56,9 @@ cp cloud.env.example cloud.env
 - `JWT_KEY`
 - 对外端口和镜像版本
 
+模板默认使用已发布的 SonnetDB 5.0.0 镜像 `iotsharp/sonnetdb:5.0.0`，来源是 [SonnetDB v5.0.0 Release](https://github.com/IoTSharp/SonnetDB/releases/tag/v5.0.0)。
+`SONNETDB_IMAGE` 仍可覆盖默认值；生产环境应改为已审批的镜像地址或 digest，并保留版本记录，不要改回浮动的 `latest` 标签。云端和边缘可以使用同一个镜像版本，但数据卷仍然是两个独立实例。
+
 启动云端：
 
 ```bash
@@ -128,5 +131,7 @@ docker compose --env-file edge.env -f docker-compose.edge.yml --profile runtime 
 ## 回滚
 
 云端回滚到传统 PostgreSQL / TimescaleDB profile 时，停止本目录云端 compose，按根目录 `docker-compose.yml` 和原环境配置启动即可。不要让一个 IoTSharp 实例同时把关系库、遥测库、缓存、对象桶和事件队列拆到半迁移状态。
+
+SonnetDB 镜像版本通过环境文件中的 `SONNETDB_IMAGE` 切换，回滚前先停止对应的 compose 服务并保留数据卷。5.0 是主版本，降级必须按 [5.0 迁移合同](https://github.com/IoTSharp/SonnetDB/blob/v5.0.0/docs/releases/5.0-migration.md)恢复升级前的停写备份到独立数据卷，再让旧镜像连接恢复后的数据；不能把镜像降级当作数据回滚，也不能直接用旧镜像打开已经升级的数据目录。
 
 边缘回滚时，停止 `iotedge` 服务，保留本地 SonnetDB 数据目录用于补传或故障分析，再切回 IoTEdge 当前生产配置。

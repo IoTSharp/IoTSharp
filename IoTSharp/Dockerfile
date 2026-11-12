@@ -61,7 +61,6 @@ COPY ["${SOURCE_ROOT}/IoTSharp.Data.JsonDB/Directory.Build.props", "IoTSharp.Dat
 COPY ["${SOURCE_ROOT}/IoTSharp.Data.JsonDB/Directory.Packages.props", "IoTSharp.Data.JsonDB/"]
 COPY ["${SOURCE_ROOT}/IoTSharp.Data.JsonDB/src/IoTSharp.Data.JsonDB/IoTSharp.Data.JsonDB.csproj", "IoTSharp.Data.JsonDB/src/IoTSharp.Data.JsonDB/"]
 COPY ["${SOURCE_ROOT}/ClientApp/ClientApp.esproj", "ClientApp/"]
-COPY ["${SOURCE_ROOT}/SonnetDB/", "SonnetDB/"]
 
 ARG BUILD_CONFIGURATION=Release
 

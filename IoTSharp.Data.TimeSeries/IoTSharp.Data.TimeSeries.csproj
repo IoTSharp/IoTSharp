@@ -19,7 +19,7 @@
 		<PackageReference Include="InfluxDB.Client" />
 	</ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SonnetDB\src\SonnetDB.Data\SonnetDB.Data.csproj" />
+    <PackageReference Include="SonnetDB" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\IoTSharp.Contracts\IoTSharp.Contracts.csproj" />

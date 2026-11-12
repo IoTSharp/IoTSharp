@@ -1,10 +1,8 @@
 #nullable enable
 
 using System;
-using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
-using DotNet.Testcontainers.Builders;
-using DotNet.Testcontainers.Images;
 using IoTSharp.Contracts;
 using Testcontainers.SonnetDB;
 
@@ -13,16 +11,20 @@ namespace IoTSharp.Test;
 public sealed class SonnetDbAppFixture : AppInstance
 {
     private const string AdminToken = "iotsharp_sonnetdb_test_token_change_me";
+    private const string DefaultImage = "iotsharp/sonnetdb:5.0.0";
 
-    private IFutureDockerImage? _sonnetDbImage;
     private SonnetDbContainer? _sonnetDb;
 
+    /// <summary>
+    /// 启动发布版 SonnetDB 测试容器，可通过环境变量选择另一个明确的测试镜像。
+    /// </summary>
     protected override async Task InitializeAppAsync()
     {
-        var image = await CreateSonnetDbImageAsync();
-        _sonnetDb = CreateSonnetDbContainer(image);
+        _sonnetDb = CreateSonnetDbContainer();
 
-        await _sonnetDb.StartAsync(TestCancellationToken);
+        using var startup = CancellationTokenSource.CreateLinkedTokenSource(TestCancellationToken);
+        startup.CancelAfter(TimeSpan.FromMinutes(5));
+        await _sonnetDb.StartAsync(startup.Token);
 
         var main = _sonnetDb.GetConnectionString("iotsharp");
         var telemetry = $"{_sonnetDb.GetConnectionString("telemetry")};Measurement=TelemetryData;AutoCreate=true";
@@ -47,64 +49,28 @@ public sealed class SonnetDbAppFixture : AppInstance
         });
     }
 
+    /// <summary>
+    /// 释放本测试夹具创建的容器及其临时资源。
+    /// </summary>
     protected override async Task DisposeTestResourcesAsync()
     {
         if (_sonnetDb is not null)
         {
             await _sonnetDb.DisposeAsync();
         }
-
-        if (_sonnetDbImage is not null)
-        {
-            await _sonnetDbImage.DisposeAsync();
-        }
     }
 
-    private async Task<IImage> CreateSonnetDbImageAsync()
+    /// <summary>
+    /// 使用固定发布镜像创建容器，不依赖 SonnetDB 源码检出或本地 Docker 构建。
+    /// </summary>
+    /// <returns>由测试夹具负责释放的临时容器。</returns>
+    private static SonnetDbContainer CreateSonnetDbContainer()
     {
-        var image = Environment.GetEnvironmentVariable("SONNETDB_TEST_IMAGE");
-        if (!string.IsNullOrWhiteSpace(image))
-        {
-            return new DockerImage(image);
-        }
-
-        var sonnetDbRoot = GetSonnetDbRepositoryRoot();
-        _sonnetDbImage = new ImageFromDockerfileBuilder()
-            .WithContextDirectory(sonnetDbRoot)
-            .WithDockerfileDirectory(Path.Combine(sonnetDbRoot, "src", "SonnetDB"))
-            .WithDockerfile("Dockerfile")
-            .WithName(new DockerImage("iotsharp/sonnetdb-test", Guid.NewGuid().ToString("N"), string.Empty))
-            .WithImageBuildPolicy(PullPolicy.Always)
-            .WithDeleteIfExists(true)
-            .WithCleanUp(true)
-            .Build();
-
-        await _sonnetDbImage.CreateAsync(TestCancellationToken);
-
-        return _sonnetDbImage;
-    }
-
-    private static SonnetDbContainer CreateSonnetDbContainer(IImage image)
-    {
+        var configuredImage = Environment.GetEnvironmentVariable("SONNETDB_TEST_IMAGE");
+        var image = string.IsNullOrWhiteSpace(configuredImage) ? DefaultImage : configuredImage.Trim();
         return new SonnetDbBuilder(image)
             .WithAdminToken(AdminToken)
             .WithDatabase("iotsharp")
             .Build();
     }
-
-    private static string GetSonnetDbRepositoryRoot()
-    {
-        for (var directory = new DirectoryInfo(AppContext.BaseDirectory); directory is not null; directory = directory.Parent)
-        {
-            var candidate = Path.Combine(directory.FullName, "SonnetDB");
-            if (File.Exists(Path.Combine(candidate, "src", "SonnetDB", "Dockerfile")))
-            {
-                return candidate;
-            }
-        }
-
-        throw new DirectoryNotFoundException(
-            "Cannot find SonnetDB/src/SonnetDB/Dockerfile. Run tests from the IoTSharp repository checkout, or set SONNETDB_TEST_IMAGE.");
-    }
-
 }

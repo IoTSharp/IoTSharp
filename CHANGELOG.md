@@ -37,6 +37,9 @@ This project follows a lightweight Keep a Changelog style. Version numbers in th
 
 ### Changed
 
+- SonnetDB 改为消费正式 `5.0.0` NuGet 包和 `iotsharp/sonnetdb:5.0.0` 镜像，移除源码子模块和构建依赖；保留自有 Provider、缓存、SonnetMQ、MQTT 路由、CoAP 和容器测试能力，统一 EF Core `10.0.14` 依赖下限。
+- 修正 CI 的 `.slnx`、JsonDB 项目路径和子模块初始化，测试夹具默认使用 SonnetDB 发布镜像。
+
 - Reworked the documentation site information architecture, homepage, blog presentation, and doc detail layout.
 - Renamed `setup` user-facing flows and docs toward `installer`.
 - Standardized release-oriented GitHub workflows around tag-based artifacts, packages, and Docker image publication.
@@ -52,6 +55,8 @@ This project follows a lightweight Keep a Changelog style. Version numbers in th
 - Closed #09D CoAP dependency/version alignment by removing the unused stale `IoTSharp.CoAP.NET` 2.0.8 central package version and documenting the 3.0.0 fork consumption, NuGet release, and rollback paths.
 
 ### Fixed
+
+- 修复租户和客户详情、修改接口的跨租户越权：按 JWT 声明与持久化归属校验访问范围，修改仅复制允许的资料字段，不接受客户端覆盖租户关系、删除状态和关联配置。
 
 - Fixed SonnetDB remote telemetry writes repeatedly failing when the frame transport reports a missing measurement as an in-band `200 OK` SQL error; IoTSharp now recognizes the condition and creates the measurement before retrying.
 - Fixed the device inactivity job repeatedly publishing and logging the same offline transition, while replacing its per-device queries with a bounded projection and conditional state update.

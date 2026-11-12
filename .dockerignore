@@ -23,13 +23,8 @@
 docker-desktop-extension/build
 docs/build
 docs/site/_site
-SonnetDB/.codex-artifacts
-SonnetDB/.playwright-cli
-SonnetDB/.tmp
-SonnetDB/artifacts
-SonnetDB/BenchmarkDotNet.Artifacts
-SonnetDB/output
-SonnetDB/tests/SonnetDB.Parity/.env
+# SonnetDB 通过已发布 NuGet 包和镜像消费，旧本地检出不进入构建上下文。
+SonnetDB
 **/charts
 **/docker-compose*
 **/Dockerfile*

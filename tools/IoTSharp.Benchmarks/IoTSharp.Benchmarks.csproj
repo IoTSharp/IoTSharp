@@ -14,7 +14,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\IoTSharp\IoTSharp.csproj" />
-    <ProjectReference Include="..\..\SonnetDB\extensions\IoTSharp.CoAP.NET\CoAP.NET\CoAP.NET.csproj" />
+    <PackageReference Include="IoTSharp.CoAP.NET" />
   </ItemGroup>
 
 </Project>
