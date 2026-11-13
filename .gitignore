@@ -764,3 +764,4 @@ docs/yarn.lock
 /output/playwright/
 /SonnetDB/
 graphify-out/
+/output/sonnetdb-contract-*/

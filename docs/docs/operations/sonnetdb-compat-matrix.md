@@ -10,6 +10,8 @@ title: SonnetDB 兼容矩阵
 
 容量、吞吐和恢复演练的当前基线见 [SonnetDB 容量与可靠性基准](./sonnetdb-capacity-reliability-baseline.md)。
 
+2026-11-13 的正式 5.0.0 配置租约、取消/提交未知和存量升级结果见 [配置租约正式包验证](./sonnetdb-configuration-lease-contract.md)。当前白名单继续安全拒绝 SonnetDB 配置操作。
+
 ## 状态图例
 
 | 状态 | 含义 |
