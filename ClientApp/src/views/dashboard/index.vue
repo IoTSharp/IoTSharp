@@ -18,12 +18,81 @@
 
 			<dl class="overview-metrics">
 				<div v-for="item in overviewMetrics" :key="item.label" class="overview-metric">
-					<dt>{{ item.label }}</dt>
+					<div class="overview-metric__topline">
+						<dt>{{ item.label }}</dt>
+						<el-icon class="overview-metric__icon"><component :is="item.icon" /></el-icon>
+					</div>
 					<dd>{{ item.value }}</dd>
 					<small>{{ item.hint }}</small>
 				</div>
 			</dl>
 		</header>
+
+		<section class="dashboard-spotlight">
+			<article class="dashboard-panel status-card">
+				<header class="dashboard-panel__head">
+					<div>
+						<h2>设备连接分布</h2>
+						<p>在线、离线和待确认设备的当前占比。</p>
+					</div>
+				</header>
+				<div class="status-card__body">
+					<div class="status-donut" :style="{ '--status-progress': onlineRate + '%' }">
+						<div class="status-donut__center">
+							<strong>{{ percentText(onlineRate) }}</strong>
+							<span>在线率</span>
+						</div>
+					</div>
+					<ul class="status-legend">
+						<li><span class="status-legend__dot status-legend__dot--online"></span><span>在线设备</span><strong>{{ formatCount(kanban.onlineDeviceCount) }}</strong></li>
+						<li><span class="status-legend__dot status-legend__dot--offline"></span><span>离线设备</span><strong>{{ formatCount(offlineDevices) }}</strong></li>
+						<li><span class="status-legend__dot status-legend__dot--total"></span><span>设备总数</span><strong>{{ formatCount(kanban.deviceCount) }}</strong></li>
+					</ul>
+				</div>
+			</article>
+
+			<article class="dashboard-panel signal-card">
+				<div class="signal-card__copy">
+					<h2>实时运行中心</h2>
+					<p>从接入、采集到规则处理，沿着一条清晰的信号路径追踪平台状态。</p>
+					<div class="signal-card__facts">
+						<span><b>{{ formatCount(messageTotal24h) }}</b> 条消息 / 24h</span>
+						<span><b>{{ percentText(messageSuccessRate) }}</b> 处理成功率</span>
+					</div>
+				</div>
+				<div class="signal-card__visual" aria-hidden="true">
+					<div class="signal-card__orbit signal-card__orbit--outer"></div>
+					<div class="signal-card__orbit signal-card__orbit--inner"></div>
+					<div class="signal-card__line signal-card__line--one"></div>
+					<div class="signal-card__line signal-card__line--two"></div>
+					<div class="signal-card__core"><el-icon><Connection /></el-icon><span>IoTSharp</span></div>
+					<div class="signal-card__node signal-card__node--a">接入</div>
+					<div class="signal-card__node signal-card__node--b">采集</div>
+					<div class="signal-card__node signal-card__node--c">规则</div>
+				</div>
+			</article>
+
+			<article class="dashboard-panel status-card status-card--health">
+				<header class="dashboard-panel__head">
+					<div>
+						<h2>平台健康</h2>
+						<p>基础服务与依赖的最近检查结果。</p>
+					</div>
+				</header>
+				<div class="status-card__body">
+					<div class="status-donut status-donut--health" :style="{ '--status-progress': healthRate + '%' }">
+						<div class="status-donut__center">
+							<strong>{{ healthRate ? percentText(healthRate) : '—' }}</strong>
+							<span>健康检查</span>
+						</div>
+					</div>
+					<div class="health-summary">
+						<strong>{{ hasUnhealthyChecks ? unhealthyChecksCount + ' 项待处理' : '检查通过' }}</strong>
+						<span>{{ healthEntries.length ? healthyChecksCount + ' / ' + healthEntries.length + ' 项正常' : '等待检查数据' }}</span>
+					</div>
+				</div>
+			</article>
+		</section>
 
 		<section class="dashboard-core">
 			<article class="dashboard-panel dashboard-panel--trend">
@@ -219,6 +288,7 @@ const onlineRate = computed(() => ratio(kanban.value.onlineDeviceCount, kanban.v
 const healthyChecksCount = computed(() => healthEntries.value.filter((item) => item.status === 'Healthy').length);
 const unhealthyChecksCount = computed(() => Math.max(healthEntries.value.length - healthyChecksCount.value, 0));
 const hasUnhealthyChecks = computed(() => unhealthyChecksCount.value > 0);
+const healthRate = computed(() => ratio(healthyChecksCount.value, healthEntries.value.length));
 const messageFailureTotal = computed(() => messageMetrics.value.publishedFailed + messageMetrics.value.receivedFailed);
 const messageTotal24h = computed(
 	() =>
@@ -235,12 +305,12 @@ const messageSuccessRate = computed(() =>
 );
 
 const overviewMetrics = computed(() => [
-	{ label: '设备总数', value: formatCount(kanban.value.deviceCount), hint: '运行实例' },
-	{ label: '在线设备', value: formatCount(kanban.value.onlineDeviceCount), hint: percentText(onlineRate.value) + ' 在线' },
-	{ label: '产品', value: formatCount(kanban.value.ProductCount), hint: '能力模板' },
-	{ label: '实时规则', value: formatCount(kanban.value.rulesCount), hint: '规则链' },
-	{ label: '告警设备', value: formatCount(kanban.value.alarmsCount), hint: '当前告警' },
-	{ label: '平台事件', value: formatCount(kanban.value.eventCount), hint: '事件记录' },
+	{ label: '设备总数', value: formatCount(kanban.value.deviceCount), hint: '运行实例', icon: Box },
+	{ label: '在线设备', value: formatCount(kanban.value.onlineDeviceCount), hint: percentText(onlineRate.value) + ' 在线', icon: Connection },
+	{ label: '产品', value: formatCount(kanban.value.ProductCount), hint: '能力模板', icon: Cpu },
+	{ label: '实时规则', value: formatCount(kanban.value.rulesCount), hint: '规则链', icon: SetUp },
+	{ label: '告警设备', value: formatCount(kanban.value.alarmsCount), hint: '当前告警', icon: Bell },
+	{ label: '平台事件', value: formatCount(kanban.value.eventCount), hint: '事件记录', icon: RefreshRight },
 ]);
 
 const capabilityGroups = [
@@ -341,7 +411,7 @@ function renderChart() {
 	if (!messageChartRef.value) return;
 	chartInstance.value?.dispose();
 	chartInstance.value = echarts.init(messageChartRef.value);
-	const accent = themeColor('--iotsharp-accent', '#1E5B4F');
+	const accent = themeColor('--iotsharp-theme-signal', '#47B59A');
 	const text = themeColor('--iotsharp-text-muted', '#71807C');
 	const border = themeColor('--iotsharp-border', '#DFE7E4');
 	const option: EChartsOption = {
@@ -419,9 +489,10 @@ onBeforeUnmount(() => {
 
 .overview-bar {
 	padding: 18px 20px 0;
-	border: 1px solid rgba(var(--iotsharp-accent-rgb), 0.14);
-	border-radius: var(--iotsharp-radius-panel);
-	background: var(--iotsharp-quiet-gradient);
+	border: 1px solid rgba(var(--iotsharp-accent-rgb), 0.2);
+	border-radius: 14px;
+	background: var(--iotsharp-hero-gradient);
+	box-shadow: 0 10px 26px rgba(var(--iotsharp-accent-rgb), 0.06);
 }
 
 .overview-bar__head,
@@ -437,7 +508,7 @@ onBeforeUnmount(() => {
 .overview-bar__copy h1 {
 	margin: 0;
 	color: var(--iotsharp-ink);
-	font-size: 23px;
+	font-size: 24px;
 	font-weight: 700;
 	letter-spacing: 0;
 }
@@ -465,18 +536,26 @@ onBeforeUnmount(() => {
 .overview-metrics {
 	display: grid;
 	grid-template-columns: repeat(6, minmax(0, 1fr));
-	margin: 16px -20px 0;
-	border-top: 1px solid rgba(var(--iotsharp-accent-rgb), 0.12);
+	gap: 10px;
+	margin: 16px 0 18px;
 }
 
 .overview-metric {
+	display: grid;
+	min-height: 102px;
 	min-width: 0;
-	padding: 13px 18px 15px;
-	border-left: 1px solid rgba(var(--iotsharp-accent-rgb), 0.12);
+	padding: 12px 14px;
+	border: 1px solid rgba(var(--iotsharp-accent-rgb), 0.14);
+	border-radius: 10px;
+	background: rgba(255, 255, 255, 0.78);
+	box-shadow: 0 4px 12px rgba(var(--iotsharp-accent-rgb), 0.04);
 }
 
-.overview-metric:first-child {
-	border-left: 0;
+.overview-metric__topline {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
 }
 
 .overview-metric dt,
@@ -485,10 +564,19 @@ onBeforeUnmount(() => {
 	font-size: 10px;
 }
 
+.overview-metric__icon {
+	width: 25px;
+	height: 25px;
+	border-radius: 7px;
+	background: var(--iotsharp-theme-signal-soft);
+	color: var(--iotsharp-theme-signal);
+	font-size: 14px;
+}
+
 .overview-metric dd {
 	margin: 3px 0 0;
 	color: var(--iotsharp-ink);
-	font-size: 20px;
+	font-size: 22px;
 	font-weight: 700;
 	font-variant-numeric: tabular-nums;
 }
@@ -498,6 +586,12 @@ onBeforeUnmount(() => {
 	margin-top: 1px;
 	color: var(--iotsharp-text-soft);
 	font-size: 10px;
+}
+
+.dashboard-spotlight {
+	display: grid;
+	grid-template-columns: minmax(240px, 0.85fr) minmax(340px, 1.5fr) minmax(240px, 0.85fr);
+	gap: 14px;
 }
 
 .dashboard-core,
@@ -515,6 +609,11 @@ onBeforeUnmount(() => {
 	box-shadow: var(--iotsharp-shadow-panel);
 }
 
+.dashboard-spotlight .dashboard-panel {
+	border-color: rgba(var(--iotsharp-accent-rgb), 0.18);
+	box-shadow: 0 8px 22px rgba(var(--iotsharp-accent-rgb), 0.07);
+}
+
 .dashboard-panel__head {
 	min-height: 62px;
 	align-items: flex-start;
@@ -529,6 +628,218 @@ onBeforeUnmount(() => {
 	font-weight: 680;
 	letter-spacing: 0;
 }
+
+.status-card__body {
+	display: flex;
+	align-items: center;
+	gap: 18px;
+	min-height: 152px;
+	padding: 16px;
+}
+
+.status-donut {
+	position: relative;
+	display: grid;
+	width: 110px;
+	height: 110px;
+	flex: 0 0 110px;
+	place-items: center;
+	border-radius: 50%;
+	background: conic-gradient(var(--iotsharp-theme-signal) 0 var(--status-progress), var(--iotsharp-theme-light) var(--status-progress) 100%);
+}
+
+.status-donut::after {
+	position: absolute;
+	inset: 10px;
+	border-radius: inherit;
+	background: var(--iotsharp-surface);
+	content: '';
+}
+
+.status-donut--health {
+	background: conic-gradient(var(--iotsharp-success) 0 var(--status-progress), var(--iotsharp-theme-light) var(--status-progress) 100%);
+}
+
+.status-donut__center {
+	position: relative;
+	z-index: 1;
+	display: grid;
+	justify-items: center;
+	gap: 2px;
+}
+
+.status-donut__center strong {
+	color: var(--iotsharp-ink);
+	font-size: 18px;
+	font-variant-numeric: tabular-nums;
+}
+
+.status-donut__center span {
+	color: var(--iotsharp-text-muted);
+	font-size: 10px;
+}
+
+.status-legend {
+	display: grid;
+	flex: 1;
+	gap: 10px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.status-legend li {
+	display: grid;
+	grid-template-columns: 8px minmax(0, 1fr) auto;
+	align-items: center;
+	gap: 7px;
+	color: var(--iotsharp-text-soft);
+	font-size: 11px;
+}
+
+.status-legend strong {
+	color: var(--iotsharp-ink);
+	font-size: 12px;
+	font-variant-numeric: tabular-nums;
+}
+
+.status-legend__dot {
+	width: 7px;
+	height: 7px;
+	border-radius: 50%;
+}
+
+.status-legend__dot--online { background: var(--iotsharp-theme-signal); }
+.status-legend__dot--offline { background: var(--iotsharp-warning); }
+.status-legend__dot--total { background: var(--iotsharp-border-strong); }
+
+.health-summary {
+	display: grid;
+	gap: 6px;
+}
+
+.health-summary strong {
+	color: var(--iotsharp-ink);
+	font-size: 14px;
+}
+
+.health-summary span {
+	color: var(--iotsharp-text-muted);
+	font-size: 11px;
+	line-height: 1.5;
+}
+
+.signal-card {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) 180px;
+	align-items: center;
+	min-height: 228px;
+	padding: 18px 18px 18px 20px;
+	overflow: hidden;
+	background: var(--iotsharp-panel-gradient);
+}
+
+.signal-card__copy {
+	position: relative;
+	z-index: 1;
+}
+
+.signal-card__copy h2 {
+	margin: 0;
+	color: var(--iotsharp-ink);
+	font-size: 19px;
+	font-weight: 700;
+}
+
+.signal-card__copy p {
+	max-width: 30ch;
+	margin: 8px 0 16px;
+	color: var(--iotsharp-text-soft);
+	font-size: 12px;
+	line-height: 1.7;
+}
+
+.signal-card__facts {
+	display: grid;
+	gap: 6px;
+	color: var(--iotsharp-text-muted);
+	font-size: 10px;
+}
+
+.signal-card__facts b {
+	margin-right: 3px;
+	color: var(--iotsharp-theme-signal);
+	font-size: 14px;
+	font-variant-numeric: tabular-nums;
+}
+
+.signal-card__visual {
+	position: relative;
+	height: 180px;
+}
+
+.signal-card__orbit,
+.signal-card__line {
+	position: absolute;
+	border: 1px solid rgba(var(--iotsharp-accent-rgb), 0.28);
+	border-radius: 50%;
+}
+
+.signal-card__orbit--outer {
+	inset: 8px 0 8px 6px;
+	transform: rotate(-18deg) scaleY(0.58);
+}
+
+.signal-card__orbit--inner {
+	inset: 30px 20px 30px 26px;
+	border-color: rgba(var(--iotsharp-accent-rgb), 0.18);
+	transform: rotate(28deg) scaleY(0.52);
+}
+
+.signal-card__line {
+	width: 88px;
+	height: 1px;
+	border: 0;
+	border-top: 1px dashed rgba(var(--iotsharp-accent-rgb), 0.42);
+	border-radius: 0;
+	transform-origin: left center;
+}
+
+.signal-card__line--one { top: 58px; left: 86px; transform: rotate(-26deg); }
+.signal-card__line--two { top: 114px; left: 88px; transform: rotate(23deg); }
+
+.signal-card__core {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	display: grid;
+	width: 70px;
+	height: 70px;
+	place-items: center;
+	align-content: center;
+	gap: 4px;
+	transform: translate(-50%, -50%);
+	border: 1px solid rgba(var(--iotsharp-accent-rgb), 0.45);
+	border-radius: 50%;
+	background: rgba(255, 255, 255, 0.78);
+	box-shadow: 0 10px 26px rgba(var(--iotsharp-accent-rgb), 0.16);
+	color: var(--iotsharp-theme-signal);
+}
+
+.signal-card__core span { font-size: 9px; font-weight: 700; }
+.signal-card__node {
+	position: absolute;
+	padding: 5px 7px;
+	border-radius: 6px;
+	background: rgba(255, 255, 255, 0.8);
+	box-shadow: 0 5px 12px rgba(var(--iotsharp-accent-rgb), 0.1);
+	color: var(--iotsharp-theme-signal);
+	font-size: 9px;
+}
+
+.signal-card__node--a { top: 28px; left: 2px; }
+.signal-card__node--b { right: 2px; top: 68px; }
+.signal-card__node--c { bottom: 25px; left: 8px; }
 
 .panel-facts {
 	justify-content: flex-end;
@@ -776,8 +1087,13 @@ onBeforeUnmount(() => {
 		grid-template-columns: repeat(3, minmax(0, 1fr));
 	}
 
-	.overview-metric:nth-child(4) {
-		border-left: 0;
+	.dashboard-spotlight {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.signal-card {
+		grid-column: 1 / -1;
+		grid-template-columns: minmax(0, 1fr) 220px;
 	}
 
 	.dashboard-core,
@@ -803,15 +1119,25 @@ onBeforeUnmount(() => {
 
 	.overview-metrics {
 		grid-template-columns: repeat(2, minmax(0, 1fr));
-		margin: 14px -15px 0;
+		margin: 14px 0 16px;
 	}
 
-	.overview-metric:nth-child(odd) {
-		border-left: 0;
+	.dashboard-spotlight {
+		grid-template-columns: 1fr;
+	}
+
+	.signal-card {
+		grid-column: auto;
+		grid-template-columns: minmax(0, 1fr) 150px;
+		padding-left: 16px;
 	}
 
 	.message-chart {
 		height: 250px;
+	}
+
+	.status-card__body {
+		min-height: 136px;
 	}
 
 	.capability-groups {

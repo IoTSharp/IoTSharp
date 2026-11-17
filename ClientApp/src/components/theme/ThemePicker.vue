@@ -10,7 +10,7 @@
 		<div class="theme-picker__panel" role="listbox" aria-label="界面主题">
 			<div class="theme-picker__heading">
 				<strong>主题</strong>
-				<span>12 套主题 / 24 个核心色</span>
+				<span>12 套主题 / 独立色彩配方</span>
 			</div>
 			<div class="theme-picker__grid">
 				<button
@@ -46,6 +46,8 @@ const currentTheme = ref(getUiTheme());
 const swatchStyle = (theme: UiTheme) => ({
 	'--swatch-dark': theme.dark,
 	'--swatch-light': theme.light,
+	'--swatch-signal': theme.signal,
+	'--swatch-contrast': theme.contrast,
 });
 
 const selectTheme = (id: string) => {
@@ -86,7 +88,7 @@ const selectTheme = (id: string) => {
 	flex: 0 0 auto;
 	border: 1px solid rgba(15, 23, 42, 0.12);
 	border-radius: 50%;
-	background: linear-gradient(135deg, var(--swatch-dark) 0 49%, var(--swatch-light) 51% 100%);
+	background: linear-gradient(135deg, var(--swatch-dark) 0 40%, var(--swatch-light) 40% 70%, var(--swatch-signal) 70% 86%, var(--swatch-contrast) 86% 100%);
 	box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.76);
 }
 

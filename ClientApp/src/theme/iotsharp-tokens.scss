@@ -4,6 +4,11 @@
 	--iotsharp-theme-light: #dceee7;
 	--iotsharp-theme-ink: #183b36;
 	--iotsharp-theme-surface: #f5fbf8;
+	--iotsharp-theme-deep: #143e35;
+	--iotsharp-theme-glow: #bce6d4;
+	--iotsharp-theme-signal: #47b59a;
+	--iotsharp-theme-signal-soft: #e4f5ef;
+	--iotsharp-theme-contrast: #d6964c;
 	--iotsharp-accent: var(--iotsharp-theme-dark);
 	--iotsharp-accent-rgb: 30, 91, 79;
 	--iotsharp-selection: var(--iotsharp-theme-light);
@@ -27,6 +32,9 @@
 	--iotsharp-topbar-gradient: linear-gradient(112deg, rgba(255, 255, 255, 0.94) 0%, rgba(220, 238, 231, 0.72) 52%, rgba(255, 255, 255, 0.9) 100%);
 	--iotsharp-accent-gradient: linear-gradient(135deg, #1e5b4f 0%, #183b36 100%);
 	--iotsharp-quiet-gradient: linear-gradient(135deg, #dceee7 0%, #f5fbf8 72%);
+	--iotsharp-page-gradient: radial-gradient(circle at 12% 16%, rgba(188, 230, 212, 0.4), transparent 28%), radial-gradient(circle at 88% 82%, rgba(220, 238, 231, 0.6), transparent 32%), linear-gradient(145deg, #f5fbf8 0%, #ffffff 52%, rgba(220, 238, 231, 0.4) 100%);
+	--iotsharp-panel-gradient: linear-gradient(135deg, #ffffff 0%, #e4f5ef 100%);
+	--iotsharp-hero-gradient: radial-gradient(circle at 92% 12%, rgba(188, 230, 212, 0.54), transparent 26%), linear-gradient(135deg, #dceee7 0%, #f5fbf8 72%);
 	--iotsharp-success: #157347;
 	--iotsharp-success-surface: #e8f5ed;
 	--iotsharp-warning: #a85d00;

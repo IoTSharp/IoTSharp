@@ -69,20 +69,23 @@ onMounted(() => NextLoading.done());
 	align-items: center;
 	justify-content: center;
 	padding: 24px;
-	background: var(--iotsharp-quiet-gradient);
+	position: relative;
+	background: var(--iotsharp-page-gradient);
 	overflow-x: hidden;
 	overflow-y: auto;
 }
 
 .auth-shell {
+	position: relative;
+	z-index: 1;
 	display: grid;
 	grid-template-columns: minmax(420px, 1.05fr) minmax(400px, 0.95fr);
 	width: min(1080px, 100%);
 	min-height: min(680px, calc(100vh - 48px));
 	overflow: hidden;
-	border: 1px solid rgba(var(--iotsharp-accent-rgb), 0.18);
-	border-radius: 8px;
-	background: rgba(255, 255, 255, 0.66);
+	border: 1px solid rgba(var(--iotsharp-accent-rgb), 0.2);
+	border-radius: 16px;
+	background: rgba(255, 255, 255, 0.7);
 	box-shadow: var(--iotsharp-shadow-float);
 	backdrop-filter: blur(20px) saturate(1.15);
 }
@@ -93,7 +96,7 @@ onMounted(() => NextLoading.done());
 	justify-content: center;
 	gap: 24px;
 	padding: 34px 38px;
-	background: rgba(255, 255, 255, 0.94);
+	background: var(--iotsharp-panel-gradient);
 }
 
 .auth-panel__header {

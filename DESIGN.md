@@ -126,6 +126,17 @@ IoTSharp 的界面把平台当作生产现场的控制平面，而不是营销�
 ### Named Rules
 **The Two-Tone Rule.** 每个主题始终同时展示深色锚点和浅色陪衬；状态色不随主题切换，颜色也不是传达状态的唯一方式。
 
+### Theme Recipes
+主题选择器展示的是完整的色彩配方，而不是单一主色替换。每套主题由以下角色共同决定界面的层次：
+
+- `deep` 与 `dark` 负责导航、入口和主要动作的深色锚点。
+- `light` 与 `surface` 负责页面底色、工作面和选中态的柔和陪衬。
+- `glow` 负责背景光晕、焦点区和材质过渡。
+- `signal` 与 `signalSoft` 负责指标、趋势图和信息卡片的主题化强调。
+- `contrast` 负责同一组件内的第二视觉节奏，例如发布/复核或辅助趋势。
+
+运行时由 `ClientApp/src/theme/themes.ts` 将这些角色写入 CSS 变量，登录页、仪表盘、主题选择器和后续控制台组件应优先使用派生变量，避免在局部样式里重新写死蓝色、绿色或固定渐变。成功、警告、失败和信息仍使用固定语义色，主题只改变组件的品牌表达和层级对比。
+
 ## Typography
 
 **Display Font:** Segoe UI Variable Display (with Segoe UI, PingFang SC, Microsoft YaHei fallbacks)
