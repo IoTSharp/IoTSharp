@@ -112,7 +112,7 @@
 							</div>
 						</el-tab-pane>
 
-						<el-tab-pane name="telemetry">
+						<el-tab-pane name="telemetry" :lazy="true">
 							<template #label>
 								<span class="device-tab-label">
 									<el-icon><DataAnalysis /></el-icon>

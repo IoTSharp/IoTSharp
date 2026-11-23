@@ -16,7 +16,8 @@ using System.Buffers;
 namespace IoTSharp.Services.MQTTControllers
 {
     [MqttController]
-    [MqttRoute("devices/{devname}/[controller]")]
+    [MqttRoute("devices/{devname}/rpc")]
+    [MqttRoute("devices/{devname}/Rpc")]
     public class RpcController : MqttBaseController
     {
         private readonly ILogger _logger;

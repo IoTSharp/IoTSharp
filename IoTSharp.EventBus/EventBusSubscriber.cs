@@ -125,9 +125,18 @@ namespace IoTSharp.EventBus
             }
         }
 
+        /// <summary>
+        /// 写入单条遥测消息，存储失败时由事件总线负责重试和死信处理。
+        /// </summary>
+        /// <param name="msg">设备遥测消息。</param>
         public async Task StoreTelemetryData(PlayloadData msg)
         {
             var result = await _storage.StoreTelemetryAsync(msg);
+            if (!result.result)
+            {
+                throw new InvalidOperationException($"Telemetry storage failed. DeviceId={msg.DeviceId}");
+            }
+
             var data = from t in result.telemetries
                        select new TelemetryDataDto() { DateTime = t.DateTime, DataType = t.Type, KeyName = t.KeyName, Value = t.ToObject() };
             var array = data.ToList();

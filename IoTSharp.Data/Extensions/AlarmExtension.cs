@@ -10,18 +10,26 @@ namespace IoTSharp.Data.Extensions
     public static class AlarmExtension
     {
 
+        /// <summary>
+        /// 根据来源名称或 GUID 查找所属设备、网关或资产并写入告警。
+        /// </summary>
+        /// <param name="_context">业务数据库上下文。</param>
+        /// <param name="cad">设备上报的告警内容和来源。</param>
+        /// <returns>写入结果，来源不存在时返回设备未找到。</returns>
         public static async Task<ApiResult<Alarm>> OccurredAlarm(this ApplicationDbContext _context, CreateAlarmDto cad)
         {
             Guid OriginatorId = Guid.Empty;
+            Guid? sourceId = Guid.TryParse(cad.OriginatorName, out var parsedId) ? parsedId : null;
             OriginatorType originatorType = cad.OriginatorType;
             if (cad.OriginatorType == OriginatorType.Device || cad.OriginatorType == OriginatorType.Gateway || cad.OriginatorType == OriginatorType.Unknow)
             {
-                var dev = _context.Device.Include(d => d.Tenant).Include(d => d.Customer).FirstOrDefault(d => d.Id.ToString() == cad.OriginatorName || d.Name == cad.OriginatorName);
+                var dev = await _context.Device.Include(d => d.Tenant).Include(d => d.Customer)
+                    .FirstOrDefaultAsync(d => d.Id == sourceId || d.Name == cad.OriginatorName);
                 if (dev != null)
                 {
                     if (dev.DeviceType == DeviceType.Gateway)
                     {
-                        if (dev.Id.ToString() != cad.OriginatorName && dev.Name != cad.OriginatorName)
+                        if (dev.Id != sourceId && dev.Name != cad.OriginatorName)
                         {
                             var subdev = from g in _context.Device.Include(d => d.Tenant).Include(d => d.Customer).Include(g => g.Owner) where g.Owner == dev && g.Name == cad.OriginatorName select g;
                             var orig = await subdev.FirstOrDefaultAsync();
@@ -51,7 +59,8 @@ namespace IoTSharp.Data.Extensions
             }
             else if (cad.OriginatorType == OriginatorType.Asset)
             {
-                var ass = _context.Assets.Include(a => a.Tenant).Include(a => a.Customer).FirstOrDefault(d => (d.Id.ToString() == cad.OriginatorName || d.Name == cad.OriginatorName) && d.Deleted == false);
+                var ass = await _context.Assets.Include(a => a.Tenant).Include(a => a.Customer)
+                    .FirstOrDefaultAsync(d => (d.Id == sourceId || d.Name == cad.OriginatorName) && !d.Deleted);
                 if (ass != null)
                 {
                     originatorType = OriginatorType.Asset;
@@ -80,6 +89,7 @@ namespace IoTSharp.Data.Extensions
                     AlarmDetail = dto.AlarmDetail,
                     AlarmStatus = AlarmStatus.Active_UnAck,
                     AlarmType = dto.AlarmType,
+                    OriginatorType = dto.OriginatorType,
                     ClearDateTime = DateTime.UnixEpoch,
                     EndDateTime = DateTime.UnixEpoch,
                     Propagate = true,

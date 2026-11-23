@@ -7,6 +7,7 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using IoTSharp.Contracts;
 using IoTSharp.Controllers;
@@ -14,6 +15,12 @@ using IoTSharp.Controllers.Models;
 using IoTSharp.Data;
 using IoTSharp.Dtos;
 using IoTSharp.Models;
+using Microsoft.Extensions.DependencyInjection;
+using MQTTnet;
+using MQTTnet.Protocol;
+using Quartz;
+using Quartz.Impl.Matchers;
+using SonnetDB.Data.Mq;
 using Xunit;
 using DataType = IoTSharp.Contracts.DataType;
 
@@ -54,6 +61,130 @@ public sealed class AppWithSonnetDBTest
         await DeleteDeviceAsync(client, device.Id);
         await DeleteDeviceAsync(client, productDevice.Id);
         await DeleteProductAsync(client, productId);
+    }
+
+    [Fact]
+    public async Task SonnetDB_RecoversQuartzJobsAndStoresLowercaseMqttUplink()
+    {
+        using var before = Fixture.CreateClient();
+        await Fixture.AuthorizeClientAsync(before);
+        var device = (await Fixture.CreateDeviceAsync(before)).Data!;
+        var token = await Fixture.GetDeviceAccessTokenAsync(before, device.Id);
+        using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(50));
+        var ct = timeout.Token;
+
+        var scheduler = await Fixture.Services.GetRequiredService<ISchedulerFactory>().GetScheduler(ct);
+        Assert.True((await scheduler.GetMetaData(ct)).JobStoreSupportsPersistence);
+        var registered = await scheduler.GetJobKeys(GroupMatcher<JobKey>.AnyGroup(), ct);
+        var triggers = await scheduler.GetTriggerKeys(GroupMatcher<TriggerKey>.AnyGroup(), ct);
+        Assert.Contains(registered, key => key.Name == "CheckDevices");
+        Assert.Contains(registered, key => key.Name == "CachingJob");
+        var triggerKey = Assert.Single(triggers, key => key.Name == "CheckDevices");
+        await scheduler.PauseTrigger(triggerKey, ct);
+
+        await Fixture.RestartApplicationAsync();
+        scheduler = await Fixture.Services.GetRequiredService<ISchedulerFactory>().GetScheduler(ct);
+        Assert.True(registered.ToHashSet().SetEquals(await scheduler.GetJobKeys(GroupMatcher<JobKey>.AnyGroup(), ct)));
+        Assert.True(triggers.ToHashSet().SetEquals(await scheduler.GetTriggerKeys(GroupMatcher<TriggerKey>.AnyGroup(), ct)));
+        Assert.Equal(TriggerState.Paused, await scheduler.GetTriggerState(triggerKey, ct));
+        await scheduler.ResumeTrigger(triggerKey, ct);
+
+        const string telemetryTopic = "iotsharp.services.datastream.telemetrydata";
+        var queue = Fixture.Services.GetRequiredService<SndbMqClient>();
+        var beforePublish = await queue.GetStatsAsync(telemetryTopic, ct);
+        using var mqtt = new MqttClientFactory().CreateMqttClient();
+        var options = new MqttClientOptionsBuilder()
+            .WithClientId("iotsharp-test-" + Guid.NewGuid().ToString("N"))
+            .WithTcpServer("127.0.0.1", Fixture.Profile!.MqttBrokerPort)
+            .WithCredentials(token, string.Empty)
+            .WithCleanSession()
+            .Build();
+        var connection = await mqtt.ConnectAsync(options, ct);
+        Assert.Equal(MqttClientConnectResultCode.Success, connection.ResultCode);
+
+        var telemetryKey = "mqttTemperature_" + Guid.NewGuid().ToString("N")[..8];
+        var alarmType = "mqtt-alarm-" + Guid.NewGuid().ToString("N");
+        const double temperature = 22.75;
+        await PublishMqttJsonAsync(mqtt, "devices/me/telemetry", new Dictionary<string, double> { [telemetryKey] = temperature }, ct);
+        await PublishMqttJsonAsync(mqtt, "devices/me/attributes", new { mqttFirmware = "test-v1" }, ct);
+        await PublishMqttJsonAsync(mqtt, "devices/me/alarm", new CreateAlarmDto
+        {
+            OriginatorType = OriginatorType.Device,
+            AlarmType = alarmType,
+            AlarmDetail = "MQTT integration test",
+            Serverity = ServerityLevel.Warning
+        }, ct);
+
+        using var after = Fixture.CreateClient();
+        await Fixture.AuthorizeClientAsync(after);
+        await WaitForAsync(
+            () => GetApiResultAsync<List<TelemetryDataDto>>(after, $"/api/Devices/{device.Id}/TelemetryLatest/{telemetryKey}"),
+            result => result.Data?.Any(item => item.KeyName == telemetryKey && Math.Abs(ToDouble(item.Value) - temperature) < 0.001) == true,
+            "MQTT telemetry latest");
+        await WaitForAsync(
+            () => GetApiResultAsync<List<AttributeDataDto>>(after, $"/api/Devices/{device.Id}/AttributeLatest/mqttFirmware"),
+            result => result.Data?.Any(item => item.KeyName == "mqttFirmware" && item.Value?.ToString() == "test-v1") == true,
+            "MQTT attributes latest");
+        await WaitForAsync(
+            () => PostApiResultAsync<PagedData<AlarmDto>>(after, "/api/alarm/list", new
+            {
+                offset = 0, limit = 10, AlarmStatus = -1, Serverity = -1, OriginatorType = (int)OriginatorType.Device, AlarmType = alarmType
+            }),
+            result => result.Data?.rows.Any(row => row.OriginatorId == device.Id) == true,
+            "MQTT alarm persisted by device name");
+        var afterPublish = await queue.GetStatsAsync(telemetryTopic, ct);
+        Assert.True(afterPublish.NextOffset > beforePublish.NextOffset);
+        await mqtt.DisconnectAsync(cancellationToken: ct);
+        await DeleteDeviceAsync(after, device.Id);
+    }
+
+    [Fact]
+    public async Task SonnetDB_AlarmAndRuleAuditLists_AcceptOmittedFilters()
+    {
+        using var client = Fixture.CreateClient();
+        await Fixture.AuthorizeClientAsync(client);
+        var device = (await Fixture.CreateDeviceAsync(client)).Data!;
+        var alarmType = "sonnet-alarm-" + Guid.NewGuid().ToString("N");
+        using var response = await client.PostAsJsonAsync("/api/alarm/occurred", new CreateAlarmDto
+        {
+            OriginatorName = device.Id.ToString("D").ToUpperInvariant(),
+            OriginatorType = OriginatorType.Device,
+            AlarmType = alarmType,
+            AlarmDetail = "Alarm list integration test",
+            Serverity = ServerityLevel.Warning
+        });
+        await AssertApiSuccessAsync<Alarm>(response);
+
+        // 模拟列表默认请求和仅选择来源类型的请求，均省略可空 Guid 与日期字段。
+        var unfiltered = await PostApiResultAsync<PagedData<AlarmDto>>(client, "/api/alarm/list", new
+        {
+            offset = 0, limit = 10, AlarmStatus = -1, Serverity = -1, OriginatorType = -1, AlarmType = alarmType
+        });
+        Assert.Contains(unfiltered.Data!.rows, row => row.OriginatorId == device.Id);
+
+        var byOriginatorType = await PostApiResultAsync<PagedData<AlarmDto>>(client, "/api/alarm/list", new
+        {
+            offset = 0, limit = 10, AlarmStatus = -1, Serverity = -1, OriginatorType = (int)OriginatorType.Device, AlarmType = alarmType
+        });
+        Assert.Contains(byOriginatorType.Data!.rows, row => row.OriginatorId == device.Id);
+
+        var audit = await PostApiResultAsync<PagedData<BaseEventDto>>(client, "/api/rules/flowevents", new
+        {
+            offset = 0, limit = 10, Name = string.Empty
+        });
+        Assert.NotNull(audit.Data);
+        await DeleteDeviceAsync(client, device.Id);
+    }
+
+    private static async Task PublishMqttJsonAsync(IMqttClient mqtt, string topic, object payload, CancellationToken cancellationToken)
+    {
+        var message = new MqttApplicationMessageBuilder()
+            .WithTopic(topic)
+            .WithPayload(JsonSerializer.SerializeToUtf8Bytes(payload))
+            .WithQualityOfServiceLevel(MqttQualityOfServiceLevel.AtLeastOnce)
+            .Build();
+        var result = await mqtt.PublishAsync(message, cancellationToken);
+        Assert.True(result.IsSuccess, result.ReasonString);
     }
 
     private static async Task<ProductAddDto> CreateProductAsync(HttpClient client)

@@ -33,7 +33,8 @@ namespace IoTSharp.Services.MQTTControllers
     }
 
     [MqttController]
-    [MqttRoute("[controller]")]
+    [MqttRoute("gateway")]
+    [MqttRoute("Gateway")]
     public class GatewayController : MqttBaseController
     {
         private readonly ILogger _logger;

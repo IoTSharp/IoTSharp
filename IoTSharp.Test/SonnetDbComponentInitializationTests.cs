@@ -3,14 +3,18 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using EasyCaching.Core;
 using IoTSharp.Contracts;
+using IoTSharp.Data;
 using IoTSharp.Data.SonnetDB;
 using IoTSharp.EventBus;
 using IoTSharp.EventBus.SonnetMQ;
 using IoTSharp.Storage;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using SonnetDB.Data.Mq;
@@ -81,6 +85,90 @@ public sealed class SonnetDbComponentInitializationTests : IDisposable
 
         Assert.True(Directory.Exists(eventPath));
         Assert.Equal("iotsharp.startup.probe", stats.Topic);
+    }
+
+    [Fact]
+    public async Task SonnetMQ_TelemetryStorageFailure_RetriesBeforeAcknowledgingDeadLetter()
+    {
+        const string topic = "iotsharp.services.datastream.telemetrydata";
+        var services = new ServiceCollection();
+        services.AddLogging();
+        services.AddEasyCaching(options => options.UseInMemory("CachingUseIn-InMemory"));
+        var storage = new FailingTelemetryStorage();
+        services.AddSingleton<IStorage>(storage);
+        var healthChecks = services.AddHealthChecks();
+        var ruleCalls = 0;
+        services.AddEventBus(options =>
+        {
+            options.AppSettings = new AppSettings
+            {
+                EventBus = EventBusFramework.SonnetMQ,
+                EventBusMQ = EventBusMQ.SonnetMQ,
+                ConsumerThreadCount = 1
+            };
+            options.EventBusMQ = $"Data Source={Path.Combine(_root, "events")}";
+            options.HealthChecks = healthChecks;
+            options.RunRules = (_, _, _) =>
+            {
+                Interlocked.Increment(ref ruleCalls);
+                return Task.CompletedTask;
+            };
+            options.UseSonnetMQ();
+        });
+
+        await using var provider = services.BuildServiceProvider();
+        var worker = Assert.Single(provider.GetServices<IHostedService>().OfType<SonnetMqEventBusWorker>());
+        var client = provider.GetRequiredService<SndbMqClient>();
+        using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+        await worker.StartAsync(timeout.Token);
+        try
+        {
+            await provider.GetRequiredService<IPublisher>().PublishTelemetryData(new PlayloadData
+            {
+                DeviceId = Guid.NewGuid(),
+                DataCatalog = DataCatalog.TelemetryData,
+                DataSide = DataSide.ClientSide,
+                MsgBody = new Dictionary<string, object> { ["temperature"] = 22.5 }
+            });
+
+            for (var attempt = 0; attempt < 80; attempt++)
+            {
+                var pending = await client.GetStatsAsync(topic, timeout.Token);
+                var deadLetters = await client.GetStatsAsync(topic + ".errors", timeout.Token);
+                if (deadLetters.NextOffset == 1 && pending.ConsumerOffsets.GetValueOrDefault("iotsharp") == 1)
+                {
+                    Assert.Equal(3, storage.Attempts);
+                    Assert.Equal(0, Volatile.Read(ref ruleCalls));
+                    return;
+                }
+
+                await Task.Delay(TimeSpan.FromMilliseconds(100), timeout.Token);
+            }
+
+            Assert.Fail("Telemetry was not retried and moved to the dead-letter topic.");
+        }
+        finally
+        {
+            using var shutdown = new CancellationTokenSource(TimeSpan.FromSeconds(2));
+            await worker.StopAsync(shutdown.Token);
+        }
+    }
+
+    private sealed class FailingTelemetryStorage()
+        : EFStorage(NullLogger<EFStorage>.Instance, null!, Options.Create(new AppSettings()))
+    {
+        private int _attempts;
+
+        public int Attempts => Volatile.Read(ref _attempts);
+
+        public override Task<(bool result, List<TelemetryData> telemetries)> StoreTelemetryAsync(PlayloadData msg)
+        {
+            Interlocked.Increment(ref _attempts);
+            return Task.FromResult<(bool, List<TelemetryData>)>((false, []));
+        }
+
+        public override Task<TelemetryBatchStoreResult> StoreTelemetryBatchAsync(IReadOnlyCollection<PlayloadData> messages)
+            => Task.FromResult(new TelemetryBatchStoreResult(false, [], messages.Count));
     }
 
     [Fact]

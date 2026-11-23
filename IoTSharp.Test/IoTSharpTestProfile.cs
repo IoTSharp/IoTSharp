@@ -21,6 +21,8 @@ public sealed class IoTSharpTestProfile
     public EventBusMQ EventBusMQ { get; init; } = EventBusMQ.InMemory;
 
     public CachingUseIn CachingUseIn { get; init; } = CachingUseIn.InMemory;
+    public bool PersistQuartzJobs { get; init; }
+    public int MqttBrokerPort { get; init; } = 1883;
 
     public string? MainConnectionString { get; init; }
 
@@ -56,6 +58,8 @@ public sealed class IoTSharpTestProfile
             ["EventBusStore"] = Enum.GetName(EventBusStore)!,
             ["EventBusMQ"] = Enum.GetName(EventBusMQ)!,
             ["CachingUseIn"] = Enum.GetName(CachingUseIn)!,
+            ["Quartz:UseSonnetDB"] = PersistQuartzJobs.ToString(),
+            ["MqttBroker:Port"] = MqttBrokerPort.ToString(),
             ["ConsumerThreadCount"] = ConsumerThreadCount.ToString(),
             ["DbContextPoolSize"] = DbContextPoolSize.ToString(),
             ["JwtKey"] = "iotsharp-test-jwt-key-change-me-32-bytes-minimum",

@@ -16,7 +16,8 @@ using System.Threading.Tasks;
 namespace IoTSharp.Services.MQTTControllers
 {
     [MqttController]
-    [MqttRoute("devices/{devname}/[controller]")]
+    [MqttRoute("devices/{devname}/alarm")]
+    [MqttRoute("devices/{devname}/Alarm")]
     public class AlarmController : MqttBaseController
     {
         private readonly ILogger _logger;

@@ -32,6 +32,8 @@ public sealed class SonnetDBProfileTests
         Assert.Equal(EventBusStore.InMemory, settings.EventBusStore);
         Assert.Equal(EventBusMQ.SonnetMQ, settings.EventBusMQ);
         Assert.Equal(EventBusFramework.SonnetMQ, settings.EventBus);
+        using var configuration = JsonDocument.Parse(File.ReadAllText(profilePath));
+        Assert.True(configuration.RootElement.GetProperty("Quartz").GetProperty("UseSonnetDB").GetBoolean());
 
         Assert.NotNull(settings.ConnectionStrings);
         Assert.StartsWith("Data Source=", settings.ConnectionStrings!["IoTSharp"], StringComparison.Ordinal);
@@ -64,6 +66,7 @@ public sealed class SonnetDBProfileTests
         Assert.Contains("ConnectionStrings__EventBusMQ: Data Source=sonnetdb+http://sonnetdb:5080/events", sonnetCompose, StringComparison.Ordinal);
         Assert.Contains("EventBus: SonnetMQ", sonnetCompose, StringComparison.Ordinal);
         Assert.Contains("EventBusMQ: SonnetMQ", sonnetCompose, StringComparison.Ordinal);
+        Assert.Contains("Quartz__UseSonnetDB: \"true\"", sonnetCompose, StringComparison.Ordinal);
         Assert.Contains("ConnectionStrings__BlobStorage: sonnetdb://blob", sonnetCompose, StringComparison.Ordinal);
         Assert.Contains("appsettings.SonnetDB.json:/app/appsettings.Production.json:ro", sonnetCompose, StringComparison.Ordinal);
     }

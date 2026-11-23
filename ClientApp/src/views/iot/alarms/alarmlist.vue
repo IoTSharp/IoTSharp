@@ -549,25 +549,37 @@ const getData = async () => {
 	const params: Record<string, any> = {
 		offset: tableData.param.pageNum - 1,
 		limit: tableData.param.pageSize,
-		alarmStatus: query.alarmStatus,
-		originatorId: query.OriginatorId,
-		ClearDateTime: query.ClearDateTime,
-		AckDateTime: query.AckDateTime,
-		StartDateTime: query.StartDateTime,
-		originatorType: query.originatorType,
-		AlarmType: query.AlarmType,
+		AlarmStatus: Number(query.alarmStatus),
+		Serverity: Number(query.serverity),
+		OriginatorType: Number(query.originatorType),
+		AlarmType: query.AlarmType || undefined,
 		Name: '',
-		EndDateTime: query.EndDateTime,
 		OriginatorName: '',
-		serverity: query.serverity,
 	};
+
+	// 可空日期和 Guid 筛选项没有值时省略，避免把空字符串交给 ASP.NET Core 绑定器。
+	const dateRanges = {
+		AckDateTime: query.AckDateTime,
+		ClearDateTime: query.ClearDateTime,
+		StartDateTime: query.StartDateTime,
+		EndDateTime: query.EndDateTime,
+	};
+	Object.entries(dateRanges).forEach(([key, value]) => {
+		if (Array.isArray(value) && value.length === 2) {
+			params[key] = value;
+		}
+	});
+
+	if (query.OriginatorId) {
+		params.OriginatorId = query.OriginatorId;
+	}
 
 	if (props.originator) {
 		const { id, deviceType } = props.originator as Record<string, string>;
-		params.originatorId = id;
+		params.OriginatorId = id;
 		const originatorType = originatorTypeOptions.find((item) => item.key === deviceType);
 		query.originatorType = originatorType ? originatorType.value : '-1';
-		params.originatorType = query.originatorType;
+		params.OriginatorType = Number(query.originatorType);
 	}
 
 	try {

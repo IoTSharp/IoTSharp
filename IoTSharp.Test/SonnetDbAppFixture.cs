@@ -1,6 +1,8 @@
 #nullable enable
 
 using System;
+using System.Net;
+using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using IoTSharp.Contracts;
@@ -11,7 +13,7 @@ namespace IoTSharp.Test;
 public sealed class SonnetDbAppFixture : AppInstance
 {
     private const string AdminToken = "iotsharp_sonnetdb_test_token_change_me";
-    private const string DefaultImage = "iotsharp/sonnetdb:5.0.0";
+    private const string DefaultImage = "ghcr.io/iotsharp/sonnetdb:5.2.0";
 
     private SonnetDbContainer? _sonnetDb;
 
@@ -31,6 +33,10 @@ public sealed class SonnetDbAppFixture : AppInstance
         var events = _sonnetDb.GetConnectionString("events");
         var cache = _sonnetDb.GetConnectionString("cache");
         var objects = _sonnetDb.GetConnectionString("objects");
+        var listener = new TcpListener(IPAddress.Loopback, 0);
+        listener.Start();
+        var mqttPort = ((IPEndPoint)listener.LocalEndpoint).Port;
+        listener.Stop();
 
         await InitializeApplicationAsync(new IoTSharpTestProfile
         {
@@ -41,12 +47,24 @@ public sealed class SonnetDbAppFixture : AppInstance
             EventBusStore = EventBusStore.InMemory,
             EventBusMQ = EventBusMQ.SonnetMQ,
             CachingUseIn = CachingUseIn.SonnetDB,
+            PersistQuartzJobs = true,
+            MqttBrokerPort = mqttPort,
             MainConnectionString = main,
             TelemetryConnectionString = telemetry,
             EventBusMqConnectionString = events,
             CachingUseSonnetDBConnectionString = cache,
             BlobStorageConnectionString = "sonnetdb://blob?bucket=iotsharp-blob-storage&connectionString=" + Uri.EscapeDataString(objects)
         });
+    }
+
+    /// <summary>
+    /// 使用同一个业务库重启 IoTSharp，以验证设备和调度状态的恢复。
+    /// </summary>
+    public async Task RestartApplicationAsync()
+    {
+        var profile = Profile ?? throw new InvalidOperationException("The SonnetDB fixture has not started.");
+        await StopApplicationAsync();
+        await InitializeApplicationAsync(profile);
     }
 
     /// <summary>

@@ -1,6 +1,6 @@
 <template>
   <div class="z-crud">
-    <fs-crud ref="crudRef" v-bind="crudBinding"/>
+    <fs-crud v-if="props.deviceId" ref="crudRef" v-bind="crudBinding"/>
   </div>
 </template>
 
@@ -8,7 +8,7 @@
 import {useCrud} from "@fast-crud/fast-crud";
 import {useExpose} from "@fast-crud/fast-crud";
 import {createDeviceTelemetryRealtimeCrudOptions} from "/@/views/iot/devices/detail/deviceTelemetryRealtimeCrudOptions";
-import {getCurrentInstance} from "vue";
+import {getCurrentInstance, nextTick} from "vue";
 const {proxy} = <any>getCurrentInstance();
 const state = reactive({
   currentPageState: 'realtime',
@@ -33,16 +33,18 @@ let {crudOptions} = createDeviceTelemetryRealtimeCrudOptions({expose: crudExpose
 const {resetCrudOptions} = useCrud({expose: crudExpose, crudOptions});
 // 你可以调用此方法，重新初始化crud配置
 // resetCrudOptions(options)
-watch(() => props.deviceId, () => {
+watch(() => props.deviceId, async () => {
+  if (!props.deviceId) return;
+
   // watch deviceId , 根据Device id 重新配置 crud， 再进行刷新
   const res =  createDeviceTelemetryRealtimeCrudOptions({expose: crudExpose}, props.deviceId, state);
   crudOptions = res.crudOptions
   resetCrudOptions(crudOptions)
+  await nextTick();
   crudExpose.doRefresh();
-})
-// 页面打开后获取列表数据
-onMounted( () => {
-  crudExpose.doRefresh();
+}, { immediate: true })
+// 订阅遥测状态事件，避免在没有设备 ID 时触发请求。
+onMounted(() => {
   proxy.mittBus.on('updateTelemetryPageSate', (pageSateName) => {
     state.currentPageState = pageSateName
   });

@@ -18,7 +18,8 @@ using System.Buffers;
 namespace IoTSharp.Services.MQTTControllers
 {
     [MqttController]
-    [MqttRoute("devices/{devname}/[controller]")]
+    [MqttRoute("devices/{devname}/data")]
+    [MqttRoute("devices/{devname}/Data")]
     public class DataController : MqttBaseController
     {
         private readonly ILogger _logger;

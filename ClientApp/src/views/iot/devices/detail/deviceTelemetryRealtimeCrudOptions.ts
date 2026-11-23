@@ -9,18 +9,26 @@ export const createDeviceTelemetryRealtimeCrudOptions = function ({ expose }, de
 		link: true,
 	};
 	const formatColumnDataTime = (row, column, cellValue, index) => {
-		return formatToDateTime(row.value);
+		return formatToDateTime(cellValue);
 	};
 	const pageRequest = async (query) => {
+		if (!deviceId_param) {
+			return {
+				total: 0,
+				pageSize: 1,
+				currentPage: 1,
+				records: [],
+			};
+		}
+
 		const res = await deviceApi().getDeviceLatestTelemetry(deviceId_param);
+		const telemetry = Array.isArray(res.data) ? res.data : [];
 
-
-
-		state.telemetryKeys = res.data.filter((x) => typeof x.value === 'number').map((c) => c.keyName); // DeviceDetailTelemetry 组件状态， 要传到遥测历史组件
-		records = res.data;
+		state.telemetryKeys = telemetry.filter((x) => typeof x.value === 'number').map((c) => c.keyName); // DeviceDetailTelemetry 组件状态， 要传到遥测历史组件
+		records = telemetry;
 		return {
 			total:records.length,
-			pageSize:records.length,
+			pageSize:Math.max(1, records.length),
 			currentPage:1,
 			records,
 		};

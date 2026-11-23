@@ -20,7 +20,7 @@ namespace Quartz
                 var typeasm = from t in asm.GetTypes() where t.GetTypeInfo().ImplementedInterfaces.Any(tx => tx == typeof(IJob)) && t.GetTypeInfo().IsDefined(typeof(QuartzJobSchedulerAttribute), true) select t;
                 _jobs.AddRange(typeasm);
             });
-            foreach (var t in _jobs)
+            foreach (var t in _jobs.Distinct())
             {
                 var so = t.GetCustomAttribute<QuartzJobSchedulerAttribute>();
                 if (so?.Manual == false)

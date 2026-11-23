@@ -17,7 +17,8 @@ using System.Buffers;
 namespace IoTSharp.Services.MQTTControllers
 {
     [MqttController]
-    [MqttRoute("devices/{devname}/[controller]")]
+    [MqttRoute("devices/{devname}/telemetry")]
+    [MqttRoute("devices/{devname}/Telemetry")]
     public class TelemetryController : MqttBaseController
     {
         private readonly ILogger _logger;

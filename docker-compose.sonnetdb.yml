@@ -1,6 +1,6 @@
 services:
   sonnetdb:
-    image: ${SONNETDB_IMAGE:-iotsharp/sonnetdb:5.0.0}
+    image: ${SONNETDB_IMAGE:-ghcr.io/iotsharp/sonnetdb:5.2.0}
     restart: unless-stopped
     environment:
       TZ: ${TZ:-Asia/Shanghai}
@@ -39,6 +39,7 @@ services:
       EventBus: SonnetMQ
       EventBusStore: InMemory
       EventBusMQ: SonnetMQ
+      Quartz__UseSonnetDB: "true"
     depends_on:
       sonnetdb:
         condition: service_healthy

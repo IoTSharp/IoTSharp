@@ -182,7 +182,7 @@ const state = reactive<TableDataState>({
 });
 
 const query = reactive({
-  Creator: props.creatorname??'',
+  Creator: props.creator ?? '',
   Name: "",
   RuleId: "",
 });
@@ -241,17 +241,23 @@ const getData = async () => {
     offset: number
     limit: number
     Name: string
-    RuleId: string
+    RuleId?: string
     Creator?: string
   } = {
     offset: state.tableData.param.pageNum - 1,
     limit: state.tableData.param.pageSize,
     Name: query.Name,
-    RuleId: query.RuleId,
-    Creator: query.Creator,
   }
+
+  // 未选择筛选项时省略可空 Guid 字段，避免把空字符串交给 ASP.NET Core 绑定器。
+  if (query.RuleId) {
+    params.RuleId = query.RuleId
+  }
+
   if (props.creator) {
     params.Creator = props.creator
+  } else if (query.Creator) {
+    params.Creator = query.Creator
   }
   try {
     loading.value = true

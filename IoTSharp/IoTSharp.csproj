@@ -99,6 +99,7 @@
 		<PackageReference Include="Rin" />
 		<PackageReference Include="Rin.Mvc" />
 		<PackageReference Include="RulesEngine" />
+		<PackageReference Include="SonnetDB.Quartz" />
 		<PackageReference Include="SkiaSharp" />
 		<PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" />
 		<PackageReference Include="Storage.Net" />

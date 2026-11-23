@@ -38,6 +38,7 @@ namespace IoTSharp.Controllers
         public async Task<ApiResult> Occurred([FromBody] CreateAlarmDto dto)
         {
             var oname = dto.OriginatorName;
+            Guid? sourceId = Guid.TryParse(oname, out var parsedId) ? parsedId : null;
             return await _context.OccurredAlarm(dto, _alarm =>
             {
                 Guid originator = Guid.Empty;
@@ -45,19 +46,19 @@ namespace IoTSharp.Controllers
                 {
                     case OriginatorType.Device:
                         originator =
-                            _context.Device.FirstOrDefault(d => (d.Id.ToString() == oname || d.Name == oname) && d.Deleted == false)?.Id ??
+                            _context.Device.FirstOrDefault(d => (d.Id == sourceId || d.Name == oname) && d.Deleted == false)?.Id ??
                             Guid.Empty;
                         break;
 
                     case OriginatorType.Gateway:
                         originator =
-                            _context.Gateway.FirstOrDefault(d => (d.Id.ToString() == oname || d.Name == oname) && d.Deleted == false)?.Id ??
+                            _context.Gateway.FirstOrDefault(d => (d.Id == sourceId || d.Name == oname) && d.Deleted == false)?.Id ??
                             Guid.Empty;
                         break;
 
                     case OriginatorType.Asset:
                         originator =
-                            _context.Assets.FirstOrDefault(d => (d.Id.ToString() == oname || d.Name == oname) && d.Deleted == false)?.Id ??
+                            _context.Assets.FirstOrDefault(d => (d.Id == sourceId || d.Name == oname) && d.Deleted == false)?.Id ??
                             Guid.Empty;
                         break;
 
@@ -128,9 +129,9 @@ namespace IoTSharp.Controllers
             {
                 condition = condition.And(x => x.OriginatorType == (OriginatorType)m.OriginatorType);
 
-                if (m.OriginatorId != Guid.Empty)
+                if (m.OriginatorId is Guid originatorId && originatorId != Guid.Empty)
                 {
-                    condition = condition.And(x => x.OriginatorId == m.OriginatorId);
+                    condition = condition.And(x => x.OriginatorId == originatorId);
                 }
             }
 

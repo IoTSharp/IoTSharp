@@ -235,6 +235,11 @@ Deliver:
 - 只有在控制流、转换规则、兼容逻辑或领域决策不直观时，才添加简短行内注释。
 - 不要添加只是复述代码的噪音注释。
 
+## MQTT Topic Rules
+
+- MQTT 主题的固定段统一使用小写，并在路由声明中显式写出。设备名、测点名和请求 ID 等参数保留原有大小写。
+- 保持主题匹配区分大小写。已支持的历史写法可以作为精确匹配的兼容别名，新客户端使用小写固定段。
+
 ## Immediate Execution Focus
 
 The platform code baseline through Release Center already exists. The next gap

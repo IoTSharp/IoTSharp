@@ -39,6 +39,7 @@ using ModelContextProtocol.Server;
 using MQTTnet.AspNetCore;
 using Quartz;
 using Quartz.AspNetCore;
+using SonnetDB.Quartz;
 using Storage.Net;
 using System;
 using System.Collections.Generic;
@@ -46,6 +47,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace IoTSharp
@@ -198,9 +200,34 @@ namespace IoTSharp
             services.AddScoped<ConfigurationOperationLeaseService>();
             services.AddIoTSharpMqttServer(settings.MqttBroker);
             services.AddMqttClient(settings.MqttClient);
+            var persistQuartzJobs = Configuration.GetValue<bool>("Quartz:UseSonnetDB");
+            var quartzConnection = persistQuartzJobs ? GetConnectionString(settings, "IoTSharp") : null;
+            if (persistQuartzJobs)
+            {
+                if (settings.DataBase != DataBaseType.SonnetDB || string.IsNullOrWhiteSpace(quartzConnection))
+                {
+                    throw new InvalidOperationException("Quartz:UseSonnetDB requires the SonnetDB IoTSharp connection string.");
+                }
+
+                using var schemaTimeout = new CancellationTokenSource(TimeSpan.FromSeconds(45));
+                SonnetDbQuartzSchema.EnsureCreatedAsync(quartzConnection, schemaTimeout.Token).GetAwaiter().GetResult();
+                services.Configure<QuartzOptions>(options =>
+                {
+                    // 启动时只添加缺失的任务和触发器，保留上次持久化的运行状态。
+                    options.Scheduling.IgnoreDuplicates = true;
+                    options.Scheduling.OverWriteExistingData = false;
+                });
+            }
+
             services.AddQuartz(q =>
             {
-                q.DiscoverJobs();
+                if (quartzConnection != null)
+                {
+                    q.SchedulerName = "IoTSharp";
+                    q.UsePersistentStore(store => store.UseSonnetDB(quartzConnection));
+                }
+
+                q.DiscoverJobs([typeof(Startup).Assembly]);
             });
 
             // ASP.NET Core hosting
