@@ -119,26 +119,24 @@ public sealed class SonnetMqEventBusWorker : BackgroundService
                 .ToArray();
 
             await subscriber.StoreTelemetryDataBatch(payloads);
-
-            foreach (var message in messages)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-                await _client.AckAsync(subscription.Topic, _options.ConsumerGroup, message.Offset, cancellationToken);
-                ClearDeliveryFailure(message);
-            }
         }
-        catch (Exception ex)
+        catch (Exception ex) when (!cancellationToken.IsCancellationRequested)
         {
-            var firstOffset = messages.Count > 0 ? messages[0].Offset : -1;
-            var lastOffset = messages.Count > 0 ? messages[^1].Offset : -1;
             _logger.LogWarning(
                 ex,
                 "SonnetMQ telemetry batch dispatch failed. Falling back to per-message dispatch. topic={Topic}, firstOffset={FirstOffset}, lastOffset={LastOffset}, count={Count}",
                 subscription.Topic,
-                firstOffset,
-                lastOffset,
+                messages[0].Offset,
+                messages[^1].Offset,
                 messages.Count);
             return await DispatchMessagesIndividuallyAsync(subscription, messages, cancellationToken);
+        }
+
+        // 批次全部处理成功后，SonnetMQ 一次确认到最后一条。确认失败时由下一轮拉取按服务端位点重试。
+        await _client.AckAsync(subscription.Topic, _options.ConsumerGroup, messages[^1].Offset, cancellationToken);
+        foreach (var message in messages)
+        {
+            ClearDeliveryFailure(message);
         }
 
         return true;

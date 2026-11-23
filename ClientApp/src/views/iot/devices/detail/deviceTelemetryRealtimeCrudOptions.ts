@@ -8,9 +8,6 @@ export const createDeviceTelemetryRealtimeCrudOptions = function ({ expose }, de
 	const FsButton = {
 		link: true,
 	};
-	const formatColumnDataTime = (row, column, cellValue, index) => {
-		return formatToDateTime(cellValue);
-	};
 	const pageRequest = async (query) => {
 		if (!deviceId_param) {
 			return {
@@ -134,7 +131,7 @@ export const createDeviceTelemetryRealtimeCrudOptions = function ({ expose }, de
 					title: '时间',
 					type: 'text',
 					column: {
-						formatter: formatColumnDataTime,
+						formatter: ({ value }) => (value ? formatToDateTime(value) : ''),
 					},
 					addForm: {
 						show: false,

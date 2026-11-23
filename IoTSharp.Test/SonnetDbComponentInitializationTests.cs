@@ -1,9 +1,12 @@
 #nullable enable
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using EasyCaching.Core;
@@ -12,7 +15,11 @@ using IoTSharp.Data;
 using IoTSharp.Data.SonnetDB;
 using IoTSharp.EventBus;
 using IoTSharp.EventBus.SonnetMQ;
+using IoTSharp.Extensions;
 using IoTSharp.Storage;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -169,6 +176,122 @@ public sealed class SonnetDbComponentInitializationTests : IDisposable
 
         public override Task<TelemetryBatchStoreResult> StoreTelemetryBatchAsync(IReadOnlyCollection<PlayloadData> messages)
             => Task.FromResult(new TelemetryBatchStoreResult(false, [], messages.Count));
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task SonnetMQ_CompletedTelemetryBatch_UsesOneCumulativeAcknowledgement(bool failFirstAck)
+    {
+        const string topic = "iotsharp.services.datastream.telemetrydata";
+        var timestamp = DateTimeOffset.UtcNow;
+        var payload = Encoding.UTF8.GetBytes(JsonObjectSerializer.Serialize(new PlayloadData
+        {
+            DeviceId = Guid.NewGuid(),
+            DataCatalog = DataCatalog.TelemetryData,
+            DataSide = DataSide.ClientSide,
+            MsgBody = new Dictionary<string, object> { ["temperature"] = 22.5 }
+        }));
+        var messages = new long[] { 10, 11, 12 }.Select(offset => new
+        {
+            topic,
+            offset,
+            timestampUtc = timestamp,
+            headers = new Dictionary<string, string>(),
+            payload
+        }).ToArray();
+        var storage = new RecordingTelemetryStorage();
+        var ruleCalls = 0;
+        var acknowledgements = new ConcurrentQueue<(long Offset, int BatchWrites, int RuleCalls)>();
+        var acknowledgementCompleted = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var builder = WebApplication.CreateSlimBuilder();
+        builder.WebHost.UseUrls("http://127.0.0.1:0");
+        await using var broker = builder.Build();
+        broker.MapPost("/v1/db/events/mq/{topic}/pull", (string topic) => Results.Json(new
+        {
+            messages = topic == messages[0].topic && !acknowledgementCompleted.Task.IsCompleted ? messages : []
+        }));
+        broker.MapPost($"/v1/db/events/mq/{topic}/ack", async (HttpContext context) =>
+        {
+            var request = await context.Request.ReadFromJsonAsync<JsonElement>(context.RequestAborted);
+            var offset = request.GetProperty("offset").GetInt64();
+            acknowledgements.Enqueue((offset, storage.BatchWrites, Volatile.Read(ref ruleCalls)));
+            if (failFirstAck && acknowledgements.Count == 1)
+            {
+                return Results.StatusCode(StatusCodes.Status503ServiceUnavailable);
+            }
+
+            if (offset == messages[^1].offset)
+            {
+                acknowledgementCompleted.TrySetResult();
+            }
+            return Results.Json(new { topic, consumerGroup = "iotsharp", nextOffset = offset + 1 });
+        });
+
+        using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(12));
+        await broker.StartAsync(timeout.Token);
+        using var client = new SndbMqClient($"Data Source=sonnetdb+{broker.Urls.Single()}/events;Protocol=Rest;Timeout=2");
+        var services = new ServiceCollection();
+        services.AddLogging();
+        services.AddEasyCaching(options => options.UseInMemory("CachingUseIn-InMemory"));
+        services.AddSingleton<IStorage>(storage);
+        var healthChecks = services.AddHealthChecks();
+        services.AddEventBus(options =>
+        {
+            options.AppSettings = new AppSettings
+            {
+                EventBus = EventBusFramework.SonnetMQ,
+                EventBusMQ = EventBusMQ.SonnetMQ,
+                ConsumerThreadCount = 1
+            };
+            options.EventBusMQ = $"Data Source={Path.Combine(_root, "events")}";
+            options.HealthChecks = healthChecks;
+            options.RunRules = (_, _, _) =>
+            {
+                Interlocked.Increment(ref ruleCalls);
+                return Task.CompletedTask;
+            };
+            options.UseSonnetMQ();
+        });
+        services.AddSingleton(client);
+
+        await using var provider = services.BuildServiceProvider();
+        var worker = Assert.Single(provider.GetServices<IHostedService>().OfType<SonnetMqEventBusWorker>());
+        await worker.StartAsync(timeout.Token);
+        try
+        {
+            await acknowledgementCompleted.Task.WaitAsync(timeout.Token);
+            Assert.Equal(0, storage.IndividualWrites);
+            Assert.Equal(failFirstAck ? [(12L, 1, 6), (12L, 2, 12)] : new[] { (12L, 1, 6) }, acknowledgements.ToArray());
+        }
+        finally
+        {
+            using var shutdown = new CancellationTokenSource(TimeSpan.FromSeconds(3));
+            await worker.StopAsync(shutdown.Token);
+            await broker.StopAsync(shutdown.Token);
+        }
+    }
+
+    private sealed class RecordingTelemetryStorage()
+        : EFStorage(NullLogger<EFStorage>.Instance, null!, Options.Create(new AppSettings()))
+    {
+        private int _batchWrites;
+        private int _individualWrites;
+
+        public int BatchWrites => Volatile.Read(ref _batchWrites);
+        public int IndividualWrites => Volatile.Read(ref _individualWrites);
+
+        public override Task<(bool result, List<TelemetryData> telemetries)> StoreTelemetryAsync(PlayloadData msg)
+        {
+            Interlocked.Increment(ref _individualWrites);
+            return Task.FromResult<(bool, List<TelemetryData>)>((true, []));
+        }
+
+        public override Task<TelemetryBatchStoreResult> StoreTelemetryBatchAsync(IReadOnlyCollection<PlayloadData> messages)
+        {
+            Interlocked.Increment(ref _batchWrites);
+            return Task.FromResult(new TelemetryBatchStoreResult(true, [], messages.Count));
+        }
     }
 
     [Fact]
