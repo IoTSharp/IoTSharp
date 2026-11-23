@@ -22,7 +22,6 @@ concurrency:
   group: github-pages
   cancel-in-progress: true
 
-defaults:
 jobs:
   build:
     name: Build Docs Site

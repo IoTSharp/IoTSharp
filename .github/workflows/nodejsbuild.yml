@@ -3,7 +3,9 @@ name: NodeJS with build
 on:
   push:
     branches: [master]
-    paths: [ClientApp/**]
+    paths:
+      - 'ClientApp/**'
+      - '.github/workflows/nodejsbuild.yml'
 
 
 jobs:
@@ -21,11 +23,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: npm
-          cache-dependency-path: ClientApp/package-lock.json
 
       - name: Build
         working-directory: ClientApp
         run: |
-          npm ci --legacy-peer-deps
+          npm install --legacy-peer-deps
           npm run build
