@@ -33,11 +33,12 @@ public sealed class SonnetMqEventBusWorker : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        var diagnostics = SonnetMqProcessingLog.RunAsync(_logger, _options.ProcessingDiagnosticsSeconds, stoppingToken);
         var workers = SonnetMqEventBusTopics.Subscriptions
             .Select(subscription => RunSubscriptionWorkerAsync(subscription, stoppingToken))
             .ToArray();
 
-        await Task.WhenAll(workers);
+        await Task.WhenAll(workers.Append(diagnostics));
     }
 
     private async Task RunSubscriptionWorkerAsync(SonnetMqSubscription subscription, CancellationToken stoppingToken)
@@ -64,11 +65,20 @@ public sealed class SonnetMqEventBusWorker : BackgroundService
 
     private async Task<bool> PullAndDispatchAsync(SonnetMqSubscription subscription, CancellationToken cancellationToken)
     {
-        var messages = await _client.PullAsync(
-            subscription.Topic,
-            _options.ConsumerGroup,
-            Math.Max(1, _options.PullBatchSize),
-            cancellationToken);
+        IReadOnlyList<SndbMqMessage> messages;
+        using (SonnetMqProcessingMetrics.Measure(subscription.Kind switch
+        {
+            SonnetMqEventKinds.TelemetryData => SonnetMqProcessingMetrics.TelemetryPull,
+            SonnetMqEventKinds.AttributeData => SonnetMqProcessingMetrics.AttributePull,
+            _ => null
+        }))
+        {
+            messages = await _client.PullAsync(
+                subscription.Topic,
+                _options.ConsumerGroup,
+                Math.Max(1, _options.PullBatchSize),
+                cancellationToken);
+        }
         if (messages.Count == 0)
             return false;
 
@@ -90,8 +100,16 @@ public sealed class SonnetMqEventBusWorker : BackgroundService
             {
                 using var scope = _scopeFactory.CreateScope();
                 var subscriber = scope.ServiceProvider.GetRequiredService<ISubscriber>();
-                await DispatchAsync(subscriber, subscription.Kind, message);
-                await _client.AckAsync(subscription.Topic, _options.ConsumerGroup, message.Offset, cancellationToken);
+                using (SonnetMqProcessingMetrics.Measure(subscription.Kind switch
+                {
+                    SonnetMqEventKinds.TelemetryData => SonnetMqProcessingMetrics.TelemetrySingleDispatch,
+                    SonnetMqEventKinds.AttributeData => SonnetMqProcessingMetrics.AttributeDispatch,
+                    _ => null
+                }))
+                {
+                    await DispatchAsync(subscriber, subscription.Kind, message);
+                }
+                await AckAsync(subscription, message.Offset, cancellationToken);
                 ClearDeliveryFailure(message);
             }
             catch (Exception ex)
@@ -112,11 +130,14 @@ public sealed class SonnetMqEventBusWorker : BackgroundService
     {
         try
         {
+            using var dispatch = SonnetMqProcessingMetrics.Measure(SonnetMqProcessingMetrics.TelemetryBatchDispatch);
             using var scope = _scopeFactory.CreateScope();
             var subscriber = scope.ServiceProvider.GetRequiredService<ISubscriber>();
-            var payloads = messages
-                .Select(ReadJson<PlayloadData>)
-                .ToArray();
+            PlayloadData[] payloads;
+            using (SonnetMqProcessingMetrics.Measure(SonnetMqProcessingMetrics.TelemetryBatchDecode))
+            {
+                payloads = messages.Select(ReadJson<PlayloadData>).ToArray();
+            }
 
             await subscriber.StoreTelemetryDataBatch(payloads);
         }
@@ -133,7 +154,7 @@ public sealed class SonnetMqEventBusWorker : BackgroundService
         }
 
         // 批次全部处理成功后，SonnetMQ 一次确认到最后一条。确认失败时由下一轮拉取按服务端位点重试。
-        await _client.AckAsync(subscription.Topic, _options.ConsumerGroup, messages[^1].Offset, cancellationToken);
+        await AckAsync(subscription, messages[^1].Offset, cancellationToken);
         foreach (var message in messages)
         {
             ClearDeliveryFailure(message);
@@ -165,7 +186,7 @@ public sealed class SonnetMqEventBusWorker : BackgroundService
         }
 
         await PublishDeadLetterAsync(subscription, message, exception, attempts, cancellationToken);
-        await _client.AckAsync(subscription.Topic, _options.ConsumerGroup, message.Offset, cancellationToken);
+        await AckAsync(subscription, message.Offset, cancellationToken);
         ClearDeliveryFailure(message);
         _logger.LogError(
             exception,
@@ -174,6 +195,18 @@ public sealed class SonnetMqEventBusWorker : BackgroundService
             message.Offset,
             attempts);
         return true;
+    }
+
+    /// <summary>确认已完成的位点并记录遥测或属性的确认耗时。</summary>
+    private async Task AckAsync(SonnetMqSubscription subscription, long offset, CancellationToken cancellationToken)
+    {
+        using var timing = SonnetMqProcessingMetrics.Measure(subscription.Kind switch
+        {
+            SonnetMqEventKinds.TelemetryData => SonnetMqProcessingMetrics.TelemetryAck,
+            SonnetMqEventKinds.AttributeData => SonnetMqProcessingMetrics.AttributeAck,
+            _ => null
+        });
+        await _client.AckAsync(subscription.Topic, _options.ConsumerGroup, offset, cancellationToken);
     }
 
     private async Task PublishDeadLetterAsync(

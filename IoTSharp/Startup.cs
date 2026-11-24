@@ -301,6 +301,8 @@ namespace IoTSharp
                         throw new NotSupportedException(" EventBusFramework.Shashlik is not supported yet");
                     case EventBusFramework.SonnetMQ:
                         opt.UseSonnetMQ();
+                        services.Configure<SonnetMqEventBusOptions>(options =>
+                            options.ProcessingDiagnosticsSeconds = Configuration.GetValue<int>("SonnetMQ:ProcessingDiagnosticsSeconds"));
                         break;
                     case EventBusFramework.CAP:
                     default:
@@ -444,7 +446,17 @@ namespace IoTSharp
             app.UseEventBus(opt =>
             {
                 var frp = app.ApplicationServices.GetService<FlowRuleProcessor>();
-                return frp.RunRules;
+                EventBusOption.RunRulesEventHander handler = frp.RunRules;
+                if (settings.EventBus == EventBusFramework.SonnetMQ
+                    && Configuration.GetValue<bool>("SonnetMQ:CheckEmptyRulesByBatch")
+                    && opt.RunRules.GetInvocationList().Length == 1)
+                {
+                    var builtInPipeline = opt.RunRules + handler;
+                    opt.HasNoTelemetryRulesAsync = async messages => opt.RunRules == builtInPipeline
+                        && await frp.HasNoTelemetryRulesAsync(messages)
+                        && opt.RunRules == builtInPipeline;
+                }
+                return handler;
             });
 
             app.UseEndpoints(endpoints =>

@@ -18,6 +18,7 @@ namespace IoTSharp.Storage
         private const string DefaultMeasurement = nameof(TelemetryData);
         private const int DefaultSchemaCacheLimit = 4096;
         private const int SchemaLockStripeCount = 64;
+        private const int MaxRemoteWriteBatchSize = 128;
 
         private static readonly HashSet<string> StorageOptionNames = new(StringComparer.OrdinalIgnoreCase)
         {
@@ -27,7 +28,8 @@ namespace IoTSharp.Storage
             "AutoCreate",
             "SchemaCacheLimit",
             "SchemaCacheSize",
-            "MaxSchemaCacheSize"
+            "MaxSchemaCacheSize",
+            "RemoteWriteBatchSize"
         };
 
         private readonly string _connectionString;
@@ -36,6 +38,7 @@ namespace IoTSharp.Storage
         private readonly string _measurementPrefix;
         private readonly bool _autoCreate;
         private readonly int _schemaCacheLimit;
+        private readonly int _remoteWriteBatchSize;
         private readonly ILogger _logger;
         private readonly ConcurrentDictionary<string, CachedMeasurementSchema> _schemas = new(StringComparer.Ordinal);
         private readonly object[] _schemaLocks = CreateSchemaLocks();
@@ -56,6 +59,7 @@ namespace IoTSharp.Storage
             _measurementPrefix = storageOptions.MeasurementPrefix;
             _autoCreate = storageOptions.AutoCreate;
             _schemaCacheLimit = storageOptions.SchemaCacheLimit;
+            _remoteWriteBatchSize = storageOptions.RemoteWriteBatchSize;
 
             SndbResourceInitializer.EnsureDatabase(_connectionString, "时序数据库");
         }
@@ -210,15 +214,7 @@ namespace IoTSharp.Storage
                     group.SchemaChanged |= schemaChanged;
                 }
 
-                var writtenRows = 0;
-                foreach (var group in batches.Values)
-                {
-                    writtenRows += InsertTelemetryBatch(connection, group.Measurement, group.Fields, group.Rows);
-                    if (group.SchemaChanged)
-                    {
-                        RefreshSchema(connection, group.Measurement);
-                    }
-                }
+                var writtenRows = WriteTelemetryGroups(connection, batches.Values);
 
                 return Task.FromResult(new SonnetDbTelemetryBatchWriteReport(
                     totalMessages,
@@ -381,6 +377,7 @@ namespace IoTSharp.Storage
 
         private MeasurementSchemaInfo? EnsureMeasurement(SndbConnection connection, string measurement, IReadOnlyList<TelemetryData> telemetries)
         {
+            using var timing = SonnetMqProcessingMetrics.MeasureStorage(SonnetMqProcessingMetrics.TelemetrySchema);
             var schemaLock = GetSchemaLock(measurement);
             lock (schemaLock)
             {
@@ -554,6 +551,7 @@ namespace IoTSharp.Storage
 
         private void RefreshSchema(SndbConnection connection, string measurement)
         {
+            using var timing = SonnetMqProcessingMetrics.MeasureStorage(SonnetMqProcessingMetrics.TelemetrySchema);
             _schemas.TryRemove(measurement, out _);
             _ = TryLoadSchema(connection, measurement);
         }
@@ -865,30 +863,99 @@ namespace IoTSharp.Storage
             }
 
             command.CommandText = $"INSERT INTO {QuoteIdentifier(measurement)} ({string.Join(", ", columns)}) VALUES ({string.Join(", ", values)})";
+            using var timing = SonnetMqProcessingMetrics.MeasureStorage(SonnetMqProcessingMetrics.TelemetrySql);
             return command.ExecuteNonQuery();
         }
 
-        private static int InsertTelemetryBatch(SndbConnection connection, string measurement, IReadOnlyList<ColumnInfo> fields, IReadOnlyList<BatchWriteRow> rows)
+        /// <summary>
+        /// 按原顺序写入测量分组。启用远程批量时，每组仍为独立 INSERT，并逐组核实结果。
+        /// </summary>
+        private int WriteTelemetryGroups(SndbConnection connection, IEnumerable<BatchWriteGroup> groups)
         {
-            if (rows.Count == 0)
+            var batchSize = connection.ProviderMode == SndbProviderMode.Remote ? _remoteWriteBatchSize : 1;
+            var pending = new List<BatchWriteGroup>(batchSize);
+            var written = 0;
+            foreach (var group in groups)
+            {
+                if (group.SchemaChanged)
+                {
+                    written += InsertTelemetryGroups(connection, pending);
+                    pending.Clear();
+                    written += InsertTelemetryGroups(connection, [group]);
+                    RefreshSchema(connection, group.Measurement);
+                    continue;
+                }
+                pending.Add(group);
+                if (pending.Count == batchSize)
+                {
+                    written += InsertTelemetryGroups(connection, pending);
+                    pending.Clear();
+                }
+            }
+            return written + InsertTelemetryGroups(connection, pending);
+        }
+
+        /// <summary>
+        /// 发送有界 SQL 批次。完整读取每条语句的结束记录后，结果才能用于事件总线确认。
+        /// </summary>
+        private static int InsertTelemetryGroups(SndbConnection connection, IReadOnlyList<BatchWriteGroup> groups)
+        {
+            if (groups.Count == 0)
             {
                 return 0;
             }
-
             using var command = connection.CreateCommand();
-            var columns = new List<string> { "time" };
-            columns.AddRange(fields.Select(static x => QuoteIdentifier(x.Name)));
-
-            var valuesSql = new List<string>(rows.Count);
-            for (var rowIndex = 0; rowIndex < rows.Count; rowIndex++)
+            var statements = new string[groups.Count];
+            for (var index = 0; index < groups.Count; index++)
             {
-                var row = rows[rowIndex];
-                var rowValues = new List<string> { $"@time{rowIndex}" };
-                command.Parameters.AddWithValue($"@time{rowIndex}", ToUnixMilliseconds(row.Timestamp));
+                statements[index] = BuildTelemetryInsert(command, groups[index], index);
+            }
+            command.CommandText = string.Join(";\n", statements);
+            using var timing = SonnetMqProcessingMetrics.MeasureStorage(SonnetMqProcessingMetrics.TelemetrySql);
+            if (groups.Count == 1)
+            {
+                return command.ExecuteNonQuery();
+            }
 
-                for (var fieldIndex = 0; fieldIndex < fields.Count; fieldIndex++)
+            using var deadline = new CancellationTokenSource(TimeSpan.FromSeconds(
+                connection.ConnectionTimeout > 0 ? connection.ConnectionTimeout : 30));
+            using var reader = command.ExecuteReaderAsync(deadline.Token).GetAwaiter().GetResult();
+            var written = 0;
+            for (var index = 0; index < groups.Count; index++)
+            {
+                if (index > 0 && !reader.NextResultAsync(deadline.Token).GetAwaiter().GetResult())
                 {
-                    var parameterName = $"@value{rowIndex}_{fieldIndex}";
+                    throw new InvalidOperationException("SonnetDB did not return every telemetry INSERT result.");
+                }
+                if (reader.ReadAsync(deadline.Token).GetAwaiter().GetResult() || reader.RecordsAffected != groups[index].Rows.Count)
+                {
+                    throw new InvalidOperationException("SonnetDB returned an unexpected telemetry INSERT result.");
+                }
+                written += reader.RecordsAffected;
+            }
+            if (reader.NextResultAsync(deadline.Token).GetAwaiter().GetResult())
+            {
+                throw new InvalidOperationException("SonnetDB returned an extra telemetry INSERT result.");
+            }
+            return written;
+        }
+
+        private static string BuildTelemetryInsert(SndbCommand command, BatchWriteGroup group, int statementIndex)
+        {
+            var columns = new List<string> { "time" };
+            columns.AddRange(group.Fields.Select(static x => QuoteIdentifier(x.Name)));
+
+            var valuesSql = new List<string>(group.Rows.Count);
+            for (var rowIndex = 0; rowIndex < group.Rows.Count; rowIndex++)
+            {
+                var row = group.Rows[rowIndex];
+                var timeParameter = $"@time{statementIndex}_{rowIndex}";
+                var rowValues = new List<string> { timeParameter };
+                command.Parameters.AddWithValue(timeParameter, ToUnixMilliseconds(row.Timestamp));
+
+                for (var fieldIndex = 0; fieldIndex < group.Fields.Count; fieldIndex++)
+                {
+                    var parameterName = $"@value{statementIndex}_{rowIndex}_{fieldIndex}";
                     rowValues.Add(parameterName);
                     command.Parameters.AddWithValue(parameterName, row.Values[fieldIndex]);
                 }
@@ -896,8 +963,7 @@ namespace IoTSharp.Storage
                 valuesSql.Add($"({string.Join(", ", rowValues)})");
             }
 
-            command.CommandText = $"INSERT INTO {QuoteIdentifier(measurement)} ({string.Join(", ", columns)}) VALUES {string.Join(", ", valuesSql)}";
-            return command.ExecuteNonQuery();
+            return $"INSERT INTO {QuoteIdentifier(group.Measurement)} ({string.Join(", ", columns)}) VALUES {string.Join(", ", valuesSql)}";
         }
 
         private static string BuildFieldSignature(IReadOnlyList<ColumnInfo> fields)
@@ -1185,7 +1251,8 @@ namespace IoTSharp.Storage
                 GetIntOption(raw, "SchemaCacheLimit")
                 ?? GetIntOption(raw, "SchemaCacheSize")
                 ?? GetIntOption(raw, "MaxSchemaCacheSize")
-                ?? DefaultSchemaCacheLimit);
+                ?? DefaultSchemaCacheLimit,
+                Math.Clamp(GetIntOption(raw, "RemoteWriteBatchSize") ?? 1, 1, MaxRemoteWriteBatchSize));
         }
 
         private void EnsureEmbeddedOperation(string operation)
@@ -1287,7 +1354,8 @@ namespace IoTSharp.Storage
             SndbProviderMode ProviderMode,
             string MeasurementPrefix,
             bool AutoCreate,
-            int SchemaCacheLimit);
+            int SchemaCacheLimit,
+            int RemoteWriteBatchSize);
 
         private sealed record BatchWriteKey(string Measurement, string FieldSignature);
 

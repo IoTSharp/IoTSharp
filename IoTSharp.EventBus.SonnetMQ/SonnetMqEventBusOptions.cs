@@ -16,6 +16,9 @@ public sealed class SonnetMqEventBusOptions
 
     public int MaxDeliveryAttempts { get; set; } = 3;
 
+    /// <summary>启动后记录分段处理耗时的时长，单位为秒。零表示关闭。</summary>
+    public int ProcessingDiagnosticsSeconds { get; set; }
+
     public string DeadLetterTopicSuffix { get; set; } = ".errors";
 
     public int DeadLetterStackTraceMaxChars { get; set; } = 8192;

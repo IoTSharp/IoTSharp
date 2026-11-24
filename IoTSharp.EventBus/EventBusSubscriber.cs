@@ -48,11 +48,19 @@ namespace IoTSharp.EventBus
                 {
                     using (var _dbContext = _scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
                     {
-                        var device = _dbContext.Device.FirstOrDefault(d => d.Id == msg.DeviceId);
+                        Device? device;
+                        using (SonnetMqProcessingMetrics.Measure(_event == EventType.Attribute ? SonnetMqProcessingMetrics.AttributeDeviceLookup : null))
+                        {
+                            device = _dbContext.Device.FirstOrDefault(d => d.Id == msg.DeviceId);
+                        }
                         if (device != null)
                         {
                             var dc = msg.ToDictionary();
-                            var result2 = await _dbContext.SaveAsync<AttributeLatest>(dc, device.Id, msg.DataSide);
+                            (int ret, Dictionary<string, Exception> exceptions) result2;
+                            using (SonnetMqProcessingMetrics.BeginStorage(_event == EventType.Attribute ? SonnetMqProcessingMetrics.AttributeSaveChanges : null))
+                            {
+                                result2 = await _dbContext.SaveAsync<AttributeLatest>(dc, device.Id, msg.DataSide);
+                            }
                             result2.exceptions?.ToList().ForEach(ex =>
                             {
                                 _logger.LogError($"{ex.Key} {ex.Value} {JsonObjectSerializer.Serialize(msg.MsgBody[ex.Key])}");
@@ -60,6 +68,7 @@ namespace IoTSharp.EventBus
                             _logger.LogInformation($"更新{device.Name}({device.Id})属性数据结果{result2.ret}");
                             if (_event != EventType.None)
                             {
+                                using var timing = SonnetMqProcessingMetrics.Measure(_event == EventType.Attribute ? SonnetMqProcessingMetrics.AttributeRules : null);
                                 await RunRules(msg.DeviceId, dc.ToDynamic(), _event);
                             }
                         }
@@ -131,12 +140,18 @@ namespace IoTSharp.EventBus
         /// <param name="msg">设备遥测消息。</param>
         public async Task StoreTelemetryData(PlayloadData msg)
         {
-            var result = await _storage.StoreTelemetryAsync(msg);
+            (bool result, List<TelemetryData> telemetries) result;
+            using (SonnetMqProcessingMetrics.Measure(SonnetMqProcessingMetrics.TelemetryStore))
+            using (SonnetMqProcessingMetrics.BeginStorage(SonnetMqProcessingMetrics.TelemetryStore))
+            {
+                result = await _storage.StoreTelemetryAsync(msg);
+            }
             if (!result.result)
             {
                 throw new InvalidOperationException($"Telemetry storage failed. DeviceId={msg.DeviceId}");
             }
 
+            using var rules = SonnetMqProcessingMetrics.Measure(SonnetMqProcessingMetrics.TelemetryRules);
             var data = from t in result.telemetries
                        select new TelemetryDataDto() { DateTime = t.DateTime, DataType = t.Type, KeyName = t.KeyName, Value = t.ToObject() };
             var array = data.ToList();
@@ -152,12 +167,28 @@ namespace IoTSharp.EventBus
                 return;
             }
 
-            var storeResult = await _storage.StoreTelemetryBatchAsync(messages);
+            TelemetryBatchStoreResult storeResult;
+            using (SonnetMqProcessingMetrics.Measure(SonnetMqProcessingMetrics.TelemetryStore))
+            using (SonnetMqProcessingMetrics.BeginStorage(SonnetMqProcessingMetrics.TelemetryStore))
+            {
+                storeResult = await _storage.StoreTelemetryBatchAsync(messages);
+            }
             if (!storeResult.Result)
             {
                 throw new InvalidOperationException($"Telemetry batch storage failed. MessageCount={storeResult.MessageCount}");
             }
 
+            var hasNoRules = _eventBusOption.HasNoTelemetryRulesAsync;
+            if (hasNoRules != null)
+            {
+                using var check = SonnetMqProcessingMetrics.Measure(SonnetMqProcessingMetrics.TelemetryRuleCheck);
+                if (await hasNoRules(messages))
+                {
+                    return;
+                }
+            }
+
+            using var rules = SonnetMqProcessingMetrics.Measure(SonnetMqProcessingMetrics.TelemetryRules);
             foreach (var msg in messages)
             {
                 var result = msg.ToDictionary()

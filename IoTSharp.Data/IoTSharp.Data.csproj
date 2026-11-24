@@ -23,6 +23,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="IoTSharp.Data.TimeSeries" />
+    <InternalsVisibleTo Include="IoTSharp.EventBus" />
+    <InternalsVisibleTo Include="IoTSharp.EventBus.SonnetMQ" />
     <ProjectReference Include="..\IoTSharp.Contracts\IoTSharp.Contracts.csproj" />
     <ProjectReference Include="..\IoTSharp.Extensions\IoTSharp.Extensions.csproj" />
   </ItemGroup>

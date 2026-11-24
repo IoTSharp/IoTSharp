@@ -9,14 +9,18 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Dynamic;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Threading;
 using System.Threading.Tasks;
 using IoTSharp.Extensions;
 using IoTSharp.Contracts;
 using IoTSharp.Data.Extensions;
+using SonnetDB.Caching.EasyCaching;
+using SonnetDB.Data.Kv;
 
 namespace IoTSharp.FlowRuleEngine
 {
@@ -46,14 +50,30 @@ namespace IoTSharp.FlowRuleEngine
         {
             try
             {
-                var rules = await _caching.GetAsync($"ruleid_{devid}_{Enum.GetName(mountType)}", async () =>
+                async Task<Guid[]> LoadRuleIdsAsync()
                 {
-                    using (var scope = _scopeFactor.CreateScope())
-                    using (var _dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
+                    using var scope = _scopeFactor.CreateScope();
+                    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                    return await context.GerDeviceRulesIdList(devid, mountType);
+                }
+
+                var cacheKey = $"ruleid_{devid}_{Enum.GetName(mountType)}";
+                var expiration = TimeSpan.FromSeconds(_setting.RuleCachingExpiration);
+                CacheValue<Guid[]> rules;
+                if (_caching is SonnetDbEasyCachingProvider)
+                {
+                    rules = await _caching.GetAsync<Guid[]>(cacheKey);
+                    // SonnetDB 读取空值时仍判为未命中，只缓存查到的规则。
+                    if (!rules.HasValue && (await LoadRuleIdsAsync()) is { } ruleIds)
                     {
-                        return await _dbContext.GerDeviceRulesIdList(devid, mountType);
+                        await _caching.SetAsync(cacheKey, ruleIds, expiration);
+                        rules = new CacheValue<Guid[]>(ruleIds, true);
                     }
-                }, TimeSpan.FromSeconds(_setting.RuleCachingExpiration));
+                }
+                else
+                {
+                    rules = await _caching.GetAsync(cacheKey, LoadRuleIdsAsync, expiration);
+                }
                 if (rules.HasValue && rules.Value != null)
                 {
                     rules.Value.ToList().ForEach(async g =>
@@ -77,6 +97,55 @@ namespace IoTSharp.FlowRuleEngine
             {
                 _logger.LogError(ex, $"{devid}处理规则链时遇到异常:{ex.Message}");
 
+            }
+        }
+
+        /// <summary>
+        /// 在一秒内核对本批的规则缓存和规则绑定表。缓存有命中、存在绑定或检查失败时逐条执行原路径。
+        /// </summary>
+        /// <param name="messages">已经写入的当前遥测批次。</param>
+        /// <returns>双方均确认无规则时返回 true，结果仅供当前批次使用。</returns>
+        public async Task<bool> HasNoTelemetryRulesAsync(IReadOnlyCollection<PlayloadData> messages)
+        {
+            if (_caching is not SonnetDbEasyCachingProvider { Database: SndbKvClient cache }
+                || messages.Count is 0 or > 1024)
+            {
+                return false;
+            }
+
+            var started = Stopwatch.GetTimestamp();
+            var timeLimit = TimeSpan.FromSeconds(1);
+            using var deadline = new CancellationTokenSource(timeLimit);
+            try
+            {
+                var keys = messages.Select(message => message.DeviceId).Distinct()
+                    .SelectMany(deviceId => new[]
+                    {
+                        $"ruleid_{deviceId}_{nameof(EventType.Telemetry)}",
+                        $"ruleid_{deviceId}_{nameof(EventType.TelemetryArray)}"
+                    })
+                    .ToArray();
+                if (keys.Length > 1024)
+                {
+                    return false;
+                }
+
+                var cachedRules = await cache.GetManyAsync(
+                    _setting.CachingUseSonnetDBKeyspace, _setting.CachingUseSonnetDBNamespace, keys, deadline.Token);
+                if (cachedRules.Count != keys.Length || cachedRules.Values.Any(entry => entry != null))
+                {
+                    return false;
+                }
+
+                using var scope = _scopeFactor.CreateScope();
+                var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                return !await context.DeviceRules.AnyAsync(deadline.Token)
+                    && Stopwatch.GetElapsedTime(started) < timeLimit;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogDebug(ex, "遥测批次规则检查未完成，恢复逐条查询。");
+                return false;
             }
         }
 

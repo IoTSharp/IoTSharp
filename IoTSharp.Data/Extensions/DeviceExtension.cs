@@ -252,10 +252,18 @@ namespace IoTSharp.Data.Extensions
             var g = (rules?.FirstOrDefault(r => r.FlowRule.Name == method)?.FlowRule.RuleId);
             return (Guid)g;
         }
+        /// <summary>读取设备在指定事件类型下绑定的规则标识。</summary>
+        /// <param name="_dbContext">用于查询设备规则绑定的数据库上下文。</param>
+        /// <param name="devid">设备标识。</param>
+        /// <param name="mountType">规则绑定的事件类型。</param>
+        /// <returns>匹配的规则标识。无绑定时返回 <see langword="null"/>。</returns>
         public static async Task<Guid[]> GerDeviceRulesIdList(this ApplicationDbContext _dbContext, Guid devid, EventType mountType)
         {
-            var rules = await GerDeviceRulesList(_dbContext, devid, mountType);
-            return rules?.Select(xc => xc.FlowRule.RuleId).ToArray();
+            var ruleIds = await _dbContext.DeviceRules
+                .Where(rule => rule.Device.Id == devid && rule.FlowRule.MountType == mountType)
+                .Select(rule => rule.FlowRule.RuleId)
+                .ToArrayAsync();
+            return ruleIds.Length == 0 ? null : ruleIds;
         }
 
 

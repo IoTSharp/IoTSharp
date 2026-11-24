@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using IoTSharp.Contracts;
+using IoTSharp.Data;
 
 namespace IoTSharp.EventBus
 {
@@ -21,6 +22,9 @@ namespace IoTSharp.EventBus
         public delegate Task RunRulesEventHander(Guid devid, object obj, EventType mountType);
 
         public RunRulesEventHander RunRules = (_, _, _) => Task.CompletedTask;
+
+        /// <summary>检查当前遥测批次能否省略内置规则查找。</summary>
+        public Func<IReadOnlyCollection<PlayloadData>, Task<bool>>? HasNoTelemetryRulesAsync { get; set; }
 #pragma warning restore CS8618 // 在退出构造函数时，不可为 null 的字段必须包含非 null 值。请考虑声明为可以为 null。
     }
 }

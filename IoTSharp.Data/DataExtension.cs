@@ -62,7 +62,13 @@ namespace IoTSharp.Data
             //保存是会存在为空的数组进行保存的情况，此处做为空判断
             if (data.Any())
             {
-                Dic exceptions = _context.PreparingData<L>(data, deviceId, dataSide);
+                Dic exceptions;
+                using (SonnetMqProcessingMetrics.MeasureStorage(SonnetMqProcessingMetrics.AttributePrepare))
+                {
+                    exceptions = _context.PreparingData<L>(data, deviceId, dataSide);
+                }
+                using var timing = SonnetMqProcessingMetrics.MeasureStorage(SonnetMqProcessingMetrics.AttributeSaveChanges);
+                using var commandTiming = SonnetMqProcessingMetrics.BeginAttributeSaveChanges();
                 int ret = await _context.SaveChangesAsync();
                 return (ret, exceptions);
             }
@@ -95,11 +101,24 @@ namespace IoTSharp.Data
                 .Select(kp => kp.Key)
                 .Distinct()
                 .ToList();
-            var deviceData = keyNames.Count == 0
-                ? new Dictionary<string, L>()
-                : _context.Set<L>()
-                    .Where(tx => tx.DeviceId == deviceId && keyNames.Contains(tx.KeyName))
-                    .ToDictionary(tx => tx.KeyName);
+            var deviceData = new Dictionary<string, L>();
+            if (keyNames.Count > 0)
+            {
+                var deviceRows = _context.Set<L>().Where(row => row.DeviceId == deviceId);
+                IEnumerable<L> matchingRows;
+                if (typeof(L) == typeof(AttributeLatest) && _context.Database.ProviderName == "SonnetDB.EntityFrameworkCore")
+                {
+                    // 按属性分类和设备读取，避免多键 IN 让 SonnetDB 跨设备扫描同名属性。
+                    var requestedKeys = keyNames.ToHashSet(StringComparer.Ordinal);
+                    matchingRows = deviceRows.AsEnumerable().Where(row => requestedKeys.Contains(row.KeyName));
+                }
+                else
+                {
+                    matchingRows = deviceRows.Where(row => keyNames.Contains(row.KeyName));
+                }
+                using var timing = SonnetMqProcessingMetrics.MeasureStorage(SonnetMqProcessingMetrics.AttributePreRead);
+                deviceData = matchingRows.ToDictionary(row => row.KeyName);
+            }
             var catalog = GetCatalog<L>();
 
             foreach (var kp in data)
