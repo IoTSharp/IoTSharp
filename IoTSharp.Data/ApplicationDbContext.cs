@@ -39,6 +39,13 @@ namespace IoTSharp.Data
             modelBuilder.ApplyConfiguration(new CollectionTransformTemplateConfiguration());
             modelBuilder.ApplyConfiguration(new CollectionSamplingPolicyConfiguration());
             modelBuilder.ApplyConfiguration(new CollectionMappingPolicyConfiguration());
+            var dashboardTrend = modelBuilder.Entity<DashboardTrendSample>();
+            dashboardTrend.ToTable("DashboardTrendSamples");
+            dashboardTrend.HasKey(sample => new { sample.TenantId, sample.StartUtc, sample.CollectorId });
+            dashboardTrend.Property(sample => sample.TenantId).ValueGeneratedNever();
+            dashboardTrend.Property(sample => sample.StartUtc).ValueGeneratedNever();
+            dashboardTrend.Property(sample => sample.CollectorId).ValueGeneratedNever();
+            dashboardTrend.HasIndex(sample => sample.StartUtc).HasDatabaseName("IX_DashboardTrend_StartUtc");
             ConfigureProviderSpecificMappings(modelBuilder);
             modelBuilder.Entity<AttributeLatest>().HasDiscriminator<DataCatalog>(nameof(Data.DataStorage.Catalog));
             modelBuilder.Entity<TelemetryLatest>().HasDiscriminator<DataCatalog>(nameof(Data.DataStorage.Catalog));

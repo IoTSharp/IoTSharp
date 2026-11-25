@@ -16,11 +16,13 @@ namespace IoTSharp.EventBus
     {
         private readonly ICapPublisher _queue;
         private readonly DotNetCore.CAP.Persistence.IDataStorage _storage;
+        private readonly DashboardTrendCounters _trend;
 
-        public CapPublisher(ICapPublisher queue, DotNetCore.CAP.Persistence.IDataStorage storage)
+        public CapPublisher(ICapPublisher queue, DotNetCore.CAP.Persistence.IDataStorage storage, DashboardTrendCounters trend = null)
         {
             _queue = queue;
             _storage = storage;
+            _trend = trend;
         }
         public async Task<EventBusMetrics> GetMetrics()
         {
@@ -51,37 +53,44 @@ sf.OrderBy(k => k.Key).Select(k => k.Value).ToList()
         public async Task PublishAttributeData(PlayloadData msg)
         {
             await _queue.PublishAsync("iotsharp.services.datastream.attributedata", msg);
+            _trend?.RecordReceived(msg.DeviceId, DashboardTrendCounters.ReportKind.Attribute);
         }
 
         public async Task PublishTelemetryData(PlayloadData msg)
         {
             await _queue.PublishAsync("iotsharp.services.datastream.telemetrydata", msg);
+            _trend?.RecordReceived(msg.DeviceId, DashboardTrendCounters.ReportKind.Telemetry);
         }
 
 
         public async Task PublishDeviceAlarm(CreateAlarmDto alarmDto)
         {
             await _queue.PublishAsync("iotsharp.services.datastream.alarm", alarmDto);
+            _trend?.RecordReceived(DashboardTrendCounters.AlarmDeviceId(alarmDto));
         }
 
         public async Task PublishCreateDevice(Guid devid)
         {
             await _queue.PublishAsync("iotsharp.services.platform.createdevice", devid);
+            _trend?.RecordReceived(devid);
         }
 
         public async Task PublishDeleteDevice(Guid devid)
         {
             await _queue.PublishAsync("iotsharp.services.platform.deleteDevice", devid);
+            _trend?.RecordReceived(devid);
         }
 
         public async Task PublishConnect(Guid devid, ConnectStatus devicestatus)
         {
             await _queue.PublishAsync("iotsharp.services.platform.connect", new DeviceConnectStatus(devid, devicestatus));
+            _trend?.RecordReceived(devid);
         }
 
         public async Task PublishActive(Guid devid, ActivityStatus activity)
         {
             await _queue.PublishAsync("iotsharp.services.platform.active", new DeviceActivityStatus(devid, activity));
+            _trend?.RecordReceived(devid);
         }
     }
 }

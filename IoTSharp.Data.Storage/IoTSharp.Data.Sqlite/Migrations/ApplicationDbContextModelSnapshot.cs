@@ -962,6 +962,43 @@ namespace IoTSharp.Data.Sqlite.Migrations
                     b.ToTable("Customer");
                 });
 
+            modelBuilder.Entity("IoTSharp.Data.DashboardTrendSample", b =>
+                {
+                    b.Property<long?>("Attributes")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("CollectorId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("OnlineDevices")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<long?>("Processed")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<long?>("Received")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("SnapshotUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("StartUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<long?>("Telemetry")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("TenantId", "StartUtc", "CollectorId");
+
+                    b.HasIndex("StartUtc")
+                        .HasDatabaseName("IX_DashboardTrend_StartUtc");
+
+                    b.ToTable("DashboardTrendSamples", (string)null);
+                });
+
             modelBuilder.Entity("IoTSharp.Data.DataStorage", b =>
                 {
                     b.Property<int>("Catalog")

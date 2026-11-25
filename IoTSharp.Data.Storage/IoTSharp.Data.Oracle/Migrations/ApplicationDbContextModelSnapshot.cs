@@ -879,6 +879,43 @@ namespace IoTSharp.Data.Oracle.Migrations
                     b.ToTable("Customer");
                 });
 
+            modelBuilder.Entity("IoTSharp.Data.DashboardTrendSample", b =>
+                {
+                    b.Property<long?>("Attributes")
+                        .HasColumnType("NUMBER(19)");
+
+                    b.Property<Guid>("CollectorId")
+                        .HasColumnType("RAW(16)");
+
+                    b.Property<int?>("OnlineDevices")
+                        .HasColumnType("NUMBER(10)");
+
+                    b.Property<long?>("Processed")
+                        .HasColumnType("NUMBER(19)");
+
+                    b.Property<long?>("Received")
+                        .HasColumnType("NUMBER(19)");
+
+                    b.Property<DateTime?>("SnapshotUtc")
+                        .HasColumnType("TIMESTAMP(7)");
+
+                    b.Property<DateTime>("StartUtc")
+                        .HasColumnType("TIMESTAMP(7)");
+
+                    b.Property<long?>("Telemetry")
+                        .HasColumnType("NUMBER(19)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("RAW(16)");
+
+                    b.HasKey("TenantId", "StartUtc", "CollectorId");
+
+                    b.HasIndex("StartUtc")
+                        .HasDatabaseName("IX_DashboardTrend_StartUtc");
+
+                    b.ToTable("DashboardTrendSamples", (string)null);
+                });
+
             modelBuilder.Entity("IoTSharp.Data.DataStorage", b =>
                 {
                     b.Property<int>("Catalog")

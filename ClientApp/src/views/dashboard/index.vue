@@ -1,5 +1,5 @@
 <template>
-	<div class="ops-dashboard" v-loading="loading">
+	<div class="ops-dashboard">
 		<header class="overview-bar">
 			<div class="overview-bar__head">
 				<div class="overview-bar__copy">
@@ -9,7 +9,7 @@
 				<div class="overview-bar__tools">
 					<span>{{ versionText }}</span>
 					<span>更新于 {{ lastUpdatedText }}</span>
-					<el-button type="primary" :loading="loading" @click="refreshDashboard">
+					<el-button type="primary" :loading="loading || trendState === 'loading'" @click="refreshDashboard">
 						<el-icon><RefreshRight /></el-icon>
 						刷新
 					</el-button>
@@ -99,14 +99,28 @@
 				<header class="dashboard-panel__head">
 					<div>
 						<h2>消息总线趋势</h2>
-						<p>最近 24 小时的发布与订阅结果，用于识别消息波动与失败时段。</p>
+						<p>接收数按成功入队统计，处理数按消费完成统计。遥测和属性按上报消息计数，在线数取各时段的最后一次快照。</p>
 					</div>
 					<div class="panel-facts">
 						<span>节点 {{ formatCount(messageMetrics.servers) }}</span>
 						<span>订阅端 {{ formatCount(messageMetrics.subscribers) }}</span>
 					</div>
 				</header>
-				<div ref="messageChartRef" class="message-chart" aria-label="消息总线趋势图"></div>
+				<div class="trend-toolbar">
+					<el-radio-group v-model="trendRange" size="small" aria-label="消息总线趋势范围" @change="loadTrend">
+						<el-radio-button value="24h">最近 24 小时</el-radio-button>
+						<el-radio-button value="7d">最近 7 天</el-radio-button>
+					</el-radio-group>
+					<span>{{ trendRange === '24h' ? '按小时统计' : '每 6 小时统计' }}</span>
+				</div>
+				<div ref="trendPlotRef" class="trend-plot" :aria-busy="trendState === 'loading'">
+					<div v-if="trendState === 'ready'" ref="messageChartRef" class="message-chart" role="img" aria-label="消息接收数、消息处理数、遥测数、属性数和在线设备总量曲线"></div>
+					<div v-else class="trend-status" role="status">
+						<strong>{{ trendStatusText[trendState] }}</strong>
+						<el-button v-if="trendState === 'error'" size="small" @click="loadTrend">重试</el-button>
+					</div>
+				</div>
+				<p v-if="trendState === 'ready' && trendNote" class="trend-note">{{ trendNote }}</p>
 				<div class="trend-summary">
 					<div>
 						<span>24 小时消息</span>
@@ -208,14 +222,16 @@
 <script lang="ts" setup>
 import dayjs from 'dayjs';
 import * as echarts from 'echarts';
-import type { EChartsOption } from 'echarts';
-import { computed, nextTick, onActivated, onBeforeUnmount, onMounted, ref } from 'vue';
+import type { EChartsOption, LineSeriesOption } from 'echarts';
+import { isAxiosError } from 'axios';
+import { computed, nextTick, onActivated, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { ArrowRight, Bell, Box, Connection, Cpu, RefreshRight, SetUp } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus';
 import { storeToRefs } from 'pinia';
 import { useAppInfo } from '/@/stores/appInfo';
-import { getHealthChecks, getKanban, getMessageInfo } from '/@/api/dashboard';
+import { getDashboardTrend, getHealthChecks, getKanban, getMessageInfo } from '/@/api/dashboard';
+import type { DashboardTrend, DashboardTrendRange } from '/@/api/dashboard';
 
 interface KanbanData {
 	eventCount: number;
@@ -235,7 +251,6 @@ interface MessageMetrics {
 	receivedSucceeded: number;
 	publishedFailed: number;
 	receivedFailed: number;
-	dayHour: string[];
 	publishSuccessed: number[];
 	publishFailed: number[];
 	subscribeSuccessed: number[];
@@ -252,8 +267,14 @@ interface HealthEntry {
 const router = useRouter();
 const storesAppInfo = useAppInfo();
 const { appInfo } = storeToRefs(storesAppInfo);
+const trendPlotRef = ref<HTMLDivElement>();
 const messageChartRef = ref<HTMLDivElement>();
-const chartInstance = ref<echarts.ECharts | null>(null);
+const trendRange = ref<DashboardTrendRange>('24h');
+const trend = ref<DashboardTrend | null>(null);
+const trendState = ref<DashboardTrend['state'] | 'loading' | 'forbidden' | 'error'>('loading');
+let latestTrendRequest = 0;
+let chartInstance: echarts.ECharts | undefined;
+let chartResizeObserver: ResizeObserver | undefined;
 const loading = ref(false);
 const lastUpdated = ref<Date | null>(null);
 const healthEntries = ref<HealthEntry[]>([]);
@@ -274,11 +295,34 @@ const messageMetrics = ref<MessageMetrics>({
 	receivedSucceeded: 0,
 	publishedFailed: 0,
 	receivedFailed: 0,
-	dayHour: [],
 	publishSuccessed: [],
 	publishFailed: [],
 	subscribeSuccessed: [],
 	subscribeFailed: [],
+});
+
+const trendStatusText = {
+	loading: '正在加载消息总线趋势…',
+	collecting: '趋势数据尚未采集，请稍后刷新。',
+	empty: '所选时段暂无趋势记录。',
+	forbidden: '当前账号无权查看消息总线趋势。',
+	error: '消息总线趋势加载失败。',
+};
+const trendMetrics = [
+	{ key: 'received', label: '消息接收数', color: '#21876F', symbol: 'circle' },
+	{ key: 'processed', label: '消息处理数', color: '#4675B7', symbol: 'diamond' },
+	{ key: 'telemetry', label: '遥测数', color: '#A9691C', symbol: 'triangle' },
+	{ key: 'attributes', label: '属性数', color: '#9156A8', symbol: 'rect' },
+	{ key: 'onlineDevices', label: '在线设备总量', color: '#5F7186', symbol: 'pin' },
+] as const;
+const trendNote = computed(() => {
+	const points = trend.value?.points ?? [];
+	const hasGaps = points.some((point) => trendMetrics.some(({ key }) => point[key] == null));
+	const hasPartialPoints = points.some((point) => point.partial && trendMetrics.some(({ key }) => point[key] != null));
+	return [
+		hasGaps ? '曲线空缺表示该时段的数据尚未采集。' : '',
+		hasPartialPoints ? '采集未完成的时段仅显示已采集数据。' : '',
+	].filter(Boolean).join(' ');
 });
 
 const versionText = computed(() => (appInfo.value.version ? '版本 ' + appInfo.value.version : '自托管部署'));
@@ -390,71 +434,116 @@ function themeColor(name: string, fallback: string) {
 	return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback;
 }
 
-function buildLineSeries(name: string, data: number[], color: string) {
-	return {
-		name,
-		type: 'line',
-		smooth: true,
-		showSymbol: false,
-		lineStyle: { width: 2, color },
-		areaStyle: {
-			color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-				{ offset: 0, color: color + '30' },
-				{ offset: 1, color: color + '03' },
-			]),
-		},
-		data,
-	};
-}
-
 function renderChart() {
-	if (!messageChartRef.value) return;
-	chartInstance.value?.dispose();
-	chartInstance.value = echarts.init(messageChartRef.value);
-	const accent = themeColor('--iotsharp-theme-signal', '#47B59A');
+	const element = messageChartRef.value;
+	const data = trend.value;
+	if (!element || !data) {
+		chartInstance?.dispose();
+		chartInstance = undefined;
+		return;
+	}
+	if (!element.clientWidth || !element.clientHeight) return;
+	chartInstance ??= echarts.init(element);
 	const text = themeColor('--iotsharp-text-muted', '#71807C');
 	const border = themeColor('--iotsharp-border', '#DFE7E4');
+	const axisLabel = { color: text, fontSize: 10 };
+	const series: LineSeriesOption[] = trendMetrics.map((metric) => ({
+		name: metric.label,
+		type: 'line',
+		yAxisIndex: metric.key === 'onlineDevices' ? 1 : 0,
+		connectNulls: false,
+		symbol: metric.symbol,
+		symbolSize: 6,
+		itemStyle: { color: metric.color },
+		lineStyle: { width: 2, type: metric.key === 'onlineDevices' ? 'dashed' : 'solid' },
+		data: data.points.map((point) => point[metric.key] ?? '-'),
+	}));
 	const option: EChartsOption = {
 		animationDuration: 420,
-		tooltip: { trigger: 'axis' },
-		legend: { top: 0, textStyle: { color: text, fontSize: 11 } },
-		grid: { top: 42, right: 12, bottom: 12, left: 12, containLabel: true },
+		tooltip: {
+			trigger: 'axis',
+			confine: true,
+			renderMode: 'richText',
+			formatter: (params) => {
+				const index = Array.isArray(params) ? params[0]?.dataIndex : params.dataIndex;
+				if (index === undefined) return '';
+				const point = data.points[index];
+				if (!point) return '';
+				const start = dayjs(point.startUtc);
+				const end = start.add(data.bucketMinutes, 'minute');
+				const values = trendMetrics.map(({ key, label }) => {
+					const value = point[key];
+					const unit = key === 'onlineDevices' ? ' 台' : ' 条';
+					return label + '  ' + (value == null ? '未采集' : formatCount(value) + unit);
+				});
+				const interval = start.format('MM-DD HH:mm') + ' — ' + end.format('MM-DD HH:mm');
+				return [interval + (point.partial ? '（采集未完成）' : ''), ...values].join('\n');
+			},
+		},
+		legend: { top: 0, left: 6, right: 6, itemWidth: 20, itemGap: 10, textStyle: { color: text, fontSize: 11 } },
+		grid: { top: 66, right: 12, bottom: 12, left: 12, containLabel: true },
 		xAxis: {
 			type: 'category',
 			boundaryGap: false,
-			data: messageMetrics.value.dayHour,
+			data: data.points.map((point) => point.startUtc),
 			axisLine: { lineStyle: { color: border } },
-			axisLabel: { color: text, fontSize: 10 },
+			axisLabel: {
+				...axisLabel,
+				hideOverlap: true,
+				formatter: (value, index) => {
+					const time = dayjs(value);
+					return time.format(data.range === '7d' || index === 0 || time.hour() === 0 ? 'MM-DD HH:mm' : 'HH:mm');
+				},
+			},
 		},
-		yAxis: {
-			type: 'value',
-			axisLabel: { color: text, fontSize: 10 },
-			splitLine: { lineStyle: { color: border, type: 'dashed' } },
-		},
-		series: [
-			buildLineSeries('发布成功', messageMetrics.value.publishSuccessed, accent),
-			buildLineSeries('发布失败', messageMetrics.value.publishFailed, '#A85D00'),
-			buildLineSeries('订阅成功', messageMetrics.value.subscribeSuccessed, '#157347'),
-			buildLineSeries('订阅失败', messageMetrics.value.subscribeFailed, '#BD3E3E'),
+		yAxis: [
+			{ type: 'value', min: 0, minInterval: 1, name: '条', nameTextStyle: axisLabel, axisLabel, splitLine: { lineStyle: { color: border, type: 'dashed' } } },
+			{ type: 'value', min: 0, minInterval: 1, name: '台', nameTextStyle: axisLabel, axisLabel, splitLine: { show: false } },
 		],
+		series,
 	};
-	chartInstance.value.setOption(option);
+	chartInstance.setOption(option);
 }
 
 function resizeChart() {
-	void nextTick(() => chartInstance.value?.resize());
+	if (chartInstance) chartInstance.resize();
+	else renderChart();
+}
+
+async function loadTrend() {
+	const requestId = ++latestTrendRequest;
+	const range = trendRange.value;
+	trendState.value = 'loading';
+	trend.value = null;
+	try {
+		const data = await getDashboardTrend(range);
+		if (requestId !== latestTrendRequest) return;
+		const expectedBucketMinutes = range === '24h' ? 60 : 360;
+		if (data?.range !== range || data.bucketMinutes !== expectedBucketMinutes
+			|| !Array.isArray(data.points) || !['ready', 'empty', 'collecting'].includes(data.state)) {
+			throw new Error('Invalid dashboard trend response');
+		}
+		trend.value = data;
+		trendState.value = data.state;
+	} catch (error) {
+		if (requestId !== latestTrendRequest) return;
+		const status = isAxiosError(error) ? error.response?.status : undefined;
+		trendState.value = status === 401 || status === 403 ? 'forbidden' : 'error';
+	}
 }
 
 async function fetchDashboardData() {
 	loading.value = true;
 	try {
-		const [kanbanRes, messageRes, healthRes] = await Promise.all([getKanban(), getMessageInfo(), getHealthChecks()]);
-		kanban.value = { ...kanban.value, ...kanbanRes.data };
-		messageMetrics.value = { ...messageMetrics.value, ...messageRes.data };
-		healthEntries.value = normalizeHealthEntries(healthRes);
-		lastUpdated.value = new Date();
-		await nextTick();
-		renderChart();
+		const [kanbanRes, messageRes, healthRes] = await Promise.allSettled([getKanban(), getMessageInfo(), getHealthChecks()]);
+		if (kanbanRes.status === 'fulfilled') kanban.value = { ...kanban.value, ...kanbanRes.value.data };
+		if (messageRes.status === 'fulfilled') messageMetrics.value = { ...messageMetrics.value, ...messageRes.value.data };
+		if (healthRes.status === 'fulfilled') healthEntries.value = normalizeHealthEntries(healthRes.value);
+		const results = [kanbanRes, messageRes, healthRes];
+		if (results.some((result) => result.status === 'fulfilled')) lastUpdated.value = new Date();
+		if (results.some((result) => result.status === 'rejected')) {
+			ElMessage.error('部分运行概览数据加载失败，请稍后重试');
+		}
 	} catch {
 		ElMessage.error('运行概览加载失败，请稍后重试');
 	} finally {
@@ -462,20 +551,26 @@ async function fetchDashboardData() {
 	}
 }
 
-const refreshDashboard = () => fetchDashboardData();
+function refreshDashboard() {
+	void fetchDashboardData();
+	void loadTrend();
+}
 const onThemeChange = () => void nextTick(renderChart);
 
-onMounted(async () => {
-	await fetchDashboardData();
-	window.addEventListener('resize', resizeChart);
+watch([trend, messageChartRef], renderChart, { flush: 'post' });
+onMounted(() => {
+	chartResizeObserver = new ResizeObserver(resizeChart);
+	if (trendPlotRef.value) chartResizeObserver.observe(trendPlotRef.value);
 	window.addEventListener('iotsharp-theme-change', onThemeChange);
+	refreshDashboard();
 });
 
-onActivated(resizeChart);
+onActivated(() => void nextTick(resizeChart));
 onBeforeUnmount(() => {
-	window.removeEventListener('resize', resizeChart);
+	latestTrendRequest++;
+	chartResizeObserver?.disconnect();
 	window.removeEventListener('iotsharp-theme-change', onThemeChange);
-	chartInstance.value?.dispose();
+	chartInstance?.dispose();
 });
 </script>
 
@@ -853,10 +948,48 @@ onBeforeUnmount(() => {
 	background: var(--iotsharp-surface-muted);
 }
 
+.trend-toolbar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px 12px;
+	padding: 12px 15px 6px;
+	color: var(--iotsharp-text-muted);
+	font-size: 11px;
+}
+
+.trend-plot {
+	height: 296px;
+	padding: 4px 8px 0;
+}
+
 .message-chart {
 	width: 100%;
-	height: 300px;
-	padding: 8px 8px 0;
+	height: 100%;
+}
+
+.trend-status {
+	display: grid;
+	height: 100%;
+	place-content: center;
+	justify-items: center;
+	gap: 12px;
+	padding: 12px;
+	color: var(--iotsharp-text-muted);
+	text-align: center;
+	font-size: 12px;
+}
+
+.trend-status strong {
+	font-weight: 500;
+}
+
+.trend-note {
+	margin: 0;
+	padding: 0 15px 10px;
+	color: var(--iotsharp-text-muted);
+	font-size: 11px;
 }
 
 .trend-summary {
@@ -1132,8 +1265,12 @@ onBeforeUnmount(() => {
 		padding-left: 16px;
 	}
 
-	.message-chart {
-		height: 250px;
+	.dashboard-panel--trend .dashboard-panel__head {
+		flex-wrap: wrap;
+	}
+
+	.trend-plot {
+		height: 246px;
 	}
 
 	.status-card__body {

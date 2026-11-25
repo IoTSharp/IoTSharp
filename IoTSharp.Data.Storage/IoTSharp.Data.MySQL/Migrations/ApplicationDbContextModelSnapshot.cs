@@ -875,6 +875,43 @@ namespace IoTSharp.Data.MySql.Migrations
                     b.ToTable("Customer");
                 });
 
+            modelBuilder.Entity("IoTSharp.Data.DashboardTrendSample", b =>
+                {
+                    b.Property<long?>("Attributes")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid>("CollectorId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<int?>("OnlineDevices")
+                        .HasColumnType("int");
+
+                    b.Property<long?>("Processed")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("Received")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("SnapshotUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime>("StartUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<long?>("Telemetry")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("char(36)");
+
+                    b.HasKey("TenantId", "StartUtc", "CollectorId");
+
+                    b.HasIndex("StartUtc")
+                        .HasDatabaseName("IX_DashboardTrend_StartUtc");
+
+                    b.ToTable("DashboardTrendSamples", (string)null);
+                });
+
             modelBuilder.Entity("IoTSharp.Data.DataStorage", b =>
                 {
                     b.Property<int>("Catalog")

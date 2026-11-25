@@ -949,6 +949,43 @@ namespace IoTSharp.Data.SonnetDB.Migrations
                     b.ToTable("Customer");
                 });
 
+            modelBuilder.Entity("IoTSharp.Data.DashboardTrendSample", b =>
+                {
+                    b.Property<long?>("Attributes")
+                        .HasColumnType("INT");
+
+                    b.Property<Guid>("CollectorId")
+                        .HasColumnType("STRING");
+
+                    b.Property<int?>("OnlineDevices")
+                        .HasColumnType("INT");
+
+                    b.Property<long?>("Processed")
+                        .HasColumnType("INT");
+
+                    b.Property<long?>("Received")
+                        .HasColumnType("INT");
+
+                    b.Property<DateTime?>("SnapshotUtc")
+                        .HasColumnType("DATETIME2");
+
+                    b.Property<DateTime>("StartUtc")
+                        .HasColumnType("DATETIME2");
+
+                    b.Property<long?>("Telemetry")
+                        .HasColumnType("INT");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("STRING");
+
+                    b.HasKey("TenantId", "StartUtc", "CollectorId");
+
+                    b.HasIndex("StartUtc")
+                        .HasDatabaseName("IX_DashboardTrend_StartUtc");
+
+                    b.ToTable("DashboardTrendSamples", (string)null);
+                });
+
             modelBuilder.Entity("IoTSharp.Data.DataStorage", b =>
                 {
                     b.Property<int>("Catalog")

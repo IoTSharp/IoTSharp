@@ -284,6 +284,8 @@ namespace IoTSharp
                 }
             });
             services.AddTelemetryStorage(settings, healthChecks);
+            services.AddSingleton<DashboardTrendCounters>();
+            services.AddHostedService<DashboardTrendCollector>();
             var zmqSection = Configuration.GetSection(nameof(ZMQOption));
             if (zmqSection.Exists())
             {

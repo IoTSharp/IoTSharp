@@ -18,11 +18,12 @@ using System.Threading.Tasks;
 namespace IoTSharp.EventBus.CAP
 {
 
-    public class CapSubscriber : EventBusSubscriber, ISubscriber, ICapSubscribe
+    public class CapSubscriber : DashboardTrendSubscriber, ICapSubscribe
     {
         public CapSubscriber(ILogger<EventBusSubscriber> logger, IServiceScopeFactory scopeFactor
-           , IStorage storage, IEasyCachingProviderFactory factory, EventBusOption eventBusOption
-            ) : base(logger, scopeFactor, storage, factory, eventBusOption)
+           , IStorage storage, IEasyCachingProviderFactory factory, EventBusOption eventBusOption,
+             DashboardTrendCounters trend = null
+            ) : base(logger, scopeFactor, storage, factory, eventBusOption, trend)
         {
 
         }

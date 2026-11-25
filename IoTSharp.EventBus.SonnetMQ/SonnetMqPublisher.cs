@@ -15,11 +15,13 @@ public sealed class SonnetMqPublisher : IPublisher
 
     private readonly SndbMqClient _client;
     private readonly SonnetMqActiveEventCoalescer _activeCoalescer;
+    private readonly DashboardTrendCounters? _trend;
 
-    public SonnetMqPublisher(SndbMqClient client, SonnetMqActiveEventCoalescer activeCoalescer)
+    public SonnetMqPublisher(SndbMqClient client, SonnetMqActiveEventCoalescer activeCoalescer, DashboardTrendCounters? trend = null)
     {
         _client = client;
         _activeCoalescer = activeCoalescer;
+        _trend = trend;
     }
 
     public async Task<EventBusMetrics> GetMetrics()
@@ -39,35 +41,37 @@ public sealed class SonnetMqPublisher : IPublisher
     }
 
     public Task PublishCreateDevice(Guid devid)
-        => PublishAsync(SonnetMqEventBusTopics.CreateDevice, devid);
+        => PublishAsync(SonnetMqEventBusTopics.CreateDevice, devid, devid);
 
     public Task PublishDeleteDevice(Guid devid)
-        => PublishAsync(SonnetMqEventBusTopics.DeleteDevice, devid);
+        => PublishAsync(SonnetMqEventBusTopics.DeleteDevice, devid, devid);
 
     public Task PublishAttributeData(PlayloadData msg)
-        => PublishAsync(SonnetMqEventBusTopics.AttributeData, msg);
+        => PublishAsync(SonnetMqEventBusTopics.AttributeData, msg, msg.DeviceId, DashboardTrendCounters.ReportKind.Attribute);
 
     public Task PublishTelemetryData(PlayloadData msg)
-        => PublishAsync(SonnetMqEventBusTopics.TelemetryData, msg);
+        => PublishAsync(SonnetMqEventBusTopics.TelemetryData, msg, msg.DeviceId, DashboardTrendCounters.ReportKind.Telemetry);
 
     public Task PublishConnect(Guid devid, ConnectStatus devicestatus)
-        => PublishAsync(SonnetMqEventBusTopics.Connect, new DeviceConnectStatus(devid, devicestatus));
+        => PublishAsync(SonnetMqEventBusTopics.Connect, new DeviceConnectStatus(devid, devicestatus), devid);
 
     public async Task PublishActive(Guid devid, ActivityStatus activity)
     {
         var status = await _activeCoalescer.RecordAsync(devid, activity);
         if (status is not null)
         {
-            await PublishAsync(SonnetMqEventBusTopics.Active, status);
+            await PublishAsync(SonnetMqEventBusTopics.Active, status, devid);
         }
     }
 
     public Task PublishDeviceAlarm(CreateAlarmDto alarmDto)
-        => PublishAsync(SonnetMqEventBusTopics.Alarm, alarmDto);
+        => PublishAsync(SonnetMqEventBusTopics.Alarm, alarmDto, DashboardTrendCounters.AlarmDeviceId(alarmDto));
 
-    private Task PublishAsync<T>(string topic, T message)
+    private async Task PublishAsync<T>(string topic, T message, Guid deviceId,
+        DashboardTrendCounters.ReportKind report = DashboardTrendCounters.ReportKind.Other)
     {
         byte[] payload = Encoding.UTF8.GetBytes(JsonObjectSerializer.Serialize(message));
-        return _client.PublishAsync(topic, payload, JsonHeaders);
+        await _client.PublishAsync(topic, payload, JsonHeaders);
+        _trend?.RecordReceived(deviceId, report);
     }
 }
