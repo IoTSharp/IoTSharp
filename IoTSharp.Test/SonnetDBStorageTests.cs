@@ -3,10 +3,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using IoTSharp.Contracts;
 using IoTSharp.Data;
 using IoTSharp.Storage;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using SonnetDB.Backup;
@@ -58,6 +62,71 @@ public sealed class SonnetDBStorageTests : IDisposable
         var exception = new SndbServerException(error, message, statusCode);
 
         Assert.False(SonnetDBStorage.IsMissingMeasurement(exception));
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task StoreTelemetryBatch_WriteRecovery_PreservesPriorRequestOutcome(bool firstWriteSucceeded)
+    {
+        const string describe = """
+            {"type":"meta","columns":["column_name","column_type","data_type"]}
+            ["temperature","field","FLOAT"]
+            {"type":"end","rowCount":1,"recordsAffected":-1}
+            """;
+        const string written = """
+            {"type":"end","rowCount":0,"recordsAffected":1}
+            """;
+        int insertRequests = 0;
+        var builder = WebApplication.CreateSlimBuilder();
+        builder.WebHost.UseUrls("http://127.0.0.1:0");
+        await using var server = builder.Build();
+        server.MapGet("/v1/db", () => Results.Json(new { databases = new[] { "telemetry" } }));
+        server.MapPost("/v1/db/telemetry/sql", async (HttpContext context) =>
+        {
+            var request = await context.Request.ReadFromJsonAsync<System.Text.Json.JsonElement>(context.RequestAborted);
+            string? sql = request.GetProperty("sql").GetString();
+            if (sql?.StartsWith("DESCRIBE MEASUREMENT", StringComparison.Ordinal) == true)
+                return Results.Text(describe, "application/x-ndjson");
+
+            if (sql?.StartsWith("INSERT INTO", StringComparison.Ordinal) != true)
+                return Results.BadRequest();
+
+            if (firstWriteSucceeded && Interlocked.Increment(ref insertRequests) == 1)
+                return Results.Text(written, "application/x-ndjson");
+            if (!firstWriteSucceeded)
+                Interlocked.Increment(ref insertRequests);
+
+            return Results.Json(new { error = SonnetDbWriteRecovery.Required, message = "Synthetic write guard." },
+                statusCode: StatusCodes.Status503ServiceUnavailable);
+        });
+
+        using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(12));
+        await server.StartAsync(timeout.Token);
+        try
+        {
+            var settings = new AppSettings
+            {
+                ConnectionStrings = new Dictionary<string, string>
+                {
+                    ["TelemetryStorage"] = $"Data Source=sonnetdb+{server.Urls.Single()}/telemetry;Protocol=Rest;Timeout=2;RemoteWriteBatchSize=1"
+                }
+            };
+            var storage = new SonnetDBStorage(NullLogger<SonnetDBStorage>.Instance, Options.Create(settings));
+            PlayloadData[] messages = [CreatePayload(Guid.NewGuid(), 22.5), CreatePayload(Guid.NewGuid(), 23.5)];
+            using var recovery = SonnetDbWriteRecovery.Enable();
+            var error = await Assert.ThrowsAsync<SndbServerException>(() => storage.StoreTelemetryBatchAsync(messages));
+
+            Assert.Equal(firstWriteSucceeded ? SonnetDbWriteRecovery.Partial : SonnetDbWriteRecovery.Required, error.Error);
+            Assert.Equal(firstWriteSucceeded ? 2 : 1, insertRequests);
+            if (firstWriteSucceeded)
+                Assert.Equal(SonnetDbWriteRecovery.Required, Assert.IsType<SndbServerException>(error.InnerException).Error);
+        }
+        finally
+        {
+            using var shutdown = new CancellationTokenSource(TimeSpan.FromSeconds(3));
+            await server.StopAsync(shutdown.Token);
+        }
     }
 
     [Fact]

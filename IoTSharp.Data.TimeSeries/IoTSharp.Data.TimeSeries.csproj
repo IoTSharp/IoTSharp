@@ -7,6 +7,8 @@
   </PropertyGroup>
 	<ItemGroup>
 		<InternalsVisibleTo Include="IoTSharp.Test" />
+		<InternalsVisibleTo Include="IoTSharp.EventBus" />
+		<InternalsVisibleTo Include="IoTSharp.EventBus.SonnetMQ" />
 	</ItemGroup>
 	<ItemGroup>
 

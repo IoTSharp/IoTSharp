@@ -148,7 +148,7 @@ namespace IoTSharp.Storage
                 _logger.LogInformation("SonnetDB telemetry write completed. DeviceId={DeviceId}, Measurement={Measurement}, Count={Count}", msg.DeviceId, measurement, written);
                 return Task.FromResult((written == 1 && skipped == 0, telemetries));
             }
-            catch (Exception ex)
+            catch (Exception ex) when (!SonnetDbWriteRecovery.ShouldPropagate(ex))
             {
                 _logger.LogError(ex, "{DeviceId} SonnetDB telemetry write failed: {Message} {InnerMessage}", msg.DeviceId, ex.Message, ex.InnerException?.Message);
                 return Task.FromResult((false, telemetries));
@@ -224,7 +224,7 @@ namespace IoTSharp.Storage
                     skippedTelemetryValues,
                     true));
             }
-            catch (Exception ex)
+            catch (Exception ex) when (!SonnetDbWriteRecovery.ShouldPropagate(ex))
             {
                 _logger.LogError(ex, "SonnetDB telemetry batch write failed: {Message} {InnerMessage}", ex.Message, ex.InnerException?.Message);
                 return Task.FromResult(new SonnetDbTelemetryBatchWriteReport(
@@ -875,24 +875,32 @@ namespace IoTSharp.Storage
             var batchSize = connection.ProviderMode == SndbProviderMode.Remote ? _remoteWriteBatchSize : 1;
             var pending = new List<BatchWriteGroup>(batchSize);
             var written = 0;
-            foreach (var group in groups)
+            try
             {
-                if (group.SchemaChanged)
+                foreach (var group in groups)
                 {
-                    written += InsertTelemetryGroups(connection, pending);
-                    pending.Clear();
-                    written += InsertTelemetryGroups(connection, [group]);
-                    RefreshSchema(connection, group.Measurement);
-                    continue;
+                    if (group.SchemaChanged)
+                    {
+                        written += InsertTelemetryGroups(connection, pending);
+                        pending.Clear();
+                        written += InsertTelemetryGroups(connection, [group]);
+                        RefreshSchema(connection, group.Measurement);
+                        continue;
+                    }
+                    pending.Add(group);
+                    if (pending.Count == batchSize)
+                    {
+                        written += InsertTelemetryGroups(connection, pending);
+                        pending.Clear();
+                    }
                 }
-                pending.Add(group);
-                if (pending.Count == batchSize)
-                {
-                    written += InsertTelemetryGroups(connection, pending);
-                    pending.Clear();
-                }
+                return written + InsertTelemetryGroups(connection, pending);
             }
-            return written + InsertTelemetryGroups(connection, pending);
+            catch (SndbServerException ex) when (written > 0 && ex.Error == SonnetDbWriteRecovery.Required)
+            {
+                // 后一次 SQL 请求未执行，先前已确认的测量分组仍可能跨消息位点。
+                throw SonnetDbWriteRecovery.AfterEarlierWrites(ex);
+            }
         }
 
         /// <summary>

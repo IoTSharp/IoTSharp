@@ -14,8 +14,10 @@ using IoTSharp.Controllers;
 using IoTSharp.Controllers.Models;
 using IoTSharp.Data;
 using IoTSharp.Dtos;
+using IoTSharp.EventBus.SonnetMQ;
 using IoTSharp.Models;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using MQTTnet;
 using MQTTnet.Protocol;
 using Quartz;
@@ -136,6 +138,90 @@ public sealed class AppWithSonnetDBTest
         Assert.True(afterPublish.NextOffset > beforePublish.NextOffset);
         await mqtt.DisconnectAsync(cancellationToken: ct);
         await DeleteDeviceAsync(after, device.Id);
+    }
+
+    [Fact]
+    public async Task SonnetDB_MqttAttributeMessagePersistsAllKeysBeforeAck()
+    {
+        Guid deviceId;
+        string token;
+        using (var setup = Fixture.CreateClient())
+        {
+            deviceId = (await Fixture.CreateDeviceAsync(setup)).Data!.Id;
+            token = await Fixture.GetDeviceAccessTokenAsync(setup, deviceId);
+        }
+        // 重启后 MQTT 认证索引会加载准备阶段刚创建设备的凭据。
+        await Fixture.RestartApplicationAsync();
+
+        using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(50));
+        var ct = timeout.Token;
+        using var client = Fixture.CreateClient();
+        await Fixture.AuthorizeClientAsync(client);
+        var queue = Fixture.Services.GetRequiredService<SndbMqClient>();
+        var consumerGroup = Fixture.Services.GetRequiredService<IOptions<SonnetMqEventBusOptions>>().Value.ConsumerGroup;
+
+        using var mqtt = new MqttClientFactory().CreateMqttClient();
+        var options = new MqttClientOptionsBuilder()
+            .WithClientId("iotsharp-test-" + Guid.NewGuid().ToString("N"))
+            .WithTcpServer("127.0.0.1", Fixture.Profile!.MqttBrokerPort)
+            .WithCredentials(token, string.Empty)
+            .WithCleanSession()
+            .Build();
+        var connection = await mqtt.ConnectAsync(options, ct);
+        Assert.Equal(MqttClientConnectResultCode.Success, connection.ResultCode);
+
+        var initialAttributes = await PublishAndReadConfirmedAttributesAsync(mqtt, queue, consumerGroup, client, deviceId,
+            new { mqttFirmware = "test-v1", mqttEnabled = true, mqttSerial = "unchanged" }, ct);
+        Assert.Equal(3, initialAttributes.Count);
+        Assert.Equal("test-v1", initialAttributes["mqttFirmware"].Value?.ToString());
+        Assert.True(Assert.IsType<JsonElement>(initialAttributes["mqttEnabled"].Value).GetBoolean());
+        Assert.Equal("unchanged", initialAttributes["mqttSerial"].Value?.ToString());
+
+        var updatedAttributes = await PublishAndReadConfirmedAttributesAsync(mqtt, queue, consumerGroup, client, deviceId,
+            new { mqttFirmware = "test-v2", mqttEnabled = false, mqttTemperatureLimit = 30.5 }, ct);
+        Assert.Equal(4, updatedAttributes.Count);
+        Assert.Equal("test-v2", updatedAttributes["mqttFirmware"].Value?.ToString());
+        Assert.False(Assert.IsType<JsonElement>(updatedAttributes["mqttEnabled"].Value).GetBoolean());
+        Assert.Equal(30.5, ToDouble(updatedAttributes["mqttTemperatureLimit"].Value));
+        Assert.Equal("unchanged", updatedAttributes["mqttSerial"].Value?.ToString());
+        Assert.Equal(initialAttributes["mqttSerial"].DateTime, updatedAttributes["mqttSerial"].DateTime);
+
+        await mqtt.DisconnectAsync(cancellationToken: ct);
+        await DeleteDeviceAsync(client, deviceId);
+    }
+
+    /// <summary>发布一条属性消息，等 SonnetMQ 确认后从应用 API 独立读取属性。</summary>
+    private static async Task<Dictionary<string, AttributeDataDto>> PublishAndReadConfirmedAttributesAsync(
+        IMqttClient mqtt,
+        SndbMqClient queue,
+        string consumerGroup,
+        HttpClient client,
+        Guid deviceId,
+        object payload,
+        CancellationToken cancellationToken)
+    {
+        const string attributeTopic = "iotsharp.services.datastream.attributedata";
+        const string keys = "mqttFirmware,mqttEnabled,mqttSerial,mqttTemperatureLimit";
+        var before = await queue.GetStatsAsync(attributeTopic, cancellationToken);
+        await PublishMqttJsonAsync(mqtt, "devices/me/attributes", payload, cancellationToken);
+
+        for (var attempt = 0; attempt < 40; attempt++)
+        {
+            var after = await queue.GetStatsAsync(attributeTopic, cancellationToken);
+            if (after.ConsumerOffsets.TryGetValue(consumerGroup, out var nextOffset) && nextOffset > before.NextOffset)
+            {
+                Assert.Equal(before.NextOffset + 1, after.NextOffset);
+                using var response = await client.GetAsync($"/api/Devices/{deviceId}/AttributeLatest/{keys}", cancellationToken);
+                var result = await AssertApiSuccessAsync<List<AttributeDataDto>>(response);
+                Assert.All(result.Data!, item => Assert.Equal(DataSide.ClientSide, item.DataSide));
+                return result.Data!.ToDictionary(item => item.KeyName);
+            }
+
+            await Task.Delay(TimeSpan.FromMilliseconds(250), cancellationToken);
+        }
+
+        Assert.Fail($"SonnetMQ did not confirm attribute offset {before.NextOffset} within the polling limit.");
+        throw new UnreachableException();
     }
 
     [Fact]

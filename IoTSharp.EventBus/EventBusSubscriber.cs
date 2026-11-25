@@ -42,6 +42,7 @@ namespace IoTSharp.EventBus
         }
         public async Task StoreAttributeData(PlayloadData msg, EventType _event)
         {
+            bool storageCompleted = false;
             try
             {
                 using (var _scope = _scopeFactor.CreateScope())
@@ -61,6 +62,7 @@ namespace IoTSharp.EventBus
                             {
                                 result2 = await _dbContext.SaveAsync<AttributeLatest>(dc, device.Id, msg.DataSide);
                             }
+                            storageCompleted = true;
                             result2.exceptions?.ToList().ForEach(ex =>
                             {
                                 _logger.LogError($"{ex.Key} {ex.Value} {JsonObjectSerializer.Serialize(msg.MsgBody[ex.Key])}");
@@ -75,13 +77,17 @@ namespace IoTSharp.EventBus
                     }
                 }
             }
-            catch (DbUpdateException due)
+            catch (Exception ex) when (storageCompleted && SonnetDbWriteRecovery.WasRejected(ex))
+            {
+                throw SonnetDbWriteRecovery.AfterEarlierWrites(ex);
+            }
+            catch (DbUpdateException due) when (!SonnetDbWriteRecovery.ShouldPropagate(due))
             {
                 var dc = msg.ToDictionary();
                 string json = JsonObjectSerializer.Serialize(dc);
                 _logger.LogError(due, "StoreAttributeData DbUpdateException:" + due.InnerException?.Message + Environment.NewLine + json + Environment.NewLine);
             }
-            catch (Exception ex)
+            catch (Exception ex) when (!SonnetDbWriteRecovery.ShouldPropagate(ex))
             {
                 var dc = msg.ToDictionary();
                 string json = JsonObjectSerializer.Serialize(dc);
@@ -156,8 +162,7 @@ namespace IoTSharp.EventBus
                        select new TelemetryDataDto() { DateTime = t.DateTime, DataType = t.Type, KeyName = t.KeyName, Value = t.ToObject() };
             var array = data.ToList();
             ExpandoObject exps = array.ToDynamic();
-            await RunRules(msg.DeviceId, (dynamic)exps, EventType.Telemetry);
-            await RunRules(msg.DeviceId, array, EventType.TelemetryArray);
+            await RunTelemetryRulesAfterStorageAsync(msg.DeviceId, exps, array);
         }
 
         public async Task StoreTelemetryDataBatch(IReadOnlyCollection<PlayloadData> messages)
@@ -182,9 +187,14 @@ namespace IoTSharp.EventBus
             if (hasNoRules != null)
             {
                 using var check = SonnetMqProcessingMetrics.Measure(SonnetMqProcessingMetrics.TelemetryRuleCheck);
-                if (await hasNoRules(messages))
+                try
                 {
-                    return;
+                    if (await hasNoRules(messages))
+                        return;
+                }
+                catch (Exception ex) when (SonnetDbWriteRecovery.WasRejected(ex))
+                {
+                    throw SonnetDbWriteRecovery.AfterEarlierWrites(ex);
                 }
             }
 
@@ -200,8 +210,21 @@ namespace IoTSharp.EventBus
                     });
                 var array = result.Select(t => new TelemetryDataDto() { DateTime = t.DateTime, DataType = t.Type, KeyName = t.KeyName, Value = t.ToObject() }).ToList();
                 ExpandoObject exps = array.ToDynamic();
-                await RunRules(msg.DeviceId, (dynamic)exps, EventType.Telemetry);
-                await RunRules(msg.DeviceId, array, EventType.TelemetryArray);
+                await RunTelemetryRulesAfterStorageAsync(msg.DeviceId, exps, array);
+            }
+        }
+
+        /// <summary>执行已完成存储的遥测规则。规则阶段的写入门禁不能触发整条消息重写。</summary>
+        private async Task RunTelemetryRulesAfterStorageAsync(Guid deviceId, ExpandoObject values, List<TelemetryDataDto> rows)
+        {
+            try
+            {
+                await RunRules(deviceId, values, EventType.Telemetry);
+                await RunRules(deviceId, rows, EventType.TelemetryArray);
+            }
+            catch (Exception ex) when (SonnetDbWriteRecovery.WasRejected(ex))
+            {
+                throw SonnetDbWriteRecovery.AfterEarlierWrites(ex);
             }
         }
 

@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using IoTSharp.Contracts;
 using IoTSharp.Data;
 using IoTSharp.Extensions;
+using IoTSharp.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -43,17 +44,34 @@ public sealed class SonnetMqEventBusWorker : BackgroundService
 
     private async Task RunSubscriptionWorkerAsync(SonnetMqSubscription subscription, CancellationToken stoppingToken)
     {
+        int recoveryDelaySeconds = 1;
         while (!stoppingToken.IsCancellationRequested)
         {
             try
             {
                 bool processed = await PullAndDispatchAsync(subscription, stoppingToken);
+                recoveryDelaySeconds = 1;
                 if (!processed)
                     await Task.Delay(Math.Max(1, _options.IdleDelayMilliseconds), stoppingToken);
             }
             catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
             {
                 break;
+            }
+            catch (Exception ex) when (SonnetDbWriteRecovery.Classify(ex) == SonnetDbWriteRecovery.Outcome.Partial)
+            {
+                _logger.LogCritical(
+                    "SonnetMQ subscription halted for reconciliation. Topic={Topic}, error={Error}.",
+                    subscription.Topic, SonnetDbWriteRecovery.Partial);
+                return;
+            }
+            catch (Exception ex) when (SonnetDbWriteRecovery.Classify(ex) == SonnetDbWriteRecovery.Outcome.Rejected)
+            {
+                _logger.LogWarning(
+                    "SonnetMQ kept the current consumer position while storage recovers. Topic={Topic}, error={Error}, retryDelaySeconds={RetryDelaySeconds}.",
+                    subscription.Topic, SonnetDbWriteRecovery.Required, recoveryDelaySeconds);
+                await Task.Delay(TimeSpan.FromSeconds(recoveryDelaySeconds), stoppingToken);
+                recoveryDelaySeconds = Math.Min(30, recoveryDelaySeconds * 2);
             }
             catch (Exception ex)
             {
@@ -106,13 +124,14 @@ public sealed class SonnetMqEventBusWorker : BackgroundService
                     SonnetMqEventKinds.AttributeData => SonnetMqProcessingMetrics.AttributeDispatch,
                     _ => null
                 }))
+                using (SonnetDbWriteRecovery.Enable())
                 {
                     await DispatchAsync(subscriber, subscription.Kind, message);
                 }
                 await AckAsync(subscription, message.Offset, cancellationToken);
                 ClearDeliveryFailure(message);
             }
-            catch (Exception ex)
+            catch (Exception ex) when (SonnetDbWriteRecovery.Classify(ex) == SonnetDbWriteRecovery.Outcome.None)
             {
                 bool skipped = await HandleDispatchFailureAsync(subscription, message, ex, cancellationToken);
                 if (!skipped)
@@ -131,6 +150,7 @@ public sealed class SonnetMqEventBusWorker : BackgroundService
         try
         {
             using var dispatch = SonnetMqProcessingMetrics.Measure(SonnetMqProcessingMetrics.TelemetryBatchDispatch);
+            using var recovery = SonnetDbWriteRecovery.Enable();
             using var scope = _scopeFactory.CreateScope();
             var subscriber = scope.ServiceProvider.GetRequiredService<ISubscriber>();
             PlayloadData[] payloads;
@@ -141,7 +161,8 @@ public sealed class SonnetMqEventBusWorker : BackgroundService
 
             await subscriber.StoreTelemetryDataBatch(payloads);
         }
-        catch (Exception ex) when (!cancellationToken.IsCancellationRequested)
+        catch (Exception ex) when (!cancellationToken.IsCancellationRequested
+            && SonnetDbWriteRecovery.Classify(ex) == SonnetDbWriteRecovery.Outcome.None)
         {
             _logger.LogWarning(
                 ex,
@@ -150,7 +171,15 @@ public sealed class SonnetMqEventBusWorker : BackgroundService
                 messages[0].Offset,
                 messages[^1].Offset,
                 messages.Count);
-            return await DispatchMessagesIndividuallyAsync(subscription, messages, cancellationToken);
+            try
+            {
+                return await DispatchMessagesIndividuallyAsync(subscription, messages, cancellationToken);
+            }
+            catch (Exception recoveryError) when (SonnetDbWriteRecovery.Classify(recoveryError) == SonnetDbWriteRecovery.Outcome.Rejected)
+            {
+                // 先前失败的批次可能已经写入一部分，逐条拒绝无法确认批次前缀。
+                throw SonnetDbWriteRecovery.AfterEarlierWrites(recoveryError);
+            }
         }
 
         // 批次全部处理成功后，SonnetMQ 一次确认到最后一条。确认失败时由下一轮拉取按服务端位点重试。

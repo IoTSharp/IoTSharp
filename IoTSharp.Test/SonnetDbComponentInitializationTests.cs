@@ -5,6 +5,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
@@ -24,6 +25,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
+using SonnetDB.Data;
 using SonnetDB.Data.Mq;
 using SonnetDB.Data.ObjectStorage;
 using Xunit;
@@ -158,6 +160,173 @@ public sealed class SonnetDbComponentInitializationTests : IDisposable
         {
             using var shutdown = new CancellationTokenSource(TimeSpan.FromSeconds(2));
             await worker.StopAsync(shutdown.Token);
+        }
+    }
+
+    [Fact]
+    public async Task SonnetMQ_WriteRecoveryRequired_RetriesAtSameOffsetWithoutDeadLetter()
+    {
+        var storage = new GuardedTelemetryStorage(individualDispatch: false);
+        await VerifyGuardedTelemetryAsync(storage, expectRecovery: true);
+    }
+
+    [Fact]
+    public async Task SonnetMQ_WriteRecoveryDuringBatchFallback_HaltsWithoutRetryOrDeadLetter()
+    {
+        var storage = new GuardedTelemetryStorage(individualDispatch: true);
+        await VerifyGuardedTelemetryAsync(storage, expectRecovery: false);
+    }
+
+    [Fact]
+    public async Task SonnetMQ_PartialWriteRecovery_HaltsWithoutRetryOrDeadLetter()
+    {
+        var storage = new GuardedTelemetryStorage(individualDispatch: false, partial: true);
+        await VerifyGuardedTelemetryAsync(storage, expectRecovery: false);
+    }
+
+    [Fact]
+    public async Task SonnetMQ_WriteRecoveryFromRules_HaltsAfterSuccessfulStorage()
+    {
+        var storage = new GuardedTelemetryStorage(individualDispatch: false);
+        await VerifyGuardedTelemetryAsync(storage, expectRecovery: false, guardFromRules: true);
+    }
+
+    private async Task VerifyGuardedTelemetryAsync(
+        GuardedTelemetryStorage storage, bool expectRecovery, bool guardFromRules = false)
+    {
+        const string topic = "iotsharp.services.datastream.telemetrydata";
+        var services = new ServiceCollection();
+        services.AddLogging();
+        services.AddEasyCaching(options => options.UseInMemory("CachingUseIn-InMemory"));
+        services.AddSingleton<IStorage>(storage);
+        var healthChecks = services.AddHealthChecks();
+        services.AddEventBus(options =>
+        {
+            options.AppSettings = new AppSettings
+            {
+                EventBus = EventBusFramework.SonnetMQ,
+                EventBusMQ = EventBusMQ.SonnetMQ,
+                ConsumerThreadCount = 1
+            };
+            options.EventBusMQ = $"Data Source={Path.Combine(_root, "guarded-events")}";
+            options.HealthChecks = healthChecks;
+            if (guardFromRules)
+            {
+                storage.AllowWrites();
+                options.RunRules = (_, _, _) => storage.Reject();
+            }
+            options.UseSonnetMQ();
+        });
+
+        await using var provider = services.BuildServiceProvider();
+        var worker = Assert.Single(provider.GetServices<IHostedService>().OfType<SonnetMqEventBusWorker>());
+        var client = provider.GetRequiredService<SndbMqClient>();
+        using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(12));
+        await worker.StartAsync(timeout.Token);
+        try
+        {
+            await provider.GetRequiredService<IPublisher>().PublishTelemetryData(new PlayloadData
+            {
+                DeviceId = Guid.NewGuid(),
+                DataCatalog = DataCatalog.TelemetryData,
+                DataSide = DataSide.ClientSide,
+                MsgBody = new Dictionary<string, object> { ["temperature"] = 22.5 }
+            });
+            await storage.FirstGuard.Task.WaitAsync(timeout.Token);
+            if (expectRecovery)
+            {
+                // 超过原三次死信阈值，确认恢复等待独立于数据错误的重试计数。
+                await storage.ThirdGuard.Task.WaitAsync(timeout.Token);
+            }
+            else
+            {
+                await Task.Delay(TimeSpan.FromMilliseconds(1250), timeout.Token);
+                Assert.Equal(1, storage.GuardAttempts);
+                Assert.Equal(guardFromRules ? 1 : 0, storage.SuccessfulWrites);
+            }
+
+            Assert.Equal(0, (await client.GetStatsAsync(topic, timeout.Token)).ConsumerOffsets.GetValueOrDefault("iotsharp"));
+            Assert.Equal(0, (await client.GetStatsAsync(topic + ".errors", timeout.Token)).NextOffset);
+            Assert.Equal(storage.IndividualDispatch ? storage.GuardAttempts : 0, storage.IndividualWrites);
+
+            if (!expectRecovery)
+                return;
+
+            storage.AllowWrites();
+            for (var attempt = 0; attempt < 80; attempt++)
+            {
+                var stats = await client.GetStatsAsync(topic, timeout.Token);
+                if (stats.ConsumerOffsets.GetValueOrDefault("iotsharp") == 1)
+                {
+                    Assert.Equal(1, storage.SuccessfulWrites);
+                    Assert.Equal(0, (await client.GetStatsAsync(topic + ".errors", timeout.Token)).NextOffset);
+                    return;
+                }
+
+                await Task.Delay(TimeSpan.FromMilliseconds(100), timeout.Token);
+            }
+            Assert.Fail("Telemetry failed to resume from its held position.");
+        }
+        finally
+        {
+            using var shutdown = new CancellationTokenSource(TimeSpan.FromSeconds(3));
+            await worker.StopAsync(shutdown.Token);
+        }
+    }
+
+    private sealed class GuardedTelemetryStorage(bool individualDispatch, bool partial = false)
+        : EFStorage(NullLogger<EFStorage>.Instance, null!, Options.Create(new AppSettings()))
+    {
+        private int _guards;
+        private int _individualWrites;
+        private int _successfulWrites;
+        private int _allowWrites;
+
+        internal TaskCompletionSource FirstGuard { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        internal TaskCompletionSource ThirdGuard { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        internal bool IndividualDispatch => individualDispatch;
+        internal int GuardAttempts => Volatile.Read(ref _guards);
+        internal int IndividualWrites => Volatile.Read(ref _individualWrites);
+        internal int SuccessfulWrites => Volatile.Read(ref _successfulWrites);
+
+        internal void AllowWrites() => Volatile.Write(ref _allowWrites, 1);
+
+        public override Task<(bool result, List<TelemetryData> telemetries)> StoreTelemetryAsync(PlayloadData msg)
+        {
+            Interlocked.Increment(ref _individualWrites);
+            Store();
+            return Task.FromResult<(bool, List<TelemetryData>)>((true, []));
+        }
+
+        public override Task<TelemetryBatchStoreResult> StoreTelemetryBatchAsync(IReadOnlyCollection<PlayloadData> messages)
+        {
+            if (individualDispatch)
+                return Task.FromResult(new TelemetryBatchStoreResult(false, [], messages.Count));
+
+            Store();
+            return Task.FromResult(new TelemetryBatchStoreResult(true, [], messages.Count));
+        }
+
+        internal Task Reject()
+        {
+            int attempts = Interlocked.Increment(ref _guards);
+            FirstGuard.TrySetResult();
+            if (attempts == 3)
+                ThirdGuard.TrySetResult();
+
+            throw new SndbServerException(partial ? SonnetDbWriteRecovery.Partial : SonnetDbWriteRecovery.Required,
+                "Synthetic write recovery guard.", partial ? HttpStatusCode.OK : HttpStatusCode.ServiceUnavailable);
+        }
+
+        private void Store()
+        {
+            if (Volatile.Read(ref _allowWrites) != 0)
+            {
+                Interlocked.Increment(ref _successfulWrites);
+                return;
+            }
+
+            Reject();
         }
     }
 
