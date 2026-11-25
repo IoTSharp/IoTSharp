@@ -71,6 +71,7 @@ RUN dotnet build "IoTSharp/IoTSharp.csproj" --no-restore   -c $BUILD_CONFIGURATI
 
 FROM build AS publish
 RUN dotnet publish "IoTSharp/IoTSharp.csproj" --no-restore   -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet run --file tools/VerifyCaptchaResources.cs -- /app/publish/IoTSharp.dll
 
 FROM base AS final
 USER app
