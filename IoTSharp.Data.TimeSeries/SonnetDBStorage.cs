@@ -169,6 +169,18 @@ namespace IoTSharp.Storage
         public Task<SonnetDbTelemetryBatchWriteReport> StoreTelemetryBatchAsync(IEnumerable<PlayloadData> messages)
             => Task.FromResult(StoreTelemetryBatch(messages, null));
 
+        /// <summary>删除调用方已经核验归属的设备历史，设备 ID 与测量名称一一对应。</summary>
+        public async Task RemoveDeviceHistoryAsync(Guid deviceId, CancellationToken cancellationToken)
+        {
+            if (deviceId == Guid.Empty) throw new ArgumentException("Device ID is required.", nameof(deviceId));
+            var measurement = GetMeasurement(deviceId);
+            using var connection = OpenConnection();
+            using var command = connection.CreateCommand();
+            command.CommandText = "DROP MEASUREMENT IF EXISTS " + QuoteIdentifier(measurement);
+            await command.ExecuteNonQueryAsync(cancellationToken);
+            _schemas.TryRemove(measurement, out _);
+        }
+
         private SonnetDbTelemetryBatchWriteReport StoreTelemetryBatch(IEnumerable<PlayloadData> messages, List<TelemetryData>? collected)
         {
             ArgumentNullException.ThrowIfNull(messages);

@@ -241,7 +241,9 @@ namespace IoTSharp
                 options.WaitForJobsToComplete = true;
             });
             services.AddResponseCompression();
-            services.AddControllers().AddJsonOptions(options =>
+            services.AddSingleton(new OnlineDemoSettings(Configuration));
+            services.AddScoped<OnlineDemoActionFilter>();
+            services.AddControllers(options => options.Filters.AddService<OnlineDemoActionFilter>()).AddJsonOptions(options =>
             {
                 options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
                 options.JsonSerializerOptions.NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowReadingFromString;

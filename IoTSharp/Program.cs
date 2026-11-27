@@ -27,6 +27,18 @@ namespace IoTSharp
         public static async Task<int> Main(string[] args)
         {
             InitializeProcessPaths();
+            if (args.Length == 1 && args[0] == "--online-demo-reset")
+            {
+                using var maintenanceHost = CreateHostBuilder(Array.Empty<string>()).Build();
+                using var scope = maintenanceHost.Services.CreateScope();
+                return await OnlineDemoReset.RunCommandAsync(scope.ServiceProvider);
+            }
+            if (args.Length == 1 && args[0] == "--online-personal-tenant")
+            {
+                using var maintenanceHost = CreateHostBuilder(Array.Empty<string>()).Build();
+                using var scope = maintenanceHost.Services.CreateScope();
+                return await OnlinePersonalTenant.RunAsync(scope.ServiceProvider);
+            }
             if (args.Length == 1 && args[0] == "--online-account-maintenance")
             {
                 using var maintenanceHost = CreateHostBuilder(Array.Empty<string>()).Build();

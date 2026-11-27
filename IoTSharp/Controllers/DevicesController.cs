@@ -578,7 +578,12 @@ namespace IoTSharp.Controllers
         [ProducesDefaultResponseType]
         public async Task<ApiResult<List<AttributeDataDto>>> GetAttributeLatestByKeyNameAndDeviceId(AttributeLatestByKeyNameAndDeviceIdDto dto)
         {
-            return new ApiResult<List<AttributeDataDto>>(ApiCode.Success, "Ok", await _context.AttributeLatest.Where(p => dto.deviceIds.Any(c => c == p.DeviceId) && dto.keyNames.Contains(p.KeyName)).Select(t =>
+            var profile = this.GetUserProfile();
+            var tenantWide = User.IsInRole(nameof(UserRole.TenantAdmin));
+            var accessible = _context.Device.Where(d => !d.Deleted && d.TenantId == profile.Tenant
+                && (tenantWide || d.CustomerId == profile.Customer)).Select(d => d.Id);
+            return new ApiResult<List<AttributeDataDto>>(ApiCode.Success, "Ok", await _context.AttributeLatest.Where(p =>
+                dto.deviceIds.Any(c => c == p.DeviceId) && accessible.Contains(p.DeviceId) && dto.keyNames.Contains(p.KeyName)).Select(t =>
                 new AttributeDataDto()
                 {
                     DeviceId = t.DeviceId,
@@ -661,14 +666,14 @@ namespace IoTSharp.Controllers
             }
             else if (User.IsInRole(nameof(UserRole.NormalUser)))
             {
-                var cid = Guid.Parse(User.Claims.First(c => c.Type == IoTSharpClaimTypes.Customer).Value);
+                var profile = this.GetUserProfile();
                 dev = await _context.Device
                     .Include(d => d.Tenant)
                     .Include(d => d.Customer)
                     .Include(d => d.DeviceIdentity)
                     .Include(d => d.Owner)
                     .Include(d => d.Product)
-                    .FirstOrDefaultAsync(d => d.Id == deviceId && d.CustomerId == cid && !d.Deleted);
+                    .FirstOrDefaultAsync(d => d.Id == deviceId && d.TenantId == profile.Tenant && d.CustomerId == profile.Customer && !d.Deleted);
             }
             return dev;
         }

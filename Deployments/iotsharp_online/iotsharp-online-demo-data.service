@@ -1,0 +1,26 @@
+[Unit]
+Description=Restore IoTSharp Online public demo tenant data
+After=iotsharp-demo.service sonnetdb-demo.service
+ConditionPathExists=/etc/iotsharp/online-persistent-mode
+ConditionPathExists=/etc/iotsharp/online-demo-data.env
+StartLimitIntervalSec=1h
+StartLimitBurst=3
+
+[Service]
+Type=oneshot
+User=iotsharp-demo
+Group=iotsharp-demo
+EnvironmentFile=/etc/iotsharp/demo.env
+EnvironmentFile=/etc/iotsharp/online-demo-data.env
+WorkingDirectory=/opt/iotsharp-demo/current/iotsharp
+ExecStart=/usr/local/libexec/iotsharp-demo-run-iotsharp --online-demo-reset
+Restart=on-failure
+RestartSec=45s
+TimeoutStartSec=5min
+UMask=0077
+Nice=10
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/var/lib/iotsharp-demo/online

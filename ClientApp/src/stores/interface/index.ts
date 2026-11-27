@@ -10,6 +10,8 @@ export interface UserInfosState {
 	roles: string[];
 	time: number;
 	userName: string;
+	email?: string;
+	demoResetMinutes?: number;
 	customer?: any;
 	tenant?: any;
 }

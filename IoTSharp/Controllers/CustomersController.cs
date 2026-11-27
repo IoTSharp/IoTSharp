@@ -44,7 +44,13 @@ namespace IoTSharp.Controllers
         [ProducesDefaultResponseType]
         public async Task<ApiResult<List<Customer>>> GetAllCustomers([FromRoute] Guid tenantId)
         {
-            return new ApiResult<List<Customer>>(ApiCode.Success, "OK", await _context.Customer.Where(c => c.Tenant.Id == tenantId && c.Deleted == false).ToListAsync());
+            var profile = this.GetUserProfile();
+            if (!User.IsInRole(nameof(UserRole.SystemAdmin)) && tenantId != profile.Tenant)
+                return new ApiResult<List<Customer>>(ApiCode.DoNotAllow, "只能读取当前租户的客户。", []);
+            var query = _context.Customer.Where(c => c.Tenant.Id == tenantId && !c.Deleted);
+            if (IoTSharp.Services.OnlineDemoSettings.IsScopedCustomer(this))
+                query = query.Where(c => c.Id == profile.Customer);
+            return new ApiResult<List<Customer>>(ApiCode.Success, "OK", await query.ToListAsync());
         }
 
         /// <summary>
@@ -59,6 +65,8 @@ namespace IoTSharp.Controllers
         public async Task<ApiResult<PagedData<Customer>>> GetCustomers([FromBody] CustomerParam m)
         {
             var profile = this.GetUserProfile();
+            if (!User.IsInRole(nameof(UserRole.SystemAdmin)) && m.tenantId != profile.Tenant)
+                return new ApiResult<PagedData<Customer>>(ApiCode.DoNotAllow, "只能读取当前租户的客户。", new PagedData<Customer>());
             if (m.tenantId != Guid.Empty)
             {
                 var querym = _context.Customer.Include(c => c.Tenant).Where(c => !c.Deleted && c.Tenant.Id == m.tenantId);

@@ -44,6 +44,8 @@ export const useUserInfo = defineStore('userInfo', {
 				.then((res) => {
 					const userInfos = {
 						userName: res.data.displayName || res.data.name,
+						email: res.data.email,
+						demoResetMinutes: res.data.demoResetMinutes,
 						photo: res.data.avatar,
 						time: new Date().getTime(),
 						roles: [res.data.roles],

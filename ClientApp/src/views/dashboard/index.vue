@@ -1,5 +1,9 @@
 <template>
 	<div class="ops-dashboard">
+		<el-alert v-if="userInfos.demoResetMinutes" class="demo-workspace" title="IoTSharp 公开演示" type="info" :closable="false">
+			<p>{{ userInfos.email }} · {{ demoRole }} · {{ userInfos.customer?.name }}</p>
+			<p>可查看冷链仓库的设备、遥测、采集配置、告警和发布记录。演示数据为合成样例，每 {{ userInfos.demoResetMinutes }} 分钟恢复一次。设备接入、规则执行和发布下发在公开演示中停用。</p>
+		</el-alert>
 		<header class="overview-bar">
 			<div class="overview-bar__head">
 				<div class="overview-bar__copy">
@@ -28,7 +32,7 @@
 			</dl>
 		</header>
 
-		<section class="dashboard-spotlight">
+		<section class="dashboard-spotlight" :class="{ 'dashboard-spotlight--demo': isDemo }">
 			<article class="dashboard-panel status-card">
 				<header class="dashboard-panel__head">
 					<div>
@@ -51,7 +55,7 @@
 				</div>
 			</article>
 
-			<article class="dashboard-panel signal-card">
+			<article v-if="!isDemo" class="dashboard-panel signal-card">
 				<div class="signal-card__copy">
 					<h2>实时运行中心</h2>
 					<p>从接入、采集到规则处理，沿着一条清晰的信号路径追踪平台状态。</p>
@@ -72,7 +76,7 @@
 				</div>
 			</article>
 
-			<article class="dashboard-panel status-card status-card--health">
+			<article v-if="!isDemo" class="dashboard-panel status-card status-card--health">
 				<header class="dashboard-panel__head">
 					<div>
 						<h2>平台健康</h2>
@@ -94,7 +98,7 @@
 			</article>
 		</section>
 
-		<section class="dashboard-core">
+		<section v-if="!isDemo" class="dashboard-core">
 			<article class="dashboard-panel dashboard-panel--trend">
 				<header class="dashboard-panel__head">
 					<div>
@@ -137,7 +141,7 @@
 				</div>
 			</article>
 
-			<article class="dashboard-panel dashboard-panel--health">
+			<article v-if="!isDemo" class="dashboard-panel dashboard-panel--health">
 				<header class="dashboard-panel__head">
 					<div>
 						<h2>平台健康</h2>
@@ -228,8 +232,18 @@ import { ArrowRight, Bell, Box, Connection, Cpu, RefreshRight, SetUp } from '@el
 import { ElMessage } from 'element-plus';
 import { storeToRefs } from 'pinia';
 import { useAppInfo } from '/@/stores/appInfo';
+import { useUserInfo } from '/@/stores/userInfo';
 import { getDashboardTrend, getHealthChecks, getKanban, getMessageInfo } from '/@/api/dashboard';
 import type { DashboardTrend, DashboardTrendRange } from '/@/api/dashboard';
+
+const { userInfos } = storeToRefs(useUserInfo());
+const isDemo = computed(() => Boolean(userInfos.value.demoResetMinutes));
+const demoRole = computed(() => {
+	const roles = userInfos.value.roles.flatMap((entry) => entry.split(','));
+	if (roles.includes('tenantadmin')) return '演示租户管理员';
+	if (roles.includes('customeradmin')) return '客户管理员';
+	return '普通用户';
+});
 
 interface KanbanData {
 	eventCount: number;
@@ -238,6 +252,7 @@ interface KanbanData {
 	deviceCount: number;
 	alarmsCount: number;
 	userCount: number;
+	productCount?: number;
 	ProductCount: number;
 	rulesCount: number;
 }
@@ -374,7 +389,7 @@ const messageSuccessRate = computed(() =>
 const overviewMetrics = computed(() => [
 	{ label: '设备总数', value: formatCount(kanban.value.deviceCount), hint: '运行实例', icon: Box, tone: 'data' },
 	{ label: '在线设备', value: formatCount(kanban.value.onlineDeviceCount), hint: percentText(onlineRate.value) + ' 在线', icon: Connection, tone: 'success' },
-	{ label: '产品', value: formatCount(kanban.value.ProductCount), hint: '能力模板', icon: Cpu, tone: 'profile' },
+	{ label: '产品', value: formatCount(kanban.value.productCount ?? kanban.value.ProductCount), hint: '能力模板', icon: Cpu, tone: 'profile' },
 	{ label: '实时规则', value: formatCount(kanban.value.rulesCount), hint: '规则链', icon: SetUp, tone: 'data' },
 	{ label: '告警设备', value: formatCount(kanban.value.alarmsCount), hint: '当前告警', icon: Bell, tone: 'warning' },
 	{ label: '平台事件', value: formatCount(kanban.value.eventCount), hint: '事件记录', icon: RefreshRight, tone: 'operation' },
@@ -565,6 +580,12 @@ async function fetchDashboardData() {
 	if (loading.value) return;
 	loading.value = true;
 	try {
+		if (isDemo.value) {
+			const result = await getKanban();
+			kanban.value = { ...kanban.value, ...result.data };
+			lastUpdated.value = new Date();
+			return;
+		}
 		healthState.value = 'loading';
 		const [kanbanRes, messageRes, healthRes] = await Promise.allSettled([getKanban(), getMessageInfo(), getHealthChecks()]);
 		if (kanbanRes.status === 'fulfilled') kanban.value = { ...kanban.value, ...kanbanRes.value.data };
@@ -593,7 +614,7 @@ async function fetchDashboardData() {
 
 function refreshDashboard() {
 	void fetchDashboardData();
-	void loadTrend();
+	if (!isDemo.value) void loadTrend();
 }
 const onThemeChange = () => void nextTick(renderChart);
 
@@ -756,6 +777,10 @@ onBeforeUnmount(() => {
 	display: grid;
 	grid-template-columns: minmax(240px, 0.85fr) minmax(340px, 1.5fr) minmax(240px, 0.85fr);
 	gap: 14px;
+}
+
+.dashboard-spotlight.dashboard-spotlight--demo {
+	grid-template-columns: minmax(0, 1fr);
 }
 
 .dashboard-core,
