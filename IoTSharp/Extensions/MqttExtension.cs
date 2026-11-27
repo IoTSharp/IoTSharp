@@ -15,6 +15,8 @@ using IoTSharp.Data;
 using IoTSharp.Extensions;
 using IoTSharp.Contracts;
 using System.Net.Security;
+using System.Net;
+using System.Net.Sockets;
 using MQTTnet.Protocol;
 using System.Text;
 using System.Text.Json;
@@ -56,7 +58,23 @@ namespace IoTSharp
             services.AddMqttTcpServerAdapter();
             services.AddHostedMqttServerWithServices(options =>
             {
-                options.WithDefaultEndpointPort(broker.Port).WithDefaultEndpoint();
+                if (!IPAddress.TryParse(broker.BindAddress, out var bindAddress))
+                {
+                    throw new InvalidOperationException($"Invalid MQTT bind address: {broker.BindAddress}");
+                }
+
+                var ipv4BindAddress = bindAddress.AddressFamily == AddressFamily.InterNetwork
+                    ? bindAddress
+                    : IPAddress.None;
+                var ipv6BindAddress = bindAddress.AddressFamily == AddressFamily.InterNetworkV6
+                    ? bindAddress
+                    : bindAddress.Equals(IPAddress.Any)
+                        ? IPAddress.IPv6Any
+                        : IPAddress.None;
+                options.WithDefaultEndpoint()
+                    .WithDefaultEndpointBoundIPAddress(ipv4BindAddress)
+                    .WithDefaultEndpointBoundIPV6Address(ipv6BindAddress)
+                    .WithDefaultEndpointPort(broker.Port);
                 if (broker.EnableTls)
                 {
                     if (broker.CACertificate != null)
@@ -64,7 +82,9 @@ namespace IoTSharp
                         broker.CACertificate.LoadCAToRoot();
 
                     }
-                    options.WithEncryptedEndpoint();
+                    options.WithEncryptedEndpoint()
+                        .WithEncryptedEndpointBoundIPAddress(ipv4BindAddress)
+                        .WithEncryptedEndpointBoundIPV6Address(ipv6BindAddress);
                     options.WithEncryptedEndpointPort(broker.TlsPort);
                     if (broker.BrokerCertificate != null)
                     {
