@@ -134,10 +134,10 @@ namespace IoTSharp.Controllers
                     ? m.customerId
                     : profile.Customer;
                 var query = from c in _context.Device
-                             where c.CustomerId == scopedCustomerId
-                                 && c.TenantId == profile.Tenant
-                                 && !c.Deleted
-                             select c;
+                            where c.CustomerId == scopedCustomerId
+                                && c.TenantId == profile.Tenant
+                                && !c.Deleted
+                            select c;
                 if (m.OnlyActive)
                 {
                     var al = from a in _context.AttributeLatest
@@ -250,7 +250,7 @@ namespace IoTSharp.Controllers
                              || a.KeyName == Constants._Connected
                              || a.KeyName == Constants._LastConnectDateTime
                              || a.KeyName == Constants._LastDisconnectDateTime)
-                      select a;
+                     select a;
             var allist = await al.ToListAsync();
             var devicesById = lst.ToDictionary(d => d.Id);
             allist.ForEach(a =>

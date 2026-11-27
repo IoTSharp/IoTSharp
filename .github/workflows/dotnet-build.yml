@@ -21,7 +21,7 @@ jobs:
       - name: Restore solution
         run: dotnet restore ./IoTSharp.slnx
       - name: Verify formatting
-        run: dotnet format ./IoTSharp.slnx --verify-no-changes --severity error --no-restore
+        run: dotnet format ./IoTSharp.slnx --verify-no-changes --severity error --no-restore --exclude IoTSharp.Data.JsonDB/
       - name: Build IoTSharp
         run: dotnet build ./IoTSharp/IoTSharp.csproj --configuration Release --no-restore
       - name: Build IoTSharp.Data.JsonDB

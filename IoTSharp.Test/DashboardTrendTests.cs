@@ -77,8 +77,15 @@ public sealed class DashboardTrendTests
         db.Tenant.Add(tenant);
         db.Set<DashboardTrendSample>().AddRange(Enumerable.Range(0, 60).Select(minute => new DashboardTrendSample
         {
-            TenantId = tenant.Id, CollectorId = collector, StartUtc = hour.AddMinutes(minute), SnapshotUtc = hour.AddMinutes(minute).AddSeconds(10),
-            Received = 0, Processed = 0, Telemetry = 0, Attributes = 0, OnlineDevices = 0
+            TenantId = tenant.Id,
+            CollectorId = collector,
+            StartUtc = hour.AddMinutes(minute),
+            SnapshotUtc = hour.AddMinutes(minute).AddSeconds(10),
+            Received = 0,
+            Processed = 0,
+            Telemetry = 0,
+            Attributes = 0,
+            OnlineDevices = 0
         }));
         await db.SaveChangesAsync();
 
@@ -105,7 +112,10 @@ public sealed class DashboardTrendTests
 
         db.Set<DashboardTrendSample>().Add(new DashboardTrendSample
         {
-            TenantId = collecting.Id, CollectorId = Guid.NewGuid(), StartUtc = NowUtc.AddDays(-3), Received = 3
+            TenantId = collecting.Id,
+            CollectorId = Guid.NewGuid(),
+            StartUtc = NowUtc.AddDays(-3),
+            Received = 3
         });
         await db.SaveChangesAsync();
         Assert.Equal("empty", (await GetTrendAsync(db, collecting.Id, "24h")).State);
@@ -165,7 +175,10 @@ public sealed class DashboardTrendTests
             var minute = new DateTime(now.Ticks - now.Ticks % TimeSpan.TicksPerMinute, DateTimeKind.Utc);
             db.Set<DashboardTrendSample>().Add(new DashboardTrendSample
             {
-                TenantId = otherTenant.Id, CollectorId = Guid.NewGuid(), StartUtc = minute, Received = 17
+                TenantId = otherTenant.Id,
+                CollectorId = Guid.NewGuid(),
+                StartUtc = minute,
+                Received = 17
             });
             await db.SaveChangesAsync();
         }

@@ -40,8 +40,8 @@
         </el-form-item>
         <el-form-item class="z-search-button-area">
           <div>
-            <el-button type="primary" @click="search">查询</el-button>
-            <el-button @click="resetForm(formRef)">重置</el-button>
+            <el-button type="primary" :loading="loading" @click="search">查询</el-button>
+            <el-button :disabled="loading" @click="resetForm(formRef)">重置</el-button>
           </div>
           <el-radio-group v-model="dataDisplayStatus" class="ml-12px">
             <el-radio-button label="chart">图表</el-radio-button>
@@ -51,6 +51,7 @@
         </el-form-item>
       </el-form>
     </div>
+    <el-alert v-if="queryFailed" title="遥测历史查询失败，请重试" type="error" :closable="false" show-icon />
     <!--    表格数据 -->
     <div v-show="dataDisplayStatus === 'dataTable'" class="z-table">
       <el-table :data="tableData" style="width: 100%" size="small" v-loading="loading">
@@ -80,6 +81,7 @@ const formatColumnDataTime = (row, column, cellValue, index) => {
 }
 const formRef = ref()
 const loading = ref(false)
+const queryFailed = ref(false)
 // const dataDisplayStatus = ref('dataTable')
 const dataDisplayStatus = ref('chart')
 const messageChartRef = ref();
@@ -135,6 +137,7 @@ const search = async () => {
 const resetForm = (formEl) => {
   if (!formEl) return
   formEl.resetFields()
+  queryFailed.value = false
 }
 // const backToRealtime = ()=>{
 //   proxy.mittBus.emit('updateTelemetryPageSate', 'realtime')
@@ -142,19 +145,24 @@ const resetForm = (formEl) => {
 // }
 const getData = async () => {
   const params = {...queryForm}
-  if (params.datetimeRange[0]) params.begin = params.datetimeRange[0]
-  if (params.datetimeRange[1]) params.end = params.datetimeRange[1]
-  console.log(`%cgetData@DeviceDetailTelemetryHistory:148`, 'color:black;font-size:16px;background:yellow;font-weight: bold;', params.keys)
+  if (params.datetimeRange?.[0]) params.begin = params.datetimeRange[0]
+  if (params.datetimeRange?.[1]) params.end = params.datetimeRange[1]
   params.keys = params.keys.join(',')
   // queryForm.every 由 el-time-picker 的 value-format="HH:mm:ss" 保证格式，直接透传即可；
   // 若拼成 '0.HH:mm:ss:000' 不是合法 TimeSpan，后端模型绑定失败会恒返回 HTTP 400。
+  queryFailed.value = false
   loading.value = true
   try {
     const res = await deviceApi().getDeviceTelemetryData(props.deviceId, params)
     tableData.value = res.data
     updateChart(res.data)
-  } catch (e) { /* empty */ }
-  loading.value = false
+  } catch {
+    tableData.value = []
+    updateChart([])
+    queryFailed.value = true
+  } finally {
+    loading.value = false
+  }
 }
 const updateChart = (rawData) => {
   let series = []
@@ -179,7 +187,7 @@ const updateChart = (rawData) => {
   })
   telemetryHistoryChartOptions.series = series
   telemetryHistoryChartOptions.xAxis.data = xAxisData
-  historyChart.setOption(telemetryHistoryChartOptions, {
+  historyChart?.setOption(telemetryHistoryChartOptions, {
     replaceMerge: ["series", "yAxis", "xAxis"],
   });
 }
@@ -196,6 +204,7 @@ const getTelemetryKeys = async (deviceId) => {
   state.telemetryKeys = res.data.filter((x) => typeof x.value === 'number').map((c) => c.keyName);
 }
 watch(() => props.deviceId, async () => {
+  queryFailed.value = false
   await getTelemetryKeys(props.deviceId);
   telemetryHistoryChartOptions.series = []
   telemetryHistoryChartOptions.xAxis.data = []

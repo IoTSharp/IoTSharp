@@ -123,7 +123,7 @@ dotnet_naming_style.帕斯卡拼写法.word_separator =
 dotnet_naming_style.帕斯卡拼写法.capitalization = pascal_case
 
 [*.{cs,vb}]
-end_of_line = crlf
+end_of_line = lf
 dotnet_style_qualification_for_field = false:silent
 dotnet_style_qualification_for_property = false:silent
 dotnet_style_qualification_for_method = false:silent
