@@ -6,7 +6,7 @@
 
 # IoTSharp
 
-[English](README.md) | [Chinese](README.zh.md)
+[English](README.md) | [Chinese](README.zh.md) | [Türkçe](README.tr.md)
 
 [![License](https://img.shields.io/github/license/IoTSharp/IoTSharp.svg)](LICENSE)
 [![.NET build](https://github.com/IoTSharp/IoTSharp/actions/workflows/dotnet-build.yml/badge.svg)](https://github.com/IoTSharp/IoTSharp/actions/workflows/dotnet-build.yml)
@@ -87,6 +87,7 @@ For frontend development, the current local dev server default is:
 ## 📚 Documentation
 
 - Chinese README: [README.zh.md](README.zh.md)
+- Turkish README: [README.tr.md](README.tr.md)
 - Roadmap: [ROADMAP.md](ROADMAP.md)
 - Changelog: [CHANGELOG.md](CHANGELOG.md)
 
