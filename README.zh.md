@@ -6,7 +6,7 @@
 
 # IoTSharp
 
-[英文](README.md) | [中文](README.zh.md)
+[英文](README.md) | [中文](README.zh.md) | [土耳其语](README.tr.md)
 
 [![License](https://img.shields.io/github/license/IoTSharp/IoTSharp.svg)](LICENSE)
 [![.NET build](https://github.com/IoTSharp/IoTSharp/actions/workflows/dotnet-build.yml/badge.svg)](https://github.com/IoTSharp/IoTSharp/actions/workflows/dotnet-build.yml)
