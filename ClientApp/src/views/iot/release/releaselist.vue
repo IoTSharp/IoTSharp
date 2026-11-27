@@ -1,5 +1,5 @@
 <template>
-	<div class="release-page">
+	<div class="release-page console-list-page">
 		<ConsolePageShell
 			eyebrow="Release Center"
 			title="受控发布"
@@ -12,44 +12,43 @@
 				<el-button type="primary" @click="openCreate">新建发布计划</el-button>
 			</template>
 
-			<div class="release-card">
+			<div class="release-card console-list-panel">
 				<div class="release-card__head">
 					<div>
-						<div class="release-card__eyebrow">Canary Rollout</div>
 						<h3>发布计划</h3>
-						<p>先创建可审计的计划，再按批次下发 EdgeNode、Gateway 或设备范围任务。</p>
 					</div>
 					<el-input v-model="query.name" clearable placeholder="按名称筛选" style="width: 220px" @keyup.enter="loadPlans" />
 				</div>
 
-				<el-table v-loading="loading" :data="plans" row-key="id" @row-click="openDetail">
-					<el-table-column prop="name" label="计划" min-width="220" show-overflow-tooltip />
-					<el-table-column prop="planType" label="类型" width="150" />
-					<el-table-column label="状态" width="150">
-						<template #default="{ row }"><el-tag :type="statusType(row.status)">{{ statusLabel(row.status) }}</el-tag></template>
-					</el-table-column>
-					<el-table-column label="任务进度" width="170">
-						<template #default="{ row }">
-							<div class="progress-cell"><span>{{ row.succeededTaskCount }}/{{ row.totalTaskCount }}</span><el-progress :percentage="progress(row)" :show-text="false" /></div>
-						</template>
-					</el-table-column>
-					<el-table-column prop="currentBatchNo" label="当前批次" width="100" />
-					<el-table-column prop="updatedAt" label="最近更新" width="180">
-						<template #default="{ row }">{{ formatDate(row.updatedAt) }}</template>
-					</el-table-column>
-					<el-table-column label="操作" width="230" fixed="right">
-						<template #default="{ row }">
-							<el-button link type="primary" @click.stop="openDetail(row)">详情</el-button>
-							<el-button v-if="canStart(row)" link type="success" @click.stop="runAction(row, 'start')">开始</el-button>
-							<el-button v-if="canConfirm(row)" link type="success" @click.stop="runAction(row, 'confirm')">确认批次</el-button>
-							<el-button v-if="canPause(row)" link type="warning" @click.stop="runAction(row, 'pause')">暂停</el-button>
-							<el-button v-if="canResume(row)" link type="success" @click.stop="runAction(row, 'resume')">继续</el-button>
-							<el-button v-if="canRollback(row)" link type="danger" @click.stop="runAction(row, 'rollback')">回滚</el-button>
-						</template>
-					</el-table-column>
-				</el-table>
-				<el-empty v-if="!loading && plans.length === 0" description="还没有发布计划" />
-				<el-pagination v-model:current-page="page" class="release-pagination" background layout="prev, pager, next" :page-size="query.limit" :total="total" @current-change="loadPlans" />
+				<div class="console-list-table" role="region" aria-label="发布计划列表" tabindex="0">
+					<el-table v-loading="loading" :data="plans" row-key="id" size="small" empty-text="还没有发布计划" @row-click="openDetail">
+						<el-table-column prop="name" label="计划" min-width="220" show-overflow-tooltip />
+						<el-table-column prop="planType" label="类型" width="150" />
+						<el-table-column label="状态" width="150">
+							<template #default="{ row }"><el-tag :type="statusType(row.status)">{{ statusLabel(row.status) }}</el-tag></template>
+						</el-table-column>
+						<el-table-column label="任务进度" width="170">
+							<template #default="{ row }">
+								<div class="progress-cell"><span>{{ row.succeededTaskCount }}/{{ row.totalTaskCount }}</span><el-progress :percentage="progress(row)" :show-text="false" /></div>
+							</template>
+						</el-table-column>
+						<el-table-column prop="currentBatchNo" label="当前批次" width="100" />
+						<el-table-column prop="updatedAt" label="最近更新" width="180">
+							<template #default="{ row }">{{ formatDate(row.updatedAt) }}</template>
+						</el-table-column>
+						<el-table-column label="操作" width="230" fixed="right">
+							<template #default="{ row }">
+								<el-button link type="primary" @click.stop="openDetail(row)">详情</el-button>
+								<el-button v-if="canStart(row)" link type="success" @click.stop="runAction(row, 'start')">开始</el-button>
+								<el-button v-if="canConfirm(row)" link type="success" @click.stop="runAction(row, 'confirm')">确认批次</el-button>
+								<el-button v-if="canPause(row)" link type="warning" @click.stop="runAction(row, 'pause')">暂停</el-button>
+								<el-button v-if="canResume(row)" link type="success" @click.stop="runAction(row, 'resume')">继续</el-button>
+								<el-button v-if="canRollback(row)" link type="danger" @click.stop="runAction(row, 'rollback')">回滚</el-button>
+							</template>
+						</el-table-column>
+					</el-table>
+				</div>
+				<el-pagination v-model:current-page="page" class="console-list-pagination" size="small" background layout="prev, pager, next" :page-size="query.limit" :total="total" @current-change="loadPlans" />
 			</div>
 		</ConsolePageShell>
 
@@ -256,15 +255,26 @@ onMounted(() => { loadPlans(); loadPackages(); });
 </script>
 
 <style lang="scss" scoped>
-.release-page { display: flex; flex-direction: column; gap: 18px; }
-.release-card { padding: 20px 22px; border: 1px solid rgba(226,232,240,.92); border-radius: 28px; background: linear-gradient(180deg,rgba(248,251,255,.96),#fff); box-shadow: 0 18px 42px rgba(15,23,42,.05); }
-.release-card__head { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:18px; }
-.release-card__eyebrow { margin-bottom: 8px; color:#2563eb; font-size:12px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; }
-.release-card h3 { margin:0; color:#123b6d; font-size:22px; }
-.release-card p { margin:8px 0 0; color:#64748b; font-size:13px; }
+.release-card {
+	padding: 10px 16px;
+	border: 1px solid var(--iotsharp-border);
+	border-radius: var(--iotsharp-radius-panel);
+	background: var(--iotsharp-surface);
+	box-shadow: var(--iotsharp-shadow-panel);
+}
+.release-card__head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+}
+.release-card h3 {
+	margin: 0;
+	color: var(--iotsharp-ink);
+	font-size: 15px;
+}
 .progress-cell { display:flex; flex-direction:column; gap:4px; }
 .progress-cell .el-progress { width:100px; }
-.release-pagination { justify-content:flex-end; margin-top:18px; }
 .detail-summary { display:grid; grid-template-columns: 1fr 1fr 1fr; gap:12px; margin-bottom:20px; }
 .detail-summary > div { display:flex; flex-direction:column; gap:5px; padding:12px; border:1px solid #e2e8f0; border-radius:12px; }
 .detail-summary span { color:#64748b; font-size:12px; }

@@ -1,9 +1,9 @@
 <template>
 	<div class="layout-logo" v-if="setShowLogo" @click="onThemeConfigChange">
-		<AppLogo class="layout-logo__brand" />
+		<AppLogo :original="original" class="layout-logo__brand" />
 	</div>
 	<div class="layout-logo-size" v-else @click="onThemeConfigChange">
-		<AppLogo hideText class="layout-logo-size__brand" />
+		<AppLogo :original="original" hideText class="layout-logo-size__brand" />
 	</div>
 </template>
 
@@ -18,6 +18,10 @@ export default defineComponent({
 	components: { AppLogo },
 	props: {
 		alwaysExpanded: {
+			type: Boolean,
+			default: false,
+		},
+		original: {
 			type: Boolean,
 			default: false,
 		},

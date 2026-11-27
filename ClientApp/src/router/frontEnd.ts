@@ -1,7 +1,7 @@
 import { RouteRecordRaw } from 'vue-router';
 import { storeToRefs } from 'pinia';
 import { formatTwoStageRoutes, formatFlatteningRoutes, router } from '/@/router/index';
-import { dynamicRoutes, notFoundAndNoPower } from '/@/router/route';
+import { dynamicRoutes, notFoundAndNoPower, personalCenterRoutes } from '/@/router/route';
 import pinia from '/@/stores/index';
 import { Session } from '/@/utils/storage';
 import { useUserInfo } from '/@/stores/userInfo';
@@ -69,7 +69,7 @@ export function setFilterRouteEnd() {
 	let filterRouteEnd: any = formatTwoStageRoutes(formatFlatteningRoutes(dynamicRoutes));
 	// notFoundAndNoPower 防止 404、401 不在 layout 布局中，不设置的话，404、401 界面将全屏显示
 	// 关联问题 No match found for location with path 'xxx'
-	filterRouteEnd[0].children = [...setFilterRoute(filterRouteEnd[0].children), ...notFoundAndNoPower];
+	filterRouteEnd[0].children = [...setFilterRoute(filterRouteEnd[0].children), ...personalCenterRoutes, ...notFoundAndNoPower];
 	return filterRouteEnd;
 }
 

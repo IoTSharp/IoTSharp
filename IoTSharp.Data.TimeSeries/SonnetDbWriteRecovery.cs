@@ -11,6 +11,8 @@ internal static class SonnetDbWriteRecovery
 
     internal static Scope Enable() => new(Enabled.Value);
 
+    internal static bool IsEnabled => Enabled.Value;
+
     internal static bool ShouldPropagate(Exception exception)
         => Enabled.Value && Classify(exception) != Outcome.None;
 
@@ -18,7 +20,7 @@ internal static class SonnetDbWriteRecovery
         => Enabled.Value && Classify(exception) == Outcome.Rejected;
 
     internal static SndbServerException AfterEarlierWrites(Exception exception)
-        => new(Partial, "The event may already contain completed storage writes.",
+        => new(Partial, "The event may already contain completed storage writes or writes with an unknown outcome.",
             System.Net.HttpStatusCode.OK, exception);
 
     internal static Outcome Classify(Exception exception)

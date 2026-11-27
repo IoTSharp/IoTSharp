@@ -85,7 +85,7 @@ onMounted(() => NextLoading.done());
 	overflow: hidden;
 	border: 1px solid rgba(var(--iotsharp-accent-rgb), 0.2);
 	border-radius: 16px;
-	background: rgba(255, 255, 255, 0.7);
+	background: var(--iotsharp-surface-soft);
 	box-shadow: var(--iotsharp-shadow-float);
 	backdrop-filter: blur(20px) saturate(1.15);
 }

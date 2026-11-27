@@ -1,9 +1,9 @@
 <template>
-  <div class="system-list-container">
-    <component :is="wrapper">
-      <div class="system-dept-search ">
-        <el-form size="default" label-width="100px">
-          <el-row :gutter="35">
+  <div class="system-list-container" :class="{ 'console-list-page': standaloneMode }">
+    <component :is="wrapper" :class="{ 'console-list-panel flow-events-card': standaloneMode }">
+      <div class="system-dept-search" :class="{ 'flow-events-search': standaloneMode }">
+        <el-form :size="standaloneMode ? 'small' : 'default'" :label-width="standaloneMode ? 'auto' : '100px'">
+          <el-row :gutter="standaloneMode ? 0 : 35">
             <el-form-item label="创建对象">
               <el-select v-model="query.Creator" filterable remote reserve-keyword placeholder="请输入创建对象名称"
                          :remote-method="getCreators" :loading="state.creatorloading">
@@ -20,13 +20,13 @@
               <el-input v-model="query.Name" placeholder="请输入事件名称" />
             </el-form-item>
             <el-form-item>
-              <el-button size="default" type="primary" @click="getData()">
+              <el-button type="primary" @click="getData()">
                 <el-icon>
                   <ele-Search />
                 </el-icon>
                 查询
               </el-button>
-              <el-button size="default"  @click="expandAll()">
+              <el-button @click="expandAll()">
                 {{ state.expandAll ? '收缩全部' : '展开全部'}}
               </el-button>
             </el-form-item>
@@ -35,46 +35,51 @@
 
       </div>
 
-      <el-table :data="state.tableData.rows" style="width: 100%"
-                row-key="eventId"
-                table-layout="auto"
-                :expand-row-keys="state.expandRowKeys"
-                v-loading="loading">
-        <el-table-column type="expand">
-          <template #default="props">
-            <el-card class="box-card" style="margin: 3px;">
-              <template #header>
-                <div class="card-header">
-                  <span>描述</span>
-                </div>
-              </template>
-              <p m="t-0 b-2">{{ props.row.eventDesc }}</p>
-            </el-card>
-            <el-card class="box-card" style="margin: 3px;">
-              <template #header>
-                <div class="card-header">
-                  <span>输入值</span>
-                </div>
-              </template>
-              <p m="t-0 b-2"> {{ props.row.mataData }}</p>
-            </el-card>
-          </template>
-        </el-table-column>
-        <el-table-column prop="eventName" label="事件名称" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="type" label="类型" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="name" label="触发规则" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="createrDateTime" label="创建时间" show-overflow-tooltip></el-table-column>
-        <el-table-column label="操作" show-overflow-tooltip>
-          <template #default="scope">
-            <el-button size="small" text type="primary" v-if="
-              scope.row.alarmStatus === 'Active_UnAck' ||
-              scope.row.alarmStatus === 'Cleared_UnAck'
-            " @click="replay(scope.row)">回放
-            </el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-      <el-pagination @size-change="onHandleSizeChange" @current-change="onHandleCurrentChange" class="mt15"
+      <div :class="{ 'console-list-table': standaloneMode }" :role="standaloneMode ? 'region' : undefined"
+           :aria-label="standaloneMode ? '规则事件列表' : undefined" :tabindex="standaloneMode ? 0 : undefined">
+        <el-table :data="state.tableData.rows" style="width: 100%"
+                  :size="standaloneMode ? 'small' : 'default'"
+                  row-key="eventId"
+                  table-layout="auto"
+                  :expand-row-keys="state.expandRowKeys"
+                  v-loading="loading">
+          <el-table-column type="expand">
+            <template #default="props">
+              <el-card class="box-card" style="margin: 3px;">
+                <template #header>
+                  <div class="card-header">
+                    <span>描述</span>
+                  </div>
+                </template>
+                <p m="t-0 b-2">{{ props.row.eventDesc }}</p>
+              </el-card>
+              <el-card class="box-card" style="margin: 3px;">
+                <template #header>
+                  <div class="card-header">
+                    <span>输入值</span>
+                  </div>
+                </template>
+                <p m="t-0 b-2"> {{ props.row.mataData }}</p>
+              </el-card>
+            </template>
+          </el-table-column>
+          <el-table-column prop="eventName" label="事件名称" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="type" label="类型" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="name" label="触发规则" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="createrDateTime" label="创建时间" show-overflow-tooltip></el-table-column>
+          <el-table-column label="操作" show-overflow-tooltip>
+            <template #default="scope">
+              <el-button size="small" text type="primary" v-if="
+                scope.row.alarmStatus === 'Active_UnAck' ||
+                scope.row.alarmStatus === 'Cleared_UnAck'
+              " @click="replay(scope.row)">回放
+              </el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
+      <el-pagination @size-change="onHandleSizeChange" @current-change="onHandleCurrentChange"
+                     :class="standaloneMode ? 'console-list-pagination' : 'mt15'" :size="standaloneMode ? 'small' : 'default'"
                      :pager-count="5" :page-sizes="[10, 20, 30,50,100]" v-model:current-page="state.tableData.param.pageNum" background
                      v-model:page-size="state.tableData.param.pageSize" layout="total, sizes, prev, pager, next, jumper"
                      :total="state.tableData.total">
@@ -84,7 +89,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, toRefs, reactive, onMounted, defineComponent } from "vue";
+import { computed, ref, toRefs, reactive, onMounted, defineComponent } from "vue";
 import {
   ElMessageBox,
   ElMessage,
@@ -117,6 +122,7 @@ const props = defineProps({
     default: "el-card",
   }
 })
+const standaloneMode = computed(() => !props.creator && props.wrapper === "el-card");
 const loading = ref(false)
 
 function expandAll() {
@@ -284,3 +290,32 @@ onMounted(() => {
 
 
 </script>
+
+<style lang="scss" scoped>
+.flow-events-card :deep(.el-card__body) {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+  padding: 10px 16px;
+}
+
+.flow-events-search {
+  flex-shrink: 0;
+}
+
+.flow-events-search :deep(.el-row) {
+  gap: 8px 14px;
+}
+
+.flow-events-search :deep(.el-form-item) {
+  margin-bottom: 0;
+}
+
+.flow-events-search :deep(.el-input),
+.flow-events-search :deep(.el-select) {
+  width: 180px;
+  max-width: 100%;
+}
+</style>

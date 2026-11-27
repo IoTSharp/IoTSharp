@@ -17,7 +17,7 @@
 			</div>
 
 			<dl class="overview-metrics">
-				<div v-for="item in overviewMetrics" :key="item.label" class="overview-metric">
+				<div v-for="item in overviewMetrics" :key="item.label" class="overview-metric" :class="'tone-' + item.tone">
 					<div class="overview-metric__topline">
 						<dt>{{ item.label }}</dt>
 						<el-icon class="overview-metric__icon"><component :is="item.icon" /></el-icon>
@@ -171,7 +171,7 @@
 					</div>
 				</header>
 				<div class="capability-groups">
-					<section v-for="group in capabilityGroups" :key="group.title" class="capability-group">
+					<section v-for="group in capabilityGroups" :key="group.title" class="capability-group" :class="'tone-' + group.tone">
 						<div class="capability-group__title">
 							<el-icon><component :is="group.icon" /></el-icon>
 							<div>
@@ -309,11 +309,11 @@ const trendStatusText = {
 	error: '消息总线趋势加载失败。',
 };
 const trendMetrics = [
-	{ key: 'received', label: '消息接收数', color: '#21876F', symbol: 'circle' },
-	{ key: 'processed', label: '消息处理数', color: '#4675B7', symbol: 'diamond' },
-	{ key: 'telemetry', label: '遥测数', color: '#A9691C', symbol: 'triangle' },
-	{ key: 'attributes', label: '属性数', color: '#9156A8', symbol: 'rect' },
-	{ key: 'onlineDevices', label: '在线设备总量', color: '#5F7186', symbol: 'pin' },
+	{ key: 'received', label: '消息接收数', color: '--iotsharp-profile-accent', fallback: '#21876F', symbol: 'circle' },
+	{ key: 'processed', label: '消息处理数', color: '--iotsharp-data-accent', fallback: '#4675B7', symbol: 'diamond' },
+	{ key: 'telemetry', label: '遥测数', color: '--iotsharp-operation-accent', fallback: '#A9691C', symbol: 'triangle' },
+	{ key: 'attributes', label: '属性数', color: '--dashboard-attributes-color', fallback: '#954D71', symbol: 'rect' },
+	{ key: 'onlineDevices', label: '在线设备总量', color: '--iotsharp-text-muted', fallback: '#5F7186', symbol: 'pin' },
 ] as const;
 const trendNote = computed(() => {
 	const points = trend.value?.points ?? [];
@@ -349,17 +349,18 @@ const messageSuccessRate = computed(() =>
 );
 
 const overviewMetrics = computed(() => [
-	{ label: '设备总数', value: formatCount(kanban.value.deviceCount), hint: '运行实例', icon: Box },
-	{ label: '在线设备', value: formatCount(kanban.value.onlineDeviceCount), hint: percentText(onlineRate.value) + ' 在线', icon: Connection },
-	{ label: '产品', value: formatCount(kanban.value.ProductCount), hint: '能力模板', icon: Cpu },
-	{ label: '实时规则', value: formatCount(kanban.value.rulesCount), hint: '规则链', icon: SetUp },
-	{ label: '告警设备', value: formatCount(kanban.value.alarmsCount), hint: '当前告警', icon: Bell },
-	{ label: '平台事件', value: formatCount(kanban.value.eventCount), hint: '事件记录', icon: RefreshRight },
+	{ label: '设备总数', value: formatCount(kanban.value.deviceCount), hint: '运行实例', icon: Box, tone: 'data' },
+	{ label: '在线设备', value: formatCount(kanban.value.onlineDeviceCount), hint: percentText(onlineRate.value) + ' 在线', icon: Connection, tone: 'success' },
+	{ label: '产品', value: formatCount(kanban.value.ProductCount), hint: '能力模板', icon: Cpu, tone: 'profile' },
+	{ label: '实时规则', value: formatCount(kanban.value.rulesCount), hint: '规则链', icon: SetUp, tone: 'data' },
+	{ label: '告警设备', value: formatCount(kanban.value.alarmsCount), hint: '当前告警', icon: Bell, tone: 'warning' },
+	{ label: '平台事件', value: formatCount(kanban.value.eventCount), hint: '事件记录', icon: RefreshRight, tone: 'operation' },
 ]);
 
 const capabilityGroups = [
 	{
 		title: '接入与采集',
+		tone: 'profile',
 		description: '建模业务对象，管理设备与边缘运行时。',
 		icon: Connection,
 		links: [
@@ -371,6 +372,7 @@ const capabilityGroups = [
 	},
 	{
 		title: '实时规则',
+		tone: 'data',
 		description: '设计实时规则并查看处理事件。',
 		icon: SetUp,
 		links: [
@@ -381,6 +383,7 @@ const capabilityGroups = [
 	},
 	{
 		title: '运维与发布',
+		tone: 'operation',
 		description: '围绕边缘任务、配置版本与运行诊断闭环。',
 		icon: Cpu,
 		links: [
@@ -430,10 +433,6 @@ function normalizeHealthEntries(payload: any): HealthEntry[] {
 		.sort((left, right) => Number(left.status === 'Healthy') - Number(right.status === 'Healthy'));
 }
 
-function themeColor(name: string, fallback: string) {
-	return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback;
-}
-
 function renderChart() {
 	const element = messageChartRef.value;
 	const data = trend.value;
@@ -444,8 +443,11 @@ function renderChart() {
 	}
 	if (!element.clientWidth || !element.clientHeight) return;
 	chartInstance ??= echarts.init(element);
-	const text = themeColor('--iotsharp-text-muted', '#71807C');
-	const border = themeColor('--iotsharp-border', '#DFE7E4');
+	const themeStyles = getComputedStyle(element);
+	const text = themeStyles.getPropertyValue('--iotsharp-text-muted').trim() || '#71807C';
+	const border = themeStyles.getPropertyValue('--iotsharp-border').trim() || '#DFE7E4';
+	const popover = themeStyles.getPropertyValue('--iotsharp-surface').trim() || '#FFFFFF';
+	const popoverText = themeStyles.getPropertyValue('--iotsharp-text').trim() || '#23332F';
 	const axisLabel = { color: text, fontSize: 10 };
 	const series: LineSeriesOption[] = trendMetrics.map((metric) => ({
 		name: metric.label,
@@ -454,8 +456,8 @@ function renderChart() {
 		connectNulls: false,
 		symbol: metric.symbol,
 		symbolSize: 6,
-		itemStyle: { color: metric.color },
-		lineStyle: { width: 2, type: metric.key === 'onlineDevices' ? 'dashed' : 'solid' },
+		itemStyle: { color: themeStyles.getPropertyValue(metric.color).trim() || metric.fallback },
+		lineStyle: { width: 2, type: metric.key === 'onlineDevices' ? 'dashed' : metric.key === 'attributes' ? 'dotted' : 'solid' },
 		data: data.points.map((point) => point[metric.key] ?? '-'),
 	}));
 	const option: EChartsOption = {
@@ -464,6 +466,9 @@ function renderChart() {
 			trigger: 'axis',
 			confine: true,
 			renderMode: 'richText',
+			backgroundColor: popover,
+			borderColor: border,
+			textStyle: { color: popoverText },
 			formatter: (params) => {
 				const index = Array.isArray(params) ? params[0]?.dataIndex : params.dataIndex;
 				if (index === undefined) return '';
@@ -576,18 +581,48 @@ onBeforeUnmount(() => {
 
 <style scoped lang="scss">
 .ops-dashboard {
+	--dashboard-attributes-color: #954d71;
 	display: flex;
 	flex-direction: column;
-	gap: 14px;
+	gap: 10px;
 	color: var(--iotsharp-text);
 }
 
+:global(.dark .ops-dashboard) {
+	--dashboard-attributes-color: #f6a0cd;
+}
+
+.tone-profile {
+	--dashboard-accent: var(--iotsharp-profile-accent);
+	--dashboard-tint: var(--iotsharp-profile-surface);
+}
+
+.tone-data {
+	--dashboard-accent: var(--iotsharp-data-accent, var(--iotsharp-theme-signal));
+	--dashboard-tint: var(--iotsharp-data-surface, var(--iotsharp-theme-signal-soft));
+}
+
+.tone-operation {
+	--dashboard-accent: var(--iotsharp-operation-accent, var(--iotsharp-theme-contrast));
+	--dashboard-tint: var(--iotsharp-operation-surface, var(--iotsharp-surface-muted));
+}
+
+.tone-success {
+	--dashboard-accent: var(--iotsharp-success);
+	--dashboard-tint: var(--iotsharp-success-surface);
+}
+
+.tone-warning {
+	--dashboard-accent: var(--iotsharp-warning);
+	--dashboard-tint: var(--iotsharp-warning-surface);
+}
+
 .overview-bar {
-	padding: 18px 20px 0;
-	border: 1px solid rgba(var(--iotsharp-accent-rgb), 0.2);
-	border-radius: 14px;
-	background: var(--iotsharp-hero-gradient);
-	box-shadow: 0 10px 26px rgba(var(--iotsharp-accent-rgb), 0.06);
+	padding: 10px 12px 0;
+	border: 1px solid var(--iotsharp-border);
+	border-radius: var(--iotsharp-radius-panel);
+	background: linear-gradient(115deg, var(--iotsharp-surface), var(--iotsharp-page));
+	box-shadow: var(--iotsharp-shadow-panel);
 }
 
 .overview-bar__head,
@@ -603,7 +638,7 @@ onBeforeUnmount(() => {
 .overview-bar__copy h1 {
 	margin: 0;
 	color: var(--iotsharp-ink);
-	font-size: 24px;
+	font-size: 20px;
 	font-weight: 700;
 	letter-spacing: 0;
 }
@@ -624,26 +659,25 @@ onBeforeUnmount(() => {
 }
 
 .overview-bar__tools .el-button {
-	height: 34px;
+	height: 32px;
 	border-radius: var(--iotsharp-radius-control);
 }
 
 .overview-metrics {
 	display: grid;
 	grid-template-columns: repeat(6, minmax(0, 1fr));
-	gap: 10px;
-	margin: 16px 0 18px;
+	gap: 8px;
+	margin: 8px 0 10px;
 }
 
 .overview-metric {
 	display: grid;
-	min-height: 102px;
+	min-height: 78px;
 	min-width: 0;
-	padding: 12px 14px;
-	border: 1px solid rgba(var(--iotsharp-accent-rgb), 0.14);
-	border-radius: 10px;
-	background: rgba(255, 255, 255, 0.78);
-	box-shadow: 0 4px 12px rgba(var(--iotsharp-accent-rgb), 0.04);
+	padding: 7px 10px;
+	border: 1px solid var(--iotsharp-border);
+	border-radius: var(--iotsharp-radius-control);
+	background: var(--iotsharp-surface);
 }
 
 .overview-metric__topline {
@@ -663,15 +697,15 @@ onBeforeUnmount(() => {
 	width: 25px;
 	height: 25px;
 	border-radius: 7px;
-	background: var(--iotsharp-theme-signal-soft);
-	color: var(--iotsharp-theme-signal);
+	background: var(--dashboard-tint);
+	color: var(--dashboard-accent);
 	font-size: 14px;
 }
 
 .overview-metric dd {
 	margin: 3px 0 0;
 	color: var(--iotsharp-ink);
-	font-size: 22px;
+	font-size: 20px;
 	font-weight: 700;
 	font-variant-numeric: tabular-nums;
 }
@@ -702,11 +736,6 @@ onBeforeUnmount(() => {
 	border-radius: var(--iotsharp-radius-panel);
 	background: var(--iotsharp-surface);
 	box-shadow: var(--iotsharp-shadow-panel);
-}
-
-.dashboard-spotlight .dashboard-panel {
-	border-color: rgba(var(--iotsharp-accent-rgb), 0.18);
-	box-shadow: 0 8px 22px rgba(var(--iotsharp-accent-rgb), 0.07);
 }
 
 .dashboard-panel__head {
@@ -740,7 +769,7 @@ onBeforeUnmount(() => {
 	flex: 0 0 110px;
 	place-items: center;
 	border-radius: 50%;
-	background: conic-gradient(var(--iotsharp-theme-signal) 0 var(--status-progress), var(--iotsharp-theme-light) var(--status-progress) 100%);
+	background: conic-gradient(var(--iotsharp-success) 0 var(--status-progress), var(--iotsharp-surface-muted) var(--status-progress) 100%);
 }
 
 .status-donut::after {
@@ -749,10 +778,6 @@ onBeforeUnmount(() => {
 	border-radius: inherit;
 	background: var(--iotsharp-surface);
 	content: '';
-}
-
-.status-donut--health {
-	background: conic-gradient(var(--iotsharp-success) 0 var(--status-progress), var(--iotsharp-theme-light) var(--status-progress) 100%);
 }
 
 .status-donut__center {
@@ -804,7 +829,7 @@ onBeforeUnmount(() => {
 	border-radius: 50%;
 }
 
-.status-legend__dot--online { background: var(--iotsharp-theme-signal); }
+.status-legend__dot--online { background: var(--iotsharp-success); }
 .status-legend__dot--offline { background: var(--iotsharp-warning); }
 .status-legend__dot--total { background: var(--iotsharp-border-strong); }
 
@@ -831,7 +856,7 @@ onBeforeUnmount(() => {
 	min-height: 228px;
 	padding: 18px 18px 18px 20px;
 	overflow: hidden;
-	background: var(--iotsharp-panel-gradient);
+	background: linear-gradient(120deg, var(--iotsharp-surface), var(--iotsharp-data-surface, var(--iotsharp-theme-signal-soft)));
 }
 
 .signal-card__copy {
@@ -863,7 +888,7 @@ onBeforeUnmount(() => {
 
 .signal-card__facts b {
 	margin-right: 3px;
-	color: var(--iotsharp-theme-signal);
+	color: var(--iotsharp-data-accent, var(--iotsharp-theme-signal));
 	font-size: 14px;
 	font-variant-numeric: tabular-nums;
 }
@@ -916,9 +941,9 @@ onBeforeUnmount(() => {
 	transform: translate(-50%, -50%);
 	border: 1px solid rgba(var(--iotsharp-accent-rgb), 0.45);
 	border-radius: 50%;
-	background: rgba(255, 255, 255, 0.78);
+	background: var(--iotsharp-surface-soft);
 	box-shadow: 0 10px 26px rgba(var(--iotsharp-accent-rgb), 0.16);
-	color: var(--iotsharp-theme-signal);
+	color: var(--iotsharp-data-accent, var(--iotsharp-theme-signal));
 }
 
 .signal-card__core span { font-size: 9px; font-weight: 700; }
@@ -926,9 +951,9 @@ onBeforeUnmount(() => {
 	position: absolute;
 	padding: 5px 7px;
 	border-radius: 6px;
-	background: rgba(255, 255, 255, 0.8);
+	background: var(--iotsharp-surface-soft);
 	box-shadow: 0 5px 12px rgba(var(--iotsharp-accent-rgb), 0.1);
-	color: var(--iotsharp-theme-signal);
+	color: var(--iotsharp-data-accent, var(--iotsharp-theme-signal));
 	font-size: 9px;
 }
 
@@ -944,8 +969,9 @@ onBeforeUnmount(() => {
 
 .panel-facts span {
 	padding: 5px 8px;
-	border-radius: 999px;
-	background: var(--iotsharp-surface-muted);
+	border-radius: var(--iotsharp-radius-small);
+	background: var(--iotsharp-data-surface, var(--iotsharp-theme-signal-soft));
+	color: var(--iotsharp-data-accent, var(--iotsharp-theme-signal));
 }
 
 .trend-toolbar {
@@ -1110,8 +1136,8 @@ onBeforeUnmount(() => {
 	width: 30px;
 	height: 30px;
 	border-radius: 6px;
-	background: var(--iotsharp-selection);
-	color: var(--iotsharp-accent);
+	background: var(--dashboard-tint);
+	color: var(--dashboard-accent);
 }
 
 .capability-group__title h3 {
@@ -1144,8 +1170,8 @@ onBeforeUnmount(() => {
 
 .capability-links button:hover,
 .capability-links button:focus-visible {
-	background: var(--iotsharp-surface-muted);
-	color: var(--iotsharp-accent);
+	background: var(--dashboard-tint);
+	color: var(--dashboard-accent);
 }
 
 .attention-list {
@@ -1237,22 +1263,23 @@ onBeforeUnmount(() => {
 
 @media (max-width: 760px) {
 	.overview-bar {
-		padding: 15px 15px 0;
+		padding: 8px 10px 0;
 	}
 
-	.overview-bar__head,
-	.overview-bar__tools {
+	.overview-bar__head {
 		align-items: flex-start;
-		flex-direction: column;
+		flex-wrap: wrap;
+		gap: 6px;
 	}
 
 	.overview-bar__tools {
-		width: 100%;
+		flex-wrap: wrap;
+		gap: 6px 10px;
 	}
 
 	.overview-metrics {
 		grid-template-columns: repeat(2, minmax(0, 1fr));
-		margin: 14px 0 16px;
+		margin: 8px 0 10px;
 	}
 
 	.dashboard-spotlight {

@@ -82,7 +82,7 @@ export const createTenantListCrudOptions = function ({ expose }, overviewState?)
 				show: true,
 			},
 			rowHandle: {
-				width: 250,
+				width: 220,
 				scope: 'id',
 				buttons: {
 					view: {
@@ -122,7 +122,7 @@ export const createTenantListCrudOptions = function ({ expose }, overviewState?)
 				name: {
 					title: '名称',
 					type: 'text',
-					column: { width: 200 },
+					column: { minWidth: 180 },
 					search: { show: true },
 					addForm: {
 						show: true,
@@ -136,7 +136,7 @@ export const createTenantListCrudOptions = function ({ expose }, overviewState?)
 				email: {
 					title: '邮件',
 					type: 'text',
-					column: { width: 180 },
+					column: { minWidth: 170 },
 					addForm: {
 						show: true,
 						component: customSwitchComponent,
@@ -148,7 +148,7 @@ export const createTenantListCrudOptions = function ({ expose }, overviewState?)
 				},
 				phone: {
 					title: '电话',
-					column: { width: 150 },
+					column: { minWidth: 140 },
 					type: 'text',
 					addForm: {
 						show: true,
@@ -161,7 +161,7 @@ export const createTenantListCrudOptions = function ({ expose }, overviewState?)
 				},
 				country: {
 					title: '国家',
-					column: { width: 80 },
+					column: { minWidth: 72 },
 					type: 'text',
 					addForm: {
 						show: true,
@@ -175,7 +175,7 @@ export const createTenantListCrudOptions = function ({ expose }, overviewState?)
 				province: {
 					title: '省',
 					type: 'text',
-					column: { width: 80 },
+					column: { minWidth: 72 },
 					addForm: {
 						show: true,
 						component: customSwitchComponent,
@@ -188,7 +188,7 @@ export const createTenantListCrudOptions = function ({ expose }, overviewState?)
 				city: {
 					title: '市',
 					type: 'text',
-					column: { width: 100 },
+					column: { minWidth: 92 },
 					addForm: {
 						show: true,
 						component: customSwitchComponent,
@@ -200,7 +200,7 @@ export const createTenantListCrudOptions = function ({ expose }, overviewState?)
 				},
 				street: {
 					title: '街道',
-					column: { width: 180 },
+					column: { minWidth: 160 },
 					type: 'text',
 					addForm: {
 						show: true,
@@ -213,7 +213,7 @@ export const createTenantListCrudOptions = function ({ expose }, overviewState?)
 				},
 				address: {
 					title: '地址',
-					column: { width: 180 },
+					column: { minWidth: 170 },
 					type: 'text',
 					addForm: {
 						show: true,
@@ -226,7 +226,7 @@ export const createTenantListCrudOptions = function ({ expose }, overviewState?)
 				},
 				zipCode: {
 					title: '邮编',
-					column: { width: 150 },
+					column: { minWidth: 130 },
 					type: 'text',
 					addForm: {
 						show: true,

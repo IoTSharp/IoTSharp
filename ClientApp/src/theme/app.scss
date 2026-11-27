@@ -77,7 +77,7 @@ body,
 	}
 	// 此字段多次用到，建议不删除，如需修改，请重写覆盖样式
 	.layout-view-bg-white {
-		background: var(--el-color-white);
+		background: var(--iotsharp-surface);
 		width: 100%;
 		height: 100%;
 		border-radius: 4px;
@@ -330,6 +330,34 @@ body,
 }
 .system-list-container{
 
+}
+
+.iotsharp-main {
+	.console-list-page,
+	.console-list-panel {
+		display: flex;
+		flex: 1 0 auto;
+		flex-direction: column;
+		min-inline-size: 0;
+	}
+
+	.console-list-pagination {
+		flex: 0 0 auto;
+		flex-wrap: wrap;
+		margin-block-start: auto;
+	}
+}
+
+@media (min-width: 768px) and (min-height: 660px) {
+	.iotsharp-main .console-list-page .console-list-panel,
+	.iotsharp-main .console-list-page .console-list-table {
+		flex: 1 1 0;
+		min-block-size: 0;
+	}
+
+	.iotsharp-main .console-list-page .console-list-table {
+		overflow: auto;
+	}
 }
 
 :deep(.el-scrollbar__view) {

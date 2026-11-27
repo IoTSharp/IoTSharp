@@ -42,16 +42,28 @@ export const dynamicRoutes: Array<RouteRecordRaw> = [
 	},
 ];
 
-export const frontEndRoutes: Array<RouteRecordRaw> = [
+export const personalCenterRoutes: Array<RouteRecordRaw> = [
 	{
 		path: '/profile',
 		name: 'profile',
 		component: () => import('/@/views/profile/index.vue'),
 		meta: {
-			title: '个人中心',
+			title: 'message.personalCenter.profile',
 			isHide: true,
 		},
 	},
+	{
+		path: '/inbox',
+		name: 'personal-inbox',
+		component: () => import('/@/views/profile/inbox.vue'),
+		meta: {
+			title: 'message.personalCenter.inbox',
+			isHide: true,
+		},
+	},
+];
+
+export const frontEndRoutes: Array<RouteRecordRaw> = [
 	{
 		path: '/iot/rules/flowdesigner',
 		name: 'flowdesigner',

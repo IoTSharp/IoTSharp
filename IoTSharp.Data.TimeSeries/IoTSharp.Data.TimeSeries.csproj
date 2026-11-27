@@ -9,6 +9,7 @@
 		<InternalsVisibleTo Include="IoTSharp.Test" />
 		<InternalsVisibleTo Include="IoTSharp.EventBus" />
 		<InternalsVisibleTo Include="IoTSharp.EventBus.SonnetMQ" />
+		<InternalsVisibleTo Include="IoTSharp" />
 	</ItemGroup>
 	<ItemGroup>
 

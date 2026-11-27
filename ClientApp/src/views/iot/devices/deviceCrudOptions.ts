@@ -1,50 +1,67 @@
 import { deviceApi } from '/@/api/devices';
 import _ from 'lodash-es';
-import { compute, dict } from '@fast-crud/fast-crud';
-import { TableDataRow } from '/@/views/iot/devices/model';
+import { dict } from '@fast-crud/fast-crud';
+import { h, type Ref } from 'vue';
+import type { TableDataRow } from '/@/views/iot/devices/model';
 import dayjs from 'dayjs';
 
-// eslint-disable-next-line no-unused-vars
-export const createDeviceCrudOptions = function ({ expose }, customerId, deviceDetailRef?, addRulesRef?, selectedItems?, overviewState?) {
+export interface DeviceListFilters {
+	name: string;
+	connected: boolean;
+}
 
+export interface DeviceListOverview {
+	total: number;
+	pageCount: number;
+	onlineCount: number;
+	loaded: boolean;
+	appliedFilters: DeviceListFilters;
+}
 
-
-	let records: any[] = [];
+export function createDeviceCrudOptions(
+	customerId: Readonly<Ref<string | undefined>>,
+	openDeviceDetails: (device: TableDataRow) => void,
+	selectedItems: Ref<TableDataRow[]>,
+	overviewState: DeviceListOverview
+) {
+	let records: TableDataRow[] = [];
 	const FsButton = {
 		link: true,
 	};
 	const customSwitchComponent = {
 		activeColor: 'var(--el-color-primary)',
-		inactiveColor: 'var(el-switch-of-color)',
 	};
 
-	const onSelectionChange = (changed) => {
-		selectedItems.value = changed.map((item) => item);
+	const onSelectionChange = (selection: TableDataRow[]) => {
+		selectedItems.value = selection;
 	};
+
+	/** 按服务端支持的名称、精确 ID 和仅在线条件请求设备分页。 */
 	const pageRequest = async (query) => {
-		const params = reactive({
+		const filters: DeviceListFilters = {
+			name: query.form.name?.trim() || '',
+			connected: query.form.connected === true,
+		};
+		const params = {
 			offset: query.page.currentPage - 1,
 			limit: query.page.pageSize,
-			onlyConnected: query.form.connected ?? false,
-			customerId,
-			name: query.form.name ?? '',
-		});
+			onlyConnected: filters.connected,
+			customerId: customerId.value,
+			name: filters.name,
+		};
 
 		const res = await deviceApi().devcieList(params);
-		records = res.data.rows;
-		if (overviewState) {
-			const onlineCount = records.filter((item: TableDataRow) => item.connected).length;
-			overviewState.total = res.data.total ?? 0;
-			overviewState.pageCount = records.length;
-			overviewState.onlineCount = onlineCount;
-			overviewState.offlineCount = records.length - onlineCount;
-			overviewState.lastRefresh = dayjs().format('HH:mm:ss');
-		}
+		records = res.data.rows ?? [];
+		overviewState.total = res.data.total ?? 0;
+		overviewState.pageCount = records.length;
+		overviewState.onlineCount = records.filter((item) => item.connected === true).length;
+		overviewState.loaded = true;
+		overviewState.appliedFilters = filters;
 		return {
 			records,
 			currentPage: params.offset + 1,
 			pageSize: params.limit,
-			total: res.data.total,
+			total: overviewState.total,
 		};
 	};
 	const editRequest = async ({ form, row }) => {
@@ -86,27 +103,31 @@ export const createDeviceCrudOptions = function ({ expose }, customerId, deviceD
 				delRequest,
 			},
 
-			// search: {
-			// 	...FsButton,
-			// 	show: true,
-			// 	doSearch(query) {
-
-			// 	},
-			// },
+			search: { show: false },
+			toolbar: {
+				buttons: {
+					search: { show: false },
+					refresh: { show: false },
+				},
+			},
 
 			pagination: {
 				'page-sizes': [10, 20, 30, 40, 100, 250],
+				layout: 'total, sizes, prev, pager, next',
+				pagerCount: 5,
+				small: true,
 			},
 
 			table: {
 				border: false,
+				size: 'small',
 				onSelectionChange,
 			},
 			form: {
 				labelWidth: '130px', //
 			},
 			rowHandle: {
-				width: 180,
+				width: 150,
 				dropdown: {
 					more: {
 						//更多按钮配置
@@ -139,26 +160,24 @@ export const createDeviceCrudOptions = function ({ expose }, customerId, deviceD
 					column: {
 						type: 'selection',
 						align: 'center',
-						width: '55px',
-						columnSetDisabled: false, //禁止在列设置中选择
-						selectable(row, index) {
-							return true;
-						},
+						width: 42,
+						columnSetDisabled: true,
 					},
 				},
 				name: {
 					title: '设备名称',
-					type: 'button',
-					search: { show: true },
+					type: 'text',
+					search: { show: false },
 					column: {
-						component: {
-							...FsButton,
-							type: 'primary',
-							on: {
-								onClick({ row }) {
-									deviceDetailRef.value.openDialog(row);
-								},
-							},
+						minWidth: 190,
+						cellRender: ({ row }: { row: TableDataRow }) => {
+							const name = row.name || row.id || '设备详情';
+							return h('button', {
+								type: 'button',
+								class: 'device-table__name',
+								title: name,
+								onClick: () => openDeviceDetails(row),
+							}, name);
 						},
 					},
 				},
@@ -169,24 +188,42 @@ export const createDeviceCrudOptions = function ({ expose }, customerId, deviceD
 					dict: dict({
 						data: [
 							{ value: 'Gateway', label: '网关' },
-							{ value: 'Device', label: '设备', color: 'warning' },
+							{ value: 'Device', label: '设备' },
 						],
 					}),
 
-					column: { width: '80px' },
+					column: { width: 84 },
 				},
 
+				productName: {
+					title: '产品',
+					type: 'text',
+					form: { show: false },
+					search: { show: false },
+					column: {
+						minWidth: 124,
+						showOverflowTooltip: true,
+						formatter: ({ value }) => value || '—',
+					},
+				},
 				connected: {
-					title: '在线状态',
+					title: '连接状态',
 					type: 'dict-switch',
-					search: { show: true },
+					search: { show: false },
 					dict: dict({
 						data: [
 							{ value: true, label: '在线' },
 							{ value: false, label: '离线', color: 'danger' },
 						],
 					}),
-					column: { width: '80px' },
+					column: {
+						width: 96,
+						cellRender: ({ value }) => {
+							const status = value === true ? 'online' : value === false ? 'offline' : 'unknown';
+							const label = { online: '在线', offline: '离线', unknown: '未知' };
+							return h('span', { class: ['console-status', 'console-status--' + status] }, label[status]);
+						},
+					},
 					viewForm: {
 						show: true,
 						component: customSwitchComponent,
@@ -249,7 +286,7 @@ export const createDeviceCrudOptions = function ({ expose }, customerId, deviceD
 					title: '认证方式',
 					type: 'dict-select',
 					search: { show: false },
-					column: { width: '120px' },
+					column: { minWidth: 130, showOverflowTooltip: true },
 					dict: dict({
 						data: [
 							{ value: 'AccessToken', label: 'AccessToken' },
@@ -288,4 +325,4 @@ export const createDeviceCrudOptions = function ({ expose }, customerId, deviceD
 			},
 		},
 	};
-};
+}

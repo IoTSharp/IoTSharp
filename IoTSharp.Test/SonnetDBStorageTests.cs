@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -65,19 +66,29 @@ public sealed class SonnetDBStorageTests : IDisposable
     }
 
     [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public async Task StoreTelemetryBatch_WriteRecovery_PreservesPriorRequestOutcome(bool firstWriteSucceeded)
+    [InlineData(false, SonnetDbWriteRecovery.Required, true)]
+    [InlineData(true, SonnetDbWriteRecovery.Required, true)]
+    [InlineData(false, "sql_error", true)]
+    [InlineData(true, "sql_error", true)]
+    [InlineData(false, "unexpected_count", true)]
+    [InlineData(true, "unexpected_count", false)]
+    [InlineData(true, "all_written", true)]
+    public async Task StoreTelemetryBatch_WriteFailure_StopsAndPreservesPriorRequestOutcome(
+        bool firstWriteSucceeded, string errorCode, bool fromQueue)
     {
         const string describe = """
             {"type":"meta","columns":["column_name","column_type","data_type"]}
             ["temperature","field","FLOAT"]
-            {"type":"end","rowCount":1,"recordsAffected":-1}
+            ["humidity","field","INT"]
+            {"type":"end","rowCount":2,"recordsAffected":-1}
             """;
         const string written = """
             {"type":"end","rowCount":0,"recordsAffected":1}
             """;
-        int insertRequests = 0;
+        const string unexpectedCount = """
+            {"type":"end","rowCount":0,"recordsAffected":0}
+            """;
+        var insertRequests = new ConcurrentQueue<string>();
         var builder = WebApplication.CreateSlimBuilder();
         builder.WebHost.UseUrls("http://127.0.0.1:0");
         await using var server = builder.Build();
@@ -92,12 +103,13 @@ public sealed class SonnetDBStorageTests : IDisposable
             if (sql?.StartsWith("INSERT INTO", StringComparison.Ordinal) != true)
                 return Results.BadRequest();
 
-            if (firstWriteSucceeded && Interlocked.Increment(ref insertRequests) == 1)
+            insertRequests.Enqueue(sql);
+            if (errorCode == "all_written" || (firstWriteSucceeded && insertRequests.Count == 1))
                 return Results.Text(written, "application/x-ndjson");
-            if (!firstWriteSucceeded)
-                Interlocked.Increment(ref insertRequests);
+            if (errorCode == "unexpected_count")
+                return Results.Text(unexpectedCount, "application/x-ndjson");
 
-            return Results.Json(new { error = SonnetDbWriteRecovery.Required, message = "Synthetic write guard." },
+            return Results.Json(new { error = errorCode, message = "Synthetic write failure." },
                 statusCode: StatusCodes.Status503ServiceUnavailable);
         });
 
@@ -113,20 +125,86 @@ public sealed class SonnetDBStorageTests : IDisposable
                 }
             };
             var storage = new SonnetDBStorage(NullLogger<SonnetDBStorage>.Instance, Options.Create(settings));
-            PlayloadData[] messages = [CreatePayload(Guid.NewGuid(), 22.5), CreatePayload(Guid.NewGuid(), 23.5)];
-            using var recovery = SonnetDbWriteRecovery.Enable();
-            var error = await Assert.ThrowsAsync<SndbServerException>(() => storage.StoreTelemetryBatchAsync(messages));
+            var device = Guid.NewGuid();
+            var timestamp = new DateTime(2026, 11, 25, 0, 0, 0, DateTimeKind.Utc);
+            PlayloadData[] messages =
+            [
+                CreatePayload(device, timestamp, new() { ["temperature"] = 100.0 }),
+                CreatePayload(device, timestamp.AddSeconds(-1), new() { ["temperature"] = 101.0, ["humidity"] = 60L }),
+                CreatePayload(device, timestamp, new() { ["temperature"] = 102.0 }),
+            ];
+            if (errorCode == "all_written")
+            {
+                using var recovery = SonnetDbWriteRecovery.Enable();
+                var report = await storage.StoreTelemetryBatchAsync(messages);
+                Assert.True(report.IsComplete);
+                Assert.Equal(3, report.WrittenRows);
+                var time = new DateTimeOffset(timestamp).ToUnixTimeMilliseconds();
+                Assert.Collection(insertRequests,
+                    sql => Assert.Contains($"VALUES ({time}, FLOAT '100')", sql),
+                    sql => Assert.Contains($"VALUES ({time - 1000}, 60, FLOAT '101')", sql),
+                    sql => Assert.Contains($"VALUES ({time}, FLOAT '102')", sql));
+                return;
+            }
+            if (fromQueue)
+            {
+                using var recovery = SonnetDbWriteRecovery.Enable();
+                var error = await Assert.ThrowsAsync<SndbServerException>(() => storage.StoreTelemetryBatchAsync(messages));
+                var expected = !firstWriteSucceeded && errorCode == SonnetDbWriteRecovery.Required
+                    ? SonnetDbWriteRecovery.Required
+                    : SonnetDbWriteRecovery.Partial;
+                Assert.Equal(expected, error.Error);
+            }
+            else
+            {
+                var report = await storage.StoreTelemetryBatchAsync(messages);
+                Assert.False(report.IsComplete);
+                Assert.Equal(1, report.WrittenRows);
+            }
 
-            Assert.Equal(firstWriteSucceeded ? SonnetDbWriteRecovery.Partial : SonnetDbWriteRecovery.Required, error.Error);
-            Assert.Equal(firstWriteSucceeded ? 2 : 1, insertRequests);
-            if (firstWriteSucceeded)
-                Assert.Equal(SonnetDbWriteRecovery.Required, Assert.IsType<SndbServerException>(error.InnerException).Error);
+            Assert.Equal(firstWriteSucceeded ? 2 : 1, insertRequests.Count);
         }
         finally
         {
             using var shutdown = new CancellationTokenSource(TimeSpan.FromSeconds(3));
             await server.StopAsync(shutdown.Token);
         }
+    }
+
+    [Fact]
+    public async Task StoreTelemetryBatch_InterleavedFieldsAndDuplicateTimestamps_PreserveEnqueueOrder()
+    {
+        var device = Guid.NewGuid();
+        var otherDevice = Guid.NewGuid();
+        var storage = CreateStorage("TelemetryData");
+        var timestamp = new DateTime(2026, 11, 25, 1, 0, 0, DateTimeKind.Utc);
+        var seed = await storage.StoreTelemetryAsync(CreatePayload(device, timestamp.AddSeconds(-1), new()
+        {
+            ["temperature"] = 0.0,
+            ["humidity"] = 60L,
+        }));
+        Assert.True(seed.result);
+        PlayloadData[] messages =
+        [
+            CreatePayload(device, timestamp, new() { ["temperature"] = 100.0 }),
+            CreatePayload(device, timestamp, new() { ["humidity"] = 61L, ["temperature"] = 101.0 }),
+            CreatePayload(otherDevice, timestamp.AddMilliseconds(1), new() { ["temperature"] = 5.0 }),
+            CreatePayload(device, timestamp, new() { ["temperature"] = 102.0 }),
+        ];
+
+        using var recovery = SonnetDbWriteRecovery.Enable();
+        var report = await storage.StoreTelemetryBatchAsync(messages);
+        var history = await storage.LoadTelemetryAsync(device, "temperature", timestamp, timestamp.AddSeconds(1), TimeSpan.Zero, Aggregate.None);
+        var other = await storage.GetTelemetryLatest(otherDevice, "temperature");
+
+        Assert.True(report.IsComplete);
+        Assert.Equal(4, report.BatchCount);
+        Assert.Equal(4, report.WrittenRows);
+        // SQL 查询合并同一序列同一毫秒内的点，以最后追加的值为准。
+        var latestAtTimestamp = Assert.Single(history);
+        Assert.Equal(102.0, latestAtTimestamp.Value);
+        Assert.Equal(timestamp, latestAtTimestamp.DateTime);
+        Assert.Equal(timestamp.AddMilliseconds(1), Assert.Single(other).DateTime);
     }
 
     [Fact]

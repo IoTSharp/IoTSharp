@@ -1,5 +1,6 @@
-:root {
-	/* XJETC Ops Acrylic Control Plane */
+:root,
+:root.dark[data-ui-theme='night-indigo'] {
+	/* 控制台基础色和功能区域色 */
 	--iotsharp-theme-dark: #1e5b4f;
 	--iotsharp-theme-light: #dceee7;
 	--iotsharp-theme-ink: #183b36;
@@ -10,6 +11,7 @@
 	--iotsharp-theme-signal-soft: #e4f5ef;
 	--iotsharp-theme-contrast: #d6964c;
 	--iotsharp-accent: var(--iotsharp-theme-dark);
+	--iotsharp-on-accent: #ffffff;
 	--iotsharp-accent-rgb: 30, 91, 79;
 	--iotsharp-selection: var(--iotsharp-theme-light);
 	--iotsharp-page: var(--iotsharp-theme-surface);
@@ -28,6 +30,15 @@
 	--iotsharp-radius-control: 6px;
 	--iotsharp-radius-small: 4px;
 	--iotsharp-nav-secondary: #24566b;
+	--iotsharp-nav-width: 224px;
+	--iotsharp-nav-ink: #f3f7fb;
+	--iotsharp-nav-icon: #d1dce6;
+	--iotsharp-nav-divider: rgb(255 255 255 / 14%);
+	--iotsharp-nav-hover: rgb(255 255 255 / 10%);
+	--iotsharp-nav-active: rgb(255 255 255 / 16%);
+	--iotsharp-nav-submenu: rgb(0 0 0 / 14%);
+	--iotsharp-nav-subtext: #d1dce6;
+	--iotsharp-nav-indicator: #bce6d4;
 	--iotsharp-nav-gradient: linear-gradient(155deg, #183b36 0%, #1e5b4f 52%, var(--iotsharp-nav-secondary) 100%);
 	--iotsharp-topbar-gradient: linear-gradient(112deg, rgba(255, 255, 255, 0.94) 0%, rgba(220, 238, 231, 0.72) 52%, rgba(255, 255, 255, 0.9) 100%);
 	--iotsharp-accent-gradient: linear-gradient(135deg, #1e5b4f 0%, #183b36 100%);
@@ -43,24 +54,76 @@
 	--iotsharp-danger-surface: #fdeaea;
 	--iotsharp-info: #24566b;
 	--iotsharp-info-surface: #e8f3f7;
+	--iotsharp-profile-accent: #087569;
+	--iotsharp-profile-surface: #e1f4ee;
+	--iotsharp-profile-on-accent: #ffffff;
+	--iotsharp-inbox-accent: #315eb2;
+	--iotsharp-inbox-surface: #e8effc;
+	--iotsharp-inbox-on-accent: #ffffff;
+	--iotsharp-security-accent: #69478e;
+	--iotsharp-security-surface: #f0eaf8;
+	--iotsharp-data-accent: #315eb2;
+	--iotsharp-data-surface: #e8effc;
+	--iotsharp-operation-accent: #865925;
+	--iotsharp-operation-surface: #f8eedf;
 	--iotsharp-content-max-width: 1720px;
-	--iotsharp-page-gutter: 18px;
+	--iotsharp-page-gutter: clamp(18px, 2.2vw, 36px);
 	--el-border-radius-base: 6px;
 	--el-border-radius-small: 4px;
 	--el-border-color: var(--iotsharp-border);
-	--el-border-color-light: #e7ecea;
-	--el-border-color-lighter: #edf1f0;
+	--el-border-color-light: color-mix(in srgb, var(--iotsharp-border) 70%, var(--iotsharp-surface));
+	--el-border-color-lighter: color-mix(in srgb, var(--iotsharp-border) 55%, var(--iotsharp-surface));
 	--el-text-color-primary: var(--iotsharp-text);
 	--el-text-color-regular: var(--iotsharp-text-soft);
 	--el-text-color-secondary: var(--iotsharp-text-muted);
 	--el-fill-color-light: var(--iotsharp-surface-muted);
-	--el-fill-color-lighter: #f8faf9;
+	--el-fill-color-lighter: color-mix(in srgb, var(--iotsharp-surface-muted) 65%, var(--iotsharp-surface));
+	--el-fill-color-blank: var(--iotsharp-surface);
+	--el-bg-color: var(--iotsharp-surface);
+	--el-bg-color-overlay: var(--iotsharp-surface);
 	--el-bg-color-page: var(--iotsharp-page);
 	--el-box-shadow-light: var(--iotsharp-shadow-panel);
 	--el-color-success: var(--iotsharp-success);
 	--el-color-warning: var(--iotsharp-warning);
 	--el-color-danger: var(--iotsharp-danger);
+	--el-color-error: var(--iotsharp-danger);
 	--el-color-info: var(--iotsharp-info);
+}
+
+/* 纹理限于工作区的外露底色，组件自身继续使用实色表面。 */
+:root[data-ui-theme='deep-sea'] {
+	--iotsharp-canvas-texture:
+		radial-gradient(circle at 2px 2px, rgb(21 88 112 / 17%) 1px, transparent 1.6px) 0 0 / 14px 14px,
+		radial-gradient(ellipse at right top, rgb(105 161 184 / 16%), transparent 66%);
+}
+
+:root[data-ui-theme='warm-stone'] {
+	--iotsharp-canvas-texture: repeating-radial-gradient(ellipse at 104% 8%, transparent 0 24px, rgb(125 83 54 / 14%) 24px 25px, transparent 25px 34px);
+}
+
+:root[data-ui-theme='night-indigo'] {
+	--iotsharp-canvas-texture:
+		linear-gradient(rgb(133 155 227 / 13%) 1px, transparent 1px) 0 0 / 32px 32px,
+		linear-gradient(90deg, rgb(133 155 227 / 13%) 1px, transparent 1px) 0 0 / 32px 32px,
+		radial-gradient(ellipse at right top, rgb(105 101 190 / 23%), transparent 72%);
+}
+
+:root.dark[data-ui-theme='night-indigo'] {
+	color-scheme: dark;
+	--iotsharp-shadow-panel: 0 8px 22px rgba(2, 7, 17, 0.24);
+	--iotsharp-shadow-float: 0 18px 42px rgba(2, 7, 17, 0.48);
+	--iotsharp-success: #83dfad;
+	--iotsharp-success-surface: #193b32;
+	--iotsharp-warning: #ffd184;
+	--iotsharp-warning-surface: #453720;
+	--iotsharp-danger: #ff9b9f;
+	--iotsharp-danger-surface: #492b39;
+	--iotsharp-info: #92c9ff;
+	--iotsharp-info-surface: #203d58;
+	--el-color-success-light-9: var(--iotsharp-success-surface);
+	--el-color-warning-light-9: var(--iotsharp-warning-surface);
+	--el-color-danger-light-9: var(--iotsharp-danger-surface);
+	--el-color-info-light-9: var(--iotsharp-info-surface);
 }
 
 ::selection {
@@ -99,7 +162,7 @@
 	padding: 10px;
 	border: 1px solid var(--iotsharp-border);
 	border-radius: 8px;
-	background: rgba(255, 255, 255, 0.96);
+	background: var(--iotsharp-surface);
 	box-shadow: var(--iotsharp-shadow-float);
 	backdrop-filter: blur(18px) saturate(1.2);
 }

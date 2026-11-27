@@ -21,7 +21,16 @@
 			<el-icon><FullScreen /></el-icon>
 		</button>
 
-		<ThemePicker />
+		<ThemePicker show-texture />
+		<RouterLink
+			to="/inbox"
+			class="topbar-tool inbox-trigger"
+			:aria-label="inboxLabel"
+			:title="inboxLabel"
+		>
+			<el-icon><Message /></el-icon>
+			<span v-if="unreadCount > 0" class="inbox-trigger__count" aria-hidden="true">{{ unreadCount > 99 ? '99+' : unreadCount }}</span>
+		</RouterLink>
 
 		<el-dropdown trigger="click" @command="onHandleCommandClick">
 			<button type="button" class="account-trigger" aria-label="账号菜单">
@@ -33,7 +42,8 @@
 			<template #dropdown>
 				<el-dropdown-menu>
 					<el-dropdown-item command="/dashboard">控制台首页</el-dropdown-item>
-					<el-dropdown-item command="/profile">个人中心</el-dropdown-item>
+					<el-dropdown-item command="/profile">{{ $t('message.personalCenter.profile') }}</el-dropdown-item>
+					<el-dropdown-item command="/inbox">{{ $t('message.personalCenter.inbox') }}</el-dropdown-item>
 					<el-dropdown-item divided command="logOut">退出登录</el-dropdown-item>
 				</el-dropdown-menu>
 			</template>
@@ -46,7 +56,7 @@
 <script lang="ts">
 import { computed, defineComponent, getCurrentInstance, onMounted, onUnmounted, reactive, ref, toRefs } from 'vue';
 import { useRouter } from 'vue-router';
-import { ArrowDown, Connection, FullScreen, Search as SearchIcon } from '@element-plus/icons-vue';
+import { ArrowDown, Connection, FullScreen, Message, Search as SearchIcon } from '@element-plus/icons-vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import screenfull from 'screenfull';
 import { useI18n } from 'vue-i18n';
@@ -57,12 +67,13 @@ import other from '/@/utils/other';
 import { Local, Session } from '/@/utils/storage';
 import Search from '/@/layout/navBars/breadcrumb/search.vue';
 import ThemePicker from '/@/components/theme/ThemePicker.vue';
+import { getInboxUnreadCount, inboxUnreadEvent } from '/@/api/personalCenter';
 
 export default defineComponent({
 	name: 'layoutBreadcrumbUser',
-	components: { ArrowDown, Connection, FullScreen, SearchIcon, Search, ThemePicker },
+	components: { ArrowDown, Connection, FullScreen, Message, SearchIcon, Search, ThemePicker },
 	setup() {
-		const { messages } = useI18n();
+		const { messages, t } = useI18n();
 		const { proxy } = <any>getCurrentInstance();
 		const router = useRouter();
 		const stores = useUserInfo();
@@ -74,6 +85,28 @@ export default defineComponent({
 
 		const displayName = computed(() => userInfos.value.userName || 'IoTSharp 用户');
 		const userInitial = computed(() => displayName.value.trim().slice(0, 1).toUpperCase());
+		const unreadCount = ref(0);
+		let inboxRevision = 0;
+		const inboxLabel = computed(() =>
+			unreadCount.value > 0
+				? `${t('message.personalCenter.inbox')} · ${t('message.personalCenter.unreadCount', { count: unreadCount.value })}`
+				: t('message.personalCenter.inbox')
+		);
+
+		const refreshInboxCount = async () => {
+			const revision = ++inboxRevision;
+			try {
+				const count = await getInboxUnreadCount();
+				if (revision === inboxRevision) unreadCount.value = count;
+			} catch {
+				// 计数读取失败时，信箱入口仍可用于重试。
+			}
+		};
+
+		const syncInboxCount = (event: Event) => {
+			inboxRevision++;
+			unreadCount.value = (event as CustomEvent<number>).detail;
+		};
 
 		const onScreenfullChange = () => {
 			state.isScreenfull = screenfull.isFullscreen;
@@ -127,10 +160,16 @@ export default defineComponent({
 
 		onMounted(() => {
 			syncLanguage();
+			window.addEventListener(inboxUnreadEvent, syncInboxCount);
+			window.addEventListener('focus', refreshInboxCount);
+			void refreshInboxCount();
 			if (screenfull.isEnabled) screenfull.on('change', onScreenfullChange);
 		});
 
 		onUnmounted(() => {
+			inboxRevision++;
+			window.removeEventListener(inboxUnreadEvent, syncInboxCount);
+			window.removeEventListener('focus', refreshInboxCount);
 			if (screenfull.isEnabled) screenfull.off('change', onScreenfullChange);
 		});
 
@@ -138,6 +177,8 @@ export default defineComponent({
 			userInfos,
 			displayName,
 			userInitial,
+			unreadCount,
+			inboxLabel,
 			onHandleCommandClick,
 			onScreenfullClick,
 			onSearchClick,
@@ -167,7 +208,7 @@ export default defineComponent({
 	justify-content: center;
 	border: 1px solid rgba(var(--iotsharp-accent-rgb), 0.18);
 	border-radius: 6px;
-	background: rgba(255, 255, 255, 0.68);
+	background: var(--iotsharp-surface-soft);
 	color: var(--iotsharp-text-soft);
 	font: inherit;
 	cursor: pointer;
@@ -176,6 +217,33 @@ export default defineComponent({
 
 .topbar-tool {
 	width: 36px;
+	flex: 0 0 auto;
+}
+
+.topbar-tool.inbox-trigger {
+	position: relative;
+	border-color: var(--iotsharp-border);
+	background: var(--iotsharp-inbox-surface);
+	color: var(--iotsharp-inbox-accent);
+	text-decoration: none;
+}
+
+.topbar-tool.inbox-trigger.router-link-active {
+	border-color: currentColor;
+}
+
+.inbox-trigger__count {
+	position: absolute;
+	inset: -5px -5px auto auto;
+	min-width: 16px;
+	padding: 1px 4px;
+	border-radius: 10px;
+	background: var(--iotsharp-inbox-accent);
+	color: var(--iotsharp-inbox-on-accent);
+	font-size: 10px;
+	font-weight: 700;
+	line-height: 14px;
+	text-align: center;
 }
 
 .topbar-tool:hover,
@@ -183,7 +251,7 @@ export default defineComponent({
 .topbar-tool:focus-visible,
 .account-trigger:focus-visible {
 	border-color: var(--iotsharp-accent);
-	background: #ffffff;
+	background: var(--iotsharp-surface);
 	color: var(--iotsharp-accent);
 	box-shadow: 0 6px 16px rgba(22, 36, 32, 0.08);
 }
@@ -204,8 +272,8 @@ export default defineComponent({
 	align-items: center;
 	justify-content: center;
 	border-radius: 50%;
-	background: var(--iotsharp-accent-gradient);
-	color: #ffffff;
+	background: var(--iotsharp-profile-accent);
+	color: var(--iotsharp-profile-on-accent);
 	font-size: 11px;
 	font-weight: 700;
 	object-fit: cover;

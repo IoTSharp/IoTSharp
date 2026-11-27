@@ -46,6 +46,23 @@ namespace IoTSharp.Data
             dashboardTrend.Property(sample => sample.StartUtc).ValueGeneratedNever();
             dashboardTrend.Property(sample => sample.CollectorId).ValueGeneratedNever();
             dashboardTrend.HasIndex(sample => sample.StartUtc).HasDatabaseName("IX_DashboardTrend_StartUtc");
+            var personalProfile = modelBuilder.Entity<PersonalProfile>();
+            personalProfile.HasKey(profile => profile.UserId);
+            personalProfile.Property(profile => profile.UserId).HasMaxLength(128).ValueGeneratedNever();
+            personalProfile.Property(profile => profile.DisplayName).HasMaxLength(80);
+            personalProfile.Property(profile => profile.Introduction).HasMaxLength(300);
+
+            var inboxMessage = modelBuilder.Entity<InboxMessage>();
+            inboxMessage.Property(message => message.Id).ValueGeneratedNever();
+            inboxMessage.Property(message => message.UserId).HasMaxLength(128).IsRequired();
+            inboxMessage.Property(message => message.Title).HasMaxLength(160).IsRequired();
+            inboxMessage.Property(message => message.Body).HasMaxLength(1500).IsRequired();
+            inboxMessage.Property(message => message.Category).HasMaxLength(32).IsRequired();
+            inboxMessage.Property(message => message.Sender).HasMaxLength(80).IsRequired();
+            inboxMessage.HasIndex(message => new { message.UserId, message.TenantId, message.CustomerId, message.CreatedAt })
+                .HasDatabaseName("IX_Inbox_Recipient_CreatedAt");
+            inboxMessage.HasIndex(message => new { message.UserId, message.TenantId, message.CustomerId, message.ReadAt })
+                .HasDatabaseName("IX_Inbox_Recipient_ReadAt");
             ConfigureProviderSpecificMappings(modelBuilder);
             modelBuilder.Entity<AttributeLatest>().HasDiscriminator<DataCatalog>(nameof(Data.DataStorage.Catalog));
             modelBuilder.Entity<TelemetryLatest>().HasDiscriminator<DataCatalog>(nameof(Data.DataStorage.Catalog));
@@ -85,6 +102,7 @@ namespace IoTSharp.Data
             modelBuilder.Entity<ReleaseReceipt>().Property(c => c.Result).HasColumnType("NCLOB");
             modelBuilder.Entity<ReleaseReceipt>().Property(c => c.Metadata).HasColumnType("NCLOB");
             modelBuilder.Entity<ReleaseReceipt>().Property(c => c.Payload).HasColumnType("NCLOB");
+            modelBuilder.Entity<PersonalProfile>().Property(profile => profile.AvatarPng).HasColumnType("BLOB");
         }
 
         public DbSet<Tenant> Tenant { get; set; }
@@ -99,6 +117,8 @@ namespace IoTSharp.Data
         public DbSet<ReleasePlan> ReleasePlans { get; set; }
         public DbSet<ReleaseTask> ReleaseTasks { get; set; }
         public DbSet<ReleaseReceipt> ReleaseReceipts { get; set; }
+        public DbSet<PersonalProfile> PersonalProfiles { get; set; }
+        public DbSet<InboxMessage> InboxMessages { get; set; }
         public DbSet<CollectionConfigurationVersion> CollectionConfigurationVersions { get; set; }
         public DbSet<EdgeCollectionAssignment> EdgeCollectionAssignments { get; set; }
         public DbSet<CollectionTemplate> CollectionTemplates { get; set; }

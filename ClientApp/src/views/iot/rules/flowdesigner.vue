@@ -932,11 +932,17 @@ onUnmounted(() => {
 
 .workflow-icon-drag::after {
 	content: ' ';
-	position: absolute;
-	inset: 0;
-	z-index: 1;
-	cursor: default;
-	background: transparent;
+	pointer-events: none;
+}
+
+:deep(.workflow-right .jtk-endpoint) {
+	cursor: crosshair;
+	filter: drop-shadow(0 2px 4px rgba(37, 99, 235, 0.24));
+}
+
+:deep(.workflow-right .jtk-endpoint circle) {
+	stroke: #ffffff;
+	stroke-width: 2px;
 }
 
 @media (max-width: 1080px) {

@@ -1,5 +1,6 @@
 // 定义内容
 export default {
+	consoleLayout: { navigation: 'Console navigation', openNavigation: 'Open navigation', closeNavigation: 'Close navigation' },
 	router: {
 		home: 'home',
 		system: 'system',

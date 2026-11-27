@@ -25,7 +25,6 @@ export default defineComponent({
 			const clientWidth = document.body.clientWidth;
 			Local.set('oldLayout', LOCKED_CONSOLE_LAYOUT);
 			themeConfig.value.layout = LOCKED_CONSOLE_LAYOUT;
-			if (clientWidth < 1000) themeConfig.value.isCollapse = false;
 			proxy.mittBus.emit('layoutMobileResize', {
 				layout: LOCKED_CONSOLE_LAYOUT,
 				clientWidth,

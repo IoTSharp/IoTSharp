@@ -1,9 +1,9 @@
 <template>
-	<div class="h100">
+	<div class="iotsharp-route-view">
 		<router-view v-slot="{ Component }">
 			<transition :name="setTransitionName" mode="out-in">
 				<keep-alive :include="getKeepAliveNames">
-					<component :is="Component" :key="refreshRouterViewKey" class="w100" />
+					<component :is="Component" :key="refreshRouterViewKey" class="w100 iotsharp-route-page" />
 				</keep-alive>
 			</transition>
 		</router-view>

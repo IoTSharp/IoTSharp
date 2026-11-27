@@ -21,7 +21,7 @@
 			</template>
 
 			<div class="edge-task-page__card">
-				<el-table :data="rows" stripe v-loading="loading">
+				<el-table :data="rows" stripe size="small" v-loading="loading">
 					<el-table-column prop="deviceName" label="设备" min-width="180" show-overflow-tooltip />
 					<el-table-column prop="runtimeType" label="运行时" min-width="120" />
 					<el-table-column prop="currentStatus" label="当前状态" min-width="120" />
@@ -138,16 +138,15 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .edge-task-page__card {
-	padding: 20px;
-	border-radius: 24px;
-	border: 1px solid rgba(226, 232, 240, 0.92);
-	background: rgba(255, 255, 255, 0.96);
-	box-shadow: 0 18px 42px rgba(15, 23, 42, 0.05);
+	padding: 10px 16px;
+	border: 1px solid var(--iotsharp-border);
+	border-radius: var(--iotsharp-radius-panel);
+	background: var(--iotsharp-surface);
+	box-shadow: var(--iotsharp-shadow-panel);
 }
 
 .edge-task-page__filter {
 	width: 180px;
-	margin-right: 12px;
 }
 
 .edge-task-page__summary {

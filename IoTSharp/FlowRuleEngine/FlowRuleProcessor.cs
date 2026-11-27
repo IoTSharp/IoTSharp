@@ -19,6 +19,7 @@ using System.Threading.Tasks;
 using IoTSharp.Extensions;
 using IoTSharp.Contracts;
 using IoTSharp.Data.Extensions;
+using IoTSharp.Storage;
 using SonnetDB.Caching.EasyCaching;
 using SonnetDB.Data.Kv;
 
@@ -26,6 +27,8 @@ namespace IoTSharp.FlowRuleEngine
 {
     public class FlowRuleProcessor
     {
+        private sealed record CachedFlowRule(FlowRule Rule, List<Flow> Flows);
+
         private readonly IServiceScopeFactory _scopeFactor;
         private readonly ILogger<FlowRuleProcessor> _logger;
         private readonly AppSettings _setting;
@@ -48,6 +51,7 @@ namespace IoTSharp.FlowRuleEngine
 
         public async Task RunRules(Guid devid, object obj, EventType mountType)
         {
+            bool ordered = SonnetDbWriteRecovery.IsEnabled && mountType is EventType.Telemetry or EventType.TelemetryArray or EventType.Attribute;
             try
             {
                 async Task<Guid[]> LoadRuleIdsAsync()
@@ -76,27 +80,42 @@ namespace IoTSharp.FlowRuleEngine
                 }
                 if (rules.HasValue && rules.Value != null)
                 {
-                    rules.Value.ToList().ForEach(async g =>
+                    if (ordered)
                     {
-                        try
+                        foreach (var ruleId in rules.Value)
                         {
-                            await RunFlowRules(g, obj, devid, FlowRuleRunType.Normal, null);
+                            var operations = await RunFlowRules(ruleId, obj, devid, FlowRuleRunType.Normal, null);
+                            if (operations?.Any(operation => operation.NodeStatus is 2 or 3) == true)
+                                throw new InvalidOperationException($"设备 {devid} 的规则链 {ruleId} 未执行成功。");
                         }
-                        catch (Exception ex)
-                        {
-                            _logger.LogError(ex, $"为设备{devid}执行规则链{g}时遇到错误{ex.Message}");
-                        }
-                    });
+                    }
+                    else
+                    {
+                        foreach (var ruleId in rules.Value)
+                            _ = RunRuleInBackgroundAsync(ruleId, obj, devid);
+                    }
                 }
                 else
                 {
                     _logger.LogDebug($"{devid}的数据无相关规则链处理。");
                 }
             }
-            catch (Exception ex)
+            catch (Exception ex) when (!ordered)
             {
                 _logger.LogError(ex, $"{devid}处理规则链时遇到异常:{ex.Message}");
 
+            }
+        }
+
+        private async Task RunRuleInBackgroundAsync(Guid ruleId, object data, Guid deviceId)
+        {
+            try
+            {
+                await RunFlowRules(ruleId, data, deviceId, FlowRuleRunType.Normal, null);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "为设备{DeviceId}执行规则链{RuleId}时遇到错误", deviceId, ruleId);
             }
         }
 
@@ -163,10 +182,10 @@ namespace IoTSharp.FlowRuleEngine
         {
             var _allflowoperation = new List<FlowOperation>();
             var cacheRule = await GetFlowRule(ruleid);
-            if (cacheRule.HasValue)
+            if (cacheRule is { HasValue: true, Value.Rule: not null })
             {
-                FlowRule rule = cacheRule.Value.rule;
-                var _allFlows = cacheRule.Value._allFlows;
+                FlowRule rule = cacheRule.Value.Rule;
+                var _allFlows = cacheRule.Value.Flows;
                 _logger.LogInformation($"开始执行规则链{rule?.Name}({ruleid})");
                 var @event = new BaseEvent()
                 {
@@ -200,6 +219,9 @@ namespace IoTSharp.FlowRuleEngine
 
                 if (start == null)
                 {
+                    if (SonnetDbWriteRecovery.IsEnabled)
+                        throw new InvalidOperationException($"规则链 {ruleid} 缺少启动节点。");
+
                     _allflowoperation.Add(new FlowOperation()
                     {
                         OperationId = Guid.NewGuid(),
@@ -262,25 +284,25 @@ namespace IoTSharp.FlowRuleEngine
                     return _allflowoperation;
                 }
             }
+            else if (SonnetDbWriteRecovery.IsEnabled)
+            {
+                throw new InvalidOperationException($"找不到规则链 {ruleid}。");
+            }
             return null;
         }
 
-        private async Task<CacheValue<(FlowRule rule, List<Flow> _allFlows)>> GetFlowRule(Guid ruleid)
+        /// <summary>缓存可序列化的规则定义和启用节点，使用独立键避开旧缓存中的空元组。</summary>
+        private async Task<CacheValue<CachedFlowRule>> GetFlowRule(Guid ruleid)
         {
-            return await _caching.GetAsync($"RunFlowRules_{ruleid}", async () =>
+            return await _caching.GetAsync($"RunFlowRules_v2_{ruleid}", async () =>
             {
-                FlowRule rule;
-                List<Flow> allFlows;
-                using (var sp = _scopeFactor.CreateScope())
-                {
-                    using (var context = sp.ServiceProvider.GetRequiredService<ApplicationDbContext>())
-                    {
-                        rule = await context.FlowRules.AsNoTracking().FirstOrDefaultAsync(c => c.RuleId == ruleid);
-                        allFlows = await context.Flows.AsNoTracking().Where(c => c.FlowRule == rule && c.FlowStatus > 0).ToListAsync();
-                        _logger.LogInformation($"读取规则链{rule?.Name}({ruleid}),子流程共计:{allFlows.Count}");
-                    }
-                }
-                return (rule, _allFlows: allFlows);
+                using var scope = _scopeFactor.CreateScope();
+                var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                var rule = await context.FlowRules.AsNoTracking().FirstOrDefaultAsync(c => c.RuleId == ruleid);
+                var flows = rule == null ? new List<Flow>() : await context.Flows.AsNoTracking()
+                    .Where(c => c.FlowRule.RuleId == ruleid && c.FlowStatus > 0).ToListAsync();
+                _logger.LogInformation("读取规则链{RuleName}({RuleId}),子流程共计:{Count}", rule?.Name, ruleid, flows.Count);
+                return new CachedFlowRule(rule, flows);
             }, TimeSpan.FromSeconds(_setting.RuleCachingExpiration));
         }
 
@@ -723,7 +745,7 @@ namespace IoTSharp.FlowRuleEngine
             var cacheRule = await GetFlowRule(ruleid);
             if (cacheRule.HasValue)
             {
-                var flow = cacheRule.Value._allFlows.FirstOrDefault(c => c.FlowId == flowId);
+                var flow = cacheRule.Value.Flows.FirstOrDefault(c => c.FlowId == flowId);
 
                 if (!string.IsNullOrEmpty(flow?.NodeProcessScriptType) &&
                     (!string.IsNullOrEmpty(flow.NodeProcessScript) || !string.IsNullOrEmpty(flow.NodeProcessClass)))
@@ -830,7 +852,7 @@ namespace IoTSharp.FlowRuleEngine
             var cacheRule = await GetFlowRule(ruleid);
             if (cacheRule.HasValue)
             {
-                var _allFlows = cacheRule.Value._allFlows;
+                var _allFlows = cacheRule.Value.Flows;
                 var flow = _allFlows.FirstOrDefault(c => c.FlowId == flowId);
                 var flows = _allFlows.Where(c => c.SourceId == flow.bpmnid).ToList();
                 var emptyflow = flows.Where(c => c.Conditionexpression == string.Empty).ToList() ?? new List<Flow>();

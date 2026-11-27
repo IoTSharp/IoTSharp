@@ -1,5 +1,4 @@
 import { defineStore } from 'pinia';
-import Cookies from 'js-cookie';
 import { Session } from '/@/utils/storage';
 import { useLoginApi } from '../api/login';
 
@@ -18,6 +17,15 @@ export const useUserInfo = defineStore('userInfo', {
 		},
 	}),
 	actions: {
+		applySelfProfile(name: string, avatar: string) {
+			this.userInfos = { ...this.userInfos, userName: name, photo: avatar };
+			try {
+				Session.set('userInfo', this.userInfos);
+			} catch {
+				// 浏览器存储不足时，重新进入页面后从服务端读取资料。
+				Session.remove('userInfo');
+			}
+		},
 		async setUserInfos() {
 			// 存储用户信息到浏览器缓存
 			if (Session.get('userInfo')) {
@@ -35,7 +43,7 @@ export const useUserInfo = defineStore('userInfo', {
 				.GetUserInfo({})
 				.then((res) => {
 					const userInfos = {
-						userName: res.data.name,
+						userName: res.data.displayName || res.data.name,
 						photo: res.data.avatar,
 						time: new Date().getTime(),
 						roles: [res.data.roles],

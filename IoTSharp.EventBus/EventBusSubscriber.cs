@@ -42,6 +42,7 @@ namespace IoTSharp.EventBus
         }
         public async Task StoreAttributeData(PlayloadData msg, EventType _event)
         {
+            bool orderedData = _event == EventType.Attribute && SonnetDbWriteRecovery.IsEnabled;
             bool storageCompleted = false;
             try
             {
@@ -49,30 +50,39 @@ namespace IoTSharp.EventBus
                 {
                     using (var _dbContext = _scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
                     {
-                        Device? device;
+                        DeviceAttributeTarget? device;
                         using (SonnetMqProcessingMetrics.Measure(_event == EventType.Attribute ? SonnetMqProcessingMetrics.AttributeDeviceLookup : null))
                         {
-                            device = _dbContext.Device.FirstOrDefault(d => d.Id == msg.DeviceId);
+                            device = await _dbContext.Device.Where(d => d.Id == msg.DeviceId)
+                                .Select(d => new DeviceAttributeTarget(d.Id, d.Name)).FirstOrDefaultAsync();
                         }
                         if (device != null)
                         {
                             var dc = msg.ToDictionary();
+                            if (orderedData && dc.Count == 0)
+                                return;
+
                             (int ret, Dictionary<string, Exception> exceptions) result2;
                             using (SonnetMqProcessingMetrics.BeginStorage(_event == EventType.Attribute ? SonnetMqProcessingMetrics.AttributeSaveChanges : null))
                             {
-                                result2 = await _dbContext.SaveAsync<AttributeLatest>(dc, device.Id, msg.DataSide);
+                                result2 = await _dbContext.SaveAsync<AttributeLatest>(
+                                    dc, device.Id, msg.DataSide, orderedData ? msg.ts : null);
                             }
                             storageCompleted = true;
                             result2.exceptions?.ToList().ForEach(ex =>
                             {
                                 _logger.LogError($"{ex.Key} {ex.Value} {JsonObjectSerializer.Serialize(msg.MsgBody[ex.Key])}");
                             });
-                            _logger.LogInformation($"更新{device.Name}({device.Id})属性数据结果{result2.ret}");
+                            _logger.LogInformation("更新{DeviceName}({DeviceId})属性数据结果{Rows}", device.Name, device.Id, result2.ret);
                             if (_event != EventType.None)
                             {
                                 using var timing = SonnetMqProcessingMetrics.Measure(_event == EventType.Attribute ? SonnetMqProcessingMetrics.AttributeRules : null);
                                 await RunRules(msg.DeviceId, dc.ToDynamic(), _event);
                             }
+                        }
+                        else if (orderedData)
+                        {
+                            throw new InvalidOperationException("属性消息对应的设备不存在。");
                         }
                     }
                 }
@@ -81,13 +91,13 @@ namespace IoTSharp.EventBus
             {
                 throw SonnetDbWriteRecovery.AfterEarlierWrites(ex);
             }
-            catch (DbUpdateException due) when (!SonnetDbWriteRecovery.ShouldPropagate(due))
+            catch (DbUpdateException due) when (!orderedData && !SonnetDbWriteRecovery.ShouldPropagate(due))
             {
                 var dc = msg.ToDictionary();
                 string json = JsonObjectSerializer.Serialize(dc);
                 _logger.LogError(due, "StoreAttributeData DbUpdateException:" + due.InnerException?.Message + Environment.NewLine + json + Environment.NewLine);
             }
-            catch (Exception ex) when (!SonnetDbWriteRecovery.ShouldPropagate(ex))
+            catch (Exception ex) when (!orderedData && !SonnetDbWriteRecovery.ShouldPropagate(ex))
             {
                 var dc = msg.ToDictionary();
                 string json = JsonObjectSerializer.Serialize(dc);
@@ -95,6 +105,7 @@ namespace IoTSharp.EventBus
             }
         }
 
+        private sealed record DeviceAttributeTarget(Guid Id, string Name);
 
         public async Task RunRules(Guid deviceId, object obj, EventType attribute)
         {
@@ -104,7 +115,15 @@ namespace IoTSharp.EventBus
                 return;
             }
 
-            await runRules(deviceId, obj, attribute);
+            if (SonnetDbWriteRecovery.IsEnabled && attribute is EventType.Telemetry or EventType.TelemetryArray or EventType.Attribute)
+            {
+                foreach (var handler in Delegate.EnumerateInvocationList(runRules))
+                    await handler(deviceId, obj, attribute);
+            }
+            else
+            {
+                await runRules(deviceId, obj, attribute);
+            }
         }
 
         public async Task OccurredAlarm(CreateAlarmDto alarmDto)

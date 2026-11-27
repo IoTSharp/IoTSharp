@@ -778,7 +778,7 @@ export default defineComponent({
 .layout-navbars-tagsview--page {
 	border: 1px solid var(--iotsharp-border);
 	border-radius: var(--iotsharp-radius-control);
-	background: rgba(255, 255, 255, 0.88);
+	background: var(--iotsharp-surface-soft);
 	box-shadow: none;
 }
 
@@ -808,9 +808,9 @@ export default defineComponent({
 
 .layout-navbars-tagsview .layout-navbars-tagsview-ul .is-active,
 .layout-navbars-tagsview--page .layout-navbars-tagsview-ul .is-active {
-	border-color: rgba(var(--iotsharp-accent-rgb), 0.18);
-	background: var(--iotsharp-selection);
-	color: var(--iotsharp-accent);
+	border-color: color-mix(in srgb, var(--iotsharp-data-accent) 22%, var(--iotsharp-data-surface));
+	background: var(--iotsharp-data-surface);
+	color: var(--iotsharp-data-accent);
 	box-shadow: none;
 }
 

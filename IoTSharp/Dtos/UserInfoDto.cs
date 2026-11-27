@@ -12,6 +12,7 @@ namespace IoTSharp.Dtos
         public ApiCode Code { get; set; }
         public string Roles { get; set; }
         public string Name { get; set; }
+        public string DisplayName { get; set; }
 
         public string Avatar { get; set; }
         public string Introduction { get; set; }

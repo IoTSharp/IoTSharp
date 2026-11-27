@@ -4,6 +4,7 @@ using IoTSharp.Data;
 using IoTSharp.Dtos;
 using IoTSharp.Extensions;
 using IoTSharp.Models;
+using IoTSharp.Services;
 using Jdenticon.AspNetCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -96,6 +97,7 @@ namespace IoTSharp.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet, Authorize(Roles = nameof(UserRole.NormalUser))]
+        [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
         public async Task<ActionResult<ApiResult<UserInfoDto>>> MyInfo()
         {
             ApiResult<UserInfoDto> result;
@@ -111,13 +113,15 @@ namespace IoTSharp.Controllers
                 {
                     var rooles = await _userManager.GetRolesAsync(user);
                     var Customer = _context.GetCustomer(custid);
+                    var personal = await _context.PersonalProfiles.FindAsync(user.Id);
                     var uidto = new UserInfoDto()
                     {
                         Code = ApiCode.Success,
                         Roles = string.Join(',', rooles).ToLower(),
                         Name = user.UserName,
+                        DisplayName = PersonalProfilePresentation.ResolveDisplayName(user, personal),
                         Email = user.Email,
-                        Avatar = user.Gravatar(),
+                        Avatar = PersonalProfilePresentation.ResolveAvatar(user, personal),
                         PhoneNumber = user.PhoneNumber,
                         Introduction = user.NormalizedUserName,
                         Customer = Customer,

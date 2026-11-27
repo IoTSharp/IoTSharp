@@ -4,18 +4,22 @@
 			<slot name="actions" />
 		</template>
 
-		<section class="console-crud-workspace">
+		<section class="console-crud-workspace" :class="{ 'console-list-panel': list || fastCrud }">
 			<header class="console-crud-workspace__head">
 				<div class="console-crud-workspace__copy">
 					<h2>{{ cardTitle }}</h2>
-					<p>{{ cardDescription }}</p>
+					<p v-if="cardDescription">{{ cardDescription }}</p>
 				</div>
-				<div v-if="$slots.aside" class="console-crud-workspace__aside">
-					<slot name="aside" />
+				<div v-if="summary || $slots.aside" class="console-crud-workspace__aside">
+					<span v-if="summary" class="console-crud-workspace__summary">{{ summary }}</span>
+					<slot v-else name="aside" />
 				</div>
 			</header>
 
-			<div class="console-crud-workspace__body">
+			<div
+				class="console-crud-workspace__body"
+				:class="{ 'console-crud-workspace__body--list': list || fastCrud, 'console-list-grid': fastCrud }"
+			>
 				<slot />
 			</div>
 		</section>
@@ -39,7 +43,10 @@ withDefaults(
 		description: string;
 		cardEyebrow: string;
 		cardTitle: string;
-		cardDescription: string;
+		cardDescription?: string;
+		summary?: string;
+		list?: boolean;
+		fastCrud?: boolean;
 		badges?: string[];
 		metrics?: ConsoleMetric[];
 	}>(),
@@ -91,8 +98,28 @@ withDefaults(
 	flex: 0 0 auto;
 }
 
+.console-crud-workspace__summary {
+	color: var(--iotsharp-text-muted);
+	font-size: 12px;
+	font-variant-numeric: tabular-nums;
+}
+
 .console-crud-workspace__body {
 	padding: 14px 16px 16px;
+}
+
+.console-crud-workspace.console-list-panel .console-crud-workspace__head {
+	min-height: 0;
+	padding-block: 8px;
+}
+
+.console-crud-workspace__body--list {
+	display: flex;
+	flex: 1 1 auto;
+	flex-direction: column;
+	min-inline-size: 0;
+	min-block-size: 0;
+	padding-block: 8px 10px;
 }
 
 :deep(.console-crud-tags) {

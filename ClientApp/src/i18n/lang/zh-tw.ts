@@ -1,5 +1,6 @@
 // 定义内容
 export default {
+	consoleLayout: { navigation: '控制台導覽', openNavigation: '展開導覽', closeNavigation: '收起導覽' },
 	router: {
 		home: '首頁',
 		system: '系統設置',

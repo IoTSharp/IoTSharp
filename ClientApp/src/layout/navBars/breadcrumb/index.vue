@@ -2,12 +2,11 @@
 	<div class="layout-shell-topbar">
 		<div class="layout-shell-topbar__brand">
 			<Logo v-if="setIsShowLogo" alwaysExpanded disableToggle class="layout-shell-topbar__logo" />
-			<button v-if="!isLayoutTransverse" type="button" class="layout-shell-topbar__toggle" :title="themeConfig.isCollapse ? '展开导航' : '收起导航'" @click="onToggleCollapse">
-				<SvgIcon :name="themeConfig.isCollapse ? 'ele-Expand' : 'ele-Fold'" :size="16" />
+			<button v-if="!isLayoutTransverse" type="button" class="layout-shell-topbar__toggle" :title="navigationLabel" :aria-label="navigationLabel" :aria-expanded="isNavigationExpanded" @click="onToggleCollapse">
+				<SvgIcon :name="isMobileNavigation || !isNavigationExpanded ? 'ele-Expand' : 'ele-Fold'" :size="16" />
 			</button>
 			<div class="layout-shell-topbar__context">
 				<strong class="layout-shell-topbar__title">{{ currentSection }}</strong>
-				<span class="layout-shell-topbar__label">IoTSharp 控制台</span>
 			</div>
 		</div>
 		<Horizontal v-if="isLayoutTransverse" :menuList="menuList" class="layout-shell-topbar__nav" />
@@ -16,7 +15,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onMounted, onUnmounted, reactive, toRefs } from 'vue';
+import { computed, defineComponent, inject, onMounted, onUnmounted, reactive, toRefs } from 'vue';
 import { useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { storeToRefs } from 'pinia';
@@ -27,6 +26,7 @@ import { useThemeConfig } from '/@/stores/themeConfig';
 import User from '/@/layout/navBars/breadcrumb/user.vue';
 import Logo from '/@/layout/logo/index.vue';
 import Horizontal from '/@/layout/navMenu/horizontal.vue';
+import { consoleNavigationKey } from '/@/layout/consoleNavigation';
 
 export default defineComponent({
 	name: 'layoutBreadcrumbIndex',
@@ -38,6 +38,10 @@ export default defineComponent({
 		const { routesList } = storeToRefs(stores);
 		const route = useRoute();
 		const { t } = useI18n();
+		const navigation = inject(consoleNavigationKey, undefined);
+		const isMobileNavigation = computed(() => navigation?.isMobile.value ?? false);
+		const isNavigationExpanded = computed(() => isMobileNavigation.value ? navigation!.open.value : !themeConfig.value.isCollapse);
+		const navigationLabel = computed(() => t(isNavigationExpanded.value ? 'message.consoleLayout.closeNavigation' : 'message.consoleLayout.openNavigation'));
 		const state = reactive({
 			menuList: [] as any[],
 		});
@@ -63,8 +67,11 @@ export default defineComponent({
 		});
 
 		const onToggleCollapse = () => {
+			if (navigation?.isMobile.value) {
+				navigation.toggle();
+				return;
+			}
 			themeConfig.value.isCollapse = !themeConfig.value.isCollapse;
-			Local.remove('themeConfig');
 			Local.set('themeConfig', themeConfig.value);
 		};
 
@@ -127,6 +134,9 @@ export default defineComponent({
 			setIsShowLogo,
 			isLayoutTransverse,
 			currentSection,
+			isMobileNavigation,
+			isNavigationExpanded,
+			navigationLabel,
 			onToggleCollapse,
 			...toRefs(state),
 		};
@@ -139,12 +149,10 @@ export default defineComponent({
 	height: 64px;
 	display: flex;
 	align-items: center;
-	gap: 20px;
-	padding: 0 18px;
+	gap: 14px;
+	padding: 0 var(--iotsharp-page-gutter);
 	background: var(--iotsharp-topbar-gradient);
-	border-bottom: 1px solid rgba(var(--iotsharp-accent-rgb), 0.14);
-	box-shadow: 0 7px 20px rgba(22, 38, 33, 0.05);
-	backdrop-filter: blur(18px) saturate(1.15);
+	border-bottom: 1px solid var(--iotsharp-border);
 }
 
 .layout-shell-topbar__brand {
@@ -152,7 +160,7 @@ export default defineComponent({
 	align-items: center;
 	gap: 14px;
 	min-width: 0;
-	flex-shrink: 0;
+	flex: 0 1 auto;
 }
 
 .layout-shell-topbar__logo {
@@ -165,9 +173,10 @@ export default defineComponent({
 	justify-content: center;
 	width: 34px;
 	height: 34px;
+	flex: 0 0 auto;
 	border: 1px solid rgba(var(--iotsharp-accent-rgb), 0.18);
 	border-radius: 6px;
-	background: rgba(255, 255, 255, 0.66);
+	background: var(--iotsharp-surface-soft);
 	color: var(--iotsharp-text-soft);
 	cursor: pointer;
 	transition:
@@ -177,7 +186,7 @@ export default defineComponent({
 
 	&:hover {
 		border-color: var(--iotsharp-accent);
-		background: #ffffff;
+		background: var(--iotsharp-surface);
 		color: var(--iotsharp-accent);
 	}
 }
@@ -189,19 +198,13 @@ export default defineComponent({
 	min-width: 0;
 }
 
-.layout-shell-topbar__label {
-	color: var(--iotsharp-text-muted);
-	font-size: 11px;
-	font-weight: 500;
-	letter-spacing: 0;
-	white-space: nowrap;
-}
-
 .layout-shell-topbar__title {
+	overflow: hidden;
 	color: var(--iotsharp-ink);
-	font-size: 15px;
+	font-size: 16px;
 	font-weight: 600;
 	line-height: 1.2;
+	text-overflow: ellipsis;
 	white-space: nowrap;
 }
 
@@ -210,17 +213,18 @@ export default defineComponent({
 	min-width: 0;
 }
 
-@media (max-width: 1100px) {
-	.layout-shell-topbar__context {
-		display: none;
-	}
-}
-
 @media (max-width: 767px) {
 	.layout-shell-topbar {
-		height: 60px;
 		padding: 0 12px;
-		gap: 12px;
+		gap: 8px;
+	}
+
+	.layout-shell-topbar__brand {
+		gap: 8px;
+	}
+
+	.layout-shell-topbar__title {
+		font-size: 14px;
 	}
 }
 </style>

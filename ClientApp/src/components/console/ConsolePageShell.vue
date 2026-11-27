@@ -57,17 +57,23 @@ withDefaults(
 <style scoped lang="scss">
 .console-page-shell {
 	display: flex;
+	flex: 1 1 auto;
 	flex-direction: column;
-	gap: 14px;
+	gap: 8px;
+	min-width: 0;
+	min-height: 0;
+	color: var(--iotsharp-text);
 }
 
 .console-page-shell__header {
 	display: grid;
-	gap: 14px;
-	padding: 18px 20px;
-	border: 1px solid rgba(var(--iotsharp-accent-rgb), 0.13);
+	flex: 0 0 auto;
+	gap: 8px;
+	padding: 8px 12px;
+	border: 1px solid var(--iotsharp-border);
 	border-radius: var(--iotsharp-radius-panel);
-	background: var(--iotsharp-quiet-gradient);
+	background: linear-gradient(115deg, var(--iotsharp-surface), var(--iotsharp-page));
+	box-shadow: var(--iotsharp-shadow-panel);
 }
 
 .console-page-shell__headline,
@@ -75,7 +81,7 @@ withDefaults(
 	display: flex;
 	align-items: flex-start;
 	justify-content: space-between;
-	gap: 18px;
+	gap: 8px 12px;
 }
 
 .console-page-shell__copy {
@@ -85,17 +91,17 @@ withDefaults(
 .console-page-shell__copy h1 {
 	margin: 0;
 	color: var(--iotsharp-ink);
-	font-size: 22px;
+	font-size: 19px;
 	font-weight: 680;
 	letter-spacing: 0;
 	line-height: 1.25;
 }
 
 .console-page-shell__copy p {
-	margin: 6px 0 0;
+	margin: 2px 0 0;
 	color: var(--iotsharp-text-soft);
-	font-size: 13px;
-	line-height: 1.65;
+	font-size: 12px;
+	line-height: 1.45;
 }
 
 .console-page-shell__badges,
@@ -108,13 +114,13 @@ withDefaults(
 
 .console-page-shell__badge {
 	display: inline-flex;
-	min-height: 26px;
+	min-height: 22px;
 	align-items: center;
 	padding: 0 9px;
-	border: 1px solid rgba(var(--iotsharp-accent-rgb), 0.2);
-	border-radius: 999px;
-	background: rgba(255, 255, 255, 0.66);
-	color: var(--iotsharp-accent);
+	border: 1px solid var(--iotsharp-border);
+	border-radius: var(--iotsharp-radius-small);
+	background: var(--iotsharp-surface);
+	color: var(--workspace-accent, var(--iotsharp-data-accent, var(--iotsharp-accent)));
 	font-size: 11px;
 	font-weight: 650;
 	white-space: nowrap;
@@ -122,21 +128,27 @@ withDefaults(
 
 .console-page-shell__context {
 	align-items: end;
-	padding-top: 12px;
-	border-top: 1px solid rgba(var(--iotsharp-accent-rgb), 0.12);
+	padding-top: 6px;
+	border-top: 1px solid var(--iotsharp-border);
 }
 
 .console-page-shell__actions :deep(.el-button) {
-	height: 34px;
+	height: 32px;
 	padding: 0 13px;
 	border-radius: var(--iotsharp-radius-control);
 	font-weight: 600;
 }
 
+.console-page-shell__actions :deep(.el-button + .el-button) {
+	margin-inline-start: 0;
+}
+
 .console-page-shell__metrics {
 	display: flex;
 	flex: 1;
+	flex-wrap: wrap;
 	justify-content: flex-end;
+	row-gap: 4px;
 	margin: 0;
 }
 
@@ -144,9 +156,22 @@ withDefaults(
 	display: grid;
 	grid-template-columns: auto auto;
 	gap: 1px 8px;
-	min-width: 126px;
-	padding: 0 16px;
-	border-left: 1px solid rgba(var(--iotsharp-accent-rgb), 0.14);
+	min-width: 98px;
+	padding: 0 10px;
+	border-inline-start: 1px solid var(--iotsharp-border);
+	--metric-accent: var(--workspace-accent, var(--iotsharp-data-accent, var(--iotsharp-accent)));
+}
+
+.console-metric.tone-accent {
+	--metric-accent: var(--iotsharp-operation-accent, var(--iotsharp-theme-contrast));
+}
+
+.console-metric.tone-success {
+	--metric-accent: var(--iotsharp-success);
+}
+
+.console-metric.tone-warning {
+	--metric-accent: var(--iotsharp-warning);
 }
 
 .console-metric dt {
@@ -157,8 +182,8 @@ withDefaults(
 
 .console-metric dd {
 	margin: 0;
-	color: var(--iotsharp-ink);
-	font-size: 18px;
+	color: var(--metric-accent);
+	font-size: 16px;
 	font-weight: 700;
 	font-variant-numeric: tabular-nums;
 }
@@ -172,8 +197,11 @@ withDefaults(
 
 .console-page-shell__body {
 	display: flex;
+	flex: 1 1 auto;
 	flex-direction: column;
-	gap: 14px;
+	gap: 8px;
+	min-width: 0;
+	min-height: 0;
 }
 
 @media (max-width: 1040px) {
@@ -192,14 +220,14 @@ withDefaults(
 	}
 
 	.console-metric:first-child {
-		border-left: 0;
-		padding-left: 0;
+		border-inline-start: 0;
+		padding-inline-start: 0;
 	}
 }
 
 @media (max-width: 680px) {
 	.console-page-shell__header {
-		padding: 15px;
+		padding: 8px 10px;
 	}
 
 	.console-page-shell__metrics {
@@ -209,8 +237,15 @@ withDefaults(
 
 	.console-metric {
 		min-width: 0;
-		padding: 7px 10px;
-		border-left: 0;
+		padding: 4px 8px;
+		border: 1px solid var(--iotsharp-border);
+		border-radius: var(--iotsharp-radius-small);
+		background: var(--iotsharp-surface);
+	}
+
+	.console-metric:first-child {
+		padding-inline-start: 8px;
+		border-inline-start: 1px solid var(--iotsharp-border);
 	}
 
 	.console-page-shell__actions {

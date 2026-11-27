@@ -1,5 +1,5 @@
 <template>
-	<div class="rule-page">
+	<div class="rule-page" :class="{ 'console-list-page': state.viewstate === 'list' }">
 		<template v-if="state.viewstate === 'list'">
 			<ConsolePageShell
 				eyebrow="Rule Workspace"
@@ -13,76 +13,68 @@
 					<el-button @click="create">新增规则</el-button>
 				</template>
 
-				<div class="rule-page__card">
-					<div class="rule-page__card-head">
-						<div>
-							<div class="rule-page__card-eyebrow">Rule Table</div>
-							<h3>规则列表</h3>
-							<p>支持名称查询、节点展开、设计器与模拟测试，帮助你从列表直接切入规则配置流程。</p>
-						</div>
-					</div>
-
+				<div class="rule-page__card console-list-panel">
 					<div class="rule-page__filters">
 						<el-input v-model="query.name" placeholder="请输入规则名称" clearable @keyup.enter="handleSearch" />
 						<el-button type="primary" @click="handleSearch">
 							<el-icon><ele-Search /></el-icon>
 							查询
 						</el-button>
-						<el-button type="success" @click="create">
-							<el-icon><ele-FolderAdd /></el-icon>
-							新增规则
-						</el-button>
 					</div>
 
-					<el-table
-						:data="state.tableData.rows"
-						row-key="ruleId"
-						table-layout="auto"
-						v-loading="state.tableData.loading"
-						@expand-change="expandchange"
-					>
-						<el-table-column type="expand">
-							<template #default="props">
-								<el-table :data="props.row.flows" class="rule-page__subtable">
-									<el-table-column label="节点名称" prop="flowname" />
-									<el-table-column label="类型" prop="flowType" />
-									<el-table-column label="执行器" prop="nodeProcessClass" />
-									<el-table-column label="脚本类型" prop="nodeProcessScriptType" />
-								</el-table>
-							</template>
-						</el-table-column>
+					<div class="console-list-table" role="region" aria-label="规则列表" tabindex="0">
+						<el-table
+							:data="state.tableData.rows"
+							row-key="ruleId"
+							size="small"
+							table-layout="auto"
+							v-loading="state.tableData.loading"
+							@expand-change="expandchange"
+						>
+							<el-table-column type="expand">
+								<template #default="props">
+									<el-table :data="props.row.flows" size="small">
+										<el-table-column label="节点名称" prop="flowname" />
+										<el-table-column label="类型" prop="flowType" />
+										<el-table-column label="执行器" prop="nodeProcessClass" />
+										<el-table-column label="脚本类型" prop="nodeProcessScriptType" />
+									</el-table>
+								</template>
+							</el-table-column>
 
-						<el-table-column prop="name" label="规则名称" show-overflow-tooltip />
+							<el-table-column prop="name" label="规则名称" show-overflow-tooltip />
 
-						<el-table-column prop="mountType" label="挂载类型" show-overflow-tooltip>
-							<template #default="scope">
-								<el-tag
-									effect="dark"
-									size="small"
-									:color="mountTypes.get(scope.row.mountType)?.color"
-									disable-transitions
-								>
-									{{ mountTypes.get(scope.row.mountType)?.text }}
-								</el-tag>
-							</template>
-						</el-table-column>
+							<el-table-column prop="mountType" label="挂载类型" show-overflow-tooltip>
+								<template #default="scope">
+									<el-tag
+										effect="dark"
+										size="small"
+										:color="mountTypes.get(scope.row.mountType)?.color"
+										disable-transitions
+									>
+										{{ mountTypes.get(scope.row.mountType)?.text }}
+									</el-tag>
+								</template>
+							</el-table-column>
 
-						<el-table-column prop="creatTime" label="创建时间" show-overflow-tooltip />
+							<el-table-column prop="creatTime" label="创建时间" show-overflow-tooltip />
 
-						<el-table-column label="操作" show-overflow-tooltip width="240">
-							<template #default="scope">
-								<el-button size="small" text type="primary" icon="Edit" @click="edit(scope.row.ruleId)">修改</el-button>
-								<el-button size="small" text type="success" icon="Memo" @click="design(scope.row.ruleId)">设计</el-button>
-								<el-button size="small" text icon="DocumentChecked" @click="simulator(scope.row.ruleId)">测试</el-button>
-								<el-button size="small" text type="danger" icon="Delete" @click="onTabelRowDel(scope.row)">删除</el-button>
-							</template>
-						</el-table-column>
-					</el-table>
+							<el-table-column label="操作" show-overflow-tooltip width="240">
+								<template #default="scope">
+									<el-button size="small" text type="primary" icon="Edit" @click="edit(scope.row.ruleId)">修改</el-button>
+									<el-button size="small" text type="success" icon="Memo" @click="design(scope.row.ruleId)">设计</el-button>
+									<el-button size="small" text icon="DocumentChecked" @click="simulator(scope.row.ruleId)">测试</el-button>
+									<el-button size="small" text type="danger" icon="Delete" @click="onTabelRowDel(scope.row)">删除</el-button>
+								</template>
+							</el-table-column>
+						</el-table>
+					</div>
 
 					<el-pagination
 						@size-change="onHandleSizeChange"
 						@current-change="onHandleCurrentChange"
-						class="rule-page__pagination"
+						class="console-list-pagination"
+						size="small"
 						:pager-count="5"
 						:page-sizes="[10, 20, 30]"
 						v-model:current-page="state.tableData.param.pageNum"
@@ -329,73 +321,30 @@ onMounted(() => {
 .rule-page {
 	display: flex;
 	flex-direction: column;
-	gap: 18px;
 }
 
 .rule-page__card {
-	padding: 20px 22px;
-	border-radius: 28px;
-	border: 1px solid rgba(226, 232, 240, 0.92);
-	background: linear-gradient(180deg, rgba(248, 251, 255, 0.96), rgba(255, 255, 255, 0.98));
-	box-shadow: 0 18px 42px rgba(15, 23, 42, 0.05);
-}
-
-.rule-page__card-eyebrow {
-	margin-bottom: 10px;
-	color: #2563eb;
-	font-size: 12px;
-	font-weight: 700;
-	letter-spacing: 0.16em;
-	text-transform: uppercase;
-}
-
-.rule-page__card-head h3 {
-	margin: 0;
-	color: #123b6d;
-	font-size: 22px;
-	letter-spacing: -0.04em;
-}
-
-.rule-page__card-head p {
-	margin: 10px 0 0;
-	color: #64748b;
-	font-size: 13px;
-	line-height: 1.75;
+	padding: 10px 16px;
+	border: 1px solid var(--iotsharp-border);
+	border-radius: var(--iotsharp-radius-panel);
+	background: var(--iotsharp-surface);
+	box-shadow: var(--iotsharp-shadow-panel);
 }
 
 .rule-page__filters {
 	display: flex;
 	align-items: center;
 	flex-wrap: wrap;
-	gap: 12px;
-	margin: 18px 0;
+	gap: 8px;
 }
 
 .rule-page__filters .el-input {
 	max-width: 280px;
 }
 
-.rule-page__subtable {
-	--el-fill-color-light: #f8fbff;
-}
-
-.rule-page__pagination {
-	margin-top: 18px;
-}
-
-:deep(.rule-page__card .el-table) {
-	border-radius: 20px;
-	overflow: hidden;
-}
-
-:deep(.rule-page__card .el-table th.el-table__cell) {
-	background: #f8fbff;
-}
-
 @media (max-width: 767px) {
 	.rule-page__card {
-		padding: 18px;
-		border-radius: 22px;
+		padding: 10px;
 	}
 
 	.rule-page__filters {

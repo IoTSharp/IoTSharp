@@ -2,19 +2,20 @@
   <el-drawer v-model="state.drawer" :title="state.dialogtitle" size="70%">
     <el-form :model="state.dataForm" label-width="120px" class="mt-20px">
       <el-form-item label="请选择规则">
-        <el-select v-model="state.dataForm.rule" placeholder="Select">
+        <el-select v-model="state.dataForm.rule" placeholder="选择规则">
           <el-option v-for="item in state.rules" :key="item.value" :label="item.label" :value="item.value"
                      :disabled="item.disabled" />
         </el-select>
       </el-form-item>
       <el-form-item label="请选择设备">
         <el-checkbox-group v-model="state.dataForm.dev">
-          <el-checkbox v-for="device in state.devices" :label="device.id" :checked="true">{{ device.name
-            }}</el-checkbox>
+          <el-checkbox v-for="device in state.devices" :key="device.id" :value="device.id">
+            {{ device.name }}
+          </el-checkbox>
         </el-checkbox-group>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="onSubmit">委托</el-button>
+        <el-button type="primary" :disabled="!state.dataForm.rule || !state.dataForm.dev.length" @click="onSubmit">委托</el-button>
         <el-button @click="closeDialog">取消</el-button>
       </el-form-item>
     </el-form>
@@ -51,9 +52,9 @@ const state = reactive<addruleform>({
 
 const emit = defineEmits(["close", "submit"]);
 const openDialog = (devices: Array<any>) => {
-    //  emit("submit",state.devices);
-    state.drawer = true;
     state.devices = [...devices];
+    state.dataForm.dev = state.devices.map(device => device.id);
+    state.drawer = true;
 };
 // 关闭弹窗
 const closeDialog = () => {

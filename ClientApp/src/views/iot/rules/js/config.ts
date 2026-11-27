@@ -24,7 +24,8 @@ export const jsplumbDefaults = {
 	// 删除线的时候节点不删除
 	DeleteEndpointsOnDetach: false,
 	//  每当添加或以其他方式创建 Endpoint 并且 jsPlumb 尚未给出任何明确的 Endpoint 定义时将使用
-	Endpoint: ['Blank', { Overlays: '' }],
+	// 为节点显示可交互端点，便于用户从节点卡片边缘开始或结束连线。
+	Endpoint: ['Dot', { radius: 5 }],
 	// 连接中源和目标端点的默认外观
 	EndpointStyle: { fill: '#1879ffa1', outlineWidth: 1 },
 	// jsPlumb 的内部日志记录是否打开
@@ -71,9 +72,8 @@ export const jsplumbDefaults = {
 
 // 整个节点作为source或者target
 export const jsplumbMakeSource = {
-	// 设置可以拖拽的类名，只要鼠标移动到该类名上的DOM，就可以拖拽连线
-	filter: '.workflow-icon-drag',
-	filterExclude: false,
+	// 不限制到图标，整个节点卡片都可以作为连线起点。
+	createEndpoint: true,
 	anchor: 'Continuous',
 	// 是否允许自己连接自己
 	allowLoopback: false,
@@ -82,11 +82,11 @@ export const jsplumbMakeSource = {
 
 // 整个节点作为source或者target
 export const jsplumbMakeTarget = {
-	filter: '.workflow-icon-drag',
-	filterExclude: false,
-	// 是否允许自己连接自己
+	// 不限制到图标，整个节点卡片都可以作为连线终点。
+	createEndpoint: true,
 	anchor: 'Continuous',
-	allowLoopback: true,
+	// 是否允许自己连接自己
+	allowLoopback: false,
 	dropOptions: { hoverClass: 'ef-drop-hover' },
 };
 

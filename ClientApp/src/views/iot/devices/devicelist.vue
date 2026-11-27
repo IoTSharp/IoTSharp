@@ -1,288 +1,322 @@
 <template>
-	<div class="device-list-page">
+	<div class="device-list-page console-list-page">
 		<ConsolePageShell
 			eyebrow="Device Workspace"
 			title="设备接入与清单"
-			description="把设备接入、状态筛选、规则委托和详情查看统一到一个设备工作台里，延续控制台首页的蓝白工作区风格。"
-			:badges="deviceBadges"
-			:metrics="deviceMetrics"
+			description="查看设备连接状态、设备详情，并向选中的设备委托规则。"
 		>
-			<template #actions>
-				<el-button type="primary" @click="refreshDevices">刷新列表</el-button>
-				<el-button @click="openCustomForm">批量委托规则</el-button>
-			</template>
+			<section class="device-list-page__card console-list-panel" aria-labelledby="device-table-title">
+				<form class="device-query" aria-label="筛选设备" @submit.prevent="applyFilters(draftFilters)">
+					<div class="device-query__field">
+						<label for="device-query-name">设备名称或 ID</label>
+						<el-input
+							id="device-query-name"
+							v-model="draftFilters.name"
+							placeholder="输入名称或完整 ID"
+							:prefix-icon="Search"
+							:disabled="busy"
+							clearable
+						/>
+					</div>
+					<el-checkbox v-model="draftFilters.connected" :disabled="busy">仅在线</el-checkbox>
+					<div class="device-query__actions">
+						<el-button type="primary" native-type="submit" :loading="submitting" :disabled="busy">查询</el-button>
+						<el-button :disabled="busy || !hasFiltersToClear" @click="applyFilters(emptyFilters)">重置</el-button>
+						<el-button :icon="Refresh" :disabled="busy" @click="refreshDevices">刷新</el-button>
+					</div>
+				</form>
 
-			<div class="device-list-page__card">
-				<div class="device-list-page__card-head">
-					<div>
-						<div class="device-list-page__card-eyebrow">Device Table</div>
-						<h3>设备列表</h3>
-						<p>支持名称检索、在线状态筛选、批量选择与详情查看，便于快速进入某台设备的工作区。</p>
-					</div>
-					<div class="device-list-page__selection">
-						<span>已选设备</span>
-						<strong>{{ selectedItems.length }}</strong>
-					</div>
+				<div v-if="hasAppliedFilters" class="device-query__applied" role="group" aria-label="已应用的筛选条件">
+					<span>已应用</span>
+					<button
+						v-if="deviceOverview.appliedFilters.name"
+						type="button"
+						class="device-query__chip"
+						:disabled="busy"
+						:aria-label="'移除设备名称或 ID 条件 ' + deviceOverview.appliedFilters.name"
+						@click="applyFilters({ ...deviceOverview.appliedFilters, name: '' })"
+					>
+						<span>名称或 ID {{ deviceOverview.appliedFilters.name }}</span>
+						<el-icon aria-hidden="true"><Close /></el-icon>
+					</button>
+					<button
+						v-if="deviceOverview.appliedFilters.connected"
+						type="button"
+						class="device-query__chip"
+						:disabled="busy"
+						aria-label="移除仅在线条件"
+						@click="applyFilters({ ...deviceOverview.appliedFilters, connected: false })"
+					>
+						<span>仅在线</span>
+						<el-icon aria-hidden="true"><Close /></el-icon>
+					</button>
 				</div>
+				<p v-if="queryFailed" class="device-query__error" role="alert">设备列表加载失败，请重试。</p>
 
-				<div class="device-list-page__crud">
+				<header class="device-list-page__header">
+					<h2 id="device-table-title">设备列表</h2>
+					<p v-if="deviceOverview.loaded" role="status">
+						共 {{ deviceOverview.total }} 台 · 本页在线 {{ deviceOverview.onlineCount }} 台
+					</p>
+				</header>
+				<div class="console-list-grid" :aria-busy="busy">
 					<fs-crud ref="crudRef" v-bind="crudBinding">
 						<template #actionbar-right>
-							<div class="device-list-page__actionbar">
-								<span class="device-list-page__actionbar-tag">当前页 {{ deviceOverview.pageCount }} 台</span>
-								<span class="device-list-page__actionbar-tag is-primary">在线 {{ deviceOverview.onlineCount }} 台</span>
+							<div v-if="selectedItems.length" class="device-table__selection">
+								<span role="status">已选 {{ selectedItems.length }} 台</span>
+								<el-button size="small" :disabled="busy" @click="openCustomForm">批量委托规则</el-button>
+								<el-button size="small" text :disabled="busy" @click="clearSelection">取消选择</el-button>
 							</div>
 						</template>
 					</fs-crud>
 				</div>
-			</div>
+			</section>
 		</ConsolePageShell>
 
-		<DeviceDetail ref="deviceDetailRef"></DeviceDetail>
-		<addRules ref="addRulesRef"></addRules>
+		<DeviceDetail ref="deviceDetailRef" />
+		<AddRules ref="addRulesRef" />
 	</div>
 </template>
 
 <script lang="ts" setup>
 import { computed, onMounted, reactive, ref } from 'vue';
-import { ElMessage } from 'element-plus';
+import { Close, Refresh, Search } from '@element-plus/icons-vue';
 import { useCrud, useExpose } from '@fast-crud/fast-crud';
 import { useRoute } from 'vue-router';
 import { storeToRefs } from 'pinia';
 import ConsolePageShell from '/@/components/console/ConsolePageShell.vue';
-import DeviceDetail from './DeviceDetail.vue';
-import addRules from './addRules.vue';
-import { createDeviceCrudOptions } from '/@/views/iot/devices/deviceCrudOptions';
 import { useUserInfo } from '/@/stores/userInfo';
+import AddRules from './addRules.vue';
+import DeviceDetail from './DeviceDetail.vue';
+import { createDeviceCrudOptions, type DeviceListFilters, type DeviceListOverview } from './deviceCrudOptions';
+import type { TableDataRow } from './model';
 
-const selectedItems = ref<any[]>([]);
-const stores = useUserInfo();
+const selectedItems = ref<TableDataRow[]>([]);
 const route = useRoute();
-const { userInfos } = storeToRefs(stores);
-
-const deviceOverview = reactive({
+const { userInfos } = storeToRefs(useUserInfo());
+const emptyFilters: DeviceListFilters = { name: '', connected: false };
+const draftFilters = reactive<DeviceListFilters>({ ...emptyFilters });
+const deviceOverview = reactive<DeviceListOverview>({
 	total: 0,
 	pageCount: 0,
 	onlineCount: 0,
-	offlineCount: 0,
-	lastRefresh: '',
+	loaded: false,
+	appliedFilters: { ...emptyFilters },
 });
-
+const submitting = ref(false);
+const queryFailed = ref(false);
 const deviceDetailRef = ref();
 const crudRef = ref();
 const crudBinding = ref();
 const addRulesRef = ref();
-const customerId = route.query.id || userInfos.value.customer.id;
+const customerId = computed(() => typeof route.query.id === 'string' ? route.query.id : userInfos.value.customer?.id);
 
 const { crudExpose } = useExpose({ crudRef, crudBinding });
-const { crudOptions } = createDeviceCrudOptions(
-	{ expose: crudExpose },
-	customerId,
-	deviceDetailRef,
-	addRulesRef,
-	selectedItems,
-	deviceOverview
-);
+const { crudOptions } = createDeviceCrudOptions(customerId, openDeviceDetails, selectedItems, deviceOverview);
+useCrud({ expose: crudExpose, crudOptions });
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars,no-unused-vars
-const { resetCrudOptions } = useCrud({ expose: crudExpose, crudOptions });
+const busy = computed(() => submitting.value || Boolean(crudBinding.value?.table?.loading));
+const hasAppliedFilters = computed(() => Boolean(deviceOverview.appliedFilters.name || deviceOverview.appliedFilters.connected));
+const hasFiltersToClear = computed(() => Boolean(hasAppliedFilters.value || draftFilters.name || draftFilters.connected));
 
-const shortCustomerId = computed(() => {
-	const value = String(customerId || '--');
-	return value.length > 12 ? `${value.slice(0, 8)}...` : value;
-});
+function openDeviceDetails(device: TableDataRow) {
+	deviceDetailRef.value?.openDialog(device);
+}
 
-const deviceBadges = computed(() => [
-	`客户视图 ${shortCustomerId.value}`,
-	`已选 ${selectedItems.value.length} 台`,
-	deviceOverview.lastRefresh ? `最近同步 ${deviceOverview.lastRefresh}` : '等待首次同步',
-]);
+function openCustomForm() {
+	addRulesRef.value.openDialog(selectedItems.value);
+}
 
-const deviceMetrics = computed(() => [
-	{
-		label: '设备总数',
-		value: deviceOverview.total,
-		hint: '当前客户工作区下的设备总量。',
-		tone: 'primary' as const,
-	},
-	{
-		label: '当前页在线',
-		value: deviceOverview.onlineCount,
-		hint: '本页在线设备数量。',
-		tone: 'success' as const,
-	},
-	{
-		label: '当前页离线',
-		value: deviceOverview.offlineCount,
-		hint: '本页离线设备数量。',
-		tone: 'warning' as const,
-	},
-	{
-		label: '规则委托',
-		value: selectedItems.value.length,
-		hint: '可对选中设备批量挂载规则。',
-		tone: 'accent' as const,
-	},
-]);
+function clearSelection() {
+	crudExpose.getBaseTableRef()?.clearSelection();
+}
 
-const openCustomForm = () => {
-	if (selectedItems.value.length) {
-		addRulesRef.value.openDialog(selectedItems.value);
-		return;
+/** 查询失败时恢复已应用条件和分页，便于继续查看现有结果。 */
+async function applyFilters(filters: DeviceListFilters) {
+	if (busy.value) return;
+	const nextFilters = { name: filters.name.trim(), connected: filters.connected };
+	const previousPage = crudExpose.getPage().currentPage;
+	submitting.value = true;
+	queryFailed.value = false;
+	try {
+		await crudExpose.doSearch({ form: nextFilters, mergeForm: false });
+		Object.assign(draftFilters, nextFilters);
+	} catch {
+		crudExpose.setSearchFormData({ form: deviceOverview.appliedFilters, mergeForm: false, refWarning: false });
+		crudExpose.doPageTurn(previousPage);
+		queryFailed.value = true;
+	} finally {
+		submitting.value = false;
 	}
+}
 
-	ElMessage.info('请先选择设备');
-};
+async function refreshDevices() {
+	if (busy.value) return;
+	queryFailed.value = false;
+	try {
+		await crudExpose.doRefresh();
+	} catch {
+		queryFailed.value = true;
+	}
+}
 
-const refreshDevices = () => {
-	crudExpose.doRefresh();
-};
-
-onMounted(() => {
-	refreshDevices();
-});
+onMounted(refreshDevices);
 </script>
 
 <style lang="scss" scoped>
 .device-list-page {
-	display: flex;
-	flex-direction: column;
-	gap: 18px;
+	min-width: 0;
 }
 
 .device-list-page__card {
-	padding: 20px 22px;
-	border-radius: 28px;
-	border: 1px solid rgba(226, 232, 240, 0.92);
-	background: linear-gradient(180deg, rgba(248, 251, 255, 0.96), rgba(255, 255, 255, 0.98));
-	box-shadow: 0 18px 42px rgba(15, 23, 42, 0.05);
+	min-width: 0;
+	padding: clamp(10px, 1.4vw, 14px);
+	border: 1px solid var(--iotsharp-border);
+	border-radius: var(--iotsharp-radius-panel);
+	background: var(--iotsharp-surface);
+	box-shadow: var(--iotsharp-shadow-panel);
 }
 
-.device-list-page__card-head,
-.device-list-page__actionbar {
+.device-list-page__header {
 	display: flex;
+	flex-wrap: wrap;
 	align-items: center;
 	justify-content: space-between;
-	gap: 16px;
+	gap: 8px 12px;
+	margin-block-start: 10px;
+
+	h2 {
+		margin: 0;
+		color: var(--iotsharp-text);
+		font-size: 17px;
+	}
+
+	p {
+		margin: 0;
+		color: var(--iotsharp-text-soft);
+		font-size: 12px;
+	}
 }
 
-.device-list-page__card-eyebrow {
-	margin-bottom: 10px;
-	color: #2563eb;
-	font-size: 12px;
-	font-weight: 700;
-	letter-spacing: 0.16em;
-	text-transform: uppercase;
-}
-
-.device-list-page__card-head h3 {
-	margin: 0;
-	color: #123b6d;
-	font-size: 22px;
-	letter-spacing: -0.04em;
-}
-
-.device-list-page__card-head p {
-	margin: 10px 0 0;
-	color: #64748b;
-	font-size: 13px;
-	line-height: 1.75;
-}
-
-.device-list-page__selection {
+.device-query {
 	display: flex;
-	flex-direction: column;
-	align-items: flex-end;
-	min-width: 120px;
-	padding: 14px 16px;
-	border-radius: 20px;
-	border: 1px solid rgba(191, 219, 254, 0.9);
-	background: rgba(255, 255, 255, 0.78);
-}
-
-.device-list-page__selection span {
-	color: #64748b;
-	font-size: 12px;
-}
-
-.device-list-page__selection strong {
-	margin-top: 8px;
-	color: #123b6d;
-	font-size: 28px;
-	line-height: 1;
-}
-
-.device-list-page__crud {
-	margin-top: 18px;
-	min-height: 520px;
-}
-
-.device-list-page__actionbar {
 	flex-wrap: wrap;
-	justify-content: flex-end;
+	align-items: end;
+	gap: 8px 14px;
+	padding: 8px 10px;
+	border: 1px solid var(--iotsharp-border);
+	border-radius: var(--iotsharp-radius-control);
+	background: var(--iotsharp-surface-muted);
 }
 
-.device-list-page__actionbar-tag {
-	display: inline-flex;
-	align-items: center;
-	min-height: 32px;
-	padding: 0 12px;
-	border-radius: 999px;
-	border: 1px solid rgba(226, 232, 240, 0.92);
-	background: rgba(248, 250, 252, 0.9);
-	color: #475569;
+.device-query__field {
+	display: grid;
+	flex: 1 1 240px;
+	gap: 4px;
+	min-width: 0;
+	max-width: 360px;
+	color: var(--iotsharp-text-soft);
 	font-size: 12px;
 	font-weight: 600;
 }
 
-.device-list-page__actionbar-tag.is-primary {
-	border-color: rgba(191, 219, 254, 0.92);
-	background: rgba(219, 234, 254, 0.8);
-	color: #2563eb;
+.device-query__actions,
+.device-table__selection,
+.device-query__applied {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 6px;
 }
 
-:deep(.fs-crud) {
-	--el-fill-color-blank: transparent;
+.device-query__applied,
+.device-query__error {
+	margin: 8px 0 0;
+	color: var(--iotsharp-text-soft);
+	font-size: 12px;
 }
 
-:deep(.fs-crud .el-card) {
-	box-shadow: none;
+.device-query__error {
+	color: var(--iotsharp-danger);
 }
 
-:deep(.fs-crud .el-table) {
-	border-radius: 20px;
+.device-query__chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	min-width: 0;
+	max-width: 100%;
+	min-height: 26px;
+	padding: 3px 8px;
+	border: 1px solid var(--iotsharp-border);
+	border-radius: var(--iotsharp-radius-small);
+	background: var(--iotsharp-data-surface, var(--iotsharp-selection));
+	color: var(--iotsharp-data-accent, var(--iotsharp-accent));
+	font: inherit;
+	cursor: pointer;
+
+	span {
+		overflow-wrap: anywhere;
+	}
+
+	.el-icon {
+		flex: none;
+	}
+
+	&:hover {
+		border-color: currentColor;
+	}
+}
+
+.device-table__selection {
+	padding: 3px 6px 3px 8px;
+	border-radius: var(--iotsharp-radius-control);
+	background: var(--iotsharp-data-surface, var(--iotsharp-selection));
+	color: var(--iotsharp-data-accent, var(--iotsharp-accent));
+	font-size: 12px;
+	font-weight: 600;
+}
+
+.device-query__actions,
+.device-table__selection {
+	.el-button + .el-button {
+		margin-inline-start: 0;
+	}
+}
+
+:deep(.device-table__name) {
+	display: inline-block;
+	max-width: 100%;
+	padding: 2px 0;
 	overflow: hidden;
+	border: 0;
+	border-radius: var(--iotsharp-radius-small);
+	background: none;
+	color: var(--iotsharp-data-accent, var(--iotsharp-accent));
+	font: inherit;
+	font-weight: 650;
+	text-overflow: ellipsis;
+	vertical-align: middle;
+	white-space: nowrap;
+	cursor: pointer;
+
+	&:hover {
+		text-decoration: underline;
+	}
 }
 
-:deep(.fs-crud .el-table th.el-table__cell) {
-	background: #f8fbff;
+.device-list-page__card :deep(.fs-crud-table) {
+	min-height: 0;
 }
 
-:deep(.fs-crud .el-pagination) {
-	margin-top: 18px;
+.device-list-page__card :deep(.fs-crud-search) {
+	display: none;
 }
 
-@media (max-width: 767px) {
-	.device-list-page__card {
-		padding: 18px;
-		border-radius: 22px;
-	}
-
-	.device-list-page__card-head,
-	.device-list-page__selection {
-		align-items: flex-start;
-	}
-
-	.device-list-page__card-head {
-		flex-direction: column;
-	}
-
-	.device-list-page__selection {
-		width: 100%;
-	}
-
-	.device-list-page__crud {
-		min-height: auto;
+@media (max-width: 650px) {
+	.device-query__field {
+		flex-basis: 100%;
+		max-width: none;
 	}
 }
 </style>

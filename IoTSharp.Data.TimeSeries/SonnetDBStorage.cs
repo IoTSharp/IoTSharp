@@ -19,6 +19,7 @@ namespace IoTSharp.Storage
         private const int DefaultSchemaCacheLimit = 4096;
         private const int SchemaLockStripeCount = 64;
         private const int MaxRemoteWriteBatchSize = 128;
+        private const int MaxRowsPerInsert = 256;
 
         private static readonly HashSet<string> StorageOptionNames = new(StringComparer.OrdinalIgnoreCase)
         {
@@ -122,6 +123,7 @@ namespace IoTSharp.Storage
                 return Task.FromResult((true, telemetries));
             }
 
+            var written = 0;
             try
             {
                 using var connection = OpenConnection();
@@ -133,13 +135,14 @@ namespace IoTSharp.Storage
                 }
 
                 var writable = ResolveWritableFields(measurement, schema, telemetries, out var skipped, out var schemaChanged);
+                RejectSkippedQueueValues(skipped);
                 if (writable.Count == 0)
                 {
                     _logger.LogWarning("SonnetDB measurement {Measurement} has no writable telemetry fields for device {DeviceId}.", measurement, msg.DeviceId);
                     return Task.FromResult((false, telemetries));
                 }
 
-                var written = InsertTelemetry(connection, measurement, msg.ts, writable);
+                written = InsertTelemetry(connection, measurement, msg.ts, writable);
                 if (schemaChanged && written == 1)
                 {
                     RefreshSchema(connection, measurement);
@@ -148,6 +151,11 @@ namespace IoTSharp.Storage
                 _logger.LogInformation("SonnetDB telemetry write completed. DeviceId={DeviceId}, Measurement={Measurement}, Count={Count}", msg.DeviceId, measurement, written);
                 return Task.FromResult((written == 1 && skipped == 0, telemetries));
             }
+            catch (Exception ex) when (SonnetDbWriteRecovery.IsEnabled && written > 0
+                                       && SonnetDbWriteRecovery.Classify(ex) != SonnetDbWriteRecovery.Outcome.Partial)
+            {
+                throw SonnetDbWriteRecovery.AfterEarlierWrites(ex);
+            }
             catch (Exception ex) when (!SonnetDbWriteRecovery.ShouldPropagate(ex))
             {
                 _logger.LogError(ex, "{DeviceId} SonnetDB telemetry write failed: {Message} {InnerMessage}", msg.DeviceId, ex.Message, ex.InnerException?.Message);
@@ -155,22 +163,32 @@ namespace IoTSharp.Storage
             }
         }
 
+        /// <summary>按输入顺序写入遥测，合并连续且列相同的记录，保留设备原始时间戳。</summary>
+        /// <param name="messages">按入队位点排列的遥测。</param>
+        /// <returns>批次计数以及明确写入成功的行数。</returns>
         public Task<SonnetDbTelemetryBatchWriteReport> StoreTelemetryBatchAsync(IEnumerable<PlayloadData> messages)
+            => Task.FromResult(StoreTelemetryBatch(messages, null));
+
+        private SonnetDbTelemetryBatchWriteReport StoreTelemetryBatch(IEnumerable<PlayloadData> messages, List<TelemetryData>? collected)
         {
             ArgumentNullException.ThrowIfNull(messages);
 
-            var batches = new Dictionary<BatchWriteKey, BatchWriteGroup>();
             var totalMessages = 0;
+            var totalGroups = 0;
             var totalTelemetryValues = 0;
             var skippedTelemetryValues = 0;
+            var writtenRows = 0;
 
             try
             {
                 using var connection = OpenConnection();
+                var statementLimit = connection.ProviderMode == SndbProviderMode.Remote ? _remoteWriteBatchSize : 1;
+                var pending = new List<BatchWriteGroup>(statementLimit);
                 foreach (var message in messages)
                 {
                     totalMessages++;
                     var telemetries = ToTelemetryData(message);
+                    collected?.AddRange(telemetries);
                     totalTelemetryValues += telemetries.Count;
                     if (telemetries.Count == 0)
                     {
@@ -182,68 +200,89 @@ namespace IoTSharp.Storage
                     if (schema == null)
                     {
                         skippedTelemetryValues += telemetries.Count;
+                        RejectSkippedQueueValues(telemetries.Count);
                         continue;
                     }
 
                     var writable = ResolveWritableFields(measurement, schema, telemetries, out var skipped, out var schemaChanged);
                     skippedTelemetryValues += skipped;
+                    RejectSkippedQueueValues(skipped);
                     if (writable.Count == 0)
                     {
                         continue;
                     }
 
-                    var orderedWrites = writable
-                        .OrderBy(static x => x.Field.Name, StringComparer.Ordinal)
-                        .ToArray();
-                    var fields = new ColumnInfo[orderedWrites.Length];
-                    var values = new object[orderedWrites.Length];
-                    for (var i = 0; i < orderedWrites.Length; i++)
+                    writable.Sort(static (left, right) => StringComparer.Ordinal.Compare(left.Field.Name, right.Field.Name));
+                    var group = pending.Count == 0 ? null : pending[^1];
+                    if (schemaChanged || group == null || !group.CanAppend(measurement, writable))
                     {
-                        fields[i] = orderedWrites[i].Field;
-                        values[i] = orderedWrites[i].Value;
+                        if (schemaChanged || pending.Count == statementLimit)
+                        {
+                            FlushPending();
+                        }
+                        group = new BatchWriteGroup(measurement, writable);
+                        pending.Add(group);
+                        totalGroups++;
                     }
 
-                    var key = new BatchWriteKey(measurement, BuildFieldSignature(fields));
-                    if (!batches.TryGetValue(key, out var group))
+                    var values = new object[writable.Count];
+                    for (var index = 0; index < writable.Count; index++)
                     {
-                        group = new BatchWriteGroup(measurement, fields);
-                        batches.Add(key, group);
+                        values[index] = writable[index].Value;
                     }
-
                     group.Rows.Add(new BatchWriteRow(message.ts, values));
-                    group.SchemaChanged |= schemaChanged;
+
+                    if (schemaChanged)
+                    {
+                        // 先确认列创建或类型提升，再为后续消息解析字段。
+                        FlushPending();
+                        RefreshSchema(connection, measurement);
+                    }
                 }
 
-                var writtenRows = WriteTelemetryGroups(connection, batches.Values);
+                FlushPending();
 
-                return Task.FromResult(new SonnetDbTelemetryBatchWriteReport(
+                return new SonnetDbTelemetryBatchWriteReport(
                     totalMessages,
-                    batches.Count,
+                    totalGroups,
                     writtenRows,
                     totalTelemetryValues,
                     skippedTelemetryValues,
-                    true));
+                    true);
+
+                void FlushPending()
+                {
+                    InsertTelemetryGroups(connection, pending, ref writtenRows);
+                    pending.Clear();
+                }
+            }
+            catch (Exception ex) when (SonnetDbWriteRecovery.IsEnabled && writtenRows > 0
+                                       && SonnetDbWriteRecovery.Classify(ex) != SonnetDbWriteRecovery.Outcome.Partial)
+            {
+                throw SonnetDbWriteRecovery.AfterEarlierWrites(ex);
             }
             catch (Exception ex) when (!SonnetDbWriteRecovery.ShouldPropagate(ex))
             {
                 _logger.LogError(ex, "SonnetDB telemetry batch write failed: {Message} {InnerMessage}", ex.Message, ex.InnerException?.Message);
-                return Task.FromResult(new SonnetDbTelemetryBatchWriteReport(
+                return new SonnetDbTelemetryBatchWriteReport(
                     totalMessages,
-                    batches.Count,
-                    0,
+                    totalGroups,
+                    writtenRows,
                     totalTelemetryValues,
-                    Math.Max(skippedTelemetryValues, totalTelemetryValues),
-                false));
+                    skippedTelemetryValues,
+                    false);
             }
         }
 
-        async Task<TelemetryBatchStoreResult> IStorage.StoreTelemetryBatchAsync(IReadOnlyCollection<PlayloadData> messages)
+        Task<TelemetryBatchStoreResult> IStorage.StoreTelemetryBatchAsync(IReadOnlyCollection<PlayloadData> messages)
         {
-            var report = await StoreTelemetryBatchAsync((IEnumerable<PlayloadData>)messages);
-            var telemetries = messages
-                .SelectMany(ToTelemetryData)
-                .ToList();
-            return new TelemetryBatchStoreResult(report.IsComplete, telemetries, report.MessageCount);
+            var telemetries = new List<TelemetryData>();
+            var report = StoreTelemetryBatch(messages, telemetries);
+            if (report.MessageCount != messages.Count)
+            {
+                telemetries = messages.SelectMany(ToTelemetryData).ToList();
+            }
+            return Task.FromResult(new TelemetryBatchStoreResult(report.IsComplete, telemetries, messages.Count));
         }
 
         /// <summary>
@@ -864,41 +903,12 @@ namespace IoTSharp.Storage
 
             command.CommandText = $"INSERT INTO {QuoteIdentifier(measurement)} ({string.Join(", ", columns)}) VALUES ({string.Join(", ", values)})";
             using var timing = SonnetMqProcessingMetrics.MeasureStorage(SonnetMqProcessingMetrics.TelemetrySql);
-            return command.ExecuteNonQuery();
-        }
-
-        /// <summary>
-        /// 按原顺序写入测量分组。启用远程批量时，每组仍为独立 INSERT，并逐组核实结果。
-        /// </summary>
-        private int WriteTelemetryGroups(SndbConnection connection, IEnumerable<BatchWriteGroup> groups)
-        {
-            var batchSize = connection.ProviderMode == SndbProviderMode.Remote ? _remoteWriteBatchSize : 1;
-            var pending = new List<BatchWriteGroup>(batchSize);
-            var written = 0;
             try
             {
-                foreach (var group in groups)
-                {
-                    if (group.SchemaChanged)
-                    {
-                        written += InsertTelemetryGroups(connection, pending);
-                        pending.Clear();
-                        written += InsertTelemetryGroups(connection, [group]);
-                        RefreshSchema(connection, group.Measurement);
-                        continue;
-                    }
-                    pending.Add(group);
-                    if (pending.Count == batchSize)
-                    {
-                        written += InsertTelemetryGroups(connection, pending);
-                        pending.Clear();
-                    }
-                }
-                return written + InsertTelemetryGroups(connection, pending);
+                return CheckWrittenRows(command.ExecuteNonQuery(), 1);
             }
-            catch (SndbServerException ex) when (written > 0 && ex.Error == SonnetDbWriteRecovery.Required)
+            catch (Exception ex) when (IsUnknownQueueWrite(ex))
             {
-                // 后一次 SQL 请求未执行，先前已确认的测量分组仍可能跨消息位点。
                 throw SonnetDbWriteRecovery.AfterEarlierWrites(ex);
             }
         }
@@ -906,11 +916,11 @@ namespace IoTSharp.Storage
         /// <summary>
         /// 发送有界 SQL 批次。完整读取每条语句的结束记录后，结果才能用于事件总线确认。
         /// </summary>
-        private static int InsertTelemetryGroups(SndbConnection connection, IReadOnlyList<BatchWriteGroup> groups)
+        private static void InsertTelemetryGroups(SndbConnection connection, IReadOnlyList<BatchWriteGroup> groups, ref int writtenRows)
         {
             if (groups.Count == 0)
             {
-                return 0;
+                return;
             }
             using var command = connection.CreateCommand();
             var statements = new string[groups.Count];
@@ -920,32 +930,58 @@ namespace IoTSharp.Storage
             }
             command.CommandText = string.Join(";\n", statements);
             using var timing = SonnetMqProcessingMetrics.MeasureStorage(SonnetMqProcessingMetrics.TelemetrySql);
-            if (groups.Count == 1)
+            try
             {
-                return command.ExecuteNonQuery();
-            }
+                if (groups.Count == 1)
+                {
+                    writtenRows += CheckWrittenRows(command.ExecuteNonQuery(), groups[0].Rows.Count);
+                    return;
+                }
 
-            using var deadline = new CancellationTokenSource(TimeSpan.FromSeconds(
-                connection.ConnectionTimeout > 0 ? connection.ConnectionTimeout : 30));
-            using var reader = command.ExecuteReaderAsync(deadline.Token).GetAwaiter().GetResult();
-            var written = 0;
-            for (var index = 0; index < groups.Count; index++)
-            {
-                if (index > 0 && !reader.NextResultAsync(deadline.Token).GetAwaiter().GetResult())
+                using var deadline = new CancellationTokenSource(TimeSpan.FromSeconds(
+                    connection.ConnectionTimeout > 0 ? connection.ConnectionTimeout : 30));
+                using var reader = command.ExecuteReaderAsync(deadline.Token).GetAwaiter().GetResult();
+                for (var index = 0; index < groups.Count; index++)
                 {
-                    throw new InvalidOperationException("SonnetDB did not return every telemetry INSERT result.");
+                    if (index > 0 && !reader.NextResultAsync(deadline.Token).GetAwaiter().GetResult())
+                    {
+                        throw new InvalidOperationException("SonnetDB did not return every telemetry INSERT result.");
+                    }
+                    if (reader.ReadAsync(deadline.Token).GetAwaiter().GetResult())
+                    {
+                        throw new InvalidOperationException("SonnetDB returned rows for a telemetry INSERT.");
+                    }
+                    writtenRows += CheckWrittenRows(reader.RecordsAffected, groups[index].Rows.Count);
                 }
-                if (reader.ReadAsync(deadline.Token).GetAwaiter().GetResult() || reader.RecordsAffected != groups[index].Rows.Count)
+                if (reader.NextResultAsync(deadline.Token).GetAwaiter().GetResult())
                 {
-                    throw new InvalidOperationException("SonnetDB returned an unexpected telemetry INSERT result.");
+                    throw new InvalidOperationException("SonnetDB returned an extra telemetry INSERT result.");
                 }
-                written += reader.RecordsAffected;
             }
-            if (reader.NextResultAsync(deadline.Token).GetAwaiter().GetResult())
+            catch (Exception ex) when (IsUnknownQueueWrite(ex))
             {
-                throw new InvalidOperationException("SonnetDB returned an extra telemetry INSERT result.");
+                throw SonnetDbWriteRecovery.AfterEarlierWrites(ex);
             }
-            return written;
+        }
+
+        private static bool IsUnknownQueueWrite(Exception exception)
+            => SonnetDbWriteRecovery.IsEnabled && SonnetDbWriteRecovery.Classify(exception) == SonnetDbWriteRecovery.Outcome.None;
+
+        private static int CheckWrittenRows(int actual, int expected)
+        {
+            if (actual != expected)
+            {
+                throw new InvalidOperationException($"SonnetDB reported {actual} telemetry rows for an INSERT of {expected} rows.");
+            }
+            return actual;
+        }
+
+        private static void RejectSkippedQueueValues(int skipped)
+        {
+            if (skipped > 0 && SonnetDbWriteRecovery.IsEnabled)
+            {
+                throw new InvalidOperationException($"SonnetDB cannot write {skipped} values from the queued telemetry message.");
+            }
         }
 
         private static string BuildTelemetryInsert(SndbCommand command, BatchWriteGroup group, int statementIndex)
@@ -972,24 +1008,6 @@ namespace IoTSharp.Storage
             }
 
             return $"INSERT INTO {QuoteIdentifier(group.Measurement)} ({string.Join(", ", columns)}) VALUES {string.Join(", ", valuesSql)}";
-        }
-
-        private static string BuildFieldSignature(IReadOnlyList<ColumnInfo> fields)
-        {
-            if (fields.Count == 0)
-            {
-                return string.Empty;
-            }
-
-            var signature = new StringBuilder(fields.Count * 16);
-            signature.Append(fields[0].Name);
-            for (var i = 1; i < fields.Count; i++)
-            {
-                signature.Append('\u001f');
-                signature.Append(fields[i].Name);
-            }
-
-            return signature.ToString();
         }
 
         private List<ColumnInfo> BuildFieldsFromTelemetry(string measurement, IReadOnlyList<TelemetryData> telemetries)
@@ -1365,14 +1383,12 @@ namespace IoTSharp.Storage
             int SchemaCacheLimit,
             int RemoteWriteBatchSize);
 
-        private sealed record BatchWriteKey(string Measurement, string FieldSignature);
-
         private sealed class BatchWriteGroup
         {
-            public BatchWriteGroup(string measurement, IReadOnlyList<ColumnInfo> fields)
+            public BatchWriteGroup(string measurement, IReadOnlyList<FieldWrite> writes)
             {
                 Measurement = measurement;
-                Fields = fields;
+                Fields = writes.Select(static write => write.Field).ToArray();
             }
 
             public string Measurement { get; }
@@ -1381,7 +1397,21 @@ namespace IoTSharp.Storage
 
             public List<BatchWriteRow> Rows { get; } = [];
 
-            public bool SchemaChanged { get; set; }
+            public bool CanAppend(string measurement, IReadOnlyList<FieldWrite> writes)
+            {
+                if (Rows.Count >= MaxRowsPerInsert || Measurement != measurement || Fields.Count != writes.Count)
+                {
+                    return false;
+                }
+                for (var index = 0; index < Fields.Count; index++)
+                {
+                    if (Fields[index] != writes[index].Field)
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            }
         }
 
         private sealed record BatchWriteRow(DateTime Timestamp, IReadOnlyList<object> Values);

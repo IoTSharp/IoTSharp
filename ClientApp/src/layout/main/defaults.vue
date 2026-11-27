@@ -1,7 +1,17 @@
 <template>
 	<div class="iotsharp-shell">
 		<el-container class="layout-container iotsharp-shell__container">
-			<Aside />
+			<el-drawer
+				v-if="isMobile"
+				v-model="mobileOpen"
+				direction="ltr"
+				size="min(280px, 88vw)"
+				class="iotsharp-navigation-drawer"
+				:title="t('message.consoleLayout.navigation')"
+			>
+				<Aside drawer @navigate="mobileOpen = false" />
+			</el-drawer>
+			<Aside v-else />
 			<el-container class="iotsharp-shell__body" direction="vertical">
 				<Header class="iotsharp-shell__header" />
 				<el-container class="flex-center iotsharp-shell__workspace">
@@ -13,16 +23,28 @@
 	</div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue';
+<script setup lang="ts" name="layoutDefaults">
+import { provide, ref, watch } from 'vue';
+import { useMediaQuery } from '@vueuse/core';
+import { useI18n } from 'vue-i18n';
+import { useRoute } from 'vue-router';
 import Aside from '/@/layout/component/aside.vue';
 import Header from '/@/layout/component/header.vue';
 import Main from '/@/layout/component/main.vue';
+import { consoleNavigationKey } from '/@/layout/consoleNavigation';
 
-export default defineComponent({
-	name: 'layoutDefaults',
-	components: { Aside, Header, Main },
+const isMobile = useMediaQuery('(max-width: 1000px)');
+const mobileOpen = ref(false);
+const route = useRoute();
+const { t } = useI18n();
+
+provide(consoleNavigationKey, {
+	isMobile,
+	open: mobileOpen,
+	toggle: () => { mobileOpen.value = !mobileOpen.value; },
 });
+
+watch([isMobile, () => route.fullPath], () => { mobileOpen.value = false; });
 </script>
 
 <style scoped lang="scss">
@@ -33,7 +55,8 @@ export default defineComponent({
 
 .iotsharp-shell__container {
 	height: 100vh;
-	min-height: 100vh;
+	height: 100dvh;
+	min-height: 0;
 	background: var(--iotsharp-page);
 }
 
@@ -56,9 +79,24 @@ export default defineComponent({
 	background: var(--iotsharp-page);
 }
 
-@media (max-width: 767px) {
-	.iotsharp-shell__workspace {
-		padding: 0;
-	}
+:deep(.iotsharp-navigation-drawer.el-drawer) {
+	border-radius: 0;
+	background: var(--iotsharp-nav-gradient);
+}
+
+:deep(.iotsharp-navigation-drawer .el-drawer__header) {
+	background: transparent;
+	border-color: var(--iotsharp-nav-divider);
+	color: var(--iotsharp-nav-ink);
+}
+
+:deep(.iotsharp-navigation-drawer .el-drawer__title),
+:deep(.iotsharp-navigation-drawer .el-drawer__close-btn) {
+	color: var(--iotsharp-nav-ink);
+}
+
+:deep(.iotsharp-navigation-drawer .el-drawer__body) {
+	min-height: 0;
+	overflow: hidden;
 }
 </style>

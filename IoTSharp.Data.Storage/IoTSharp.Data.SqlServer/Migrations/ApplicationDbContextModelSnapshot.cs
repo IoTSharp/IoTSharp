@@ -875,6 +875,81 @@ namespace IoTSharp.Data.SqlServer.Migrations
                     b.ToTable("Customer");
                 });
 
+            modelBuilder.Entity("IoTSharp.Data.InboxMessage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Body")
+                        .IsRequired()
+                        .HasMaxLength(1500)
+                        .HasColumnType("nvarchar(1500)");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("nvarchar(32)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ReadAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Sender")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("nvarchar(80)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("nvarchar(160)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "TenantId", "CustomerId", "CreatedAt")
+                        .HasDatabaseName("IX_Inbox_Recipient_CreatedAt");
+
+                    b.HasIndex("UserId", "TenantId", "CustomerId", "ReadAt")
+                        .HasDatabaseName("IX_Inbox_Recipient_ReadAt");
+
+                    b.ToTable("InboxMessages");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.PersonalProfile", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<byte[]>("AvatarPng")
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<string>("DisplayName")
+                        .HasMaxLength(80)
+                        .HasColumnType("nvarchar(80)");
+
+                    b.Property<string>("Introduction")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.HasKey("UserId");
+
+                    b.ToTable("PersonalProfiles");
+                });
+
             modelBuilder.Entity("IoTSharp.Data.DashboardTrendSample", b =>
                 {
                     b.Property<long?>("Attributes")

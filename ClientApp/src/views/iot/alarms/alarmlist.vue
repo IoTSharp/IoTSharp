@@ -1,5 +1,5 @@
 <template>
-	<div v-if="standaloneMode" class="alarm-page">
+	<div v-if="standaloneMode" class="alarm-page console-list-page">
 		<ConsolePageShell
 			eyebrow="Alarm Workspace"
 			title="告警处置与筛选中心"
@@ -13,16 +13,8 @@
 			</template>
 
 			<div class="alarm-page__filter-card">
-				<div class="alarm-page__section-head">
-					<div>
-						<div class="alarm-page__section-eyebrow">Alarm Filters</div>
-						<h3>筛选条件</h3>
-						<p>按时间、状态、级别和来源对象快速缩小告警范围，定位需要优先处理的问题。</p>
-					</div>
-				</div>
-
-				<el-form size="default" label-width="100px" class="alarm-page__form">
-					<el-row :gutter="24">
+				<el-form size="small" label-width="74px" class="alarm-page__form">
+					<el-row :gutter="12">
 						<el-col :xs="24" :sm="12" :md="8">
 							<el-form-item label="确认时间">
 								<el-date-picker v-model="query.AckDateTime" type="daterange" start-placeholder="开始时间" end-placeholder="结束时间" />
@@ -40,7 +32,7 @@
 						</el-col>
 					</el-row>
 
-					<el-row :gutter="24">
+					<el-row :gutter="12">
 						<el-col :xs="24" :sm="12" :md="8">
 							<el-form-item label="结束时间">
 								<el-date-picker v-model="query.EndDateTime" type="daterange" start-placeholder="开始时间" end-placeholder="结束时间" />
@@ -60,7 +52,7 @@
 						</el-col>
 					</el-row>
 
-					<el-row :gutter="24">
+					<el-row :gutter="12">
 						<el-col :xs="24" :sm="12" :md="8">
 							<el-form-item label="告警级别">
 								<el-select v-model="query.serverity" placeholder="请选择告警级别">
@@ -102,96 +94,91 @@
 				</el-form>
 			</div>
 
-			<div class="alarm-page__table-card">
-				<div class="alarm-page__section-head">
-					<div>
-						<div class="alarm-page__section-eyebrow">Alarm Table</div>
-						<h3>告警列表</h3>
-						<p>支持确认、清除和展开来源对象详情，适合运维和项目交付场景下的快速处置。</p>
-					</div>
+			<div class="alarm-page__table-card console-list-panel">
+				<div class="console-list-table" role="region" aria-label="告警列表" tabindex="0">
+					<el-table :data="tableData.rows" row-key="id" v-loading="loading" size="small">
+						<el-table-column type="expand">
+							<template #default="props">
+								<el-descriptions title="来源对象">
+									<el-descriptions-item label="Id">{{ props.row.originator?.id }}</el-descriptions-item>
+									<el-descriptions-item label="名称">{{ props.row.originator?.name }}</el-descriptions-item>
+								</el-descriptions>
+							</template>
+						</el-table-column>
+						<el-table-column prop="alarmType" label="告警类型" show-overflow-tooltip />
+						<el-table-column prop="ackDateTime" label="创建时间" show-overflow-tooltip />
+						<el-table-column prop="startDateTime" label="开始时间" show-overflow-tooltip />
+						<el-table-column prop="endDateTime" label="结束时间" show-overflow-tooltip />
+						<el-table-column prop="clearDateTime" label="清除时间" show-overflow-tooltip />
+						<el-table-column prop="alarmStatus" label="告警状态" show-overflow-tooltip>
+							<template #default="scope">
+								<el-tag
+									size="small"
+									:style="{ color: 'white', borderColor: alarmStatusTAG.get(scope.row.alarmStatus)?.color }"
+									:color="alarmStatusTAG.get(scope.row.alarmStatus)?.color"
+									disable-transitions
+								>
+									{{ alarmStatusTAG.get(scope.row.alarmStatus)?.text }}
+								</el-tag>
+							</template>
+						</el-table-column>
+
+						<el-table-column prop="serverity" label="严重程度" show-overflow-tooltip>
+							<template #default="scope">
+								<el-tag
+									size="small"
+									:style="{ color: 'white', borderColor: serverityBadge.get(scope.row.serverity)?.color }"
+									:color="serverityBadge.get(scope.row.serverity)?.color"
+									disable-transitions
+								>
+									{{ serverityBadge.get(scope.row.serverity)?.text }}
+								</el-tag>
+							</template>
+						</el-table-column>
+
+						<el-table-column prop="originatorType" label="来源类型" show-overflow-tooltip>
+							<template #default="scope">
+								<el-tag
+									size="small"
+									:style="{ color: 'white', borderColor: originatorTypeTAG.get(scope.row.originatorType)?.color }"
+									:color="originatorTypeTAG.get(scope.row.originatorType)?.color"
+									disable-transitions
+								>
+									{{ originatorTypeTAG.get(scope.row.originatorType)?.text }}
+								</el-tag>
+							</template>
+						</el-table-column>
+
+						<el-table-column label="操作" show-overflow-tooltip width="200">
+							<template #default="scope">
+								<el-button
+									v-if="scope.row.alarmStatus === 'Active_UnAck' || scope.row.alarmStatus === 'Cleared_UnAck'"
+									size="small"
+									text
+									type="primary"
+									@click="acquireAlarm(scope.row)"
+								>
+									确认告警
+								</el-button>
+								<el-button
+									v-if="scope.row.alarmStatus === 'Active_Ack' || scope.row.alarmStatus === 'Active_UnAck'"
+									size="small"
+									text
+									type="primary"
+									@click="clearAlarm(scope.row)"
+								>
+									清除告警
+								</el-button>
+							</template>
+						</el-table-column>
+					</el-table>
 				</div>
-
-				<el-table :data="tableData.rows" row-key="id" v-loading="loading" class="alarm-page__table">
-					<el-table-column type="expand">
-						<template #default="props">
-							<el-descriptions title="来源对象">
-								<el-descriptions-item label="Id">{{ props.row.originator?.id }}</el-descriptions-item>
-								<el-descriptions-item label="名称">{{ props.row.originator?.name }}</el-descriptions-item>
-							</el-descriptions>
-						</template>
-					</el-table-column>
-					<el-table-column prop="alarmType" label="告警类型" show-overflow-tooltip />
-					<el-table-column prop="ackDateTime" label="创建时间" show-overflow-tooltip />
-					<el-table-column prop="startDateTime" label="开始时间" show-overflow-tooltip />
-					<el-table-column prop="endDateTime" label="结束时间" show-overflow-tooltip />
-					<el-table-column prop="clearDateTime" label="清除时间" show-overflow-tooltip />
-					<el-table-column prop="alarmStatus" label="告警状态" show-overflow-tooltip>
-						<template #default="scope">
-							<el-tag
-								size="small"
-								:style="{ color: 'white', borderColor: alarmStatusTAG.get(scope.row.alarmStatus)?.color }"
-								:color="alarmStatusTAG.get(scope.row.alarmStatus)?.color"
-								disable-transitions
-							>
-								{{ alarmStatusTAG.get(scope.row.alarmStatus)?.text }}
-							</el-tag>
-						</template>
-					</el-table-column>
-
-					<el-table-column prop="serverity" label="严重程度" show-overflow-tooltip>
-						<template #default="scope">
-							<el-tag
-								size="small"
-								:style="{ color: 'white', borderColor: serverityBadge.get(scope.row.serverity)?.color }"
-								:color="serverityBadge.get(scope.row.serverity)?.color"
-								disable-transitions
-							>
-								{{ serverityBadge.get(scope.row.serverity)?.text }}
-							</el-tag>
-						</template>
-					</el-table-column>
-
-					<el-table-column prop="originatorType" label="来源类型" show-overflow-tooltip>
-						<template #default="scope">
-							<el-tag
-								size="small"
-								:style="{ color: 'white', borderColor: originatorTypeTAG.get(scope.row.originatorType)?.color }"
-								:color="originatorTypeTAG.get(scope.row.originatorType)?.color"
-								disable-transitions
-							>
-								{{ originatorTypeTAG.get(scope.row.originatorType)?.text }}
-							</el-tag>
-						</template>
-					</el-table-column>
-
-					<el-table-column label="操作" show-overflow-tooltip width="200">
-						<template #default="scope">
-							<el-button
-								v-if="scope.row.alarmStatus === 'Active_UnAck' || scope.row.alarmStatus === 'Cleared_UnAck'"
-								size="small"
-								text
-								type="primary"
-								@click="acquireAlarm(scope.row)"
-							>
-								确认告警
-							</el-button>
-							<el-button
-								v-if="scope.row.alarmStatus === 'Active_Ack' || scope.row.alarmStatus === 'Active_UnAck'"
-								size="small"
-								text
-								type="primary"
-								@click="clearAlarm(scope.row)"
-							>
-								清除告警
-							</el-button>
-						</template>
-					</el-table-column>
-				</el-table>
 
 				<el-pagination
 					@size-change="onHandleSizeChange"
 					@current-change="onHandleCurrentChange"
-					class="alarm-page__pagination"
+					class="console-list-pagination"
+					size="small"
 					:pager-count="5"
 					:page-sizes="[10, 20, 30]"
 					v-model:current-page="tableData.param.pageNum"
@@ -606,7 +593,6 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
-.alarm-page,
 .alarm-page__embedded {
 	display: flex;
 	flex-direction: column;
@@ -615,44 +601,39 @@ onMounted(() => {
 
 .alarm-page__filter-card,
 .alarm-page__table-card {
-	padding: 20px 22px;
-	border-radius: 28px;
-	border: 1px solid rgba(226, 232, 240, 0.92);
-	background: linear-gradient(180deg, rgba(248, 251, 255, 0.96), rgba(255, 255, 255, 0.98));
-	box-shadow: 0 18px 42px rgba(15, 23, 42, 0.05);
+	padding: 10px 16px;
+	border: 1px solid var(--iotsharp-border);
+	border-radius: var(--iotsharp-radius-panel);
+	background: var(--iotsharp-surface);
+	box-shadow: var(--iotsharp-shadow-panel);
 }
 
 .alarm-page__filter-card.is-embedded,
 .alarm-page__table-card.is-embedded {
+	padding: 20px 22px;
 	border-radius: 24px;
 	box-shadow: none;
 }
 
-.alarm-page__section-eyebrow {
-	margin-bottom: 10px;
-	color: #2563eb;
-	font-size: 12px;
-	font-weight: 700;
-	letter-spacing: 0.16em;
-	text-transform: uppercase;
+.alarm-page .alarm-page__filter-card {
+	flex-shrink: 0;
 }
 
-.alarm-page__section-head h3 {
-	margin: 0;
-	color: #123b6d;
-	font-size: 22px;
-	letter-spacing: -0.04em;
-}
-
-.alarm-page__section-head p {
-	margin: 10px 0 0;
-	color: #64748b;
-	font-size: 13px;
-	line-height: 1.75;
-}
-
-.alarm-page__form {
+.alarm-page__embedded .alarm-page__form {
 	margin-top: 18px;
+}
+
+.alarm-page .alarm-page__form :deep(.el-form-item) {
+	margin-bottom: 8px;
+}
+
+.alarm-page .alarm-page__form :deep(.el-date-editor),
+.alarm-page .alarm-page__form :deep(.el-select) {
+	width: 100%;
+}
+
+.alarm-page .alarm-page__form .alarm-page__form-actions {
+	margin-bottom: 0;
 }
 
 .alarm-page__form-actions {
@@ -672,15 +653,11 @@ onMounted(() => {
 	overflow: hidden;
 }
 
-:deep(.alarm-page__table th.el-table__cell) {
-	background: #f8fbff;
-}
-
 @media (max-width: 767px) {
 	.alarm-page__filter-card,
 	.alarm-page__table-card {
-		padding: 18px;
-		border-radius: 22px;
+		padding: 10px;
 	}
 }
+
 </style>

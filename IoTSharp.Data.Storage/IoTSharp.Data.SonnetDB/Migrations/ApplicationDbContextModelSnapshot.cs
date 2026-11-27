@@ -949,6 +949,81 @@ namespace IoTSharp.Data.SonnetDB.Migrations
                     b.ToTable("Customer");
                 });
 
+            modelBuilder.Entity("IoTSharp.Data.InboxMessage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("STRING");
+
+                    b.Property<string>("Body")
+                        .IsRequired()
+                        .HasMaxLength(1500)
+                        .HasColumnType("STRING");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("STRING");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("DATETIME2");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("STRING");
+
+                    b.Property<DateTime?>("ReadAt")
+                        .HasColumnType("DATETIME2");
+
+                    b.Property<string>("Sender")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("STRING");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("STRING");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("STRING");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("STRING");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "TenantId", "CustomerId", "CreatedAt")
+                        .HasDatabaseName("IX_Inbox_Recipient_CreatedAt");
+
+                    b.HasIndex("UserId", "TenantId", "CustomerId", "ReadAt")
+                        .HasDatabaseName("IX_Inbox_Recipient_ReadAt");
+
+                    b.ToTable("InboxMessages");
+                });
+
+            modelBuilder.Entity("IoTSharp.Data.PersonalProfile", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasMaxLength(128)
+                        .HasColumnType("STRING");
+
+                    b.Property<byte[]>("AvatarPng")
+                        .HasColumnType("BLOB");
+
+                    b.Property<string>("DisplayName")
+                        .HasMaxLength(80)
+                        .HasColumnType("STRING");
+
+                    b.Property<string>("Introduction")
+                        .HasMaxLength(300)
+                        .HasColumnType("STRING");
+
+                    b.HasKey("UserId");
+
+                    b.ToTable("PersonalProfiles");
+                });
+
             modelBuilder.Entity("IoTSharp.Data.DashboardTrendSample", b =>
                 {
                     b.Property<long?>("Attributes")

@@ -1,4 +1,9 @@
 <template>
+	<template v-if="original">
+		<img v-if="hideText" class="app-logo__original-icon" :src="originalIcon" alt="IoTSharp" />
+		<img v-else class="app-logo__original" :src="originalLogo" alt="IoTSharp" />
+	</template>
+	<template v-else>
   <div class="app-logo" :class="{ 'app-logo--icon-only': hideText, 'app-logo--text-only': hideIcon }">
     <div v-if="!hideIcon" class="app-logo__mark" aria-hidden="true">
       <span class="app-logo__shape app-logo__shape--primary"></span>
@@ -9,14 +14,20 @@
       <span v-if="titleParts.suffix" class="app-logo__suffix">{{ titleParts.suffix }}</span>
     </div>
   </div>
+	</template>
 </template>
 
 <script lang="ts" setup>
 import { computed } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useThemeConfig } from '/@/stores/themeConfig';
+import originalIcon from '/@/assets/logo-icon.svg';
 
-defineProps({
+const { original, hideIcon, hideText } = defineProps({
+	original: {
+		type: Boolean,
+		default: false,
+	},
   hideIcon: {
     type: Boolean,
     default: false,
@@ -29,6 +40,7 @@ defineProps({
 
 const storesThemeConfig = useThemeConfig();
 const { themeConfig } = storeToRefs(storesThemeConfig);
+const originalLogo = `${import.meta.env.BASE_URL}logo_white.svg`;
 
 const titleParts = computed(() => {
   const rawTitle = (themeConfig.value.globalTitle || 'IoTSharp').trim();
@@ -53,6 +65,19 @@ const titleParts = computed(() => {
   gap: 12px;
   min-width: 0;
   user-select: none;
+}
+
+.app-logo__original {
+	display: block;
+	width: min(164px, 100%);
+	height: auto;
+	filter: brightness(0) invert(1);
+}
+
+.app-logo__original-icon {
+	display: block;
+	width: 34px;
+	height: 34px;
 }
 
 .app-logo--icon-only {

@@ -1,8 +1,8 @@
 import type { App } from 'vue';
 import type { RouteLocationNormalizedLoaded, Router } from 'vue-router';
 
-const publicRouteNames = new Set(['landing', 'login', 'signup', 'installer', 'profile', 'notFound', 'noPower']);
-const publicRoutePaths = new Set(['/', '/login', '/signup', '/installer', '/profile', '/401']);
+const publicRouteNames = new Set(['landing', 'login', 'signup', 'installer', 'notFound', 'noPower']);
+const publicRoutePaths = new Set(['/', '/login', '/signup', '/installer', '/401']);
 
 let consolePluginsInstalled = false;
 let consolePluginsPromise: Promise<void> | undefined;

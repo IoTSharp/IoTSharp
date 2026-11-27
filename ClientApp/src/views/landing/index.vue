@@ -142,7 +142,7 @@ const platformLayers = [
 	padding: 0 14px;
 	border-radius: 6px;
 	background: var(--iotsharp-accent-gradient);
-	color: #ffffff;
+	color: var(--iotsharp-on-accent);
 	font-size: 12px;
 	font-weight: 650;
 }
@@ -221,7 +221,7 @@ const platformLayers = [
 	padding: 22px;
 	border: 1px solid rgba(var(--iotsharp-accent-rgb), 0.18);
 	border-radius: 8px;
-	background: rgba(255, 255, 255, 0.86);
+	background: var(--iotsharp-surface-soft);
 	box-shadow: var(--iotsharp-shadow-float);
 	backdrop-filter: blur(18px) saturate(1.1);
 }
@@ -293,7 +293,7 @@ const platformLayers = [
 	justify-content: center;
 	border-radius: 6px;
 	background: var(--iotsharp-accent-gradient);
-	color: #ffffff;
+	color: var(--iotsharp-on-accent);
 	font-size: 13px;
 	font-weight: 650;
 	box-shadow: 0 10px 22px rgba(var(--iotsharp-accent-rgb), 0.18);

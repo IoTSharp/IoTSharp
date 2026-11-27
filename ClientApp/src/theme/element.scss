@@ -456,16 +456,18 @@
 	letter-spacing: 0;
 }
 
-.el-button--primary:not(.is-link):not(.is-text) {
+.el-button--primary:not(.is-link):not(.is-text):not(.is-disabled) {
 	border-color: transparent;
 	background: var(--iotsharp-accent-gradient);
+	color: var(--iotsharp-on-accent);
 	box-shadow: 0 6px 14px rgba(var(--iotsharp-accent-rgb), 0.14);
 }
 
-.el-button--primary:not(.is-link):not(.is-text):hover,
-.el-button--primary:not(.is-link):not(.is-text):focus-visible {
+.el-button--primary:not(.is-link):not(.is-text):not(.is-disabled):hover,
+.el-button--primary:not(.is-link):not(.is-text):not(.is-disabled):focus-visible {
 	border-color: transparent;
 	background: var(--iotsharp-theme-dark);
+	color: var(--iotsharp-on-accent);
 	box-shadow: 0 8px 18px rgba(var(--iotsharp-accent-rgb), 0.2);
 }
 
@@ -512,7 +514,12 @@
 
 .el-table {
 	--el-table-header-bg-color: var(--iotsharp-surface-muted);
-	--el-table-row-hover-bg-color: color-mix(in srgb, var(--iotsharp-selection) 45%, #ffffff);
+	--el-table-bg-color: var(--iotsharp-surface);
+	--el-table-tr-bg-color: var(--iotsharp-surface);
+	--el-table-expanded-cell-bg-color: var(--iotsharp-surface-muted);
+	--el-table-row-hover-bg-color: color-mix(in srgb, var(--iotsharp-selection) 45%, var(--iotsharp-surface));
+	--el-table-current-row-bg-color: var(--iotsharp-data-surface, var(--iotsharp-selection));
+	--el-table-fixed-box-shadow: 0 0 12px color-mix(in srgb, var(--iotsharp-text) 13%, transparent);
 	--el-table-border-color: var(--iotsharp-border);
 	color: var(--iotsharp-text);
 	font-variant-numeric: tabular-nums;
@@ -526,6 +533,194 @@
 
 .el-table td.el-table__cell {
 	font-size: 12px;
+}
+
+.iotsharp-main .fs-crud-container .fs-crud-search {
+	--el-fill-color-blank: var(--iotsharp-surface);
+	min-width: 0;
+	padding: 8px 10px 4px;
+	border: 1px solid var(--iotsharp-border);
+	border-radius: var(--iotsharp-radius-control);
+	background: var(--iotsharp-surface-muted);
+}
+
+.iotsharp-main .fs-crud-container {
+	.fs-crud-actionbar,
+	.fs-crud-toolbar,
+	.fs-crud-pagination,
+	.el-pagination {
+		flex-wrap: wrap;
+		row-gap: 5px;
+		min-width: 0;
+	}
+
+	.fs-crud-header {
+		row-gap: 6px;
+	}
+
+	.fs-crud-header .fs-crud-toolbar {
+		margin-inline-end: 0;
+	}
+
+	.fs-crud-table {
+		border-radius: var(--iotsharp-radius-control);
+	}
+
+	// Element Plus 同步表头与表身的横向位置，保留窄屏表身的滚动容器。
+	.el-table__body-wrapper > .el-scrollbar > .el-scrollbar__wrap {
+		overflow-x: auto !important;
+	}
+
+	.el-table th.el-table__cell {
+		padding-block: 8px;
+	}
+
+	.el-table td.el-table__cell {
+		padding-block: 6px;
+	}
+
+	.fs-crud-footer {
+		color: var(--iotsharp-text-soft);
+	}
+
+	.fs-crud-footer .fs-crud-pagination {
+		justify-content: flex-end;
+	}
+}
+
+// 页面级列表沿工作区伸展，详情页、抽屉与对话框中的表格保持自身布局。
+.console-list-page,
+.console-list-panel,
+.console-list-grid {
+	display: flex;
+	flex: 1 1 auto;
+	flex-direction: column;
+	min-inline-size: 0;
+	min-block-size: 0;
+}
+
+.console-list-grid > .fs-crud-container {
+	flex: 1 1 auto;
+	min-inline-size: 0;
+	min-block-size: 0;
+
+	> .box > .inner {
+		flex: 1 1 auto;
+		min-inline-size: 0;
+		min-block-size: 0;
+
+		> .body {
+			min-inline-size: 0;
+			padding-block-end: 1px;
+		}
+
+		> .footer {
+			margin-block-start: auto;
+			border-block-start: 1px solid var(--iotsharp-border);
+		}
+	}
+
+	.fs-crud-header {
+		padding-block: 6px;
+	}
+
+	.fs-crud-footer {
+		padding-block: 7px 2px;
+	}
+
+	.fs-crud-table {
+		min-block-size: 0;
+	}
+}
+
+@media (min-width: 768px) and (min-height: 660px) {
+	.console-list-grid > .fs-crud-container {
+		flex-basis: 0;
+
+		> .box {
+			min-block-size: 0;
+		}
+
+		> .box > .inner > .body {
+			position: relative;
+			flex: 1 1 144px !important;
+			min-block-size: 144px;
+			overflow: hidden !important;
+		}
+
+		> .box > .inner > .body > .fs-crud-table {
+			position: absolute;
+			inset: 0;
+			block-size: 100% !important;
+		}
+
+		> .box > .inner > .body > .fs-crud-table .el-table__body-wrapper {
+			overflow: hidden !important;
+		}
+
+		> .box > .inner > .body > .fs-crud-table .el-table__body-wrapper > .el-scrollbar > .el-scrollbar__wrap {
+			overflow: auto !important;
+		}
+	}
+}
+
+.console-status {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	padding: 2px 7px;
+	border-radius: var(--iotsharp-radius-small);
+	background: var(--iotsharp-surface-muted);
+	color: var(--iotsharp-text-soft);
+	font-size: 12px;
+	font-weight: 650;
+	line-height: 1.5;
+	white-space: nowrap;
+
+	&::before {
+		flex: none;
+		width: 6px;
+		height: 6px;
+		border-radius: 50%;
+		background: currentColor;
+		content: '';
+	}
+
+	&--online {
+		background: var(--iotsharp-success-surface);
+		color: var(--iotsharp-success);
+	}
+}
+
+@media (max-width: 700px) {
+	.iotsharp-main .fs-crud-container {
+		.fs-crud-header .fs-crud-actionbar,
+		.fs-crud-header .fs-crud-toolbar {
+			flex-basis: 100%;
+			max-width: 100%;
+		}
+
+		.fs-crud-toolbar .fs-toolbar {
+			flex-wrap: wrap;
+		}
+
+		.fs-crud-header .fs-crud-toolbar,
+		.fs-crud-footer .fs-crud-pagination {
+			justify-content: flex-start;
+		}
+	}
+}
+
+.el-dialog__title,
+.el-drawer__title {
+	color: var(--iotsharp-text);
+}
+
+.el-dialog .el-form-item__label,
+.el-drawer .el-form-item__label,
+.fs-crud-search .el-form-item__label,
+.fs-form-header .fs-form-header-right {
+	color: var(--iotsharp-text-soft);
 }
 
 .el-tabs__item.is-active,
@@ -549,6 +744,21 @@
 .el-pagination button,
 .el-pagination .el-pager li {
 	border-radius: 4px;
+}
+
+.el-pagination.is-background .el-pager li.is-active {
+	background: var(--iotsharp-data-accent, var(--iotsharp-accent));
+	color: var(--iotsharp-on-accent);
+}
+
+.el-button--primary {
+	--el-button-text-color: var(--iotsharp-on-accent);
+	--el-button-hover-text-color: var(--iotsharp-on-accent);
+	--el-button-active-text-color: var(--iotsharp-on-accent);
+}
+
+.el-radio-button {
+	--el-radio-button-checked-text-color: var(--iotsharp-on-accent);
 }
 
 .el-drawer .el-drawer__header {

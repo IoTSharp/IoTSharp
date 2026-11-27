@@ -57,7 +57,12 @@ namespace IoTSharp.Data
         /// <param name="deviceId"></param>
         /// <param name="_context"></param>
         /// <returns></returns>
-        public static async Task<(int ret, Dic exceptions)> SaveAsync<L>(this ApplicationDbContext _context, Dictionary<string, object> data, Guid deviceId, DataSide dataSide) where L : DataStorage, new()
+        public static Task<(int ret, Dic exceptions)> SaveAsync<L>(this ApplicationDbContext _context, Dictionary<string, object> data, Guid deviceId, DataSide dataSide) where L : DataStorage, new()
+            => _context.SaveAsync<L>(data, deviceId, dataSide, sourceTimestamp: null);
+
+        /// <summary>队列属性按设备时间戳保存，所有字段准备成功后才提交。</summary>
+        internal static async Task<(int ret, Dic exceptions)> SaveAsync<L>(this ApplicationDbContext _context,
+            Dictionary<string, object> data, Guid deviceId, DataSide dataSide, DateTime? sourceTimestamp) where L : DataStorage, new()
         {
             //保存是会存在为空的数组进行保存的情况，此处做为空判断
             if (data.Any())
@@ -65,8 +70,11 @@ namespace IoTSharp.Data
                 Dic exceptions;
                 using (SonnetMqProcessingMetrics.MeasureStorage(SonnetMqProcessingMetrics.AttributePrepare))
                 {
-                    exceptions = _context.PreparingData<L>(data, deviceId, dataSide);
+                    exceptions = _context.PreparingData<L>(data, deviceId, dataSide, sourceTimestamp);
                 }
+                if (sourceTimestamp.HasValue && exceptions.Count != 0)
+                    throw new AggregateException("属性消息存在无法保存的字段。", exceptions.Values);
+
                 using var timing = SonnetMqProcessingMetrics.MeasureStorage(SonnetMqProcessingMetrics.AttributeSaveChanges);
                 using var commandTiming = SonnetMqProcessingMetrics.BeginAttributeSaveChanges();
                 int ret = await _context.SaveChangesAsync();
@@ -92,6 +100,11 @@ namespace IoTSharp.Data
         /// <returns>逐键准备错误；拒绝的保留键不会修改跟踪实体。</returns>
         public static Dic PreparingData<L>(this ApplicationDbContext _context, Dictionary<string, object> data, Guid deviceId, DataSide dataSide)
             where L : DataStorage, new()
+            => _context.PreparingData<L>(data, deviceId, dataSide, sourceTimestamp: null);
+
+        private static Dic PreparingData<L>(this ApplicationDbContext _context,
+            Dictionary<string, object> data, Guid deviceId, DataSide dataSide, DateTime? sourceTimestamp)
+            where L : DataStorage, new()
         {
             Dic exceptions = new Dic();
             var keyNames = data
@@ -104,7 +117,7 @@ namespace IoTSharp.Data
             var deviceData = new Dictionary<string, L>();
             if (keyNames.Count > 0)
             {
-                var deviceRows = _context.Set<L>().Where(row => row.DeviceId == deviceId);
+                var deviceRows = _context.Set<L>().AsTracking().Where(row => row.DeviceId == deviceId);
                 IEnumerable<L> matchingRows;
                 if (typeof(L) == typeof(AttributeLatest) && _context.Database.ProviderName == "SonnetDB.EntityFrameworkCore")
                 {
@@ -137,13 +150,13 @@ namespace IoTSharp.Data
                         if (deviceData.TryGetValue(kp.Key, out var tx))
                         {
                             tx.FillKVToMe(kp);
-                            // TODO:jy 待重新设计主键
-                            tx.DateTime = DateTime.UtcNow;
-                            _context.Set<L>().Update(tx).State = EntityState.Modified;
+                            tx.DateTime = sourceTimestamp ?? DateTime.UtcNow;
+                            if (!sourceTimestamp.HasValue)
+                                _context.Set<L>().Update(tx).State = EntityState.Modified;
                         }
                         else
                         {
-                            var t2 = new L() { DateTime = DateTime.UtcNow, DeviceId = deviceId, KeyName = kp.Key, DataSide = dataSide };
+                            var t2 = new L { DateTime = sourceTimestamp ?? DateTime.UtcNow, DeviceId = deviceId, KeyName = kp.Key, DataSide = dataSide };
                             t2.Catalog = catalog;
                             _context.Set<L>().Add(t2);
                             t2.FillKVToMe(kp);

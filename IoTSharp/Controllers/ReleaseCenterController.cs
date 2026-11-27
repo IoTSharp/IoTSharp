@@ -342,6 +342,10 @@ namespace IoTSharp.Controllers
                 plan.ContinueOnFailure,
                 autoStart = request.AutoStart
             }, plan.Status.ToString(), now);
+            if (createdEdgeTasks.Count > 0)
+            {
+                AddReleaseNotice(profile, plan, "发布批次已提交", "发布", createdEdgeTasks.Count, now);
+            }
 
             await _context.SaveChangesAsync();
             if (configurationLease != null)
@@ -658,6 +662,7 @@ namespace IoTSharp.Controllers
                 reason = request?.Reason ?? string.Empty,
                 metadata = request?.Metadata ?? []
             }, plan.Status.ToString(), now);
+            AddReleaseNotice(profile, plan, "回滚任务已提交", "回滚", edgeTasks.Count, now);
 
             await _context.SaveChangesAsync();
             if (configurationLease != null)
@@ -804,6 +809,10 @@ namespace IoTSharp.Controllers
             var edgeTasks = await DispatchSelectableTasksAsync(plan, package, pending, dispatchAll: true, nowDispatch, operatorName, isRollback: false);
             ApplyPlanSummary(plan, tasks, nowDispatch, preservePaused: false);
             AddReleasePlanAudit(profile, plan, auditAction, BuildActionAuditData(request), plan.Status.ToString(), nowDispatch);
+            if (edgeTasks.Count > 0)
+            {
+                AddReleaseNotice(profile, plan, "发布批次已提交", "发布", edgeTasks.Count, nowDispatch);
+            }
             await _context.SaveChangesAsync();
             if (configurationLease != null)
             {
@@ -1641,6 +1650,22 @@ namespace IoTSharp.Controllers
                 ActionData = SerializeOrNull(actionData) ?? "{}",
                 ActionResult = actionResult ?? string.Empty,
                 ActiveDateTime = activeAt == default ? DateTime.UtcNow : activeAt.ToUniversalTime()
+            });
+        }
+
+        /// <summary>随发布操作一起保存对操作者可见的提交回执。</summary>
+        private void AddReleaseNotice(UserProfile profile, ReleasePlan plan, string title, string operation, int taskCount, DateTime now)
+        {
+            _context.InboxMessages.Add(new InboxMessage
+            {
+                UserId = profile.Id.ToString("D"),
+                TenantId = profile.Tenant,
+                CustomerId = profile.Customer,
+                Title = title,
+                Body = $"发布计划「{plan.Name}」已创建 {taskCount} 个{operation}任务，等待执行端拉取。可在发布中心查看执行进度。",
+                Category = "release",
+                Sender = "发布中心",
+                CreatedAt = now
             });
         }
 
