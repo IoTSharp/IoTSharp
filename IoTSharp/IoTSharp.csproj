@@ -141,7 +141,15 @@
 		</ItemGroup>
 	</Target>
 
-
+	<!-- ClientApp 是引用项目，发布清单在合并后再次发现 dist/favicon.ico。
+	     根站点的 favicon 由当前服务 wwwroot 提供，因此在唯一性校验前移除该重复项。 -->
+	<Target Name="RemoveClientAppDuplicateFavicon"
+			BeforeTargets="GenerateStaticWebAssetsPublishManifest">
+		<ItemGroup>
+			<StaticWebAsset Remove="@(StaticWebAsset)"
+				Condition="'%(StaticWebAsset.SourceId)' == 'ClientApp' And '%(StaticWebAsset.RelativePath)' == 'favicon.ico'" />
+		</ItemGroup>
+	</Target>
 
 	<ItemGroup>
 		<Content Include="iotsharp.service" CopyToPublishDirectory="PreserveNewest">

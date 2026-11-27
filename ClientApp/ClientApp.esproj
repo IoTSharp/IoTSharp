@@ -16,12 +16,4 @@
     <TypeScriptConfiguration Remove="dist\**" />
   </ItemGroup>
 
-  <!-- IoTSharp 服务端提供发布时的根 favicon，前端产物不重复占用同一路径。 -->
-  <Target Name="ExcludeDuplicateFaviconFromPublishAssets"
-          AfterTargets="JavaScriptOutputGroup"
-          BeforeTargets="GetCurrentProjectPublishStaticWebAssetItems">
-    <ItemGroup>
-      <JavaScriptOutput Remove="$(PublishAssetsDirectory)\favicon.ico" />
-    </ItemGroup>
-  </Target>
 </Project>
