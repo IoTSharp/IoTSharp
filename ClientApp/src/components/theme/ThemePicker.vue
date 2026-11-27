@@ -33,24 +33,6 @@
 				<input v-model="textureVisible" type="checkbox" @change="saveUiTexture(textureVisible)" />
 				<span>{{ labels.texture }}</span>
 			</label>
-			<details class="theme-picker__original">
-				<summary>{{ labels.original }}<span v-if="!currentTheme.regions">{{ currentTheme.name }}</span></summary>
-				<div class="theme-picker__grid">
-					<button
-						v-for="theme in originalThemes"
-						:key="theme.id"
-						type="button"
-						class="theme-picker__option"
-						:class="{ 'is-selected': theme.id === currentTheme.id }"
-						:aria-pressed="theme.id === currentTheme.id"
-						@click="selectTheme(theme.id)"
-					>
-						<span class="theme-picker__swatch theme-picker__swatch--large" :style="swatchStyle(theme)" aria-hidden="true"></span>
-						<span class="theme-picker__copy"><strong>{{ theme.name }}</strong></span>
-						<el-icon v-if="theme.id === currentTheme.id" class="theme-picker__check"><Check /></el-icon>
-					</button>
-				</div>
-			</details>
 		</div>
 	</el-popover>
 </template>
@@ -65,13 +47,12 @@ defineProps({ showTexture: Boolean });
 const isOpen = ref(false);
 const textureVisible = ref(getUiTexture());
 const currentTheme = ref(getUiTheme());
-const regionThemes = uiThemes.filter((theme) => theme.regions);
-const originalThemes = uiThemes.filter((theme) => !theme.regions);
+const regionThemes = uiThemes;
 const { locale } = useI18n();
 const labels = computed(() => {
-	if (locale.value === 'en') return { title: 'Theme', heading: 'Regional palettes', original: 'Original themes', texture: 'Show workspace texture' };
-	if (locale.value === 'zh-tw') return { title: '主題', heading: '分區配色', original: '原有主題', texture: '顯示工作區紋理' };
-	return { title: '主题', heading: '分区配色', original: '原有主题', texture: '显示工作区纹理' };
+	if (locale.value === 'en') return { title: 'Theme', heading: 'Regional palettes', texture: 'Show workspace texture' };
+	if (locale.value === 'zh-tw') return { title: '主題', heading: '分區配色', texture: '顯示工作區紋理' };
+	return { title: '主题', heading: '分区配色', texture: '显示工作区纹理' };
 });
 
 const swatchStyle = (theme: UiTheme) => ({
@@ -172,25 +153,6 @@ const selectTheme = (id: string) => {
 		height: 15px;
 		accent-color: var(--iotsharp-accent);
 	}
-}
-
-.theme-picker__original {
-	margin-top: 8px;
-	border-top: 1px solid var(--iotsharp-border);
-	max-height: min(290px, 42vh);
-	overflow: auto;
-}
-
-.theme-picker__original summary {
-	padding: 8px 4px 2px;
-	color: var(--iotsharp-text-soft);
-	font-size: 12px;
-	cursor: pointer;
-}
-
-.theme-picker__original summary span {
-	margin-inline-start: 8px;
-	color: var(--iotsharp-text-muted);
 }
 
 .theme-picker__option {

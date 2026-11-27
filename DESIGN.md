@@ -2,30 +2,15 @@
 name: IoTSharp XJETC Ops Acrylic Control Plane
 description: 面向物联网接入、规则与边缘运维的高密度控制台设计系统
 colors:
-  theme-ocean-dark: "#0E4C7A"
-  theme-ocean-light: "#DCECF7"
-  theme-pine-dark: "#1E5B4F"
-  theme-pine-light: "#DCEEE7"
-  theme-steel-dark: "#24566B"
-  theme-steel-light: "#DCECF3"
-  theme-sage-dark: "#526B55"
-  theme-sage-light: "#E3ECD8"
-  theme-plum-dark: "#6D4B78"
-  theme-plum-light: "#F0E1F2"
-  theme-mist-dark: "#3D7180"
-  theme-mist-light: "#DCEFF1"
-  theme-terracotta-dark: "#8A5A42"
-  theme-terracotta-light: "#F3E2D5"
-  theme-forest-dark: "#2F5B48"
-  theme-forest-light: "#DCECE4"
-  theme-cranberry-dark: "#922D42"
-  theme-cranberry-light: "#F8DCE2"
-  theme-amber-dark: "#8A5D2D"
-  theme-amber-light: "#F6E7C8"
-  theme-slate-dark: "#3F4D66"
-  theme-slate-light: "#E2E7F0"
-  theme-rosewood-dark: "#7B3F45"
-  theme-rosewood-light: "#F2DFE0"
+  deep-sea-navigation: "#112C39"
+  deep-sea-profile: "#087F74"
+  deep-sea-inbox: "#315EB2"
+  warm-stone-navigation: "#4E4038"
+  warm-stone-profile: "#3C6B4E"
+  warm-stone-inbox: "#9A492F"
+  night-indigo-navigation: "#11182C"
+  night-indigo-profile: "#58D7D1"
+  night-indigo-inbox: "#B8A4FC"
   ink: "#183B36"
   text: "#23332F"
   text-muted: "#71807C"
@@ -93,7 +78,7 @@ components:
 
 IoTSharp 的界面把平台当作生产现场的控制平面，而不是营销首页或装饰性仪表盘。深色导航轨承载领域边界，浅色工作区承载对象、状态、版本和审计证据；用户在首屏即可知道当前处于接入采集、实时规则、运维发布还是平台治理。
 
-材质采用 XJETC Ops 的克制亚克力语言：渐变只用于导航、顶栏、工作区引导面和主要动作，表格、表单、状态和长时间阅读区域保持实色与高对比度。12 套主题各自提供一枚深色锚点和一枚浅色陪衬，共 24 个主题核心色，切换只改变品牌表达，不改变状态语义。
+材质采用 XJETC Ops 的克制亚克力语言：渐变只用于导航、顶栏、工作区引导面和主要动作，表格、表单、状态和长时间阅读区域保持实色与高对比度。深海蓝绿、暖岩铜绿和夜间蓝紫三套区域主题分别为导航、工作区、资料、信箱、数据和运维定义颜色角色，切换只改变品牌表达，不改变状态语义。
 
 **Key Characteristics:**
 - 深色 220px 导航轨，64px 半透明顶栏，右侧高密度工作区
@@ -103,7 +88,7 @@ IoTSharp 的界面把平台当作生产现场的控制平面，而不是营销�
 
 ## Colors
 
-主题颜色来自 XJETC Ops 主题目录。运行时由 `ClientApp/src/theme/themes.ts` 写入 CSS 变量，默认使用松针绿；深色锚点用于导航和主要动作，浅色陪衬用于选择态和安静引导面。
+主题颜色由 `ClientApp/src/theme/themes.ts` 写入 CSS 变量，默认使用深海蓝绿；区域主题使用深色导航锚点、实色工作面和功能色，避免单一主色贯穿整页。
 
 ### Primary
 - **动态深色锚点** (`--iotsharp-theme-dark`): 当前主题的主色，承载导航渐变、主要按钮、链接和焦点环。
@@ -208,7 +193,7 @@ IoTSharp 的界面把平台当作生产现场的控制平面，而不是营销�
 
 ### Theme Picker
 
-主题选择器以两列列表呈现 12 套主题，每项同时显示深色/浅色圆形样本、主题名称和适用描述；选择后即时写入 CSS 变量并保存在本地存储。
+主题选择器呈现三套区域主题，每项同时显示导航、工作面、资料和信箱的颜色样本、主题名称和适用描述；选择后即时写入 CSS 变量并保存在本地存储。历史主题 ID 自动回退到深海蓝绿。
 
 ## Do's and Don'ts
 
