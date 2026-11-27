@@ -226,8 +226,7 @@ namespace IoTSharp.Controllers
         [HttpPost]
         public async Task<ApiResult<bool>> AckAlarm([FromBody] AlarmStatusDto m)
         {
-
-            var alarm = await _context.Alarms.SingleOrDefaultAsync(c => c.Id == m.Id);
+            var alarm = await FindAlarmInScopeAsync(m.Id);
             if (alarm != null)
             {
                 if (alarm.AlarmStatus == AlarmStatus.Active_UnAck)
@@ -262,8 +261,7 @@ namespace IoTSharp.Controllers
         [HttpPost]
         public async Task<ApiResult<bool>> ClearAlarm([FromBody] AlarmStatusDto m)
         {
-
-            var alarm = await _context.Alarms.SingleOrDefaultAsync(c => c.Id == m.Id);
+            var alarm = await FindAlarmInScopeAsync(m.Id);
             if (alarm != null)
             {
                 if (alarm.AlarmStatus == AlarmStatus.Active_Ack)
@@ -284,6 +282,13 @@ namespace IoTSharp.Controllers
 
             }
             return new ApiResult<bool>(ApiCode.CantFindObject, "Not found alarm", false);
+        }
+
+        private Task<Alarm> FindAlarmInScopeAsync(Guid id)
+        {
+            var profile = this.GetUserProfile();
+            return _context.Alarms.SingleOrDefaultAsync(c => c.Id == id
+                && c.Tenant.Id == profile.Tenant && c.Customer.Id == profile.Customer);
         }
     }
 }

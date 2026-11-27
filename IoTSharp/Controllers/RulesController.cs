@@ -73,6 +73,8 @@ namespace IoTSharp.Controllers
             var profile = this.GetUserProfile();
 
             Expression<Func<FlowRule, bool>> condition = x => x.RuleStatus > -1 && x.Tenant.Id == profile.Tenant;
+            if (IoTSharp.Services.OnlineDemoSettings.IsScopedCustomer(this))
+                condition = condition.And(x => x.Customer.Id == profile.Customer);
             if (!string.IsNullOrEmpty(m.Name))
             {
                 condition = condition.And(x => x.Name.Contains(m.Name));
@@ -173,7 +175,9 @@ namespace IoTSharp.Controllers
         public ApiResult<FlowRule> Get(Guid id)
         {
             var profile = this.GetUserProfile();
-            var rule = _context.FlowRules.SingleOrDefault(c => c.RuleId == id && c.Tenant.Id == profile.Tenant);
+            var scoped = IoTSharp.Services.OnlineDemoSettings.IsScopedCustomer(this);
+            var rule = _context.FlowRules.SingleOrDefault(c => c.RuleId == id && c.Tenant.Id == profile.Tenant
+                && (!scoped || c.Customer.Id == profile.Customer));
             if (rule != null)
             {
                 return new ApiResult<FlowRule>(ApiCode.Success, "OK", rule);
@@ -322,7 +326,11 @@ namespace IoTSharp.Controllers
         public ApiResult<List<FlowRule>> GetDeviceRules(Guid deviceId)
         {
             var profile = this.GetUserProfile();
-            return new ApiResult<List<FlowRule>>(ApiCode.Success, "Ok", _context.DeviceRules.Include(c => c.Device).Where(c => c.Device.Id == deviceId && c.Device.Tenant.Id == profile.Tenant).Select(c => c.FlowRule).Select(c => new FlowRule() { RuleId = c.RuleId, CreatTime = c.CreatTime, Name = c.Name, RuleDesc = c.RuleDesc }).ToList());
+            var scoped = IoTSharp.Services.OnlineDemoSettings.IsScopedCustomer(this);
+            return new ApiResult<List<FlowRule>>(ApiCode.Success, "Ok", _context.DeviceRules.Include(c => c.Device)
+                .Where(c => c.Device.Id == deviceId && c.Device.Tenant.Id == profile.Tenant
+                    && (!scoped || c.Device.CustomerId == profile.Customer))
+                .Select(c => c.FlowRule).Select(c => new FlowRule() { RuleId = c.RuleId, CreatTime = c.CreatTime, Name = c.Name, RuleDesc = c.RuleDesc }).ToList());
         }
 
         [HttpGet]
@@ -362,10 +370,12 @@ namespace IoTSharp.Controllers
         [HttpGet]
         public ApiResult<List<Flow>> GetFlows(Guid ruleId)
         {
-            var tid = User.GetTenantId();
+            var profile = this.GetUserProfile();
+            var scoped = IoTSharp.Services.OnlineDemoSettings.IsScopedCustomer(this);
             return new ApiResult<List<Flow>>(ApiCode.Success, "Ok",
                 _context.Flows.Include(c => c.FlowRule)
-                .Where(c => c.FlowRule.RuleId == ruleId && c.FlowStatus > 0 && c.Tenant.Id == tid).ToList());
+                .Where(c => c.FlowRule.RuleId == ruleId && c.FlowStatus > 0 && c.Tenant.Id == profile.Tenant
+                    && (!scoped || c.Customer.Id == profile.Customer)).ToList());
         }
 
         [HttpPost]
@@ -830,12 +840,14 @@ namespace IoTSharp.Controllers
         public async Task<ApiResult<ModelDiagram>> GetDiagramV(Guid id)
         {
             var profile = this.GetUserProfile();
+            var scoped = IoTSharp.Services.OnlineDemoSettings.IsScopedCustomer(this);
 
             try
             {
 
                 var flows = await _context.Flows
-                    .Where(c => c.FlowRule.RuleId == id && c.FlowStatus > 0 && c.Tenant.Id == profile.Tenant)
+                    .Where(c => c.FlowRule.RuleId == id && c.FlowStatus > 0 && c.Tenant.Id == profile.Tenant
+                        && (!scoped || c.Customer.Id == profile.Customer))
                     .ToListAsync();
                 ModelDiagram m = new ModelDiagram();
                 m.lines = new List<LineObject>();
@@ -933,7 +945,9 @@ namespace IoTSharp.Controllers
         public async Task<ApiResult<Activity>> GetDiagram(Guid id)
         {
             var profile = this.GetUserProfile();
-            var ruleflow = await _context.FlowRules.FirstOrDefaultAsync(c => c.RuleId == id && c.Tenant.Id == profile.Tenant);
+            var scoped = IoTSharp.Services.OnlineDemoSettings.IsScopedCustomer(this);
+            var ruleflow = await _context.FlowRules.FirstOrDefaultAsync(c => c.RuleId == id && c.Tenant.Id == profile.Tenant
+                && (!scoped || c.Customer.Id == profile.Customer));
             if (ruleflow is null)
             {
                 return new ApiResult<Activity>(ApiCode.CantFindObject, "can't find that rule", null);
@@ -956,7 +970,8 @@ namespace IoTSharp.Controllers
             activity.Lane ??= new List<BpmnBaseObject>();
             activity.TextAnnotations ??= new List<BpmnBaseObject>();
             activity.RuleId = id;
-            var flows = _context.Flows.Where(c => c.FlowRule.RuleId == id && c.FlowStatus > 0 && c.Tenant.Id == profile.Tenant).ToList();
+            var flows = _context.Flows.Where(c => c.FlowRule.RuleId == id && c.FlowStatus > 0 && c.Tenant.Id == profile.Tenant
+                && (!scoped || c.Customer.Id == profile.Customer)).ToList();
             activity.Xml = ruleflow.DefinitionsXml?.Trim('\r');
             foreach (var item in flows)
             {
@@ -1466,6 +1481,8 @@ namespace IoTSharp.Controllers
         {
             var profile = this.GetUserProfile();
             Expression<Func<BaseEvent, bool>> condition = x => x.EventStaus > -1 && x.Tenant.Id == profile.Tenant;
+            if (IoTSharp.Services.OnlineDemoSettings.IsScopedCustomer(this))
+                condition = condition.And(x => x.Customer.Id == profile.Customer);
             if (!string.IsNullOrEmpty(m.Name))
             {
                 condition = condition.And(x => x.EventName.Contains(m.Name));
@@ -1590,7 +1607,9 @@ namespace IoTSharp.Controllers
         public async Task<ApiResult<PagedData<RuleTaskExecutor>>> Executors(QueryDto m)
         {
             var profile = this.GetUserProfile();
-            var rte = from x in _context.RuleTaskExecutors where x.ExecutorStatus > -1 && x.Tenant.Id == profile.Tenant orderby x.AddDateTime descending select x;
+            var scoped = IoTSharp.Services.OnlineDemoSettings.IsScopedCustomer(this);
+            var rte = _context.RuleTaskExecutors.Where(x => x.ExecutorStatus > -1 && x.Tenant.Id == profile.Tenant
+                && (!scoped || x.Customer.Id == profile.Customer)).OrderByDescending(x => x.AddDateTime);
             var pd = new PagedData<RuleTaskExecutor>
             {
                 total = await rte.CountAsync(),
@@ -1603,7 +1622,9 @@ namespace IoTSharp.Controllers
         public async Task<ApiResult<RuleTaskExecutor>> GetExecutor(Guid Id)
         {
             var profile = this.GetUserProfile();
-            var executor = await _context.RuleTaskExecutors.SingleOrDefaultAsync(c => c.ExecutorId == Id && c.Tenant.Id == profile.Tenant);
+            var scoped = IoTSharp.Services.OnlineDemoSettings.IsScopedCustomer(this);
+            var executor = await _context.RuleTaskExecutors.SingleOrDefaultAsync(c => c.ExecutorId == Id && c.Tenant.Id == profile.Tenant
+                && (!scoped || c.Customer.Id == profile.Customer));
 
             if (executor != null)
             {

@@ -99,7 +99,7 @@ namespace IoTSharp.Controllers
         /// <returns></returns>
         [HttpGet, Authorize(Roles = nameof(UserRole.NormalUser))]
         [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
-        public async Task<ActionResult<ApiResult<UserInfoDto>>> MyInfo()
+        public async Task<ActionResult<ApiResult<UserInfoDto>>> MyInfo([FromServices] OnlineDemoSettings demoSettings = null)
         {
             ApiResult<UserInfoDto> result;
             var user = await _userManager.GetUserAsync(User);
@@ -126,7 +126,8 @@ namespace IoTSharp.Controllers
                         PhoneNumber = user.PhoneNumber,
                         Introduction = user.NormalizedUserName,
                         Customer = Customer,
-                        Tenant = Customer?.Tenant
+                        Tenant = Customer?.Tenant,
+                        DemoResetMinutes = demoSettings?.IsDemo(User) == true ? OnlineDemoSettings.ResetMinutes : null
                     };
                     result = new ApiResult<UserInfoDto>(ApiCode.Success, "OK", uidto);
                 }

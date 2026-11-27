@@ -1,0 +1,11 @@
+[Unit]
+Description=Restore IoTSharp Online public demo tenant data every hour
+
+[Timer]
+OnCalendar=*-*-* *:05:00
+Persistent=true
+AccuracySec=10s
+Unit=iotsharp-online-demo-data.service
+
+[Install]
+WantedBy=timers.target
