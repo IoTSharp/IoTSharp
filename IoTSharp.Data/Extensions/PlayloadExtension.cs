@@ -2,63 +2,67 @@
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Text.Json;
 
 namespace IoTSharp.Data.Extensions
 {
     public static class PlayloadExtension
     {
+        /// <summary>按原字段名和插入顺序生成规则使用的动态对象。</summary>
         public static ExpandoObject ToDynamic(this Dictionary<string, object> dc)
         {
-            ExpandoObject obj = new ExpandoObject();
-            dc.ToList().ForEach(kv =>
+            ArgumentNullException.ThrowIfNull(dc, "source");
+            ExpandoObject obj = new();
+            foreach (var kv in dc)
             {
                 obj.TryAdd(kv.Key, kv.Value);
-            });
+            }
             return obj;
         }
+
+        /// <summary>保留每个字段首次出现的值，供规则按名称访问。</summary>
         public static ExpandoObject ToDynamic(this List<TelemetryDataDto> array)
         {
             ExpandoObject exps = new();
-            array.ForEach(td =>
+            foreach (var td in array)
             {
                 exps.TryAdd(td.KeyName, td.Value);
-            });
+            }
             return exps;
         }
+
+        /// <summary>按消息字段顺序转换 JSON 值，忽略空值并保留对象和数组的原始 JSON。</summary>
         public static Dictionary<string, object> ToDictionary(this PlayloadData msg)
         {
             var mb = msg.MsgBody;
-            Dictionary<string, object> dc = new Dictionary<string, object>();
-            mb.ToList().ForEach(kp =>
+            ArgumentNullException.ThrowIfNull(mb, "source");
+            Dictionary<string, object> dc = new();
+            foreach (var kp in mb)
             {
-                if (kp.Value?.GetType() == typeof(System.Text.Json.JsonElement))
+                if (kp.Value is JsonElement je)
                 {
-                    var je = (System.Text.Json.JsonElement)kp.Value;
                     switch (je.ValueKind)
                     {
-                        case System.Text.Json.JsonValueKind.Undefined:
-                        case System.Text.Json.JsonValueKind.Object:
-                        case System.Text.Json.JsonValueKind.Array:
+                        case JsonValueKind.Undefined:
+                        case JsonValueKind.Object:
+                        case JsonValueKind.Array:
                             dc.Add(kp.Key, je.GetRawText());
                             break;
 
-                        case System.Text.Json.JsonValueKind.String:
+                        case JsonValueKind.String:
                             dc.Add(kp.Key, je.GetString());
                             break;
 
-                        case System.Text.Json.JsonValueKind.Number:
+                        case JsonValueKind.Number:
                             dc.Add(kp.Key, je.GetDouble());
                             break;
 
-                        case System.Text.Json.JsonValueKind.True:
-                        case System.Text.Json.JsonValueKind.False:
+                        case JsonValueKind.True:
+                        case JsonValueKind.False:
                             dc.Add(kp.Key, je.GetBoolean());
                             break;
 
-                        case System.Text.Json.JsonValueKind.Null:
+                        case JsonValueKind.Null:
                             break;
 
                         default:
@@ -69,8 +73,7 @@ namespace IoTSharp.Data.Extensions
                 {
                     dc.Add(kp.Key, kp.Value);
                 }
-
-            });
+            }
             return dc;
         }
     }
