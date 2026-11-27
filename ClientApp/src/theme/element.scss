@@ -686,9 +686,29 @@
 		content: '';
 	}
 
-	&--online {
+	&--online,
+	&--success {
 		background: var(--iotsharp-success-surface);
 		color: var(--iotsharp-success);
+	}
+
+	&--warning {
+		background: var(--iotsharp-warning-surface);
+		color: var(--iotsharp-warning);
+	}
+
+	&--danger {
+		background: var(--iotsharp-danger-surface);
+		color: var(--iotsharp-danger);
+	}
+
+	&--info {
+		background: var(--iotsharp-info-surface);
+		color: var(--iotsharp-info);
+	}
+
+	&--category::before {
+		display: none;
 	}
 }
 

@@ -76,24 +76,23 @@ export const originatorTypeOptions = [
 	},
 ];
 
-export const serverityBadge = new Map([
-	['Indeterminate', { text: '不确定', color: 'var(--el-color-info)' }],
-	['Warning', { text: '警告', color: 'var(--el-color-warning)' }],
-	['Minor', { text: '次要', color: 'var(--el-color-primary)' }],
-	['Major', { text: '主要', color: 'var(--el-color-primary-dark-2)' }],
-	['Critical', { text: '错误', color: 'var(--el-color-error)' }],
+type AlarmBadgeTone = 'warning' | 'info' | 'danger' | 'success';
+type AlarmBadge = { text: string; tone?: AlarmBadgeTone };
+
+export const serverityBadge = new Map<string, AlarmBadge>([
+	['Indeterminate', { text: '不确定' }],
+	['Warning', { text: '警告', tone: 'warning' }],
+	['Minor', { text: '次要', tone: 'info' }],
+	['Major', { text: '重要', tone: 'warning' }],
+	['Critical', { text: '错误', tone: 'danger' }],
 ]);
 
-export const alarmStatusTAG = new Map([
-	['Active_UnAck', { text: '激活未应答', color: 'var(--el-color-error)' }],
-	['Active_Ack', { text: '激活已应答', color: 'var(--el-color-primary)' }],
-	['Cleared_UnAck', { text: '清除未应答', color: 'var(--el-color-warning)' }],
-	['Cleared_Act', { text: '清除已应答', color: 'var(--el-color-success)' }],
+export const alarmStatusTAG = new Map<string, AlarmBadge>([
+	['Active_UnAck', { text: '激活未应答', tone: 'warning' }],
+	['Active_Ack', { text: '激活已应答', tone: 'info' }],
+	['Cleared_UnAck', { text: '清除未应答', tone: 'warning' }],
+	['Cleared_Act', { text: '清除已应答', tone: 'success' }],
 ]);
 
-export const originatorTypeTAG = new Map([
-	['Unknow', { text: '未知', color: 'var(--el-color-info)' }],
-	['Device', { text: '设备', color: 'var(--el-color-primary)' }],
-	['Gateway', { text: '网关', color: 'var(--el-color-warning)' }],
-	['Asset', { text: '资产', color: 'var(--el-color-success)' }],
-]);
+export const originatorTypeTAG = new Map(originatorTypeOptions.slice(1).map(({ key, label }) => [key, label]));
+originatorTypeTAG.set('Unknow', '未知');

@@ -82,13 +82,13 @@
 				<div class="status-card__body">
 					<div class="status-donut status-donut--health" :style="{ '--status-progress': healthRate + '%' }">
 						<div class="status-donut__center">
-							<strong>{{ healthRate ? percentText(healthRate) : '—' }}</strong>
+							<strong>{{ hasHealthResults ? percentText(healthRate) : '—' }}</strong>
 							<span>健康检查</span>
 						</div>
 					</div>
 					<div class="health-summary">
-						<strong>{{ hasUnhealthyChecks ? unhealthyChecksCount + ' 项待处理' : '检查通过' }}</strong>
-						<span>{{ healthEntries.length ? healthyChecksCount + ' / ' + healthEntries.length + ' 项正常' : '等待检查数据' }}</span>
+						<strong>{{ healthSummary }}</strong>
+						<span>{{ healthDescription }}</span>
 					</div>
 				</div>
 			</article>
@@ -141,16 +141,14 @@
 				<header class="dashboard-panel__head">
 					<div>
 						<h2>平台健康</h2>
-						<p>优先显示异常依赖与基础服务。</p>
+						<p>{{ healthReadAt ? '最近读取于 ' + dayjs(healthReadAt).format('HH:mm:ss') : '优先显示异常依赖与基础服务。' }}</p>
 					</div>
-					<span class="health-state" :class="{ 'is-warning': hasUnhealthyChecks }">
-						{{ hasUnhealthyChecks ? unhealthyChecksCount + ' 项待处理' : '检查通过' }}
-					</span>
+					<span class="console-status" :class="healthTone" role="status">{{ healthSummary }}</span>
 				</header>
 
-				<div v-if="healthEntries.length" class="health-list">
+				<div v-if="healthState === 'ready'" class="health-list">
 					<div v-for="item in healthEntries" :key="item.name" class="health-item">
-						<span class="health-item__indicator" :class="{ 'is-healthy': item.status === 'Healthy' }"></span>
+						<span class="health-item__indicator" :class="{ 'is-healthy': item.status === 'Healthy', 'is-degraded': item.status === 'Degraded', 'is-unknown': !healthStatusLabels[item.status] }" aria-hidden="true"></span>
 						<div class="health-item__copy">
 							<strong>{{ item.name }}</strong>
 							<small>{{ item.description || '未提供补充说明' }}</small>
@@ -158,7 +156,7 @@
 						<span class="health-item__status">{{ healthStatusLabel(item.status) }}</span>
 					</div>
 				</div>
-				<el-empty v-else description="暂无健康检查数据" :image-size="72" />
+				<p v-else class="health-placeholder">{{ healthDescription }}</p>
 			</article>
 		</section>
 
@@ -278,6 +276,8 @@ let chartResizeObserver: ResizeObserver | undefined;
 const loading = ref(false);
 const lastUpdated = ref<Date | null>(null);
 const healthEntries = ref<HealthEntry[]>([]);
+const healthState = ref<'loading' | 'ready' | 'empty' | 'forbidden' | 'error'>('loading');
+const healthReadAt = ref<Date | null>(null);
 const kanban = ref<KanbanData>({
 	eventCount: 0,
 	onlineDeviceCount: 0,
@@ -330,9 +330,32 @@ const lastUpdatedText = computed(() => (lastUpdated.value ? dayjs(lastUpdated.va
 const offlineDevices = computed(() => Math.max(kanban.value.deviceCount - kanban.value.onlineDeviceCount, 0));
 const onlineRate = computed(() => ratio(kanban.value.onlineDeviceCount, kanban.value.deviceCount));
 const healthyChecksCount = computed(() => healthEntries.value.filter((item) => item.status === 'Healthy').length);
-const unhealthyChecksCount = computed(() => Math.max(healthEntries.value.length - healthyChecksCount.value, 0));
+const unhealthyChecksCount = computed(() => healthEntries.value.filter((item) => item.status === 'Degraded' || item.status === 'Unhealthy').length);
+const unknownChecksCount = computed(() => healthEntries.value.length - healthyChecksCount.value - unhealthyChecksCount.value);
 const hasUnhealthyChecks = computed(() => unhealthyChecksCount.value > 0);
+const hasHealthResults = computed(() => healthState.value === 'ready' && unknownChecksCount.value === 0);
 const healthRate = computed(() => ratio(healthyChecksCount.value, healthEntries.value.length));
+const healthStateText = {
+	loading: ['检查数据加载中', '正在读取平台健康检查。'],
+	empty: ['暂无检查数据', '尚未收到平台健康检查结果。'],
+	forbidden: ['无权查看', '当前账号无法读取平台健康检查。'],
+	error: ['读取失败', '无法读取平台健康检查，请刷新重试。'],
+};
+const healthSummary = computed(() => {
+	if (healthState.value !== 'ready') return healthStateText[healthState.value][0];
+	if (hasUnhealthyChecks.value) return unhealthyChecksCount.value + ' 项待处理';
+	return unknownChecksCount.value ? '检查状态未知' : '检查通过';
+});
+const healthDescription = computed(() => {
+	if (healthState.value !== 'ready') return healthStateText[healthState.value][1];
+	const normal = healthyChecksCount.value + ' / ' + healthEntries.value.length + ' 项正常';
+	return unknownChecksCount.value ? normal + '，' + unknownChecksCount.value + ' 项未知' : normal;
+});
+const healthTone = computed(() => ({
+	'console-status--success': hasHealthResults.value && !hasUnhealthyChecks.value,
+	'console-status--warning': healthState.value === 'ready' && (hasUnhealthyChecks.value || unknownChecksCount.value > 0),
+	'console-status--danger': healthState.value === 'error',
+}));
 const messageFailureTotal = computed(() => messageMetrics.value.publishedFailed + messageMetrics.value.receivedFailed);
 const messageTotal24h = computed(
 	() =>
@@ -417,7 +440,8 @@ const formatCount = (value: number) => new Intl.NumberFormat('zh-CN').format(val
 const percentText = (value: number) => value.toFixed(1) + '%';
 const ratio = (value: number, total: number) => (total ? (value / total) * 100 : 0);
 const sumValues = (values: number[]) => values.reduce((sum, current) => sum + current, 0);
-const healthStatusLabel = (status: string) => (status === 'Healthy' ? '正常' : status === 'Degraded' ? '降级' : '异常');
+const healthStatusLabels: Record<string, string> = { Healthy: '正常', Degraded: '降级', Unhealthy: '异常' };
+const healthStatusLabel = (status: string) => healthStatusLabels[status] || '未知';
 const openRoute = (path: string) => void router.push(path);
 
 function normalizeHealthEntries(payload: any): HealthEntry[] {
@@ -538,12 +562,23 @@ async function loadTrend() {
 }
 
 async function fetchDashboardData() {
+	if (loading.value) return;
 	loading.value = true;
 	try {
+		healthState.value = 'loading';
 		const [kanbanRes, messageRes, healthRes] = await Promise.allSettled([getKanban(), getMessageInfo(), getHealthChecks()]);
 		if (kanbanRes.status === 'fulfilled') kanban.value = { ...kanban.value, ...kanbanRes.value.data };
 		if (messageRes.status === 'fulfilled') messageMetrics.value = { ...messageMetrics.value, ...messageRes.value.data };
-		if (healthRes.status === 'fulfilled') healthEntries.value = normalizeHealthEntries(healthRes.value);
+		if (healthRes.status === 'fulfilled') {
+			healthEntries.value = normalizeHealthEntries(healthRes.value);
+			healthState.value = healthEntries.value.length ? 'ready' : 'empty';
+			healthReadAt.value = new Date();
+		} else {
+			healthEntries.value = [];
+			healthReadAt.value = null;
+			const status = healthRes.reason?.response?.status;
+			healthState.value = status === 401 || status === 403 ? 'forbidden' : 'error';
+		}
 		const results = [kanbanRes, messageRes, healthRes];
 		if (results.some((result) => result.status === 'fulfilled')) lastUpdated.value = new Date();
 		if (results.some((result) => result.status === 'rejected')) {
@@ -1045,21 +1080,10 @@ onBeforeUnmount(() => {
 	color: var(--iotsharp-danger) !important;
 }
 
-.health-state {
-	display: inline-flex;
-	min-height: 25px;
-	align-items: center;
-	padding: 0 8px;
-	border-radius: 999px;
-	background: var(--iotsharp-success-surface);
-	color: var(--iotsharp-success);
-	font-size: 10px;
-	font-weight: 650;
-}
-
-.health-state.is-warning {
-	background: var(--iotsharp-warning-surface);
-	color: var(--iotsharp-warning);
+.health-placeholder {
+	margin: 0;
+	padding: 14px;
+	color: var(--iotsharp-text-muted);
 }
 
 .health-list {
@@ -1089,6 +1113,14 @@ onBeforeUnmount(() => {
 
 .health-item__indicator.is-healthy {
 	background: var(--iotsharp-success);
+}
+
+.health-item__indicator.is-degraded {
+	background: var(--iotsharp-warning);
+}
+
+.health-item__indicator.is-unknown {
+	background: var(--iotsharp-text-muted);
 }
 
 .health-item__copy {

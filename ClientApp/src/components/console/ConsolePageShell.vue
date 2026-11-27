@@ -36,7 +36,7 @@ interface ConsoleMetric {
 	label: string;
 	value: string | number;
 	hint: string;
-	tone?: 'primary' | 'accent' | 'success' | 'warning';
+	tone?: 'primary' | 'accent' | 'success' | 'warning' | 'danger';
 }
 
 withDefaults(
@@ -172,6 +172,10 @@ withDefaults(
 
 .console-metric.tone-warning {
 	--metric-accent: var(--iotsharp-warning);
+}
+
+.console-metric.tone-danger {
+	--metric-accent: var(--iotsharp-danger);
 }
 
 .console-metric dt {

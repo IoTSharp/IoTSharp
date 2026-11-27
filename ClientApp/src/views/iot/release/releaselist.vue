@@ -4,8 +4,7 @@
 			eyebrow="Release Center"
 			title="受控发布"
 			description="围绕目标范围、灰度批次、人工确认和回滚闭合发布证据。"
-			:badges="badges"
-			:metrics="metrics"
+			:metrics="isNarrow || !loaded || loadFailed ? [] : metrics"
 		>
 			<template #actions>
 				<el-button @click="loadPlans">刷新</el-button>
@@ -17,15 +16,35 @@
 					<div>
 						<h3>发布计划</h3>
 					</div>
-					<el-input v-model="query.name" clearable placeholder="按名称筛选" style="width: 220px" @keyup.enter="loadPlans" />
+					<form class="release-card__filter" @submit.prevent="applyNameFilter">
+						<el-input v-model="draftName" clearable aria-label="计划名称" placeholder="按名称筛选" @clear="applyNameFilter" />
+						<el-button native-type="submit" :loading="loading">查询</el-button>
+					</form>
 				</div>
 
-				<div class="console-list-table" role="region" aria-label="发布计划列表" tabindex="0">
-					<el-table v-loading="loading" :data="plans" row-key="id" size="small" empty-text="还没有发布计划" @row-click="openDetail">
+				<p v-if="loadFailed" class="release-card__notice" role="alert">
+					发布计划加载失败。<el-button link type="primary" @click="loadPlans">重试</el-button>
+				</p>
+				<div v-else-if="isNarrow" :aria-busy="loading" v-loading="loading">
+					<p class="release-card__notice" role="status">{{ resultSummary }}</p>
+					<ul v-if="plans.length" class="release-list" aria-label="发布计划">
+						<li v-for="row in plans" :key="row.id">
+							<div class="release-list__summary">
+								<strong>{{ row.name }}</strong>
+								<span class="console-status" :class="statusClass(row.status)">{{ statusLabel(row.status) }}</span>
+								<span class="release-list__meta">批次 {{ row.currentBatchNo || 0 }} / {{ maxBatch(row) }} · {{ row.succeededTaskCount }}/{{ row.totalTaskCount }} 项成功</span>
+								<span class="release-list__meta">更新于 {{ formatDate(row.updatedAt) }}</span>
+							</div>
+							<el-button link type="primary" :aria-label="'查看详情 ' + row.name" @click="openDetail(row)">详情</el-button>
+						</li>
+					</ul>
+				</div>
+				<div v-else class="console-list-table" role="region" aria-label="发布计划列表" tabindex="0">
+					<el-table v-loading="loading" :data="plans" row-key="id" size="small" :empty-text="resultSummary" @row-click="openDetail">
 						<el-table-column prop="name" label="计划" min-width="220" show-overflow-tooltip />
 						<el-table-column prop="planType" label="类型" width="150" />
 						<el-table-column label="状态" width="150">
-							<template #default="{ row }"><el-tag :type="statusType(row.status)">{{ statusLabel(row.status) }}</el-tag></template>
+							<template #default="{ row }"><span class="console-status" :class="statusClass(row.status)">{{ statusLabel(row.status) }}</span></template>
 						</el-table-column>
 						<el-table-column label="任务进度" width="170">
 							<template #default="{ row }">
@@ -48,19 +67,35 @@
 						</el-table-column>
 					</el-table>
 				</div>
-				<el-pagination v-model:current-page="page" class="console-list-pagination" size="small" background layout="prev, pager, next" :page-size="query.limit" :total="total" @current-change="loadPlans" />
+				<el-pagination
+					v-if="loaded && !loadFailed"
+					:current-page="page"
+					:page-size="pageSize"
+					:total="total"
+					:pager-count="5"
+					class="console-list-pagination"
+					size="small"
+					background
+					:layout="isNarrow ? 'prev, pager, next' : 'total, prev, pager, next'"
+					@update:current-page="changePage"
+				/>
 			</div>
 		</ConsolePageShell>
 
-		<el-drawer v-model="detailVisible" title="发布计划详情" size="720px" destroy-on-close>
+		<el-drawer v-model="detailVisible" title="发布计划详情" size="min(720px, 100%)" destroy-on-close>
 			<template v-if="selectedPlan">
 				<div class="detail-summary">
 					<div><span>计划名称</span><strong>{{ selectedPlan.name }}</strong></div>
-					<div><span>状态</span><el-tag :type="statusType(selectedPlan.status)">{{ statusLabel(selectedPlan.status) }}</el-tag></div>
+					<div><span>状态</span><span class="console-status" :class="statusClass(selectedPlan.status)">{{ statusLabel(selectedPlan.status) }}</span></div>
 					<div><span>批次</span><strong>{{ selectedPlan.currentBatchNo || 0 }} / {{ maxBatch(selectedPlan) }}</strong></div>
+					<div><span>目标任务</span><strong>{{ selectedPlan.totalTaskCount }} 项</strong></div>
 					<div v-if="selectedPlan.configurationVersionId"><span>配置版本</span><strong>{{ selectedPlan.configurationVersionId }}</strong></div>
 				</div>
-				<div class="detail-actions">
+				<p v-if="detailLoading" role="status">正在读取计划详情…</p>
+				<div v-else-if="detailFailed" class="detail-alert" role="alert">
+					计划详情加载失败。<el-button link type="primary" @click="openDetail(selectedPlan)">重试</el-button>
+				</div>
+				<div v-else class="detail-actions">
 					<el-button v-if="canStart(selectedPlan)" type="success" @click="runAction(selectedPlan, 'start')">开始发布</el-button>
 					<el-button v-if="canConfirm(selectedPlan)" type="success" @click="runAction(selectedPlan, 'confirm')">确认下一批</el-button>
 					<el-button v-if="canPause(selectedPlan)" type="warning" @click="runAction(selectedPlan, 'pause')">暂停</el-button>
@@ -68,19 +103,21 @@
 					<el-button v-if="canRollback(selectedPlan)" type="danger" plain @click="runAction(selectedPlan, 'rollback')">回滚</el-button>
 				</div>
 				<el-alert v-if="selectedPlan.description" :title="selectedPlan.description" type="info" :closable="false" class="detail-alert" />
-				<h4>目标任务</h4>
-				<el-table :data="selectedPlan.tasks || []" size="small">
+				<div v-if="!detailLoading && !detailFailed" role="region" aria-label="目标任务和回执" tabindex="0">
+					<h4>目标任务</h4>
+					<el-table :data="selectedPlan.tasks || []" size="small">
 					<el-table-column prop="batchNo" label="批次" width="60" />
 					<el-table-column prop="targetType" label="目标类型" width="130" />
 					<el-table-column prop="targetKey" label="目标" min-width="180" show-overflow-tooltip />
-					<el-table-column label="状态" width="120"><template #default="{ row }"><el-tag size="small" :type="taskStatusType(row.status)">{{ statusLabel(row.status) }}</el-tag></template></el-table-column>
-					<el-table-column prop="message" label="回执" min-width="180" show-overflow-tooltip />
-				</el-table>
+					<el-table-column label="状态" width="120"><template #default="{ row }"><span class="console-status" :class="statusClass(row.status)">{{ statusLabel(row.status) }}</span></template></el-table-column>
+						<el-table-column prop="message" label="回执" min-width="180" show-overflow-tooltip />
+					</el-table>
+				</div>
 			</template>
 		</el-drawer>
 
-		<el-dialog v-model="createVisible" title="新建发布计划" width="640px" destroy-on-close>
-			<el-form label-width="130px">
+		<el-dialog v-model="createVisible" title="新建发布计划" width="min(640px, calc(100vw - 24px))" destroy-on-close>
+			<el-form :label-position="isNarrow ? 'top' : 'right'" label-width="130px">
 				<el-form-item label="计划名称" required><el-input v-model="createForm.name" placeholder="例如：杭州工厂 Edge 灰度升级" /></el-form-item>
 				<el-form-item label="发布类型" required>
 					<el-select v-model="createForm.planType" style="width: 100%" @change="onPlanTypeChange">
@@ -120,11 +157,19 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
+import { useMediaQuery } from '@vueuse/core';
 import ConsolePageShell from '/@/components/console/ConsolePageShell.vue';
-import { releaseApi, type CollectionConfigurationVersion, type ReleasePackage, type ReleasePlan, type ReleasePlanActionRequest, type ReleasePlanCreateRequest, type ReleasePlanStatus, type ReleasePlanType, type ReleaseConfirmationPolicy, type ReleaseTargetType } from '/@/api/release';
+import { releaseApi, type CollectionConfigurationVersion, type ReleasePackage, type ReleasePlan, type ReleasePlanActionRequest, type ReleasePlanCreateRequest, type ReleasePlanType, type ReleaseConfirmationPolicy, type ReleaseTargetType } from '/@/api/release';
 
 const api = releaseApi();
+const isNarrow = useMediaQuery('(max-width: 767px)');
 const loading = ref(false);
+const loaded = ref(false);
+const loadFailed = ref(false);
+const detailLoading = ref(false);
+const detailFailed = ref(false);
+let latestListRequest = 0;
+let latestDetailRequest = 0;
 const creating = ref(false);
 const plans = ref<ReleasePlan[]>([]);
 const packages = ref<ReleasePackage[]>([]);
@@ -132,7 +177,9 @@ const configurationVersions = ref<CollectionConfigurationVersion[]>([]);
 const loadingConfigurationVersions = ref(false);
 const total = ref(0);
 const page = ref(1);
-const query = reactive({ offset: 0, limit: 10, name: '' });
+const pageSize = 10;
+const draftName = ref('');
+const appliedName = ref('');
 const selectedPlan = ref<ReleasePlan>();
 const detailVisible = ref(false);
 const createVisible = ref(false);
@@ -144,27 +191,65 @@ const targetTypes = computed<ReleaseTargetType[]>(() => {
 
 const statusLabels: Record<string, string> = { Draft: '草稿', WaitingConfirmation: '等待确认', Running: '运行中', Paused: '已暂停', Succeeded: '已成功', PartiallySucceeded: '部分成功', Failed: '失败', Cancelled: '已取消', RollingBack: '回滚中', RolledBack: '已回滚', RollbackFailed: '回滚失败', Pending: '待下发', Sent: '已发送', Accepted: '已接收', TimedOut: '超时', RolledBackTask: '已回滚' };
 const statusLabel = (status: string) => statusLabels[status] || status;
-const statusType = (status: string) => ({ Succeeded: 'success', Running: 'primary', Paused: 'warning', WaitingConfirmation: 'warning', Failed: 'danger', RollbackFailed: 'danger', RolledBack: 'info', PartiallySucceeded: 'warning' }[status] || 'info') as any;
-const taskStatusType = (status: string) => statusType(status);
-const formatDate = (value?: string) => value ? new Date(value).toLocaleString() : '--';
+const statusTones: Record<string, string> = {
+	Succeeded: 'success',
+	Running: 'info',
+	Sent: 'info',
+	Accepted: 'info',
+	RollingBack: 'info',
+	RolledBack: 'info',
+	Paused: 'warning',
+	WaitingConfirmation: 'warning',
+	PartiallySucceeded: 'warning',
+	TimedOut: 'warning',
+	Failed: 'danger',
+	RollbackFailed: 'danger',
+};
+const statusClass = (status: string) => statusTones[status] ? 'console-status--' + statusTones[status] : '';
+const formatDate = (value?: string) => {
+	const date = value ? new Date(value) : null;
+	return date && !Number.isNaN(date.getTime()) ? date.toLocaleString() : '—';
+};
 const progress = (row: ReleasePlan) => row.totalTaskCount ? Math.round((row.succeededTaskCount / row.totalTaskCount) * 100) : 0;
 const maxBatch = (row: ReleasePlan) => row.batchSize > 0 ? Math.ceil(row.totalTaskCount / row.batchSize) : (row.totalTaskCount ? 1 : 0);
-const badges = computed(() => [`计划 ${total.value}`, `当前页 ${plans.value.length}`, `进行中 ${plans.value.filter((item) => item.status === 'Running').length}`]);
 const metrics = computed(() => [
-	{ label: '计划总数', value: total.value, hint: '当前租户可见的发布计划。', tone: 'primary' as const },
-	{ label: '运行中', value: plans.value.filter((item) => item.status === 'Running').length, hint: '正在等待任务回执的计划。', tone: 'accent' as const },
-	{ label: '待确认', value: plans.value.filter((item) => item.status === 'WaitingConfirmation').length, hint: '需要人工确认后继续下发。', tone: 'warning' as const },
-	{ label: '失败/回滚失败', value: plans.value.filter((item) => item.status === 'Failed' || item.status === 'RollbackFailed').length, hint: '需要检查回执并决定是否回滚。', tone: 'danger' as const },
+	{ label: '筛选结果', value: total.value, hint: '当前条件下可见的计划。', tone: 'primary' as const },
+	{ label: '本页运行中', value: plans.value.filter((item) => item.status === 'Running').length, hint: '本页状态为运行中的计划。', tone: 'accent' as const },
+	{ label: '本页待确认', value: plans.value.filter((item) => item.status === 'WaitingConfirmation').length, hint: '需人工确认后继续下发。', tone: 'warning' as const },
+	{ label: '本页失败或回滚失败', value: plans.value.filter((item) => item.status === 'Failed' || item.status === 'RollbackFailed').length, hint: '可打开详情核查回执。', tone: 'danger' as const },
 ]);
+const resultSummary = computed(() => {
+	if (loading.value) return '正在加载发布计划…';
+	if (total.value) return '共 ' + total.value + ' 项计划';
+	return appliedName.value ? '没有符合条件的发布计划' : '暂无发布计划';
+});
 
+/** 按已应用的名称查询，保留刷新前的页码。 */
 async function loadPlans() {
+	const requestId = ++latestListRequest;
 	loading.value = true;
-	query.offset = page.value - 1;
+	loadFailed.value = false;
 	try {
-		const response: any = await api.listPlans(query);
+		const response: any = await api.listPlans({ offset: page.value - 1, limit: pageSize, name: appliedName.value });
+		if (requestId !== latestListRequest) return;
 		plans.value = response?.data?.rows || [];
 		total.value = response?.data?.total || 0;
-	} finally { loading.value = false; }
+		loaded.value = true;
+	} catch {
+		if (requestId === latestListRequest) loadFailed.value = true;
+	} finally {
+		if (requestId === latestListRequest) loading.value = false;
+	}
+}
+
+function applyNameFilter() {
+	appliedName.value = draftName.value.trim();
+	changePage(1);
+}
+
+function changePage(nextPage: number) {
+	page.value = nextPage;
+	void loadPlans();
 }
 
 async function loadPackages() {
@@ -174,12 +259,23 @@ async function loadPackages() {
 	} catch { packages.value = []; }
 }
 
+/** 打开详情并读取最新目标任务。只有详情加载成功时显示操作。 */
 async function openDetail(row: ReleasePlan) {
+	const requestId = ++latestDetailRequest;
+	selectedPlan.value = row;
+	detailVisible.value = true;
+	detailLoading.value = true;
+	detailFailed.value = false;
 	try {
 		const response: any = await api.getPlan(row.id);
-		selectedPlan.value = response?.data || row;
-	} catch { selectedPlan.value = row; }
-	detailVisible.value = true;
+		if (requestId !== latestDetailRequest || !detailVisible.value) return;
+		if (response?.data) selectedPlan.value = response.data;
+		else detailFailed.value = true;
+	} catch {
+		if (requestId === latestDetailRequest) detailFailed.value = true;
+	} finally {
+		if (requestId === latestDetailRequest) detailLoading.value = false;
+	}
 }
 
 function openCreate() {
@@ -245,7 +341,7 @@ async function runAction(row: ReleasePlan, action: 'start' | 'confirm' | 'pause'
 		if (action === 'rollback') await api.rollbackPlan(row.id, payload);
 		ElMessage.success(`${labels[action]}已提交`);
 		await loadPlans();
-		if (detailVisible.value) await openDetail(row);
+		if (detailVisible.value && selectedPlan.value?.id === row.id) await openDetail(row);
 	} catch (error: any) {
 		if (error !== 'cancel' && error !== 'close') ElMessage.error(error?.message || `${labels[action]}失败`);
 	}
@@ -276,12 +372,74 @@ onMounted(() => { loadPlans(); loadPackages(); });
 .progress-cell { display:flex; flex-direction:column; gap:4px; }
 .progress-cell .el-progress { width:100px; }
 .detail-summary { display:grid; grid-template-columns: 1fr 1fr 1fr; gap:12px; margin-bottom:20px; }
-.detail-summary > div { display:flex; flex-direction:column; gap:5px; padding:12px; border:1px solid #e2e8f0; border-radius:12px; }
-.detail-summary span { color:#64748b; font-size:12px; }
+.detail-summary > div {
+	display: flex;
+	min-width: 0;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 5px;
+	padding: 12px;
+	border: 1px solid var(--iotsharp-border);
+	border-radius: var(--iotsharp-radius-panel);
+	overflow-wrap: anywhere;
+}
+.detail-summary > div > span:first-child {
+	color: var(--iotsharp-text-soft);
+	font-size: 12px;
+}
 .detail-actions { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; }
 .detail-alert { margin-bottom:18px; }
-.form-hint { color:#94a3b8; font-size:12px; line-height:1.5; }
+.form-hint { color:var(--iotsharp-text-muted); font-size:12px; line-height:1.5; }
 .form-hint.inline { margin-left:10px; }
 .inline-form-control { display:flex; align-items:center; gap:8px; width:100%; }
-@media (max-width: 800px) { .release-card__head { align-items:stretch; flex-direction:column; } .detail-summary { grid-template-columns:1fr; } }
+.release-card__filter {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+.release-card__notice {
+	margin: 10px 0 4px;
+	color: var(--iotsharp-text-soft);
+	font-size: 13px;
+}
+.release-list {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+.release-list li {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 8px;
+	padding: 8px 0;
+}
+.release-list li + li {
+	border-top: 1px solid var(--iotsharp-border);
+}
+.release-list__summary {
+	display: grid;
+	min-width: 0;
+	justify-items: start;
+	gap: 4px;
+	color: var(--iotsharp-ink);
+	overflow-wrap: anywhere;
+}
+.release-list__meta {
+	color: var(--iotsharp-text-soft);
+	font-size: 13px;
+}
+.release-list li > .el-button {
+	flex: none;
+	min-width: 44px;
+	min-height: 44px;
+}
+@media (max-width: 767px) {
+	.release-card { padding: 10px; }
+	.release-card__head { align-items: stretch; flex-direction: column; }
+	.detail-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+	.inline-form-control { flex-wrap: wrap; }
+	.detail-actions .el-button + .el-button { margin-left: 0; }
+}
+
 </style>

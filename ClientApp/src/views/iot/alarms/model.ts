@@ -6,7 +6,7 @@ export interface TableDataRow {
 	alarmType?: string;
 	clearDateTime?: string;
 	endDateTime?: string;
-	originator?: string;
+	originator?: { id?: string; name?: string } | null;
 	originatorId?: string;
 	originatorType?: string;
 	propagate?: string;
