@@ -131,7 +131,8 @@
 		<Exec WorkingDirectory="$(SpaRoot)" Command="npm run build" />
 		<!-- Include the newly-built files in the publish output -->
 		<ItemGroup>
-			<DistFiles Include="$(SpaRoot)dist\**; $(SpaRoot)dist-server\**" Exclude="$(SpaRoot)dist\**\*.gz;$(SpaRoot)dist\**\*.br;$(SpaRoot)dist-server\**\*.gz;$(SpaRoot)dist-server\**\*.br" />
+			<!-- 保留服务端已有站点图标，避免与 ClientApp 构建产物争用同一个 publish 路径。 -->
+			<DistFiles Include="$(SpaRoot)dist\**; $(SpaRoot)dist-server\**" Exclude="$(SpaRoot)dist\favicon.ico;$(SpaRoot)dist\**\*.gz;$(SpaRoot)dist\**\*.br;$(SpaRoot)dist-server\**\*.gz;$(SpaRoot)dist-server\**\*.br" />
 			<ResolvedFileToPublish Include="@(DistFiles->'%(FullPath)')" Exclude="@(ResolvedFileToPublish)">
 				<RelativePath>wwwroot\%(RecursiveDir)%(FileName)%(Extension)</RelativePath>
 				<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
