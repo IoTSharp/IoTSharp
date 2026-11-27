@@ -7,6 +7,7 @@ namespace IoTSharp.Contracts
     public class MqttBrokerSetting
     {
         public int Port { get; set; } = 1883;
+        public string BindAddress { get; set; } = "0.0.0.0";
         public int TlsPort { get; set; } = 8883;
         public bool EnableTls { get; set; } = false;
         public SslProtocols SslProtocol { get; set; } = SslProtocols.Tls12;

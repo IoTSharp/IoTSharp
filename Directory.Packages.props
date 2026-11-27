@@ -5,14 +5,14 @@
   <ItemGroup>
     <PackageVersion Include="AWSSDK.Core" Version="4.0.3.32" />
     <PackageVersion Include="Alba" Version="8.5.2" />
-    <PackageVersion Include="Apache.IoTDB.Data" Version="2.0.8" />
+    <PackageVersion Include="Apache.IoTDB.Data" Version="2.0.11" />
     <PackageVersion Include="AutoMapper" Version="16.1.1" />
     <PackageVersion Include="BenchmarkDotNet" Version="0.15.8" />
     <PackageVersion Include="BouncyCastle.Cryptography" Version="2.6.2" />
     <PackageVersion Include="CAP.Extensions" Version="1.0.37" />
     <PackageVersion Include="CLanguage" Version="0.22.225" />
-    <PackageVersion Include="coverlet.collector" Version="10.0.1" />
-    <PackageVersion Include="CS-Script" Version="4.14.11" />
+    <PackageVersion Include="coverlet.collector" Version="10.1.1" />
+    <PackageVersion Include="CS-Script" Version="4.14.14" />
     <PackageVersion Include="DotNetCore.CAP.AmazonSQS" Version="10.0.1" />
     <PackageVersion Include="DotNetCore.CAP.AzureServiceBus" Version="10.0.1" />
     <PackageVersion Include="DotNetCore.CAP.Dashboard" Version="10.0.1" />
@@ -27,7 +27,7 @@
     <PackageVersion Include="DotNetCore.CAP.RedisStreams" Version="10.0.1" />
     <PackageVersion Include="DotNetCore.CAP.SqlServer" Version="10.0.1" />
     <PackageVersion Include="DotNetDiag.HealthChecks.ClickHouse" Version="10.0.8" />
-    <PackageVersion Include="DotNetDiag.HealthChecks.InfluxDB" Version="10.0.8" />
+    <PackageVersion Include="DotNetDiag.HealthChecks.InfluxDB" Version="10.0.16" />
     <PackageVersion Include="DotNetDiag.HealthChecks.Kafka" Version="10.0.8" />
     <PackageVersion Include="DotNetDiag.HealthChecks.MongoDb" Version="10.0.7" />
     <PackageVersion Include="DotNetDiag.HealthChecks.MySql" Version="10.0.8" />

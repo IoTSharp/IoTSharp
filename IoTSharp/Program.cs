@@ -68,16 +68,16 @@ namespace IoTSharp
 
                     webBuilder.UseKestrel((context, options) =>
                      {
-                          var appServices = options.ApplicationServices;
-                          var hostOptions = new IoTSharpHostOptions();
-                          context.Configuration.Bind(hostOptions);
-                          if (hostOptions.IOTSHARP_ACME)
-                          {
+                         var appServices = options.ApplicationServices;
+                         var hostOptions = new IoTSharpHostOptions();
+                         context.Configuration.Bind(hostOptions);
+                         if (hostOptions.IOTSHARP_ACME)
+                         {
                              ConfigureAcmeEndpoints(options, appServices, hostOptions);
-                          }
-                      });
- 
-                 });
+                         }
+                     });
+
+                });
 
         private static void ConfigureAcmeEndpoints(KestrelServerOptions options, IServiceProvider appServices, IoTSharpHostOptions hostOptions)
         {
@@ -156,7 +156,7 @@ namespace IoTSharp
                     });
                     listenOptions.UseLettuceEncrypt(appServices);
                 }
-                : _ => { };
+        : _ => { };
 
         private static void InitializeProcessPaths()
         {

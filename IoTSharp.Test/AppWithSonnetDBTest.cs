@@ -130,7 +130,12 @@ public sealed class AppWithSonnetDBTest
         await WaitForAsync(
             () => PostApiResultAsync<PagedData<AlarmDto>>(after, "/api/alarm/list", new
             {
-                offset = 0, limit = 10, AlarmStatus = -1, Serverity = -1, OriginatorType = (int)OriginatorType.Device, AlarmType = alarmType
+                offset = 0,
+                limit = 10,
+                AlarmStatus = -1,
+                Serverity = -1,
+                OriginatorType = (int)OriginatorType.Device,
+                AlarmType = alarmType
             }),
             result => result.Data?.rows.Any(row => row.OriginatorId == device.Id) == true,
             "MQTT alarm persisted by device name");
@@ -244,19 +249,31 @@ public sealed class AppWithSonnetDBTest
         // 模拟列表默认请求和仅选择来源类型的请求，均省略可空 Guid 与日期字段。
         var unfiltered = await PostApiResultAsync<PagedData<AlarmDto>>(client, "/api/alarm/list", new
         {
-            offset = 0, limit = 10, AlarmStatus = -1, Serverity = -1, OriginatorType = -1, AlarmType = alarmType
+            offset = 0,
+            limit = 10,
+            AlarmStatus = -1,
+            Serverity = -1,
+            OriginatorType = -1,
+            AlarmType = alarmType
         });
         Assert.Contains(unfiltered.Data!.rows, row => row.OriginatorId == device.Id);
 
         var byOriginatorType = await PostApiResultAsync<PagedData<AlarmDto>>(client, "/api/alarm/list", new
         {
-            offset = 0, limit = 10, AlarmStatus = -1, Serverity = -1, OriginatorType = (int)OriginatorType.Device, AlarmType = alarmType
+            offset = 0,
+            limit = 10,
+            AlarmStatus = -1,
+            Serverity = -1,
+            OriginatorType = (int)OriginatorType.Device,
+            AlarmType = alarmType
         });
         Assert.Contains(byOriginatorType.Data!.rows, row => row.OriginatorId == device.Id);
 
         var audit = await PostApiResultAsync<PagedData<BaseEventDto>>(client, "/api/rules/flowevents", new
         {
-            offset = 0, limit = 10, Name = string.Empty
+            offset = 0,
+            limit = 10,
+            Name = string.Empty
         });
         Assert.NotNull(audit.Data);
         await DeleteDeviceAsync(client, device.Id);

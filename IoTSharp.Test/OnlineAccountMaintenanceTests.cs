@@ -94,8 +94,11 @@ public sealed class OnlineAccountMaintenanceTests : IAsyncLifetime
         verification.MarkDelivered(challenge);
         var result = await controller.Create(new TenantApplicationDto
         {
-            Email = requestEmail, Password = "NewCustomer1!", TenantName = "uninvited",
-            VerificationCode = challenge.Code, PhoneNumber = "18900000000"
+            Email = requestEmail,
+            Password = "NewCustomer1!",
+            TenantName = "uninvited",
+            VerificationCode = challenge.Code,
+            PhoneNumber = "18900000000"
         }, verification, CancellationToken.None);
         Assert.Equal((int)ApiCode.InValidData, result.Code);
         Assert.Null(await _users.FindByNameAsync(requestEmail));
@@ -116,7 +119,9 @@ public sealed class OnlineAccountMaintenanceTests : IAsyncLifetime
         var controller = CreateAccountController(principal);
         var result = await controller.PostAccount(new CreateUserInput
         {
-            Email = "invited@example.test", Password = "InvitedUser1!", CustomerId = customer.Id
+            Email = "invited@example.test",
+            Password = "InvitedUser1!",
+            CustomerId = customer.Id
         });
         Assert.Equal((int)ApiCode.Success, result.Code);
         var invited = (await _users.FindByNameAsync("invited@example.test"))!;
@@ -127,7 +132,9 @@ public sealed class OnlineAccountMaintenanceTests : IAsyncLifetime
         await _context.SaveChangesAsync();
         var denied = await controller.PostAccount(new CreateUserInput
         {
-            Email = "cross-tenant@example.test", Password = "InvitedUser1!", CustomerId = otherCustomer.Id
+            Email = "cross-tenant@example.test",
+            Password = "InvitedUser1!",
+            CustomerId = otherCustomer.Id
         });
         Assert.Equal((int)ApiCode.DoNotAllow, denied.Code);
         Assert.Null(await _users.FindByNameAsync("cross-tenant@example.test"));
@@ -143,8 +150,11 @@ public sealed class OnlineAccountMaintenanceTests : IAsyncLifetime
         verification.MarkDelivered(challenge);
         var result = await controller.Create(new TenantApplicationDto
         {
-            Email = email, Password = "NewCustomer1!", TenantName = "new",
-            VerificationCode = challenge.Code, PhoneNumber = "18900000000"
+            Email = email,
+            Password = "NewCustomer1!",
+            TenantName = "new",
+            VerificationCode = challenge.Code,
+            PhoneNumber = "18900000000"
         }, verification, CancellationToken.None);
         Assert.Equal((int)ApiCode.Success, result.Code);
         var user = (await _users.FindByNameAsync(email))!;
@@ -228,8 +238,10 @@ public sealed class OnlineAccountMaintenanceTests : IAsyncLifetime
 
         await _maintenance.ExecuteAsync(new OnlineAccountMaintenance.Request
         {
-            Mode = "reset-demo", DemoUserId = receipt.DemoUserId,
-            DemoTenantId = receipt.DemoTenantId, DemoPassword = "DemoOriginal1!"
+            Mode = "reset-demo",
+            DemoUserId = receipt.DemoUserId,
+            DemoTenantId = receipt.DemoTenantId,
+            DemoPassword = "DemoOriginal1!"
         });
 
         Assert.Equal(before, await OtherCredentialsAsync(receipt.DemoUserId));
@@ -248,8 +260,10 @@ public sealed class OnlineAccountMaintenanceTests : IAsyncLifetime
         var previousHash = admin.PasswordHash;
         await Assert.ThrowsAsync<InvalidOperationException>(() => _maintenance.ExecuteAsync(new OnlineAccountMaintenance.Request
         {
-            Mode = "reset-demo", DemoUserId = admin.Id,
-            DemoTenantId = receipt.DemoTenantId, DemoPassword = "DemoOriginal1!"
+            Mode = "reset-demo",
+            DemoUserId = admin.Id,
+            DemoTenantId = receipt.DemoTenantId,
+            DemoPassword = "DemoOriginal1!"
         }));
         Assert.Equal(previousHash, admin.PasswordHash);
     }
@@ -262,15 +276,19 @@ public sealed class OnlineAccountMaintenanceTests : IAsyncLifetime
         var previousHash = demo.PasswordHash;
         await Assert.ThrowsAsync<InvalidOperationException>(() => _maintenance.ExecuteAsync(new OnlineAccountMaintenance.Request
         {
-            Mode = "reset-demo", DemoUserId = demo.Id,
-            DemoTenantId = Guid.NewGuid().ToString(), DemoPassword = "DemoOriginal1!"
+            Mode = "reset-demo",
+            DemoUserId = demo.Id,
+            DemoTenantId = Guid.NewGuid().ToString(),
+            DemoPassword = "DemoOriginal1!"
         }));
         Assert.Equal(previousHash, demo.PasswordHash);
     }
 
     private Task<OnlineAccountMaintenance.Receipt> BootstrapAsync() => _maintenance.ExecuteAsync(new OnlineAccountMaintenance.Request
     {
-        Mode = "bootstrap", DemoPassword = "DemoOriginal1!", AdminPassword = "operator-chosen1"
+        Mode = "bootstrap",
+        DemoPassword = "DemoOriginal1!",
+        AdminPassword = "operator-chosen1"
     });
 
     private AccountController CreateAccountController(ClaimsPrincipal principal) => new(

@@ -58,8 +58,13 @@ public sealed class PersonalCenterTests
             var profile = new PersonalProfile { UserId = Guid.NewGuid().ToString(), AvatarPng = [1, 2, 3] };
             var message = new InboxMessage
             {
-                UserId = profile.UserId, TenantId = Guid.NewGuid(), CustomerId = Guid.NewGuid(),
-                Title = "发布批次已提交", Body = "等待执行端拉取", Sender = "发布中心", Category = "release"
+                UserId = profile.UserId,
+                TenantId = Guid.NewGuid(),
+                CustomerId = Guid.NewGuid(),
+                Title = "发布批次已提交",
+                Body = "等待执行端拉取",
+                Sender = "发布中心",
+                Category = "release"
             };
             database.AddRange(profile, message);
             await database.SaveChangesAsync(token);
@@ -110,7 +115,10 @@ public sealed class PersonalCenterTests
         var ownMessage = new InboxMessage { UserId = user.Id, TenantId = tenant.Id, CustomerId = customer.Id };
         var olderMessage = new InboxMessage
         {
-            UserId = user.Id, TenantId = tenant.Id, CustomerId = customer.Id, CreatedAt = ownMessage.CreatedAt.AddMinutes(-1)
+            UserId = user.Id,
+            TenantId = tenant.Id,
+            CustomerId = customer.Id,
+            CreatedAt = ownMessage.CreatedAt.AddMinutes(-1)
         };
         var otherRecipient = new InboxMessage { UserId = otherUser.Id, TenantId = tenant.Id, CustomerId = customer.Id };
         var otherCustomer = new InboxMessage { UserId = user.Id, TenantId = tenant.Id, CustomerId = Guid.NewGuid() };
