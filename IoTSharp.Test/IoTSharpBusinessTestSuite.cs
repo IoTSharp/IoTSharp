@@ -439,6 +439,23 @@ public abstract class IoTSharpBusinessTestSuite<TFixture>
             ]
         });
         var savedConfig = await ReadApiResultAsync<EdgeCollectionConfigurationDto>(saveConfig);
+        if (Fixture.Profile?.DataBase == DataBaseType.SonnetDB)
+        {
+            // 上游事务租约合同验收前，SonnetDB 可以注册 EdgeNode，配置写入必须拒绝。见 #1269。
+            Assert.Equal((int)ApiCode.InValidData, savedConfig.Code);
+            Assert.Contains("require verified transactional atomic updates", savedConfig.Msg);
+            Assert.Null(savedConfig.Data);
+
+            var rejectedVersions = await GetApiResultAsync<PagedData<CollectionConfigurationVersionDto>>(client, $"/api/Edge/{deviceId}/CollectionConfigVersions?limit=10");
+            Assert.Equal((int)ApiCode.Success, rejectedVersions!.Code);
+            Assert.Empty(rejectedVersions.Data!.rows);
+
+            var rejectedAssignments = await GetApiResultAsync<PagedData<EdgeCollectionAssignmentDto>>(client, $"/api/Edge/{deviceId}/CollectionAssignments?limit=10");
+            Assert.Equal((int)ApiCode.Success, rejectedAssignments!.Code);
+            Assert.Empty(rejectedAssignments.Data!.rows);
+            return;
+        }
+
         Assert.Equal((int)ApiCode.Success, savedConfig.Code);
         Assert.NotNull(savedConfig.Data);
         Assert.Equal("ProductCollectionTemplate", savedConfig.Data!.SourceType);
