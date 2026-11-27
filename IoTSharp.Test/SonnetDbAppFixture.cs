@@ -13,7 +13,7 @@ namespace IoTSharp.Test;
 public sealed class SonnetDbAppFixture : AppInstance
 {
     private const string AdminToken = "iotsharp_sonnetdb_test_token_change_me";
-    private const string DefaultImage = "ghcr.io/iotsharp/sonnetdb:5.2.0";
+    private const string DefaultImage = "iotsharp/sonnetdb:5.2.0";
 
     private SonnetDbContainer? _sonnetDb;
 
