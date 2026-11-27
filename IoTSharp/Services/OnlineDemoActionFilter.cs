@@ -23,8 +23,10 @@ internal sealed class OnlineDemoActionFilter(OnlineDemoSettings settings) : IAsy
 
         context.Result = new ObjectResult(new ProblemDetails
         {
-            Status = StatusCodes.Status403Forbidden, Title = "该操作在公开演示租户中不可用。"
-        }) { StatusCode = StatusCodes.Status403Forbidden };
+            Status = StatusCodes.Status403Forbidden,
+            Title = "该操作在公开演示租户中不可用。"
+        })
+        { StatusCode = StatusCodes.Status403Forbidden };
     }
 
     private static bool IsAllowed(HttpContext context, ControllerActionDescriptor action)
