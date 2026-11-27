@@ -15,6 +15,7 @@ using IoTSharp.Controllers;
 using IoTSharp.Data;
 using IoTSharp.Dtos;
 using IoTSharp.Models;
+using IoTSharp.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -457,20 +458,28 @@ public sealed class TenantCustomerScopeTests
         var seeded = await SeedAsync();
         var email = $"scope-{Guid.NewGuid():N}@example.test";
         using var client = _fixture.CreateClient();
-        using (var registration = await client.PostAsJsonAsync("/api/Account/Create", new InstallDto
+        var emailVerification = _fixture.Services.GetRequiredService<TenantEmailVerification>();
+        var challenge = emailVerification.Reserve(email)!;
+        emailVerification.MarkDelivered(challenge);
+        var application = new TenantApplicationDto
         {
             Email = email,
             Password = "ScopedRegression1!",
             TenantName = "scope-http-tenant",
-            CustomerName = "scope-http-customer",
-            TenantEMail = email,
-            CustomerEMail = email,
-            PhoneNumber = "18900000000"
-        }, token))
+            PhoneNumber = "18900000000",
+            VerificationCode = challenge.Code == "111111" ? "222222" : "111111"
+        };
+        using (var wrongCode = await client.PostAsJsonAsync("/api/Account/Create", application, token))
+            Assert.Equal((int)ApiCode.InValidData, (await ReadAsync<LoginResult>(wrongCode, token)).Code);
+
+        application.VerificationCode = challenge.Code;
+        using (var registration = await client.PostAsJsonAsync("/api/Account/Create", application, token))
         {
             var result = await ReadAsync<LoginResult>(registration, token);
             Assert.Equal((int)ApiCode.Success, result.Code);
         }
+        using (var replay = await client.PostAsJsonAsync("/api/Account/Create", application, token))
+            Assert.Equal((int)ApiCode.InValidData, (await ReadAsync<LoginResult>(replay, token)).Code);
 
         var captchaId = Guid.NewGuid().ToString("N");
         Guid ownTenantId;
@@ -505,6 +514,13 @@ public sealed class TenantCustomerScopeTests
         {
             AssertDenied(await ReadAsync<Tenant>(tenantRead, token));
         }
+        using (var current = await client.GetAsync("/api/Tenants/current", token))
+            Assert.Equal(ownTenantId, (await ReadAsync<Tenant>(current, token)).Data!.Id);
+        using (var crossCurrent = await client.PutAsJsonAsync("/api/Tenants/current",
+            new Tenant { Id = seeded.TenantB.Id, Name = "wrong-tenant" }, token))
+            Assert.Equal((int)ApiCode.InValidData, (await ReadAsync<Tenant>(crossCurrent, token)).Code);
+        using (var systemSettings = await client.GetAsync("/api/SystemSettings/email", token))
+            Assert.Equal(System.Net.HttpStatusCode.Forbidden, systemSettings.StatusCode);
         using (var tenantWrite = await client.PutAsJsonAsync($"/api/Tenants/{seeded.TenantB.Id}",
             new Tenant { Id = seeded.TenantB.Id, Name = "http-cross-tenant" }, token))
         {
@@ -528,7 +544,7 @@ public sealed class TenantCustomerScopeTests
         {
             Assert.Equal((int)ApiCode.Success, (await ReadAsync<Customer>(ownCustomerRead, token)).Code);
         }
-        using (var ownTenantWrite = await client.PutAsJsonAsync($"/api/Tenants/{ownTenantId}",
+        using (var ownTenantWrite = await client.PutAsJsonAsync("/api/Tenants/current",
             new Tenant { Id = ownTenantId, Name = "http-own-tenant", Email = email }, token))
         {
             Assert.Equal((int)ApiCode.Success, (await ReadAsync<Tenant>(ownTenantWrite, token)).Code);

@@ -1,397 +1,134 @@
 <template>
-	<div class="signup-page">
-		<div class="signup-page__glow"></div>
-		<div class="signup-shell">
-			<AuthShowcase
-				eyebrow="账号注册"
-				title="创建 IoTSharp 账号"
-				description="填写租户和管理员信息，注册完成后返回登录页。"
-				link-to="/login"
-				link-label="已有账号？去登录"
-				:primary-card="showcasePrimaryCard"
-				:metrics="showcaseMetrics"
-				:tags="showcaseTags"
-			/>
-
-			<section class="signup-panel">
-				<div class="signup-panel__header">
-					<div class="signup-panel__eyebrow">Register</div>
-					<h2>注册账号</h2>
-					<p>填写必要信息后提交。注册成功会自动跳转到登录页。</p>
-				</div>
-
-				<div class="signup-panel__steps">
-					<div v-for="item in setupSteps" :key="item.label" class="signup-step">
-						<span>{{ item.label }}</span>
-						<strong>{{ item.title }}</strong>
-						<small>{{ item.description }}</small>
+	<main class="tenant-application">
+		<div class="tenant-application__card">
+			<header>
+				<RouterLink to="/" aria-label="IoTSharp 首页"><AppLogo /></RouterLink>
+				<RouterLink to="/login">返回登录</RouterLink>
+			</header>
+			<h1>申请创建租户</h1>
+			<p>验证邮箱后即可开通租户。开通后，租户管理员在控制台创建内部账号。</p>
+			<el-form ref="formRef" :model="form" :rules="rules" label-position="top" @submit.prevent="submit">
+				<el-form-item label="租户名称" prop="tenantName">
+					<el-input v-model.trim="form.tenantName" autocomplete="organization" maxlength="100" />
+				</el-form-item>
+				<el-form-item label="租户管理员邮箱" prop="email">
+					<el-input v-model.trim="form.email" autocomplete="email" inputmode="email" maxlength="254" />
+				</el-form-item>
+				<el-form-item label="邮箱验证码" prop="verificationCode">
+					<div class="tenant-application__code">
+						<el-input v-model.trim="form.verificationCode" autocomplete="one-time-code" inputmode="numeric" maxlength="6" />
+						<el-button :disabled="!!resendTimer || submitting" :loading="sending" @click="sendCode">
+							{{ resendTimer ? '验证码已发送' : '发送验证码' }}
+						</el-button>
 					</div>
-				</div>
-
-				<div class="signup-panel__form">
-					<FormCreate ref="formRef" v-model:api="fApi" :rule="rules" :option="options" @submit="onSubmit"></FormCreate>
-				</div>
-
-				<div class="signup-panel__footer">
-					<span>提交成功后将自动跳转到登录页。</span>
-					<RouterLink to="/login">返回登录</RouterLink>
-				</div>
-			</section>
+				</el-form-item>
+				<el-form-item label="密码" prop="password">
+					<el-input v-model="form.password" type="password" show-password autocomplete="new-password" maxlength="100"
+						placeholder="至少 6 位，含大小写字母、数字和特殊字符" />
+				</el-form-item>
+				<el-form-item label="手机号" prop="phoneNumber">
+					<el-input v-model.trim="form.phoneNumber" autocomplete="tel" inputmode="tel" maxlength="16" />
+				</el-form-item>
+				<el-button class="tenant-application__submit" type="primary" native-type="submit" :disabled="sending" :loading="submitting">
+					申请创建租户
+				</el-button>
+			</el-form>
 		</div>
-	</div>
+	</main>
 </template>
 
-<script lang="ts" setup>
-import { ref, type Ref } from 'vue';
-import { useRouter, RouterLink } from 'vue-router';
-import { ElMessage } from 'element-plus';
-import formCreate, { type Api } from '/@/utils/formCreate';
-import { signup } from '/@/api/account';
-import AuthShowcase from '/@/views/login/component/AuthShowcase.vue';
-import { signUpRule } from './signup_form_rules';
-import { option } from './signup_form_option';
+<script setup lang="ts">
+import { onBeforeUnmount, reactive, ref } from 'vue';
+import { RouterLink, useRouter } from 'vue-router';
+import { ElMessage, type FormInstance, type FormRules } from 'element-plus';
+import AppLogo from '/@/components/AppLogo.vue';
+import { sendTenantVerificationCode, signup } from '/@/api/account';
 
 const router = useRouter();
-const formRef = ref(null);
-const options = ref(option);
-const fApi: Ref<Api | null> = ref(null);
-const FormCreate = formCreate.$form();
-
-const showcasePrimaryCard = {
-	label: '注册内容',
-	value: '租户 + 管理员',
-	title: '创建管理空间',
-	description: '系统会保存租户资料，并创建对应的管理员账号。',
+const formRef = ref<FormInstance>();
+const sending = ref(false);
+const submitting = ref(false);
+const resendTimer = ref<number>();
+const form = reactive({ tenantName: '', email: '', verificationCode: '', password: '', phoneNumber: '' });
+const rules: FormRules<typeof form> = {
+	tenantName: [{ required: true, message: '请输入租户名称', trigger: 'blur' }],
+	email: [{ required: true, type: 'email', message: '请输入有效的邮箱地址', trigger: 'blur' }],
+	verificationCode: [{ required: true, pattern: /^\d{6}$/, message: '请输入 6 位邮箱验证码', trigger: 'blur' }],
+	password: [{ required: true, min: 6, message: '请输入至少 6 位密码', trigger: 'blur' }],
+	phoneNumber: [{ required: true, pattern: /^\+?\d{7,15}$/, message: '请输入有效的手机号', trigger: 'blur' }],
 };
 
-const showcaseMetrics = [
-	{
-		label: '需要填写',
-		value: '4 组信息',
-		description: '账号、密码、租户和联系方式。',
-		tone: 'accent' as const,
-	},
-	{
-		label: '隔离范围',
-		value: '租户',
-		description: '数据和权限按租户边界管理。',
-		tone: 'primary' as const,
-	},
-	{
-		label: '下一步',
-		value: '登录',
-		description: '注册成功后使用管理员账号登录。',
-		tone: 'success' as const,
-	},
-];
+onBeforeUnmount(() => window.clearTimeout(resendTimer.value));
 
-const showcaseTags = ['租户', '管理员', '联系信息', '密码'];
-
-const setupSteps = [
-	{ label: '01', title: '填写资料', description: '录入管理员、租户和邮箱信息。' },
-	{ label: '02', title: '设置密码', description: '确认两次密码输入一致。' },
-	{ label: '03', title: '返回登录', description: '注册成功后使用新账号登录。' },
-];
-
-const validatePassCheck = (rule: any, value: any, callback: any) => {
-	if (value === '') {
-		callback(new Error('请再次输入密码'));
-	} else if (value !== fApi.value?.form.password) {
-		callback(new Error('两次输入的密码不一致'));
-	} else {
-		callback();
-	}
-};
-
-const rules = ref(
-	signUpRule.map((item, index) => {
-		if (index !== 3) return { ...item };
-		return {
-			...item,
-			validate: [
-				...(item.validate || []),
-				{
-					required: true,
-					trigger: 'change',
-					validator: validatePassCheck,
-				},
-			],
-		};
-	})
-);
-
-function onSubmit(data: any) {
+async function sendCode() {
+	if (sending.value || resendTimer.value || !await formRef.value?.validateField('email').catch(() => false)) return;
+	sending.value = true;
 	try {
-		fApi.value?.validate(async (valid) => {
-			if (valid) {
-				try {
-					await signup(data);
-					ElMessage.success('注册成功');
-					await router.replace({ name: 'login' });
-				} catch (error: any) {
-					ElMessage.error('注册失败');
-					for (const item of Object.values(error?.response?.data?.errors || {})) {
-						ElMessage.error(String(item));
-					}
-				}
-			} else {
-				ElMessage.error('请正确填写注册信息');
-			}
-		});
-	} catch (error) {
-		ElMessage.error('请正确填写注册信息');
+		const result = await sendTenantVerificationCode(form.email);
+		resendTimer.value = window.setTimeout(() => { resendTimer.value = undefined; }, result.data * 1000);
+		ElMessage.success('验证码已发送，10 分钟内有效');
+	} catch {
+		// 请求通知由公共客户端处理。
+	} finally {
+		sending.value = false;
+	}
+}
+
+async function submit() {
+	if (submitting.value || sending.value || !await formRef.value?.validate().catch(() => false)) return;
+	submitting.value = true;
+	try {
+		await signup({ ...form });
+		ElMessage.success('租户已开通，请使用管理员邮箱登录');
+		await router.replace({ name: 'login' });
+	} catch {
+		// 请求通知由公共客户端处理。
+	} finally {
+		submitting.value = false;
 	}
 }
 </script>
 
-<style lang="scss" scoped>
-.signup-page {
-	position: relative;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	min-height: 100vh;
-	padding: 24px;
-	background:
-		radial-gradient(circle at top left, rgba(96, 165, 250, 0.16), transparent 28%),
-		radial-gradient(circle at bottom right, rgba(14, 165, 233, 0.18), transparent 26%),
-		linear-gradient(180deg, #f4f9ff 0%, #eef6ff 48%, #fbfdff 100%);
-	overflow: hidden;
-}
-
-.signup-page__glow {
-	position: absolute;
-	inset: 0;
-	background-image:
-		linear-gradient(rgba(148, 163, 184, 0.08) 1px, transparent 1px),
-		linear-gradient(90deg, rgba(148, 163, 184, 0.08) 1px, transparent 1px);
-	background-size: 46px 46px;
-	mask-image: radial-gradient(circle at center, #000 45%, transparent 88%);
-	pointer-events: none;
-}
-
-.signup-shell {
-	position: relative;
-	z-index: 1;
+<style scoped>
+.tenant-application {
 	display: grid;
-	grid-template-columns: 1fr minmax(440px, 520px);
-	width: min(1260px, 100%);
-	min-height: min(820px, calc(100vh - 48px));
-	border-radius: 34px;
-	border: 1px solid rgba(255, 255, 255, 0.72);
-	background: rgba(255, 255, 255, 0.42);
-	box-shadow: 0 30px 80px rgba(15, 23, 42, 0.12);
-	backdrop-filter: blur(20px);
-	overflow: hidden;
+	place-items: center;
+	min-height: 100dvh;
+	padding: 24px 16px;
+	background: var(--iotsharp-quiet-gradient);
 }
-
-.signup-panel {
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	gap: 24px;
-	padding: 36px 40px;
-	background: rgba(255, 255, 255, 0.95);
+.tenant-application__card {
+	width: min(100%, 480px);
+	padding: clamp(22px, 5vw, 36px);
+	border: 1px solid var(--iotsharp-border);
+	border-radius: var(--iotsharp-radius-panel);
+	background: var(--iotsharp-surface);
+	box-shadow: var(--iotsharp-shadow-panel);
 }
-
-.signup-panel__eyebrow {
-	margin-bottom: 12px;
-	color: #2563eb;
-	font-size: 12px;
-	font-weight: 700;
-	letter-spacing: 0.18em;
-	text-transform: uppercase;
-}
-
-.signup-panel__header h2 {
-	margin: 0 0 12px;
-	color: #123b6d;
-	font-size: 32px;
-	letter-spacing: -0.04em;
-}
-
-.signup-panel__header p {
-	margin: 0;
-	color: #64748b;
-	font-size: 14px;
-	line-height: 1.85;
-}
-
-.signup-panel__steps {
-	display: grid;
-	grid-template-columns: repeat(3, minmax(0, 1fr));
-	gap: 12px;
-}
-
-.signup-step {
-	padding: 14px 16px;
-	border-radius: 18px;
-	border: 1px solid rgba(226, 232, 240, 0.9);
-	background: linear-gradient(180deg, rgba(248, 251, 255, 0.96), rgba(255, 255, 255, 0.98));
-}
-
-.signup-step span {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	width: 30px;
-	height: 30px;
-	border-radius: 999px;
-	background: rgba(37, 99, 235, 0.08);
-	color: #2563eb;
-	font-size: 12px;
-	font-weight: 700;
-}
-
-.signup-step strong {
-	display: block;
-	margin-top: 12px;
-	color: #123b6d;
-	font-size: 15px;
-	font-weight: 700;
-}
-
-.signup-step small {
-	display: block;
-	margin-top: 6px;
-	color: #7c8da1;
-	font-size: 12px;
-	line-height: 1.6;
-}
-
-.signup-panel__form {
-	padding: 22px;
-	border-radius: 26px;
-	border: 1px solid rgba(226, 232, 240, 0.9);
-	background: linear-gradient(180deg, rgba(248, 251, 255, 0.94), rgba(255, 255, 255, 0.98));
-}
-
-.signup-panel__footer {
+header, .tenant-application__code {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	gap: 16px;
-	padding-top: 18px;
-	border-top: 1px solid rgba(226, 232, 240, 0.9);
-	color: #64748b;
-	font-size: 12px;
+	width: 100%;
+	gap: 10px;
 }
-
-.signup-panel__footer a {
-	color: #2563eb;
-	text-decoration: none;
-	font-weight: 600;
-}
-
-:deep(.el-form-item) {
-	margin-bottom: 16px;
-}
-
-:deep(.el-input__wrapper) {
-	min-height: 46px;
-	border-radius: 14px;
-}
-
-:deep(.el-button) {
-	height: 48px;
-	border-radius: 14px;
-	box-shadow: 0 18px 32px rgba(37, 99, 235, 0.18);
-}
-
-:deep(.el-form-item__label) {
-	display: none !important;
-}
-
-@media (max-width: 1080px) {
-	.signup-shell {
-		grid-template-columns: 1fr;
-		max-width: 720px;
-	}
-}
-
-@media (max-width: 767px) {
-	.signup-page {
-		padding: 0;
-	}
-
-	.signup-shell {
-		min-height: 100vh;
-		border-radius: 0;
-	}
-
-	.signup-panel {
-		padding: 24px;
-	}
-
-	.signup-panel__steps {
-		grid-template-columns: 1fr;
-	}
-
-	.signup-panel__footer {
-		flex-direction: column;
-		align-items: flex-start;
-	}
-}
-
-/* 与控制台共用 XJETC 主题、紧凑边角和实色表单面。 */
-.signup-page {
-	background: var(--iotsharp-quiet-gradient);
-	overflow-y: auto;
-}
-
-.signup-page__glow,
-.signup-panel__eyebrow,
-.signup-panel__steps {
-	display: none;
-}
-
-.signup-shell {
-	border: 1px solid rgba(var(--iotsharp-accent-rgb), 0.18);
-	border-radius: 8px;
-	background: rgba(255, 255, 255, 0.66);
-	box-shadow: var(--iotsharp-shadow-float);
-	backdrop-filter: blur(20px) saturate(1.15);
-}
-
-.signup-panel {
-	gap: 18px;
-	background: rgba(255, 255, 255, 0.95);
-}
-
-.signup-panel__header h2 {
-	margin-bottom: 7px;
-	color: var(--iotsharp-ink);
-	font-size: 24px;
-	letter-spacing: 0;
-}
-
-.signup-panel__header p,
-.signup-panel__footer {
-	color: var(--iotsharp-text-muted);
-}
-
-.signup-panel__form {
-	padding: 0;
-	border: 0;
-	border-radius: 0;
-	background: transparent;
-}
-
-.signup-panel__footer {
-	border-color: var(--iotsharp-border);
-}
-
-.signup-panel__footer a {
+header a {
 	color: var(--iotsharp-accent);
+	text-decoration: none;
 }
-
-:deep(.el-input__wrapper),
-:deep(.el-button) {
-	border-radius: var(--iotsharp-radius-control);
+h1 {
+	margin: 24px 0 8px;
+	color: var(--iotsharp-ink);
+	font-size: 26px;
 }
-
-:deep(.el-button) {
-	height: 42px;
-	box-shadow: 0 9px 20px rgba(var(--iotsharp-accent-rgb), 0.18);
+p {
+	margin: 0 0 22px;
+	color: var(--iotsharp-text-muted);
+	line-height: 1.6;
+}
+.tenant-application__submit {
+	width: 100%;
+	min-height: 40px;
+	margin-top: 4px;
 }
 </style>

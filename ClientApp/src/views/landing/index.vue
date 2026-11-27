@@ -63,7 +63,7 @@
 				<RouterLink v-if="isInstalled" class="entry-access__primary" to="/login">进入控制台</RouterLink>
 				<RouterLink v-else class="entry-access__primary" to="/installer">开始初始化</RouterLink>
 				<div class="entry-access__links">
-					<RouterLink to="/signup">注册租户账号</RouterLink>
+					<RouterLink to="/signup">申请创建租户</RouterLink>
 					<RouterLink to="/installer">系统初始化</RouterLink>
 				</div>
 			</section>

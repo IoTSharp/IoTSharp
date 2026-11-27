@@ -53,9 +53,8 @@
 			</el-form>
 
 			<div class="account-login__signup">
-				<span>还没有账号？</span>
 				<router-link to="/signup">
-					<el-link type="primary" underline="never">立即注册</el-link>
+					<el-link type="primary" underline="never">申请创建租户</el-link>
 				</router-link>
 			</div>
 		</div>

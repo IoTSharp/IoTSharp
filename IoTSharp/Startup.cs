@@ -137,6 +137,9 @@ namespace IoTSharp
                 .AddRoleManager<RoleManager<IdentityRole>>()
                 .AddDefaultTokenProviders()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
+            services.AddSingleton<SystemEmailSettings>();
+            services.AddSingleton<TenantEmailVerification>();
+            services.AddSingleton<ITenantVerificationMailSender, SystemEmailSender>();
 
 
 

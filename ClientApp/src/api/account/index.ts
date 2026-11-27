@@ -1,12 +1,10 @@
 import request from '/@/utils/request';
-interface signUpForm {
+interface TenantApplication {
     email: string;
-    customerName: string;
     password: string;
-    tenantEMail: string;
     tenantName: string;
-    phoneNumber?: any;
-    customerEMail: string;
+    phoneNumber: string;
+    verificationCode: string;
 }
 export function ModifyMyInfo(params:any){
     return request({
@@ -16,8 +14,11 @@ export function ModifyMyInfo(params:any){
     });
 }
 // 租户注册
-export function signup(params:signUpForm) {
+export function signup(params: TenantApplication) {
     return request.post(`/api/account/create`, params)
+}
+export function sendTenantVerificationCode(email: string) {
+    return request.post<unknown, { data: number }>('/api/account/sendTenantVerificationCode', { email });
 }
 export function ModifyMyPassword(params:any){
     return request({

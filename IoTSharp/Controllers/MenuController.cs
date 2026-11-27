@@ -45,9 +45,12 @@ namespace IoTSharp.Controllers
             {
                 sysmenu.Add(new() { text = "证书管理", i18n = "", vi18n = "iot.certmnt", routename = "certmnt", link = "/iot/settings/certmgr", vpath = "/iot/settings/certmgr", });
                 sysmenu.Add(new() { text = "租户列表", i18n = "", vi18n = "iot.tenantlist", routename = "tenantlist", link = "/iot/settings/tenantlist", vpath = "/iot/settings/tenantlist" });
+                sysmenu.Add(new() { text = "系统配置", routename = "systemsettings", link = "/iot/settings/systemsettings", vpath = "/iot/settings/systemsettings" });
             }
             if (User.IsInRole(nameof(UserRole.TenantAdmin)))
             {
+                if (!User.IsInRole(nameof(UserRole.SystemAdmin)))
+                    sysmenu.Add(new() { text = "租户设置", routename = "tenantsettings", link = "/iot/settings/tenantsettings", vpath = "/iot/settings/tenantsettings" });
                 sysmenu.Add(new() { text = "客户列表", i18n = "", vi18n = "iot.customerlist", routename = "customerlist", link = "/iot/settings/customerlist", vpath = "/iot/settings/customerlist", });
             }
             if (User.IsInRole(nameof(UserRole.CustomerAdmin)))

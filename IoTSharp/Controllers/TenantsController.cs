@@ -62,6 +62,19 @@ namespace IoTSharp.Controllers
             return new ApiResult<PagedData<Tenant>>(ApiCode.Success, "OK", data);
         }
 
+        /// <summary>读取租户管理员所属的租户资料。</summary>
+        [Authorize(Roles = nameof(UserRole.TenantAdmin))]
+        [HttpGet("current")]
+        public Task<ApiResult<Tenant>> GetCurrentTenant() => GetTenant(CurrentTenantId());
+
+        /// <summary>按登录租户保存资料。目标由身份声明确定。</summary>
+        [Authorize(Roles = nameof(UserRole.TenantAdmin))]
+        [HttpPut("current")]
+        public Task<ApiResult<Tenant>> PutCurrentTenant(Tenant tenant) => PutTenant(CurrentTenantId(), tenant);
+
+        private Guid CurrentTenantId() => !User.IsInRole(nameof(UserRole.SystemAdmin)) &&
+            Guid.TryParse(User.FindFirst(IoTSharpClaimTypes.Tenant)?.Value, out var id) ? id : Guid.Empty;
+
         /// <summary>
         /// 读取当前账号可访问的未删除租户，系统管理员可跨租户查询。
         /// </summary>
@@ -96,7 +109,7 @@ namespace IoTSharp.Controllers
         /// <param name="id">目标租户标识，必须与请求体一致。</param>
         /// <param name="tenant">待更新的租户资料，仅复制允许编辑的字段。</param>
         /// <returns>更新后的租户；校验失败、越权或保存失败时不返回数据。</returns>
-        [Authorize(Roles = nameof(UserRole.TenantAdmin))]
+        [Authorize(Roles = nameof(UserRole.TenantAdmin) + "," + nameof(UserRole.SystemAdmin))]
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -115,6 +128,10 @@ namespace IoTSharp.Controllers
                 return new ApiResult<Tenant>(ApiCode.CantFindObject, "can't find this object", null);
             }
 
+            if (string.IsNullOrWhiteSpace(tenant.Name) || tenant.Name.Length > 100 ||
+                !string.IsNullOrWhiteSpace(tenant.Email) && !new System.ComponentModel.DataAnnotations.EmailAddressAttribute().IsValid(tenant.Email))
+                return new ApiResult<Tenant>(ApiCode.InValidData, "请检查租户名称和联系邮箱。", null);
+
             var existingTenant = await _context.Tenant
                 .FirstOrDefaultAsync(c => c.Id == id && !c.Deleted);
             if (existingTenant == null)
@@ -123,7 +140,7 @@ namespace IoTSharp.Controllers
             }
 
             // 只更新租户资料字段，禁止请求体覆盖身份、删除标记和导航属性。
-            existingTenant.Name = tenant.Name;
+            existingTenant.Name = tenant.Name.Trim();
             existingTenant.Email = tenant.Email;
             existingTenant.Phone = tenant.Phone;
             existingTenant.Country = tenant.Country;

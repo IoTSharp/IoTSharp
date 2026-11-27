@@ -181,7 +181,7 @@ export const staticRoutes: Array<RouteRecordRaw> = [
 		name: 'signup',
 		component: () => import('/@/views/login/signup.vue'),
 		meta: {
-			title: '注册',
+			title: '申请创建租户',
 		},
 	},
 	{

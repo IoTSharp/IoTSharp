@@ -1,8 +1,10 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Security.Claims;
+using System.Threading;
 using System.Threading.Tasks;
 using IoTSharp.Contracts;
 using IoTSharp.Data;
@@ -14,6 +16,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
@@ -85,14 +88,17 @@ public sealed class OnlineAccountMaintenanceTests : IAsyncLifetime
     {
         var receipt = await BootstrapAsync();
         var controller = CreateAccountController(new ClaimsPrincipal());
-        var result = await controller.Create(new InstallDto
+        using var verification = new TenantEmailVerification();
+        const string requestEmail = "uninvited@example.test";
+        var challenge = verification.Reserve(OnlineAccountMaintenance.DemoName)!;
+        verification.MarkDelivered(challenge);
+        var result = await controller.Create(new TenantApplicationDto
         {
-            Email = "uninvited@example.test", Password = "NewCustomer1!", TenantName = "uninvited",
-            CustomerName = "uninvited", TenantEMail = OnlineAccountMaintenance.DemoName,
-            CustomerEMail = OnlineAccountMaintenance.DemoName
-        });
-        Assert.Equal((int)ApiCode.AlreadyExists, result.Code);
-        Assert.Null(await _users.FindByNameAsync("uninvited@example.test"));
+            Email = requestEmail, Password = "NewCustomer1!", TenantName = "uninvited",
+            VerificationCode = challenge.Code, PhoneNumber = "18900000000"
+        }, verification, CancellationToken.None);
+        Assert.Equal((int)ApiCode.InValidData, result.Code);
+        Assert.Null(await _users.FindByNameAsync(requestEmail));
         Assert.Single(_context.Tenant);
         Assert.NotNull(await _users.FindByIdAsync(receipt.DemoUserId));
     }
@@ -131,16 +137,63 @@ public sealed class OnlineAccountMaintenanceTests : IAsyncLifetime
     public async Task PublicRegistration_CreatesIndependentTenantWithoutSystemAdministrator()
     {
         var controller = CreateAccountController(new ClaimsPrincipal());
-        var result = await controller.Create(new InstallDto
+        using var verification = new TenantEmailVerification();
+        const string email = "new@example.test";
+        var challenge = verification.Reserve(email)!;
+        verification.MarkDelivered(challenge);
+        var result = await controller.Create(new TenantApplicationDto
         {
-            Email = "new@example.test", Password = "NewCustomer1!", TenantName = "new", CustomerName = "new",
-            TenantEMail = "tenant@example.test", CustomerEMail = "business@example.test"
-        });
+            Email = email, Password = "NewCustomer1!", TenantName = "new",
+            VerificationCode = challenge.Code, PhoneNumber = "18900000000"
+        }, verification, CancellationToken.None);
         Assert.Equal((int)ApiCode.Success, result.Code);
-        var user = (await _users.FindByNameAsync("new@example.test"))!;
+        var user = (await _users.FindByNameAsync(email))!;
+        Assert.True(user.EmailConfirmed);
         Assert.True(await _users.IsInRoleAsync(user, nameof(UserRole.TenantAdmin)));
         Assert.False(await _users.IsInRoleAsync(user, nameof(UserRole.SystemAdmin)));
         Assert.Single(_context.Tenant);
+    }
+
+    [Fact]
+    public void SystemEmailSettings_PersistsAndDoesNotReturnSmtpCredential()
+    {
+        var directory = Directory.CreateTempSubdirectory("IoTSharp.Test-SystemEmail-");
+        try
+        {
+            var configuration = new ConfigurationBuilder()
+                .AddInMemoryCollection(new Dictionary<string, string?>
+                {
+                    ["SystemEmail:StateDirectory"] = directory.FullName
+                })
+                .Build();
+            const string credential = "only-used-in-this-smtp-fixture";
+            var controller = new SystemSettingsController(new SystemEmailSettings(configuration));
+            var request = new SystemEmailSettingsDto
+            {
+                Host = "smtp.example.test",
+                Username = "mailer@example.test",
+                SenderAddress = "mailer@example.test",
+                Password = credential
+            };
+            Assert.Equal((int)ApiCode.Success, controller.SetEmail(request).Code);
+            Assert.DoesNotContain(credential, File.ReadAllText(Path.Combine(directory.FullName, "smtp.protected")));
+
+            var afterRestart = new SystemEmailSettings(configuration);
+            controller = new SystemSettingsController(afterRestart);
+            var view = controller.GetEmail().Data;
+            Assert.True(view.HasPassword);
+            Assert.DoesNotContain(credential, System.Text.Json.JsonSerializer.Serialize(view));
+            request.Password = null!;
+            request.Port = 587;
+            request.ImplicitTls = false;
+            Assert.Equal((int)ApiCode.Success, controller.SetEmail(request).Code);
+            Assert.Equal(587, afterRestart.Read().Port);
+            Assert.Equal(credential, afterRestart.Read().Password);
+        }
+        finally
+        {
+            directory.Delete(recursive: true);
+        }
     }
 
     [Fact]

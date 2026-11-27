@@ -20,6 +20,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace IoTSharp.Controllers
@@ -396,73 +397,103 @@ namespace IoTSharp.Controllers
         }
 
         /// <summary>
-        /// 注册新的租户，客户，以及用户
+        /// 向租户申请人发送管理员邮箱验证码。
         /// </summary>
-        /// <param name="model"></param>
-        /// <returns >返回登录结果</returns>
         [AllowAnonymous]
         [HttpPost]
-        public async Task<ApiResult<LoginResult>> Create([FromBody] InstallDto model)
+        public async Task<ApiResult<int>> SendTenantVerificationCode(TenantApplicationEmailDto request,
+            [FromServices] TenantEmailVerification verification, [FromServices] ITenantVerificationMailSender sender,
+            CancellationToken cancellationToken)
         {
-            if (string.IsNullOrWhiteSpace(model.TenantEMail) || string.IsNullOrWhiteSpace(model.CustomerEMail))
-                return new ApiResult<LoginResult>(ApiCode.InValidData, "注册新租户必须提供租户与客户邮箱。", null);
-            if (await _userManager.FindByEmailAsync(model.Email) != null)
-                return new ApiResult<LoginResult>(ApiCode.UserAlreadyExists, "用户已存在。", null);
-            var tenant = _context.Tenant.FirstOrDefault(t => t.Email == model.TenantEMail && t.Deleted == false);
-            var customer = _context.Customer.FirstOrDefault(t => t.Email == model.CustomerEMail && t.Deleted == false);
-            // 自助注册只能创建独立租户，不能凭已有业务邮箱加入他人的客户范围。
-            if (tenant != null || customer != null)
-                return new ApiResult<LoginResult>(ApiCode.AlreadyExists, "租户或客户已存在，请由对应管理员邀请。", null);
-            await using var registrationTransaction = _context.Database.IsRelational()
-                ? await _context.Database.BeginTransactionAsync() : null;
-            if (tenant == null && customer == null)
+            var email = request.Email.Trim();
+            var challenge = verification.Reserve(email);
+            if (challenge == null)
+                return new(ApiCode.DoNotAllow, "请求过于频繁，请稍后重新获取验证码。", 0);
+
+            try
             {
-                tenant = new Tenant() { Id = Guid.NewGuid(), Name = model.TenantName, Email = model.TenantEMail };
-                customer = new Customer() { Id = Guid.NewGuid(), Name = model.CustomerName, Email = model.CustomerEMail };
-                customer.Tenant = tenant;
-                tenant.Customers = new List<Customer>();
-                tenant.Customers.Add(customer);
-                _context.Tenant.Add(tenant);
-                _context.Customer.Add(customer);
-                await _context.SaveChangesAsync();
+                if (!await sender.SendAsync(email, challenge.Code, cancellationToken))
+                    return new(ApiCode.DoNotAllow, "平台尚未配置邮件发送，请联系平台管理员。", 0);
+
+                verification.MarkDelivered(challenge);
+                return new(ApiCode.Success, "验证码已发送。", TenantEmailVerification.ResendSeconds);
             }
-            IdentityUser user = await _userManager.FindByEmailAsync(model.Email);
-            if (user == null)
+            catch (Exception ex) when (!cancellationToken.IsCancellationRequested)
             {
-                user = new IdentityUser
-                {
-                    Email = model.Email,
-                    UserName = model.Email,
-                    PhoneNumber = model.PhoneNumber
-                };
-                var result = await _userManager.CreateAsync(user, model.Password);
-                if (result.Succeeded)
-                {
-                    await _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Email, model.Email));
-                    await _userManager.AddClaimAsync(user, new Claim(IoTSharpClaimTypes.Customer, customer.Id.ToString()));
-                    await _userManager.AddClaimAsync(user, new Claim(IoTSharpClaimTypes.Tenant, tenant.Id.ToString()));
-                    await _userManager.AddToRoleAsync(user, nameof(UserRole.Anonymous));
-                    await _userManager.AddToRoleAsync(user, nameof(UserRole.NormalUser));
-                    await _userManager.AddToRoleAsync(user, nameof(UserRole.CustomerAdmin));
-                    await _userManager.AddToRoleAsync(user, nameof(UserRole.TenantAdmin));
-                    _context.Relationship.Add(new Relationship
-                    {
-                        IdentityUser = _context.Users.Find(user.Id),
-                        Customer = _context.Customer.Find(customer.Id),
-                        Tenant = _context.Tenant.Find(tenant.Id)
-                    });
-                    await _context.SaveChangesAsync();
-                    if (registrationTransaction != null) await registrationTransaction.CommitAsync();
-                    return new ApiResult<LoginResult>(ApiCode.Success, "OK", null);
-                }
-                else
-                {
-                    throw new Exception(string.Join(',', result.Errors.ToList().Select(ie => $"code={ie.Code},msg={ie.Description}")));
-                }
+                _logger.LogWarning("租户验证码邮件未发送。{ExceptionType}", ex.GetType().Name);
+                return new(ApiCode.Exception, "验证码发送失败，请稍后重试。", 0);
             }
-            else
+        }
+
+        /// <summary>
+        /// 验证管理员邮箱后，创建独立租户、默认客户和首位管理员。
+        /// </summary>
+        [AllowAnonymous]
+        [HttpPost]
+        public async Task<ApiResult<LoginResult>> Create(TenantApplicationDto model,
+            [FromServices] TenantEmailVerification verification, CancellationToken cancellationToken)
+        {
+            var email = model.Email.Trim();
+            var user = new IdentityUser
             {
-                return new ApiResult<LoginResult>(ApiCode.UserAlreadyExists, "The user already exists", null);
+                Email = email,
+                EmailConfirmed = true,
+                UserName = email,
+                PhoneNumber = model.PhoneNumber
+            };
+
+            foreach (var validator in _userManager.PasswordValidators)
+            {
+                var validation = await validator.ValidateAsync(_userManager, user, model.Password);
+                if (!validation.Succeeded)
+                    return new(ApiCode.InValidData, "密码至少 6 位，且必须包含大写字母、小写字母、数字和特殊字符。", null);
+            }
+
+            if (!verification.TryConsume(email, model.VerificationCode))
+                return new(ApiCode.InValidData, "邮箱验证码无效或已过期，请检查后重试。", null);
+
+            try
+            {
+                if (await _userManager.FindByNameAsync(email) != null || await _userManager.FindByEmailAsync(email) != null)
+                    return new(ApiCode.UserAlreadyExists, "该邮箱已有账号，请直接登录或联系租户管理员。", null);
+
+                await using var transaction = _context.Database.IsRelational()
+                    ? await _context.Database.BeginTransactionAsync(cancellationToken) : null;
+                var created = await _userManager.CreateAsync(user, model.Password);
+                if (!created.Succeeded)
+                {
+                    if (created.Errors.Any(error => error.Code is "DuplicateUserName" or "DuplicateEmail"))
+                        return new(ApiCode.UserAlreadyExists, "该邮箱已有账号，请直接登录或联系租户管理员。", null);
+                    return new(ApiCode.InValidData, "管理员账号创建失败，请检查邮箱和密码。", null);
+                }
+
+                var tenant = new Tenant { Name = model.TenantName.Trim(), Email = email, Phone = model.PhoneNumber };
+                var customer = new Customer { Name = tenant.Name, Email = email, Phone = model.PhoneNumber, Tenant = tenant };
+                var claims = await _userManager.AddClaimsAsync(user,
+                [
+                    new Claim(ClaimTypes.Email, email),
+                    new Claim(IoTSharpClaimTypes.Customer, customer.Id.ToString()),
+                    new Claim(IoTSharpClaimTypes.Tenant, tenant.Id.ToString())
+                ]);
+                if (!claims.Succeeded)
+                    throw new InvalidOperationException("Tenant administrator claims could not be saved.");
+
+                var roles = await _userManager.AddToRolesAsync(user,
+                [nameof(UserRole.Anonymous), nameof(UserRole.NormalUser), nameof(UserRole.CustomerAdmin), nameof(UserRole.TenantAdmin)]);
+                if (!roles.Succeeded)
+                    throw new InvalidOperationException("Tenant administrator roles could not be saved.");
+
+                _context.Relationship.Add(new Relationship { IdentityUser = user, Customer = customer, Tenant = tenant });
+                await _context.SaveChangesAsync(cancellationToken);
+                if (transaction != null)
+                    await transaction.CommitAsync(cancellationToken);
+
+                return new(ApiCode.Success, "租户已开通，请使用管理员邮箱登录。", null);
+            }
+            catch (Exception ex) when (!cancellationToken.IsCancellationRequested)
+            {
+                _logger.LogError("租户申请保存失败。{ExceptionType}", ex.GetType().Name);
+                return new(ApiCode.Exception, "租户创建失败，请重新获取验证码后重试。", null);
             }
         }
 

@@ -82,6 +82,7 @@
 		<PackageReference Include="LiteDB" />
 		<PackageReference Include="Microsoft.AspNetCore.OpenApi" />
 		<PackageReference Include="Microsoft.AspNetCore.SpaProxy" />
+		<PackageReference Include="MailKit" />
 		<PackageReference Include="Microsoft.CodeAnalysis.Common" />
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools">
