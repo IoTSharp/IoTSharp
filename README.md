@@ -89,6 +89,7 @@ For frontend development, the current local dev server default is:
 - Chinese README: [README.zh.md](README.zh.md)
 - Turkish README: [README.tr.md](README.tr.md)
 - Roadmap: [ROADMAP.md](ROADMAP.md)
+- Native desktop and mobile clients and the mini-program roadmap: [IoTSharp Client](ROADMAP.md#iotsharp-client)
 - Changelog: [CHANGELOG.md](CHANGELOG.md)
 
 ## 🤝 Contributing

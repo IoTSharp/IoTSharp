@@ -1,5 +1,12 @@
 # IoTSharp 本次路线规划交接
 
+## 2026-11-28（Asia/Shanghai）IoTSharp Client 接入与 .NET 11 起步
+
+- IoTSharp 父仓通过 `Client/` Git 子模块跟踪 `IoTSharp/Client` 的 `main@6dca11e6d8e498028a5d7f62f6ee6d60771d11c5`，客户端路线图、MAUI 升级和首批源码随该提交交付。
+- 客户端采用 .NET SDK `11.0.100` 系列和 MAUI Controls `11.0.10`，目标为 Windows、Android、iPhone 和 Mac Catalyst。子模块内沿用客户端自己的包版本配置。小程序首版按微信小程序规划，单独实现前端并复用 IoTSharp API。
+- 已实现桌面并排和窄屏纵向布局、验证码等比例缩放、实例地址切换和登录请求修复，以及登录后首个设备的数据自动加载。`Client/ROADMAP.md` 记录 5 个里程碑及 18 个有序任务，当前下一项为 C06 的令牌续期与过期处理。
+- Windows 目标构建通过，命令为 `dotnet build IoTSharp.Client/IoTSharp.Client.csproj -f net11.0-windows10.0.19041.0 -p:TargetFrameworks=net11.0-windows10.0.19041.0 --no-restore`，执行目录为 `Client/`。依赖通过本机代理还原，首次编译输出含 WinRT AOT 兼容性警告。真实业务联调、自动化测试和其他平台构建待执行。本轮启动的构建进程已退出，常规编译产物留在客户端的忽略目录。
+
 ## 2026-11-25（Asia/Shanghai）SonnetMQ 属性批处理与写入恢复
 
 - 属性消费继续每条消息调用一次 `SaveChanges`，统一由 SonnetDB 服务端、ADO.NET 和 EF Core provider 协商有序事务 DML 批处理。现有公开包版本沿用配置。隔离候选联调通过，测试逐条核对两条 QoS 1 消息的入队和消费位点，并在确认后读取属性值。

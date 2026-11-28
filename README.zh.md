@@ -41,6 +41,8 @@ IoTSharp 将构建生产级 IoT 平台所需的关键能力组合在一起：
 
 当前主应用基于 `.NET 10`，Web 控制台基于 Vue 3，并已全面统一为 IoTSharp 品牌界面。
 
+原生桌面端、移动端和小程序在 [IoTSharp Client](ROADMAP.md#iotsharp-client) 轨道推进。
+
 ## 🧱 产品矩阵（云边一体）
 
 IoTSharp 不只是单个平台应用，而是一套覆盖「平台 - 边缘 - 设备」三层加一个 AI 底座的开源产品矩阵：

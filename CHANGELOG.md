@@ -8,6 +8,7 @@ This project follows a lightweight Keep a Changelog style. Version numbers in th
 
 ### Added
 
+- 通过 `Client/` Git 子模块接入 IoTSharp 独立客户端仓库，并登记 Windows、macOS、iPhone、Android 和微信小程序交付路线。
 - 在官方演示首页和中英文 README 展示公开演示地址、账号及密码，并明确正常注册账号可用于测试服务、账号和业务数据不参与演示重置且长期保留。
 
 - 增加受保护的 Online 演示账号维护命令，绑定用户 ID 和演示租户，只恢复指定演示凭据；IoTSharp Online 与 SonnetDB 最新主干客户端完成同版本部署及公开注册/数据保留验收。

@@ -2,3 +2,7 @@
 	path = IoTSharp.Data.JsonDB
 	url = https://github.com/IoTSharp/Data.JsonDB.git
 	branch = main
+[submodule "Client"]
+	path = Client
+	url = https://github.com/IoTSharp/Client.git
+	branch = main
