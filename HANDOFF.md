@@ -1,5 +1,11 @@
 # IoTSharp 本次路线规划交接
 
+## 2026-11-28（Asia/Shanghai）IoTSharp Client M1 会话
+
+- 子模块升级至 `IoTSharp/Client main@d5f1ea1a2a696632f45228b9dc719303ff00428f`。客户端接入平台令牌续期，清理已过期或切换实例的会话，区分 401 和 403，兼容平台业务成功码 `10000`。
+- Windows 目标构建退出码为 0，有 37 条警告，应用启动到登录页。演示站验证码端点返回 HTTP 200、业务码 `10000` 和两张验证码图。本轮启动的客户端进程已回收。
+- C06 实现完成。C07 仍需人工完成演示账号滑块，并读回登录、选设备、最新遥测和退出。运行时续期、自动化测试和其他平台构建待执行。
+
 ## 2026-11-28（Asia/Shanghai）IoTSharp Client 接入与 .NET 11 起步
 
 - IoTSharp 父仓通过 `Client/` Git 子模块跟踪 `IoTSharp/Client` 的 `main@6dca11e6d8e498028a5d7f62f6ee6d60771d11c5`，客户端路线图、MAUI 升级和首批源码随该提交交付。
