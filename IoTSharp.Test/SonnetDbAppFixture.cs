@@ -6,12 +6,17 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using IoTSharp.Contracts;
+using IoTSharp.Data;
+using IoTSharp.Services;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Testcontainers.SonnetDB;
 
 namespace IoTSharp.Test;
 
-public sealed class SonnetDbAppFixture : AppInstance
+public class SonnetDbAppFixture : AppInstance
 {
+    internal const string ConfigurationLeaseQualificationVariable = "IOTSHARP_SONNETDB_LEASE_QUALIFICATION";
     private const string AdminToken = "iotsharp_sonnetdb_test_token_change_me";
     private const string DefaultImage = "ghcr.io/iotsharp/sonnetdb:5.2.0";
 
@@ -54,7 +59,7 @@ public sealed class SonnetDbAppFixture : AppInstance
             EventBusMqConnectionString = events,
             CachingUseSonnetDBConnectionString = cache,
             BlobStorageConnectionString = "sonnetdb://blob?bucket=iotsharp-blob-storage&connectionString=" + Uri.EscapeDataString(objects)
-        });
+        }, ConfigureLeaseQualificationServices);
     }
 
     /// <summary>
@@ -64,7 +69,17 @@ public sealed class SonnetDbAppFixture : AppInstance
     {
         var profile = Profile ?? throw new InvalidOperationException("The SonnetDB fixture has not started.");
         await StopApplicationAsync();
-        await InitializeApplicationAsync(profile);
+        await InitializeApplicationAsync(profile, ConfigureLeaseQualificationServices);
+    }
+
+    /// <summary>在需要资格验证的测试宿主中注册远程租约候选。</summary>
+    protected virtual void ConfigureLeaseQualificationServices(IServiceCollection services)
+    {
+        if (Environment.GetEnvironmentVariable(ConfigurationLeaseQualificationVariable) == "1")
+        {
+            services.Replace(ServiceDescriptor.Scoped(sp => new ConfigurationOperationLeaseService(
+                sp.GetRequiredService<ApplicationDbContext>(), qualifySonnetDb: true)));
+        }
     }
 
     /// <summary>

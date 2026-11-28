@@ -2,8 +2,11 @@ using IoTSharp.Contracts;
 using IoTSharp.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
+using SonnetDB.Data;
+using SonnetDB.Exceptions;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,17 +18,30 @@ namespace IoTSharp.Services
     /// </summary>
     public sealed class ConfigurationOperationLeaseService
     {
+        private const string SonnetDbProviderName = "SonnetDB.EntityFrameworkCore";
         private static readonly TimeSpan AcquisitionTimeout = TimeSpan.FromSeconds(30);
         private static readonly TimeSpan LeaseDuration = TimeSpan.FromMinutes(5);
         private readonly ApplicationDbContext _context;
+        private readonly bool _qualifySonnetDb;
 
         /// <summary>
         /// 创建使用当前请求数据库上下文的配置写互斥服务。
         /// </summary>
         /// <param name="context">当前请求数据库上下文。</param>
         public ConfigurationOperationLeaseService(ApplicationDbContext context)
+            : this(context, qualifySonnetDb: false)
+        {
+        }
+
+        /// <summary>
+        /// 为集成验证显式启用远程 SonnetDB 租约。平台的默认构造函数保持关闭。
+        /// </summary>
+        /// <param name="context">当前请求数据库上下文。</param>
+        /// <param name="qualifySonnetDb">是否运行远程 SonnetDB 租约资格验证。</param>
+        internal ConfigurationOperationLeaseService(ApplicationDbContext context, bool qualifySonnetDb)
         {
             _context = context;
+            _qualifySonnetDb = qualifySonnetDb;
         }
 
         /// <summary>
@@ -35,12 +51,16 @@ namespace IoTSharp.Services
             ? "Gateway configuration operation is already in progress"
             : $"Gateway configuration operations require verified transactional atomic updates; provider {_context.Database.ProviderName} is not supported";
 
+        private bool UsesSonnetDbLease()
+            => _qualifySonnetDb && _context.Database.ProviderName == SonnetDbProviderName
+                && _context.Database.GetDbConnection() is SndbConnection { ProviderMode: SndbProviderMode.Remote };
+
         private bool IsSupportedProvider()
             => _context.Database.ProviderName is "Microsoft.EntityFrameworkCore.Sqlite"
                 or "Npgsql.EntityFrameworkCore.PostgreSQL"
                 or "Microsoft.EntityFrameworkCore.SqlServer"
                 or "Pomelo.EntityFrameworkCore.MySql"
-                or "Oracle.EntityFrameworkCore";
+                or "Oracle.EntityFrameworkCore" || UsesSonnetDbLease();
 
         /// <summary>
         /// 保存首次配置操作的 EdgeNode 锚点；并发请求已创建同一锚点时重新读取该记录。
@@ -106,7 +126,11 @@ namespace IoTSharp.Services
             owner = owner.Length > 256 ? owner[..256] : owner;
             using var acquisitionCancellation = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             acquisitionCancellation.CancelAfter(AcquisitionTimeout);
-            var transaction = await _context.Database.BeginTransactionAsync(acquisitionCancellation.Token);
+            var usesSonnetDbLease = UsesSonnetDbLease();
+            // 远程 Serializable 必须收到服务端会话及隔离级别确认。
+            var transaction = usesSonnetDbLease
+                ? await _context.Database.BeginTransactionAsync(IsolationLevel.Serializable, acquisitionCancellation.Token)
+                : await _context.Database.BeginTransactionAsync(acquisitionCancellation.Token);
             var leaseId = Guid.NewGuid();
             var now = DateTime.UtcNow;
             var leaseAcquired = false;
@@ -115,6 +139,11 @@ namespace IoTSharp.Services
                 foreach (var gatewayId in ids)
                 {
                     acquisitionCancellation.Token.ThrowIfCancellationRequested();
+                    if (usesSonnetDbLease && !await TryLockSonnetDbNodeAsync(transaction, gatewayId, acquisitionCancellation.Token))
+                    {
+                        return null;
+                    }
+
                     var affected = await _context.EdgeNodes
                         .Where(node => node.GatewayId == gatewayId && !node.Deleted
                             && (node.ConfigurationOperationId == null
@@ -131,7 +160,7 @@ namespace IoTSharp.Services
                 }
 
                 leaseAcquired = true;
-                return new ConfigurationOperationLease(_context, transaction, ids, leaseId);
+                return new ConfigurationOperationLease(_context, transaction, ids, leaseId, usesSonnetDbLease);
             }
             finally
             {
@@ -146,6 +175,30 @@ namespace IoTSharp.Services
                         await transaction.DisposeAsync();
                     }
                 }
+            }
+        }
+
+        /// <summary>
+        /// 在已确认隔离级别的远程会话中锁定 Gateway 锚点。竞争者可以结束本次请求并重新读取业务状态。
+        /// </summary>
+        private async Task<bool> TryLockSonnetDbNodeAsync(IDbContextTransaction transaction, Guid gatewayId,
+            CancellationToken cancellationToken)
+        {
+            await using var command = _context.Database.GetDbConnection().CreateCommand();
+            command.Transaction = transaction.GetDbTransaction();
+            command.CommandText = """SELECT "Id" FROM "EdgeNodes" WHERE "GatewayId" = @gatewayId AND NOT "Deleted" FOR UPDATE NOWAIT""";
+            var parameter = command.CreateParameter();
+            parameter.ParameterName = "@gatewayId";
+            parameter.DbType = DbType.Guid;
+            parameter.Value = gatewayId;
+            command.Parameters.Add(parameter);
+            try
+            {
+                return await command.ExecuteScalarAsync(cancellationToken) is not null and not DBNull;
+            }
+            catch (SndbServerException exception) when (exception.Error == SqlRowLockException.NotAvailable)
+            {
+                return false;
             }
         }
 
@@ -171,6 +224,8 @@ namespace IoTSharp.Services
         private readonly IDbContextTransaction _transaction;
         private readonly IReadOnlyList<Guid> _gatewayIds;
         private readonly Guid _leaseId;
+        private readonly bool _usesSonnetDbLease;
+        private bool _sonnetDbCommitAttempted;
         private bool _completed;
 
         /// <summary>
@@ -180,13 +235,15 @@ namespace IoTSharp.Services
         /// <param name="transaction">持有互斥写锁的数据库事务。</param>
         /// <param name="gatewayIds">已获取租约的 Gateway 标识。</param>
         /// <param name="leaseId">本次操作租约标识。</param>
+        /// <param name="usesSonnetDbLease">底层事务是否采用 SonnetDB 远程会话。</param>
         internal ConfigurationOperationLease(ApplicationDbContext context, IDbContextTransaction transaction,
-            IReadOnlyList<Guid> gatewayIds, Guid leaseId)
+            IReadOnlyList<Guid> gatewayIds, Guid leaseId, bool usesSonnetDbLease)
         {
             _context = context;
             _transaction = transaction;
             _gatewayIds = gatewayIds;
             _leaseId = leaseId;
+            _usesSonnetDbLease = usesSonnetDbLease;
         }
 
         /// <summary>
@@ -200,6 +257,11 @@ namespace IoTSharp.Services
                 return;
             }
 
+            if (_sonnetDbCommitAttempted)
+            {
+                throw new InvalidOperationException("Reconcile the previous gateway configuration commit before starting another operation");
+            }
+
             var affected = await _context.EdgeNodes
                 .Where(node => _gatewayIds.Contains(node.GatewayId) && node.ConfigurationOperationId == _leaseId)
                 .ExecuteUpdateAsync(setters => setters
@@ -209,6 +271,13 @@ namespace IoTSharp.Services
             if (affected != _gatewayIds.Count)
             {
                 throw new DbUpdateConcurrencyException("Gateway configuration operation lease was lost");
+            }
+
+            if (_usesSonnetDbLease)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                // SonnetDB ADO 在提交尝试失败后关闭该事务句柄。保留提交异常供调用方对账。
+                _sonnetDbCommitAttempted = true;
             }
 
             await _transaction.CommitAsync(cancellationToken);
@@ -222,7 +291,7 @@ namespace IoTSharp.Services
         {
             try
             {
-                if (!_completed)
+                if (!_completed && !_sonnetDbCommitAttempted)
                 {
                     await _transaction.RollbackAsync(CancellationToken.None);
                 }

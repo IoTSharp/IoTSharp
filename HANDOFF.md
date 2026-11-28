@@ -1,5 +1,20 @@
 # IoTSharp 本次路线规划交接
 
+## 2026-11-28（Asia/Shanghai）SonnetDB #425 配置操作租约候选
+
+- 提交前，四个改动的 C# 文件通过 `dotnet format style` 和 `dotnet format analyzers` 的 error 级别检查。`.gitattributes` 对 C# 指定 LF，当前 `.editorconfig` 的换行检查要求 CRLF。综合格式命令触发 ENDOFLINE 并达到输出上限，源码和暂存区保留 Git 规范化的 LF。
+
+- 最终二进制的完整 25 项以 `--logger "trx;LogFileName=iotsharp-lease-official-final-serial.trx"` 和 `-- xUnit.ParallelizeTestCollections=false xUnit.MaxParallelThreads=1` 串行复跑，25/25 PASS，零失败零跳过。使用相同的正式包和固定镜像摘要。运行 PID 74156，约 84 秒，退出 0，Cordonix 回收后的任务进程数为 0。TRX SHA-256 为 `02719D07C835875D304A9066B9CF407717820B871D012E7473F7D452B5D804D2`。按回执逐一查询 `42df1113e439`、`59b6ff77559b`、`6577cd72132b`，均已回收。
+
+- 专用工作树 `D:\GitHub\IoTSharp-issue-425-cross-instance-lease`，交付分支 `codex/issue-425-cross-instance-lease`，基线 `a8a26743a523405ca37d41df792931f37b11db26`。按 gitlink 恢复 JsonDB `38c0ff1dfac8be1164fe4ffe15259f36dd16bd0a`。已获授权提交、回复 SonnetDB #425 并推送交付分支。生产 provider 准入等待上游发布验收。
+- 测试宿主启用的远程 SonnetDB 候选要求服务端确认 Serializable 事务会话，使用带 Gateway 参数的 `SELECT ... FOR UPDATE NOWAIT` 持行锁至事务结束，只将 `sql_lock_not_available` 映射为忙碌。继续要求条件写入得到准确影响行数，并以 Gateway 和本次租约 ID 条件释放。提交尝试发出后保留原异常，禁止重复尝试同一个句柄。生产 DI 仍拒绝 SonnetDB，嵌入式也继续拒绝。正式 5.2.0 的事务开始取消、提交异常与存储恢复仍有上游缺口。
+- 七个 5.2.0 包都从 nuget.org 读取，nuspec 均绑定 `cbbe5ed2e64879ea6fb7650d1d7b3ff4eee2909d`，与测试使用的镜像 `iotsharp/sonnetdb@sha256:bc0c473ba905d60c7d4db4f0d48b53dccb0069f31884a3d1ccadb5a2cc5da449` 匹配。Release 测试输出的 EF、ADO DLL SHA-256 分别为 `153154647EB2DFB820D60DE8F031266E239C0E48E0637253D478B746159DBEF5`、`8B4EB16919591857B845D01477DFD9DB0D15AE210D89C50BCD832AD07A0906E5`。相关依赖及目标框架维持现有版本。
+- 在工作树执行 `dotnet restore IoTSharp.Test/IoTSharp.Test.csproj --configfile IoTSharp.Test/obj/issue425-official/NuGet.config --packages IoTSharp.Test/obj/issue425-official/packages --disable-parallel -m:1 -nr:false`，隔离官方 SonnetDB 源，已知本地缓存只补其它包。Restore PASS，NuGet 审计报告既有依赖告警。完整构建 FAIL，ClientApp 的 npm build 返回 MSB3073。使用 `dotnet build IoTSharp.Test/IoTSharp.Test.csproj -c Release --no-restore --disable-build-servers -m:1 -nr:false -p:UseSharedCompilation=false -p:GeneratePackageOnBuild=false -p:ShouldRunNpmInstall=false -p:ShouldRunBuildScript=false -p:StaticWebAssetsEnabled=false` 后端构建 PASS。首轮 62 个告警，隔离夹具后的最终增量构建 55 个告警，均为本轮未改动处，0 错误。
+- 首轮以 `IOTSHARP_SONNETDB_LEASE_QUALIFICATION=1` 和 `SONNETDB_TEST_IMAGE` 固定镜像执行 `dotnet test IoTSharp.Test/IoTSharp.Test.csproj -c Release --no-build --no-restore --disable-build-servers -m:1 -nr:false --filter "FullyQualifiedName~ConfigurationOperationLeaseTests|FullyQualifiedName~AppWithSonnetDBTest" --logger "trx;LogFileName=iotsharp-lease-official.trx" --results-directory IoTSharp.Test/obj/issue425-official`。22 PASS、1 FAIL、0 跳过。5 个候选租约用例、SQLite 回归、原 SonnetDB 安全拒绝、EdgeRuntime 配置业务均 PASS。失败项为 `AppWithSonnetDBTest` 跨测试共享设备库的分页断言，租约用例移入专属容器后以相同命令复测，TRX 文件名改为 `iotsharp-lease-official-final.trx`，最终 24/24 PASS，零失败零跳过。6 个远程租约用例包含真实 HTTP 进入提交阶段时注入异常，500 返回后从独立 DbContext 确认旧配置版本、唯一 active assignment 和保留属性版本仍为 1，租约为空。
+- 加入提交后的应用故障用例，最终后端构建 PASS。全组 25 项重跑到 300 秒时终止，TRX 未生成，结果 UNKNOWN。随后在同一最终二进制按 `FullyQualifiedName~CommitStageFailure_LeavesNoConfigurationVersionOrAssignment|FullyQualifiedName~CommittedBeforeHttpFailure_CanReconcileByCallerSourceId` 定向验证，两项均 PASS。第二项在数据库确认提交后使 HTTP 返回 500，新客户端使用原 `SourceId` 读回唯一配置版本，另一个 DbContext 确认唯一 active assignment 及空租约。SQL 会话的提交响应丢失由专门的传输探针验证。两组有效回执为 `iotsharp-lease-official-final.trx`（24/24）与 `iotsharp-lease-official-fault-pair-results.trx`（2/2）。
+- 对账入口 `GET /api/Edge/{id}/CollectionConfigVersions?sourceId=...`。直接保存允许调用方在请求中填全局唯一 `SourceId` 并据此查找，但该字段可空可重用，API 不保证以它幂等，重复发送可能产生另一版本。模板与 Release 还可按请求中的 TaskId 或已知计划 ID 查询。直接保存和模板仍忽略保留属性 `AttributeLatest` 的逐键准备错误，该检查与五表故障验证分别记录。正式包跨真实 IoTSharp 进程故障验证和准入尚未完成。
+- 构建均限制最多 2 个逻辑 CPU 与单 MSBuild 节点。Cordonix 已回收本轮任务进程。首轮容器 `183c9b859c80`、`c2cbf954ce3d` 与复测容器 `41892b6ad79a`、`c4b6a4f9bf27`、`e09290dc90dc`，以及故障用例容器 `a94b277c7d4f`、`1883dc165902` 已逐项查询确认不存在。25 项超时和故障定向测试的已记录进程也均已回收。CDX/TRX 回执和复现所需的隔离包目录保存在 `IoTSharp.Test/obj/issue425-official`。
+
 ## 2026-11-25（Asia/Shanghai）SonnetMQ 属性批处理与写入恢复
 
 - 属性消费继续每条消息调用一次 `SaveChanges`，统一由 SonnetDB 服务端、ADO.NET 和 EF Core provider 协商有序事务 DML 批处理。现有公开包版本沿用配置。隔离候选联调通过，测试逐条核对两条 QoS 1 消息的入队和消费位点，并在确认后读取属性值。

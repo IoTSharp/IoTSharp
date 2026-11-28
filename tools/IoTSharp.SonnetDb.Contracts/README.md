@@ -6,8 +6,8 @@
 
 ## 运行
 
-需要 .NET 10 和已经准备好的正式 `iotsharp/sonnetdb:5.0.0` 镜像。项目固定消费正式
-`SonnetDB 5.0.0`、`SonnetDB.EntityFrameworkCore 5.0.0` 与 EF Core `10.0.14`，禁用父目录构建及中央包配置继承。
+需要 .NET 10 和已准备好的匹配正式镜像。默认使用 `iotsharp/sonnetdb:5.0.0`，
+并精确引用 `SonnetDB 5.0.0`、`SonnetDB.EntityFrameworkCore 5.0.0` 与 EF Core `10.0.14`。项目隔离父目录构建及中央包配置。
 使用新缓存和目录，防止同版本本地候选包污染验证；保留下载来源和 nuspec 中的 source commit。
 
 在仓库根目录使用 PowerShell 7 执行：
@@ -21,6 +21,37 @@
 
 `--output` 必须是尚不存在的绝对路径。先执行 smoke，确认循环退出和资源回收，再执行完整套件。
 `--docker` 可指定本机 Docker CLI 的绝对路径，`--image` 可指定已存在的明确镜像；程序不会拉取或发布镜像。
+
+### 正式 5.2.0
+
+在 restore 和 build 同时指定 SonnetDB 5.2.0 与 EF Core 10.0.15，运行时使用同一提交发布的镜像摘要。以下命令在仓库根目录执行，包目录和回执目录都位于本工作树的 `obj` 下。
+
+```powershell
+$leaseDotnet = 'C:\Program Files\dotnet\dotnet.exe'
+$leaseProject = 'tools/IoTSharp.SonnetDb.Contracts/IoTSharp.SonnetDb.Contracts.csproj'
+$leaseAssembly = 'tools/IoTSharp.SonnetDb.Contracts/bin/Release/net10.0/IoTSharp.SonnetDb.Contracts.dll'
+$leaseConfig = 'tools/IoTSharp.SonnetDb.Contracts/nuget.config'
+$leaseResultRoot = Join-Path $PWD "obj/sonnetdb-contract-520-$([Guid]::NewGuid().ToString('N').Substring(0, 8))"
+$leasePackages = Join-Path $leaseResultRoot 'packages'
+$leaseImage = 'iotsharp/sonnetdb@sha256:bc0c473ba905d60c7d4db4f0d48b53dccb0069f31884a3d1ccadb5a2cc5da449'
+$leaseVersionArgs = @('-p:SonnetDbContractsPackageVersion=5.2.0', '-p:SonnetDbContractsEfCoreVersion=10.0.15')
+& $leaseDotnet restore $leaseProject --configfile $leaseConfig --packages $leasePackages --disable-parallel --no-http-cache -m:1 /nr:false @leaseVersionArgs
+if ($LASTEXITCODE -ne 0) { throw 'Restore failed' }
+& $leaseDotnet build $leaseProject -c Release --no-restore --disable-build-servers -m:1 -p:UseSharedCompilation=false @leaseVersionArgs
+if ($LASTEXITCODE -ne 0) { throw 'Build failed' }
+& $leaseDotnet $leaseAssembly --output (Join-Path $leaseResultRoot 'smoke') --smoke --image $leaseImage
+if ($LASTEXITCODE -ne 0) { throw 'Smoke probe failed' }
+& $leaseDotnet $leaseAssembly --output (Join-Path $leaseResultRoot 'full') --image $leaseImage
+```
+
+2026-11-28（Asia/Shanghai）正式 5.2.0 复验使用 .NET 10.0.15。包和镜像均来自
+`cbbe5ed2e64879ea6fb7650d1d7b3ff4eee2909d`。Smoke 为 1 PASS，完整矩阵为 14 PASS、2 FAIL、0 NOT_RUN，退出码为 1。
+两次运行均独立确认了测试容器的回收。回执保存在本工作树
+`obj/sonnetdb-contract-520-44089c3/{smoke,full}/results.json`。
+
+- **PASS** · 真实 REST 会话、五表原子提交、各保存阶段回滚、条件影响行数、错误 owner、部分取得的批次回滚、Serializable 竞争及有界重试。超时、断连、已知及未知提交响应、两种重启对账、旧服务端拒绝和 Frame 入口均通过。两次重启沿用原端口。
+- **FAIL** · ReadCommitted 反例中两个竞争事务都报告 `affected=1` 并提交。
+- **FAIL** · 预取消提交没有发送 commit 请求，五表业务记录和租约均未持久化。公开版客户端误报提交未知并结束本地事务，显式回滚被拒绝，服务端会话仍为 `active`。探针按已捕获的会话 ID 执行了测试资源清理。
 
 ## 验证内容与结论边界
 
