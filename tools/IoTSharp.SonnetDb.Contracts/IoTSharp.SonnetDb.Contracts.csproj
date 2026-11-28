@@ -13,12 +13,14 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <SonnetDbContractsPackageVersion Condition="'$(SonnetDbContractsPackageVersion)' == ''">5.0.0</SonnetDbContractsPackageVersion>
+    <SonnetDbContractsEfCoreVersion Condition="'$(SonnetDbContractsEfCoreVersion)' == ''">10.0.14</SonnetDbContractsEfCoreVersion>
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
-    <PackageReference Include="SonnetDB" Version="[5.0.0]" />
-    <PackageReference Include="SonnetDB.EntityFrameworkCore" Version="[5.0.0]" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="[10.0.14]" />
+    <PackageReference Include="SonnetDB" Version="[$(SonnetDbContractsPackageVersion)]" />
+    <PackageReference Include="SonnetDB.EntityFrameworkCore" Version="[$(SonnetDbContractsPackageVersion)]" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="[$(SonnetDbContractsEfCoreVersion)]" />
   </ItemGroup>
   <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
 </Project>
