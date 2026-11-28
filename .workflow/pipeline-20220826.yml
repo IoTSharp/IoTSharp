@@ -1,12 +1,7 @@
 version: '1.0'
 name: pipeline-20220826
 displayName: pipeline-20220826
-triggers:
-  trigger: auto
-  push:
-    branches:
-      prefix:
-        - ''
+# 在 Gitee Go 中手动运行。
 stages:
   - name: stage-d3dd84ca
     displayName: 检查

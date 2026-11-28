@@ -63,6 +63,7 @@ COPY ["${SOURCE_ROOT}/IoTSharp.Data.JsonDB/src/IoTSharp.Data.JsonDB/IoTSharp.Dat
 COPY ["${SOURCE_ROOT}/ClientApp/ClientApp.esproj", "ClientApp/"]
 
 ARG BUILD_CONFIGURATION=Release
+ARG APP_VERSION
 
 RUN dotnet restore "IoTSharp/IoTSharp.csproj"
 COPY ["${SOURCE_ROOT}/", "."]
@@ -70,7 +71,8 @@ WORKDIR /src/IoTSharp
 RUN dotnet build "IoTSharp/IoTSharp.csproj" --no-restore   -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "IoTSharp/IoTSharp.csproj" --no-restore   -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "IoTSharp/IoTSharp.csproj" --no-restore -c "$BUILD_CONFIGURATION" -o /app/publish /p:UseAppHost=false \
+    ${APP_VERSION:+-p:Version="$APP_VERSION"} ${APP_VERSION:+-p:AssemblyVersion="$APP_VERSION"} ${APP_VERSION:+-p:FileVersion="$APP_VERSION"}
 RUN dotnet run --file tools/VerifyCaptchaResources.cs -- /app/publish/IoTSharp.dll
 
 FROM base AS final

@@ -26,6 +26,7 @@
     <File Path=".github/workflows/docs-deploy.yml" />
     <File Path=".github/workflows/dotnet-build.yml" />
     <File Path=".github/workflows/dotnet-publish.yml" />
+    <File Path=".github/workflows/full-ci.yml" />
     <File Path=".github/workflows/nodejsbuild.yml" />
   </Folder>
   <Folder Name="/3.SDKs/">

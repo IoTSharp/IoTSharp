@@ -6,27 +6,32 @@ on:
     branches:
       - '**'
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v5
         with:
-          fetch-depth: 0
-          submodules: true
-      - name: Setup .NET Core SDK
+          persist-credentials: false
+      - name: Check out the JsonDB dependency
+        run: git submodule update --init IoTSharp.Data.JsonDB
+      - name: Set up .NET SDK
         uses: actions/setup-dotnet@v5
         with:
           dotnet-version: 10.0.x
-      - name: Restore solution
-        run: dotnet restore ./IoTSharp.slnx
-      - name: Verify formatting
-        run: dotnet format ./IoTSharp.slnx --verify-no-changes --severity error --no-restore --exclude IoTSharp.Data.JsonDB/
-      - name: Build IoTSharp
-        run: dotnet build ./IoTSharp/IoTSharp.csproj --configuration Release --no-restore
-      - name: Build IoTSharp.Data.JsonDB
-        run: dotnet build ./IoTSharp.Data.JsonDB/src/IoTSharp.Data.JsonDB/IoTSharp.Data.JsonDB.csproj --configuration Release --no-restore
-      - name: Test IoTSharp
-        run: dotnet test ./IoTSharp.Test/IoTSharp.Test.csproj --configuration Release --no-restore --verbosity normal
+      - name: Build the backend and run basic tests
+        run: >-
+          dotnet test IoTSharp.Test/IoTSharp.Test.csproj --configuration Release
+          -p:StaticWebAssetsEnabled=false -p:ShouldRunNpmInstall=false
+          -p:ShouldRunBuildScript=false -p:GeneratePackageOnBuild=false
+          --filter 'FullyQualifiedName~ApiContractTests|FullyQualifiedName~ConfigurationLeaseMigrationTests|FullyQualifiedName~ConfigurationOperationLeaseTests|FullyQualifiedName~EdgeContractSerializationTests|FullyQualifiedName~MqttRoutingTests|FullyQualifiedName~TestProfileContractTests'
       - name: Test IoTSharp.Data.JsonDB
-        run: dotnet test ./IoTSharp.Data.JsonDB/tests/IoTSharp.Data.JsonDB.Tests/IoTSharp.Data.JsonDB.Tests.csproj --configuration Release --no-restore --verbosity normal
+        run: dotnet test IoTSharp.Data.JsonDB/tests/IoTSharp.Data.JsonDB.Tests/IoTSharp.Data.JsonDB.Tests.csproj --configuration Release

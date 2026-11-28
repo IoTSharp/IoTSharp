@@ -47,12 +47,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
+      - name: Check out the JsonDB dependency
+        run: git submodule update --init IoTSharp.Data.JsonDB
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-          cache-dependency-path: ClientApp/package-lock.json
 
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v5
@@ -98,6 +99,8 @@ jobs:
             "/p:Version=$env:RELEASE_VERSION",
             "/p:PackageVersion=$env:RELEASE_VERSION",
             "/p:InformationalVersion=$env:RELEASE_VERSION",
+            "/p:AssemblyVersion=$env:MSI_VERSION",
+            "/p:FileVersion=$env:MSI_VERSION",
             "/p:SetupProductVersion=$env:MSI_VERSION",
             "/p:PackageDir=$packageDir\\",
             "/p:ZipPath=$zipPath",
@@ -140,12 +143,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
+      - name: Check out the JsonDB dependency
+        run: git submodule update --init IoTSharp.Data.JsonDB
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-          cache-dependency-path: ClientApp/package-lock.json
 
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v5
@@ -160,6 +164,7 @@ jobs:
         env:
           NODE_OPTIONS: --openssl-legacy-provider
           RELEASE_VERSION: ${{ needs.prepare.outputs.release_version }}
+          FILE_VERSION: ${{ needs.prepare.outputs.msi_version }}
           PACKAGE_SUFFIX: ${{ matrix.package_suffix }}
           PACKAGE_EXTENSION: ${{ matrix.package_extension }}
           PACKAGE_ARCH_PROPERTY: ${{ matrix.package_arch_property }}
@@ -180,6 +185,8 @@ jobs:
             "/p:Version=${RELEASE_VERSION}"
             "/p:PackageVersion=${RELEASE_VERSION}"
             "/p:InformationalVersion=${RELEASE_VERSION}"
+            "/p:AssemblyVersion=${FILE_VERSION}"
+            "/p:FileVersion=${FILE_VERSION}"
             "/p:PackageName=${PACKAGE_BASENAME}"
             "/p:PackageDir=${PACKAGE_DIR}/"
             "/p:${PACKAGE_ARCH_PROPERTY}=${PACKAGE_ARCH_VALUE}"
@@ -202,12 +209,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
+      - name: Check out the JsonDB dependency
+        run: git submodule update --init IoTSharp.Data.JsonDB
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-          cache-dependency-path: ClientApp/package-lock.json
 
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v5
@@ -222,6 +230,7 @@ jobs:
         env:
           NODE_OPTIONS: --openssl-legacy-provider
           RELEASE_VERSION: ${{ needs.prepare.outputs.release_version }}
+          FILE_VERSION: ${{ needs.prepare.outputs.msi_version }}
         run: |
           PACKAGE_DIR="${RUNNER_TEMP}/packages/macos"
           TARBALL_PATH="${PACKAGE_DIR}/IoTSharp-${RELEASE_VERSION}-osx-x64.tar.gz"
@@ -236,6 +245,8 @@ jobs:
             "/p:Version=${RELEASE_VERSION}" \
             "/p:PackageVersion=${RELEASE_VERSION}" \
             "/p:InformationalVersion=${RELEASE_VERSION}" \
+            "/p:AssemblyVersion=${FILE_VERSION}" \
+            "/p:FileVersion=${FILE_VERSION}" \
             "/p:PackageDir=${PACKAGE_DIR}/" \
             "/p:TarballPath=${TARBALL_PATH}"
 

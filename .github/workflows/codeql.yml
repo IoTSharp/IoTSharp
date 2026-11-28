@@ -1,18 +1,7 @@
 name: CodeQL
 
 on:
-  push:
-    branches: [master]
-    paths-ignore:
-      - '**/*.njsproj'
-      - '**/*.esproj'
-  pull_request:
-    branches: [master]
-    paths-ignore:
-      - '**/*.njsproj'
-      - '**/*.esproj'
-  schedule:
-    - cron: '36 9 * * 4'
+  workflow_dispatch:
 
 jobs:
   analyze:

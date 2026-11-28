@@ -19,6 +19,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
+      - name: Resolve image version
+        id: version
+        shell: bash
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          if [[ ! "${VERSION}" =~ ^[0-9]+\.[0-9]+\.[0-9]+(\.[0-9]+)?$ ]]; then
+            echo "Release tags must follow v<major>.<minor>.<patch> or v<major>.<minor>.<patch>.<revision>." >&2
+            exit 1
+          fi
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+
+      - name: Check out the JsonDB dependency
+        run: git submodule update --init IoTSharp.Data.JsonDB
+
       - name: Validate Docker Hub secrets
         shell: bash
         env:
@@ -70,5 +84,6 @@ jobs:
           file: IoTSharp/Dockerfile
           push: true
           platforms: linux/amd64,linux/arm64
+          build-args: APP_VERSION=${{ steps.version.outputs.version }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

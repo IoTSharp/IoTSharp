@@ -1,0 +1,40 @@
+name: Full .NET CI
+
+on:
+  workflow_dispatch:
+    inputs:
+      sonnetdb_acceptance:
+        description: Run the SonnetDB lease qualification and existing database upgrade tests
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - name: Check out the JsonDB dependency
+        run: git submodule update --init IoTSharp.Data.JsonDB
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Restore solution
+        run: dotnet restore IoTSharp.slnx
+      - name: Run the platform test suite
+        env:
+          IOTSHARP_SONNETDB_LEASE_QUALIFICATION: ${{ inputs.sonnetdb_acceptance && '1' || '0' }}
+          IOTSHARP_SONNETDB_UPGRADE_ACCEPTANCE: ${{ inputs.sonnetdb_acceptance && '1' || '0' }}
+        run: dotnet test IoTSharp.Test/IoTSharp.Test.csproj --configuration Release --no-restore
+      - name: Test IoTSharp.Data.JsonDB
+        run: dotnet test IoTSharp.Data.JsonDB/tests/IoTSharp.Data.JsonDB.Tests/IoTSharp.Data.JsonDB.Tests.csproj --configuration Release --no-restore
+      - name: Verify formatting
+        run: dotnet format IoTSharp.slnx --verify-no-changes --severity error --no-restore --exclude IoTSharp.Data.JsonDB/

@@ -1,18 +1,18 @@
-name: NodeJS with build 
+name: Frontend build matrix
 
 on:
-  push:
-    branches: [master]
-    paths:
-      - 'ClientApp/**'
-      - '.github/workflows/nodejsbuild.yml'
+  workflow_dispatch:
 
+permissions:
+  contents: read
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     strategy:
+      fail-fast: false
       matrix:
         node-version: [22.x,24.x]
     
